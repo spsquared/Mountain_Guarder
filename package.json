@@ -1,0 +1,31 @@
+{
+  "name": "mountain_guarder",
+  "version": "0.0.1",
+  "description": "Meadow Guarder's sister game!",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/definitely-nobody-is-here/Mountain_Guarder.git"
+  },
+  "keywords": [
+    "nodejs",
+    "rpg",
+    "multiplayer",
+    "browser-game",
+    "meadowguarder",
+    "mountainguarder"
+  ],
+  "author": "Radioactive64",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues"
+  },
+  "homepage": "https://github.com/definitely-nobody-is-here/Mountain_Guarder#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "socket.io": "^4.1.3"
+  }
+}
