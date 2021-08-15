@@ -44,7 +44,8 @@ If you can't resolve your problem after trying these solutions or your problem i
 
 | Version | Changes                      |
 | ------- | ---------------------------- |
-| v0.0.1  | <ul><li>Added base game functionality</li></ul> |
+| 0.0.1   | <ul><li>Added base game functionality</li></ul> |
+| 0.0.2   | <ul><li>Added collisions</li></ul> |
 
 ***
 
@@ -71,4 +72,4 @@ Full license can be found in the LICENSE file.
 
 ## Want to Contribute?
 
-If you would like to contribute to this game, visit the [Github](https://github.com/definitely-nobody-is-here/Mountain_Guarder) where you can send a pull request with an application request stating your reason to create a pull request in the "comments" section along with it. If you would like to submit a suggestion then too bad there's no suggestion form. Please refrain from modifying any code that is related to the database, global data structure, or encryption. Modifying such code may and can result in: Account and/or database corruption; data loss; violation of the security policy.
+If you would like to contribute to this game, visit the [Github](https://github.com/definitely-nobody-is-here/Mountain_Guarder) where you can send a pull request with an application request stating your reason to create a pull request in the "comments" section along with it. If you would like to submit a suggestion then too bad there's no suggestion form. The database is NOT publicly accessible for this game. You will have to make your own.

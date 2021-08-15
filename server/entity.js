@@ -10,24 +10,100 @@ Entity = function() {
         yspeed: 0,
         lastx: 0,
         lasty: 0,
+        gridx: 0,
+        gridy: 0,
         maxspeed: 0,
-        width: 0,
-        height: 0,
-        map: null
+        width: 16,
+        height: 16,
+        map: "The Village"
     };
 
     self.update = function() {
         self.updatePos();
-        self.collide();
     };
     self.updatePos = function() {
-        self.x += self.xspeed;
-        self.y += self.yspeed;
-        self.lastx = self.x;
-        self.lasty = self.y;
+        self.collide();
     };
     self.collide = function() {
-        // waiting on finished collision engine and testing
+        var reachedx = false;
+        var reachedy = false;
+        var xdir = 0;
+        var ydir = 0;
+        var xtravel = 0;
+        var ytravel = 0;
+        if (self.xspeed < 0) {
+            xdir = -1;
+        }
+        if (self.yspeed < 0) {
+            ydir = -1;
+        }
+        if (self.xspeed > 0) {
+            xdir = 1;
+        }
+        if (self.yspeed > 0) {
+            ydir = 1;
+        }
+        while (!reachedx || !reachedy) {
+            if (xtravel >= Math.abs(self.xspeed)) reachedx = true;
+            if (ytravel >= Math.abs(self.yspeed)) reachedy = true;
+            self.lastx = self.x;
+            self.lasty = self.y;
+            self.x += xdir;
+            self.y += ydir;
+            self.gridx = Math.floor(self.x/64);
+            self.gridy = Math.floor(self.y/64);
+            self.checkCollision();
+            xtravel++;
+            ytravel++;
+        }
+    };
+    self.checkCollision = function() {
+        var collisions = [];
+        if (Collision.list[self.map][self.gridy]) if (Collision.list[self.map][self.gridy][self.gridx]) {
+            collisions.push(Collision.getType(self.map, self.gridx, self.gridy));
+        }
+        if (Collision.list[self.map][self.gridy-1]) if (Collision.list[self.map][self.gridy-1][self.gridx]) {
+            collisions.push(Collision.getType(self.map, self.gridx, self.gridy-1));
+        }
+        if (Collision.list[self.map][self.gridy+1]) if (Collision.list[self.map][self.gridy+1][self.gridx]) {
+            collisions.push(Collision.getType(self.map, self.gridx, self.gridy+1));
+        }
+        if (Collision.list[self.map][self.gridy]) if (Collision.list[self.map][self.gridy][self.gridx-1]) {
+            collisions.push(Collision.getType(self.map, self.gridx-1, self.gridy));
+        }
+        if (Collision.list[self.map][self.gridy]) if (Collision.list[self.map][self.gridy][self.gridx+1]) {
+            collisions.push(Collision.getType(self.map, self.gridx+1, self.gridy));
+        }
+        for (var i in collisions) {
+            for (var j in collisions[i]) {
+                if (self.collideWith(collisions[i][j])) {
+                    var x = self.x;
+                    self.x = self.lastx;
+                    if (self.collideWith(collisions[i][j])) {
+                        self.x = x;
+                        self.y = self.lasty;
+                        if (self.collideWith(collisions[i][j])) {
+                            self.x = self.lastx;
+                            self.y = self.lasty;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    self.collideWith = function(entity) {
+        var bound1left = self.x-(self.width/2);
+        var bound1right = self.x+(self.width/2);
+        var bound1top = self.y-(self.height/2);
+        var bound1bottom = self.y+(self.height/2); 
+        var bound2left = entity.x-(entity.width/2);
+        var bound2right = entity.x+(entity.width/2);
+        var bound2top = entity.y-(entity.height/2);
+        var bound2bottom = entity.y+(entity.height/2);
+        if (entity.map == self.map && bound1left < bound2right && bound1right >= bound2left && bound1top <= bound2bottom && bound1bottom >= bound2top) {
+            return true;
+        }
+        return false;
     };
     self.getInit = function() {
         // todo
@@ -52,17 +128,16 @@ Rig = function() {
         level: 0,
         isplaceholder: true
     };
-    self.maxspeed = 10;
+    self.maxspeed = 20;
     self.alive = true;
     self.updatePos = function() {
         self.xspeed = 0;
         self.yspeed = 0;
-        if (self.keys.up) self.y -= self.maxspeed;
-        if (self.keys.down) self.y += self.maxspeed;
-        if (self.keys.left) self.x -= self.maxspeed;
-        if (self.keys.right) self.x += self.maxspeed;
-        self.lastx = self.x;
-        self.lasty = self.y;
+        if (self.keys.up) self.yspeed = -self.maxspeed;
+        if (self.keys.down) self.yspeed = self.maxspeed;
+        if (self.keys.left) self.xspeed = -self.maxspeed;
+        if (self.keys.right) self.xspeed = self.maxspeed;
+        self.collide();
     };
 
     return self;

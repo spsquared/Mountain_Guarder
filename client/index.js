@@ -26,7 +26,7 @@ function resetCanvases() {
     LAYERS.eupper.scale(dpr, dpr);
     CTXRAW.width = window.innerWidth;
     CTXRAW.height = window.innerHeight;
-    CTX.scale(dpr, dpr);
+    // CTX.scale(dpr, dpr);
     CTX.imageSmoothingEnabled = false;
     CTX.webkitImageSmoothingEnabled = false;
     CTX.mozImageSmoothingEnabled = false;

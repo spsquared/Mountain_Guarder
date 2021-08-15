@@ -69,13 +69,12 @@ Player = function(id) {
     self.animations.drawImage(badImage, 0, 0);
 
     self.draw = function () {
-        CTX.drawImage(badImage, self.animationStage*8, 0, 8, 16, self.x-4, self.y-8, 8, 16);
+        CTX.drawImage(badImage, self.animationStage*8, 0, 8, 16, self.x-16, self.y-48, 32, 64);
         if (self.interpolationStage < 4) {
             self.x += self.xspeed;
             self.y += self.yspeed;
             self.interpolationStage++;
         }
-        // CTX.drawImage(self.animationsCanvas, self.animationStage*8, 0, 8, 16, self.x-4, self.y-8, 8, 16);
     };
 
     Player.list[self.id] = self;

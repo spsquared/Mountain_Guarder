@@ -28,8 +28,9 @@ setInterval(function() {
     if (player) {
         CTX.clearRect(0, 0, window.innerWidth, window.innerHeight);
         CTX.save();
-        CTX.translate((window.innerWidth/2/dpr)-player.x,(window.innerHeight/2/dpr)-player.y);
-        CTX.drawImage(MAPS['test'], 0, 0, 800, 800);
+        // CTX.translate((window.innerWidth/2/dpr)-player.x,(window.innerHeight/2/dpr)-player.y);
+        CTX.translate((window.innerWidth/2)-player.x,(window.innerHeight/2)-player.y);
+        CTX.drawImage(MAPS['test'], 0, 0, 3200, 3200);
         Player.draw();
         CTX.restore();
     }
