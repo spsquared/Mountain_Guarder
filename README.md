@@ -46,6 +46,7 @@ If you can't resolve your problem after trying these solutions or your problem i
 | ------- | ---------------------------- |
 | 0.0.1   | <ul><li>Added base game functionality</li></ul> |
 | 0.0.2   | <ul><li>Added collisions</li></ul> |
+| 0.0.3   | <ul><li>Add projectiles (no textures)</li><li>Fix heroku deploy</li><li>Add monster code</li><li>Add issue templates</li></ul> |
 
 ***
 

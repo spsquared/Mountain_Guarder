@@ -51,15 +51,8 @@ Collision = function(map, x, y, type) {
     }
     Collision.list[map][y][x] = coltype;
 };
-Collision.getType = function(map, x, y) {
+Collision.getColEntity = function(map, x, y) {
     var collision = [];
-    collision[0] = {
-        map: map,
-        x: x*64,
-        y: y*64,
-        width: 64,
-        height: 64
-    };
     switch (Collision.list[map][y][x]) {
         case 0:
             break;

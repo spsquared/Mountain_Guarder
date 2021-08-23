@@ -12,10 +12,10 @@ Entity = function() {
         lasty: 0,
         gridx: 0,
         gridy: 0,
-        maxspeed: 0,
+        moveSpeed: 0,
         width: 16,
         height: 16,
-        map: "The Village"
+        map: null
     };
 
     self.update = function() {
@@ -60,31 +60,37 @@ Entity = function() {
     self.checkCollision = function() {
         var collisions = [];
         if (Collision.list[self.map][self.gridy]) if (Collision.list[self.map][self.gridy][self.gridx]) {
-            collisions.push(Collision.getType(self.map, self.gridx, self.gridy));
+            collisions.push(Collision.getColEntity(self.map, self.gridx, self.gridy));
         }
         if (Collision.list[self.map][self.gridy-1]) if (Collision.list[self.map][self.gridy-1][self.gridx]) {
-            collisions.push(Collision.getType(self.map, self.gridx, self.gridy-1));
+            collisions.push(Collision.getColEntity(self.map, self.gridx, self.gridy-1));
         }
         if (Collision.list[self.map][self.gridy+1]) if (Collision.list[self.map][self.gridy+1][self.gridx]) {
-            collisions.push(Collision.getType(self.map, self.gridx, self.gridy+1));
+            collisions.push(Collision.getColEntity(self.map, self.gridx, self.gridy+1));
         }
         if (Collision.list[self.map][self.gridy]) if (Collision.list[self.map][self.gridy][self.gridx-1]) {
-            collisions.push(Collision.getType(self.map, self.gridx-1, self.gridy));
+            collisions.push(Collision.getColEntity(self.map, self.gridx-1, self.gridy));
         }
         if (Collision.list[self.map][self.gridy]) if (Collision.list[self.map][self.gridy][self.gridx+1]) {
-            collisions.push(Collision.getType(self.map, self.gridx+1, self.gridy));
+            collisions.push(Collision.getColEntity(self.map, self.gridx+1, self.gridy));
         }
         for (var i in collisions) {
             for (var j in collisions[i]) {
                 if (self.collideWith(collisions[i][j])) {
                     var x = self.x;
+                    var xspeed = self.xspeed;
                     self.x = self.lastx;
+                    self.xspeed = 0;
                     if (self.collideWith(collisions[i][j])) {
                         self.x = x;
+                        self.xspeed = xspeed;
                         self.y = self.lasty;
+                        self.yspeed = 0;
                         if (self.collideWith(collisions[i][j])) {
                             self.x = self.lastx;
+                            self.xspeed = 0;
                             self.y = self.lasty;
+                            self.yspeed = 0;
                         }
                     }
                 }
@@ -105,11 +111,33 @@ Entity = function() {
         }
         return false;
     };
-    self.getInit = function() {
-        // todo
-    };
     
     return self;
+};
+Entity.update = function() {
+    var pack1 = Player.update();
+    var pack2 = Npc.update();
+    var pack3 = Projectile.update();
+    var pack4 = Monster.update();
+    var pack = {
+        players: [],
+        monsters: [],
+        projectiles: []
+    };
+    for (var i in pack1) {
+        pack.players[i] = pack1[i];
+    }
+    for (var i in pack2) {
+        pack.players[i] = pack2[i];
+    }
+    for (var i in pack3) {
+        pack.projectiles[i] = pack3[i];
+    }
+    for (var i in pack4) {
+        pack.monsters[i] = pack4[i];
+    }
+
+    return pack;
 };
 
 // rigs
@@ -121,22 +149,32 @@ Rig = function() {
         left: false,
         right: false
     };
+    self.moveSpeed = 20;
     self.stats = {
-        hp: 0,
-        xp: 0,
-        mana: 0,
-        level: 0,
-        isplaceholder: true
+        attack: 1,
+        defense: 0,
+        damageReduction: 0,
+        heal: 1,
+        speed: 1,
+        range: 1,
+        critChance: 0
     };
-    self.maxspeed = 20;
+    self.hp = 0;
     self.alive = true;
+
+    self.update = function() {
+        self.updatePos();
+        if (self.hp < 1) {
+            self.alive = false;
+        }
+    };
     self.updatePos = function() {
         self.xspeed = 0;
         self.yspeed = 0;
-        if (self.keys.up) self.yspeed = -self.maxspeed;
-        if (self.keys.down) self.yspeed = self.maxspeed;
-        if (self.keys.left) self.xspeed = -self.maxspeed;
-        if (self.keys.right) self.xspeed = self.maxspeed;
+        if (self.keys.up) self.yspeed = -self.moveSpeed;
+        if (self.keys.down) self.yspeed = self.moveSpeed;
+        if (self.keys.left) self.xspeed = -self.moveSpeed;
+        if (self.keys.right) self.xspeed = self.moveSpeed;
         self.collide();
     };
 
@@ -171,6 +209,8 @@ Npc.list = [];
 Player = function(socket) {
     var self = new Rig();
     self.id = Math.random();
+    
+    self.map = 'The Village';
 
     socket.on('keyPress', function(data) {
         if (data.key == 'up') self.keys.up = data.state;
@@ -199,12 +239,41 @@ Player.update = function() {
 Player.list = [];
 
 // monsters
-Monster = function(type, x, y) {
+Monster = function(type, x, y, map) {
     var self = new Rig();
     self.id = Math.random();
-    self.type = type;
+    self.x = x;
+    self.y = y;
+    self.map = map;
+    self.ai = {
+        aggroTarget: null,
+        attackType: 'none',
+        idleMove: 'random',
+
+    };
+    for (var mtype in Monster.types) {
+        if (type == mtype) {
+            var tempmonster = Monster.types[mtype];
+            self.type = type;
+            self.stats = tempmonster.stats;
+            self.moveSpeed = tempmonster.moveSpeed;
+            self.width = tempmonster.width;
+            self.height = tempmonster.height;
+            self.hp = tempmonster.hp
+        }
+    }
+
+    self.update = function() {
+        if (self.hp < 1) {
+            self.alive = false;
+        }
+    };
+    self.updateAggro = function() {
+        // find player with lowest distance
+    };
 
     Monster.list[self.id] = self;
+    return self;
 };
 Monster.update = function() {
     var pack = [];
@@ -213,7 +282,6 @@ Monster.update = function() {
         localmonster.update();
         pack.push({
             id: localmonster.id,
-            type: localmonster.type,
             map: localmonster.map,
             x: localmonster.x,
             y: localmonster.y
@@ -221,20 +289,57 @@ Monster.update = function() {
     }
     return pack;
 };
+Monster.types = require('./monster.json');
 Monster.list = [];
 
 // projectiles
-Projectile = function(type, x, y, angle) {
+Projectile = function(type, x, y, map, mousex, mousey) {
     var self = new Entity();
     self.id = Math.random();
     self.type = type;
     self.x = x;
     self.y = y;
-    self.angle = angle*(180/Math.PI);
-    self.xspeed = Math.cos(angle)*20;
-    self.yspeed = Math.sin(angle)*20;
+    self.map = map;
+    self.angle = Math.atan2(-(y-mousey), -(x-mousex));
+    self.xspeed = Math.cos(self.angle)*20;
+    self.yspeed = Math.sin(self.angle)*20;
     self.width = 16;
     self.height = 32;
+
+    self.update = function() {
+        self.updatePos();
+        for (var i in Player.list) {
+            if (self.collideWith(Player.list[i])) {
+                Player.list[i].hp = 0;
+                delete Projectile.list[self.id];
+            }
+        }
+    };
+    self.checkCollision = function() {
+        var collisions = [];
+        if (Collision.list[self.map][self.gridy]) if (Collision.list[self.map][self.gridy][self.gridx]) {
+            collisions.push(Collision.getColEntity(self.map, self.gridx, self.gridy));
+        }
+        if (Collision.list[self.map][self.gridy-1]) if (Collision.list[self.map][self.gridy-1][self.gridx]) {
+            collisions.push(Collision.getColEntity(self.map, self.gridx, self.gridy-1));
+        }
+        if (Collision.list[self.map][self.gridy+1]) if (Collision.list[self.map][self.gridy+1][self.gridx]) {
+            collisions.push(Collision.getColEntity(self.map, self.gridx, self.gridy+1));
+        }
+        if (Collision.list[self.map][self.gridy]) if (Collision.list[self.map][self.gridy][self.gridx-1]) {
+            collisions.push(Collision.getColEntity(self.map, self.gridx-1, self.gridy));
+        }
+        if (Collision.list[self.map][self.gridy]) if (Collision.list[self.map][self.gridy][self.gridx+1]) {
+            collisions.push(Collision.getColEntity(self.map, self.gridx+1, self.gridy));
+        }
+        for (var i in collisions) {
+            for (var j in collisions[i]) {
+                if (self.collideWith(collisions[i][j])) {
+                    delete Projectile.list[self.id];
+                }
+            }
+        }
+    };
     
     Projectile.list[self.id] = self;
     return self;

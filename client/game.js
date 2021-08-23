@@ -27,18 +27,17 @@ function drawLayers(json) {
 setInterval(function() {
     if (player) {
         CTX.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        CTX.drawImage(MAPS['test'], player.x-window.innerWidth/2, player.y-window.innerHeight/2, window.innerWidth, window.innerHeight, 0, 0, window.innerWidth, window.innerHeight);
         CTX.save();
-        // CTX.translate((window.innerWidth/2/dpr)-player.x,(window.innerHeight/2/dpr)-player.y);
         CTX.translate((window.innerWidth/2)-player.x,(window.innerHeight/2)-player.y);
-        CTX.drawImage(MAPS['test'], 0, 0, 3200, 3200);
-        Player.draw();
+        Entity.draw();
         CTX.restore();
     }
 }, 1000/60);
 
 // update ticks
 socket.on('updateTick', function(data) {
-    Player.update(data.players);
+    Entity.update(data);
     player = Player.list[playerid];
 });
 document.onkeydown = function(e) {
@@ -71,10 +70,13 @@ document.onkeyup = function(e) {
 };
 
 
-MAPS['test'] = new Image();
-MAPS['test'].src = './client/maps/The Village.png';
-// MAPS['test'].width *= 4;
-// MAPS['test'].height *= 4;
+MAPS['test'] = new OffscreenCanvas(3200, 3200);
+var tempimage = new Image();
+tempimage.src = './client/maps/The Village.png';
+tempimage.onload = function() {
+    resetCanvas(MAPS['test']);
+    MAPS['test'].getContext('2d').drawImage(tempimage, 0, 0, 3200, 3200);
+}
 
 // player wierdness
 socket.on('self', function(id) {

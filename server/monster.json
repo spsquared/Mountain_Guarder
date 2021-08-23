@@ -1,0 +1,48 @@
+{
+    "greenbird": {
+        "spawnChance": 0.2,
+        "width": 44,
+        "height": 40,
+        "attackType": "bird",
+        "aggroRange": 8,
+        "boss": false,
+        "idle": "random",
+        "hp": 35,
+        "moveSpeed": 5,
+        "stats": {
+            "attack": 5,
+            "defense": 0,
+            "damageReduction": 0,
+            "heal": 0,
+            "speed": 1,
+            "range": 1,
+            "critChance": 0
+        },
+        "drops": {
+            "to be determined": 0
+        }
+    },
+    "bluebird": {
+        "spawnChance": 0.2,
+        "width": 44,
+        "height": 40,
+        "attackType": "bird",
+        "aggroRange": 8,
+        "boss": false,
+        "idle": "random",
+        "hp": 35,
+        "moveSpeed": 5,
+        "stats": {
+            "attack": 5,
+            "defense": 0,
+            "damageReduction": 0,
+            "heal": 0,
+            "speed": 1,
+            "range": 1,
+            "critChance": 0
+        },
+        "drops": {
+            "to be determined": 0
+        }
+    }
+}
