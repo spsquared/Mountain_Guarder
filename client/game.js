@@ -68,6 +68,18 @@ document.onkeyup = function(e) {
         socket.emit('keyPress', {key:'right', state:false});
     }
 };
+document.onmousedown = function(e) {
+    switch (e.button) {
+        case 0:
+            socket.emit('click', {button:'left', x:e.clientX+player.x-window.innerWidth/2, y:e.clientY+player.y-window.innerHeight/2});
+            shooting = true;
+            break;
+        case 2:
+            socket.emit('click', {button:'right', x:e.clientX+player.x-window.innerWidth/2, y:e.clientY+player.y-window.innerHeight/2});
+            shooting = true;
+            break;
+    }
+}
 
 
 MAPS['test'] = new OffscreenCanvas(3200, 3200);

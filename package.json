@@ -1,11 +1,10 @@
 {
   "name": "mountain_guarder",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Meadow Guarder's sister game!",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node app.js"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
@@ -27,6 +26,7 @@
   "homepage": "https://github.com/definitely-nobody-is-here/Mountain_Guarder#readme",
   "dependencies": {
     "express": "^4.17.1",
+    "pathfinding": "^0.4.18",
     "socket.io": "^4.1.3"
   }
 }

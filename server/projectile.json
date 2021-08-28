@@ -1,0 +1,9 @@
+{
+    "arrow": {
+        "width": 20,
+        "height": 20,
+        "speed": 40,
+        "pattern": "none",
+        "damage": 5
+    }
+}

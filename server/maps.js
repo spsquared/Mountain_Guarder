@@ -1,9 +1,13 @@
+// Copyright (C) 2021 Radioactive64
+
 function loadMap(name) {
     Collision.list[name] = [];
     var raw = require('./../client/maps/' + name + '.json');
     for (var i in raw.layers) {
         if (raw.layers[i].name == 'Collision') {
             var rawlayer = raw.layers[i];
+            Collision.list[name].width = rawlayer.width;
+            Collision.list[name].height = rawlayer.height;
             for (var y = 0; y < rawlayer.height; y++) {
                 Collision.list[name][y] = [];
             }

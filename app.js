@@ -13,7 +13,7 @@ app.get('/', function(req, res) {res.sendFile(__dirname + '/client/index.html');
 app.use('/client',express.static(__dirname + '/client'));
 
 // start server
-MAPS = [];
+require('./server/log.js');
 require('./server/collision.js');
 require('./server/entity.js');
 require('./server/maps.js');
@@ -22,7 +22,8 @@ if (process.env.PORT) {
     server.listen(process.env.PORT);
 } else {
     server.listen(4000);
-    console.info('\x1b[33m%s\x1b[0m', 'Server started on port 4000');
+    logColor('Server started on port 4000', '\x1b[32m', 'log');
+    log('---------------------------');
 }
 
 SOCKET_LIST = [];
@@ -39,20 +40,23 @@ io.on('connection', function(socket) {
     });
 });
 
-// Console inputs
+// console inputs
 prompt.on('line', async function(input) {
     try {
+        appendLog(input, 'log');
         var command = Function('return (' + input + ')')();
         var msg = await command;
         if (msg == undefined) {
             msg = 'Successfully executed command';
         }
-        console.log(msg);
+        logColor(msg, '\x1b[33m', 'log');
     } catch (err) {
-        console.error(err);
+        error('ERROR: "' + input + '" is not a valid input.');
+        error(err);
     }
 });
 prompt.on('close', function() {
+    appendLog('----------------------------------------');
     process.exit();
 });
 

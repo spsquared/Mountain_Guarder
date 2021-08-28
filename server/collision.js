@@ -1,7 +1,10 @@
+// Copyright (C) 2021 Radioactive64
+
 Collision = function(map, x, y, type) {
     var coltype = 0;
     switch (type) {
         case -1:
+            coltype = 0;
             break;
         case 2121:
             coltype = 1;

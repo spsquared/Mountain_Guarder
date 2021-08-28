@@ -47,6 +47,7 @@ If you can't resolve your problem after trying these solutions or your problem i
 | 0.0.1   | <ul><li>Added base game functionality</li></ul> |
 | 0.0.2   | <ul><li>Added collisions</li></ul> |
 | 0.0.3   | <ul><li>Add projectiles (no textures)</li><li>Fix heroku deploy</li><li>Add monster code</li><li>Add issue templates</li></ul> |
+| 0.0.4   | <ul><li>Add monsters (they follow you around)</li><li>Players and monsters can shoot arrows</li><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/2" target="_blank">Fixed getting stuck in corners of collisions (Issue #2)</a></li><li>Fixed other collision issues</li><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/4" target="_blank">Fixed heroku deploy again (Issue #4)</a></li></ul> |
 
 ***
 

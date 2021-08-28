@@ -1,5 +1,8 @@
 // Copyright (C) 2021 Radioactive64
 
+$.ajaxSetup({cache: true, async:false});
+
+// canvas scaling and pixelation
 var dpr = 1;
 if (window.devicePixelRatio) {
     dpr = window.devicePixelRatio;
@@ -42,3 +45,12 @@ function resetCanvases() {
     }
 };
 resetCanvases();
+
+// random preventions
+document.querySelectorAll("input").forEach(function(item) {if (item.type != 'text' && item.type != 'password') {item.addEventListener('focus', function() {this.blur();});}});
+document.querySelectorAll("button").forEach(function(item) {item.addEventListener('focus', function() {this.blur();});});
+document.addEventListener('contextmenu', function(e) {e.preventDefault()});
+
+window.onerror = function() {
+    // insert to chat
+}

@@ -1,0 +1,32 @@
+{
+    "greenbird": {
+        "width": 44,
+        "height": 52,
+        "rawWidth": 11,
+        "rawHeight": 13
+    },
+    "bluebird": {
+        "width": 44,
+        "height": 52,
+        "rawWidth": 11,
+        "rawHeight": 13
+    },
+    "snowbird": {
+        "width": 44,
+        "height": 52,
+        "rawWidth": 11,
+        "rawHeight": 13
+    },
+    "redCherryBomb": {
+        "width": 48,
+        "height": 40,
+        "rawWidth": 12,
+        "rawHeight": 10
+    },
+    "cherryBombExplosion": {
+        "width": 64,
+        "height": 64,
+        "rawwidth": 16,
+        "rawheight": 16
+    }
+}
