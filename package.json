@@ -1,10 +1,10 @@
 {
   "name": "mountain_guarder",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Meadow Guarder's sister game!",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node app.js"
   },
   "repository": {
     "type": "git",

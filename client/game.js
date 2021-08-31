@@ -21,19 +21,126 @@ LAYERS.mlower = LAYERS.map0.getContext('2d');
 LAYERS.elower = LAYERS.entity0.getContext('2d');
 LAYERS.mupper = LAYERS.map1.getContext('2d');
 LAYERS.eupper = LAYERS.entity1.getContext('2d');
-function drawLayers(json) {
-    // meadow guarder worledit mod draw layers
+socket.on('mapData', function(data) {
+    for (var i in data) {
+        loadMap(data[i]);
+    }
+});
+function loadMap(name) {
+    if (tilesetloaded) {
+        var request = new XMLHttpRequest();
+        request.open('GET', './client/maps/' + name + '.json', true);
+        request.onload = function() {
+            if (this.status >= 200 && this.status < 400) {
+                var json = JSON.parse(this.response);
+                renderLayers(json, name);
+            } else {
+                console.error('Error: Server returned status ' + this.status);
+            }
+        };
+        request.onerror = function(){
+            console.error('There was a connection error. Please retry');
+        };
+        request.send();
+    } else {
+        setTimeout(function() {
+            loadMap(name);
+        }, 100);
+    }
+}
+var renderDistance = 1;
+var tilesetloaded = false;
+var tileset = new Image();
+tileset.src = './client/maps/roguelikeSheet.png';
+tileset.onload = function() {
+    tilesetloaded = true;
+};
+function renderLayers(json, name) {
+    MAPS[name] = {
+        width: json.width,
+        chunkwidth: 0,
+        chunks: []
+    };
+    for (var i in json.layers) {
+        if (json.layers[i].visible) {
+            for (var j in json.layers[i].chunks) {
+                var rawchunk = json.layers[i].chunks[j];
+                MAPS[name].chunkwidth = rawchunk.width;
+                var templower = new OffscreenCanvas(rawchunk.width * 64, rawchunk.height * 64);
+                var tempupper = new OffscreenCanvas(rawchunk.width * 64, rawchunk.height * 64);
+                if (MAPS[name].chunks[rawchunk.y/rawchunk.width]) if (MAPS[name].chunks[rawchunk.y/rawchunk.width][rawchunk.x/rawchunk.width]) {
+                    templower = MAPS[name].chunks[rawchunk.y/rawchunk.width][rawchunk.x/rawchunk.width].lower;
+                    tempupper = MAPS[name].chunks[rawchunk.y/rawchunk.width][rawchunk.x/rawchunk.width].upper;
+                }
+                var tlower = templower.getContext('2d');
+                var tupper = tempupper.getContext('2d');
+                resetCanvas(tempupper);
+                resetCanvas(templower);
+                for (var k in rawchunk.data) {
+                    var tileid = rawchunk.data[k];
+                    if (tileid != 0) {
+                        tileid--;
+                        var imgx, imgy, dx, dy;
+                        imgx = (tileid % 86)*17;
+                        imgy = ~~(tileid / 86)*17;
+                        dx = (k % rawchunk.width)*16;
+                        dy = ~~(k / rawchunk.width)*16;
+                        if (json.layers[i].name.includes('Above')) {
+                            tupper.drawImage(tileset, Math.round(imgx), Math.round(imgy), 16, 16, Math.round(dx*4), Math.round(dy*4), 64, 64);
+                        } else {
+                            tlower.drawImage(tileset, Math.round(imgx), Math.round(imgy), 16, 16, Math.round(dx*4), Math.round(dy*4), 64, 64);
+                        }
+                    }
+                }
+                if (MAPS[name].chunks[rawchunk.y/rawchunk.width]) {
+                    MAPS[name].chunks[rawchunk.y/rawchunk.width][rawchunk.x/rawchunk.width] = {
+                        upper: tempupper,
+                        lower: templower
+                    };
+                } else {
+                    MAPS[name].chunks[rawchunk.y/rawchunk.width] = [];
+                    MAPS[name].chunks[rawchunk.y/rawchunk.width][rawchunk.x/rawchunk.width] = {
+                        upper: tempupper,
+                        lower: templower
+                    };
+                }
+            }
+        }
+    }
 };
 setInterval(function() {
     if (player) {
+        LAYERS.mlower.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        LAYERS.elower.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        LAYERS.mupper.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        LAYERS.eupper.clearRect(0, 0, window.innerWidth, window.innerHeight);
         CTX.clearRect(0, 0, window.innerWidth, window.innerHeight);
-        CTX.drawImage(MAPS['test'], player.x-window.innerWidth/2, player.y-window.innerHeight/2, window.innerWidth, window.innerHeight, 0, 0, window.innerWidth, window.innerHeight);
-        CTX.save();
-        CTX.translate((window.innerWidth/2)-player.x,(window.innerHeight/2)-player.y);
+        // LAYERS.mlower.fillRect(0, 0, 9999, 9999);
+        drawMap();
+        CTX.drawImage(LAYERS.map0, 0, 0, window.innerWidth, window.innerHeight);
         Entity.draw();
-        CTX.restore();
+        CTX.drawImage(LAYERS.entity0, 0, 0, window.innerWidth, window.innerHeight);
+        CTX.drawImage(LAYERS.map1, 0, 0, window.innerWidth, window.innerHeight);
     }
 }, 1000/60);
+function drawMap() {
+    LAYERS.mlower.save();
+    LAYERS.mlower.translate((window.innerWidth/2)-player.x,(window.innerHeight/2)-player.y);
+    LAYERS.mupper.save();
+    LAYERS.mupper.translate((window.innerWidth/2)-player.x,(window.innerHeight/2)-player.y);
+    for (var i = player.chunkx-renderDistance; i <= player.chunkx+renderDistance; i++) {
+        for (var j = player.chunky-renderDistance; j <= player.chunky+renderDistance; j++) {
+            if (MAPS[player.map].chunks[j]) if (MAPS[player.map].chunks[j][i]) {
+                var chunk = MAPS[player.map].chunks[j][i];
+                var width = MAPS[player.map].chunkwidth;
+                LAYERS.mlower.drawImage(chunk.lower, i*width*64, j*width*64, width*64, width*64);
+                LAYERS.mupper.drawImage(chunk.upper, i*width*64, j*width*64, width*64, width*64);
+            }
+        }
+    }
+    LAYERS.mlower.restore();
+    LAYERS.mupper.restore();
+};
 
 // update ticks
 socket.on('updateTick', function(data) {
@@ -72,23 +179,12 @@ document.onmousedown = function(e) {
     switch (e.button) {
         case 0:
             socket.emit('click', {button:'left', x:e.clientX+player.x-window.innerWidth/2, y:e.clientY+player.y-window.innerHeight/2});
-            shooting = true;
             break;
         case 2:
             socket.emit('click', {button:'right', x:e.clientX+player.x-window.innerWidth/2, y:e.clientY+player.y-window.innerHeight/2});
-            shooting = true;
             break;
     }
-}
-
-
-MAPS['test'] = new OffscreenCanvas(3200, 3200);
-var tempimage = new Image();
-tempimage.src = './client/maps/The Village.png';
-tempimage.onload = function() {
-    resetCanvas(MAPS['test']);
-    MAPS['test'].getContext('2d').drawImage(tempimage, 0, 0, 3200, 3200);
-}
+};
 
 // player wierdness
 socket.on('self', function(id) {

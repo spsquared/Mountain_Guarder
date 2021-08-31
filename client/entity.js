@@ -8,6 +8,8 @@ Entity = function(id, x, y) {
         y: y,
         xspeed: 0,
         yspeed: 0,
+        chunkx: 0,
+        chunky: 0,
         width: 0,
         height: 0,
         rotation: 0,
@@ -15,21 +17,20 @@ Entity = function(id, x, y) {
         updated: true
     };
 
-    self.update = function(x, y) {
+    self.update = function(x, y, map) {
+        self.map = map;
         self.xspeed = (x-self.x)/4;
         self.yspeed = (y-self.y)/4;
         self.interpolationStage = 0;
         self.updated = true;
     };
     self.draw = function() {
-        CTX.translate(self.x, self.y);
-        CTX.rotate(self.angle);
-        CTX.fillText('MISSING TEXTURE', 0, 0);
-        CTX.rotate(-self.angle);
-        CTX.translate(-self.x, -self.y);
+        LAYERS.elower.fillText('MISSING TEXTURE', self.x, self.y);
         if (self.interpolationStage < 4) {
             self.x += self.xspeed;
             self.y += self.yspeed;
+            self.chunkx = Math.floor(self.x/(64*MAPS[self.map].chunkwidth));
+            self.chunky = Math.floor(self.y/(64*MAPS[self.map].chunkwidth));
             self.interpolationStage++;
         }
     };
@@ -53,9 +54,12 @@ Entity.draw = function() {
         entities.push(Projectile.list[i]);
     }
     entities = entities.sort(function(a, b) {return a.y - b.y;});
+    LAYERS.elower.save();
+    LAYERS.elower.translate((window.innerWidth/2)-player.x,(window.innerHeight/2)-player.y);
     for (var i in entities) {
-        entities[i].draw();
+        if (entities[i].map == player.map) entities[i].draw();
     }
+    LAYERS.elower.restore();
 };
 
 // rigs
@@ -67,11 +71,21 @@ Rig = function(id, x, y) {
     self.animations = self.animationsCanvas.getContext('2d');
     self.animationStage = 0;
     
+    self.update = function(x, y, map, animationStage) {
+        self.map = map;
+        self.xspeed = (x-self.x)/4;
+        self.yspeed = (y-self.y)/4;
+        self.interpolationStage = 0;
+        self.animationStage = animationStage;
+        self.updated = true;
+    };
     self.draw = function() {
-        CTX.fillText('MISSING TEXTURE', self.x, self.y);
+        LAYERS.elower.fillText('MISSING TEXTURE', self.x, self.y);
         if (self.interpolationStage < 4) {
             self.x += self.xspeed;
             self.y += self.yspeed;
+            self.chunkx = Math.floor(self.x/(64*MAPS[self.map].chunkwidth));
+            self.chunky = Math.floor(self.y/(64*MAPS[self.map].chunkwidth));
             self.interpolationStage++;
         }
     };
@@ -88,13 +102,15 @@ Player = function(id, x, y) {
     badImage.src = './client/img/player/worseimage.png';
     badImage.onload = function() {
         self.animations.drawImage(badImage, 0, 0);
-    }
+    };
 
     self.draw = function () {
-        CTX.drawImage(self.animationsCanvas, self.animationStage*8, 0, 8, 16, self.x-16, self.y-48, 32, 64);
+        LAYERS.elower.drawImage(self.animationsCanvas, self.animationStage*8, 0, 8, 16, self.x-16, self.y-48, 32, 64);
         if (self.interpolationStage < 4) {
             self.x += self.xspeed;
             self.y += self.yspeed;
+            self.chunkx = Math.floor(self.x/(64*MAPS[self.map].chunkwidth));
+            self.chunky = Math.floor(self.y/(64*MAPS[self.map].chunkwidth));
             self.interpolationStage++;
         }
     };
@@ -108,10 +124,10 @@ Player.update = function(data) {
     }
     for (var i in data) {
         if (Player.list[data[i].id]) {
-            Player.list[data[i].id].update(data[i].x, data[i].y);
+            Player.list[data[i].id].update(data[i].x, data[i].y, data[i].map, data[i].animationStage);
         } else {
             new Player(data[i].id, data[i].x, data[i].y);
-            Player.list[data[i].id].update(data[i].x, data[i].y);
+            Player.list[data[i].id].update(data[i].x, data[i].y, data[i].map, data[i].animationStage);
         }
     }
     for (var i in Player.list) {
@@ -140,10 +156,12 @@ Monster = function(id, type, x, y) {
     }
 
     self.draw = function () {
-        CTX.drawImage(self.animationsCanvas, self.animationStage*self.rawWidth, 0, self.rawWidth, self.rawHeight, self.x-self.width/2, self.y-self.height/2, self.width, self.height);
+        LAYERS.elower.drawImage(self.animationsCanvas, self.animationStage*self.rawWidth, 0, self.rawWidth, self.rawHeight, self.x-self.width/2, self.y-self.height/2, self.width, self.height);
         if (self.interpolationStage < 4) {
             self.x += self.xspeed;
             self.y += self.yspeed;
+            self.chunkx = Math.floor(self.x/(64*MAPS[self.map].chunkwidth));
+            self.chunky = Math.floor(self.y/(64*MAPS[self.map].chunkwidth));
             self.interpolationStage++;
         }
     };
@@ -156,10 +174,10 @@ Monster.update = function(data) {
     }
     for (var i in data) {
         if (Monster.list[data[i].id]) {
-            Monster.list[data[i].id].update(data[i].x, data[i].y);
+            Monster.list[data[i].id].update(data[i].x, data[i].y, data[i].map, data[i].animationStage);
         } else {
             new Monster(data[i].id, data[i].type, data[i].x, data[i].y);
-            Monster.list[data[i].id].update(data[i].x, data[i].y);
+            Monster.list[data[i].id].update(data[i].x, data[i].y, data[i].map, data[i].animationStage);
         }
     }
     for (var i in Monster.list) {
@@ -168,15 +186,27 @@ Monster.update = function(data) {
         }
     }
 };
-$.getJSON('./client/monster.json', function(data) {
-    Monster.types = data;
-});
+var request = new XMLHttpRequest();
+request.open('GET', './client/monster.json', true);
+request.onload = function() {
+    if (this.status >= 200 && this.status < 400) {
+        var json = JSON.parse(this.response);
+        Monster.types = json;
+    } else {
+        console.error('Error: Server returned status ' + this.status);
+    }
+};
+request.onerror = function(){
+    console.error('There was a connection error. Please retry');
+};
+request.send();
 Monster.list = [];
 
 // projectiles
-Projectile = function(id, type, x, y) {
+Projectile = function(id, type, x, y, angle) {
     var self = new Entity(id, x, y);
-    self.angle = 0;
+    self.angle = angle;
+    self.rotationspeed = 0;
     var tempprojectile = Projectile.types[type];
     self.type = type;
     self.width = tempprojectile.width;
@@ -194,23 +224,26 @@ Projectile = function(id, type, x, y) {
         self.animations.drawImage(animationimg, 0, 0);
     }
 
-    self.update = function(x, y, angle) {
+    self.update = function(x, y, map, angle) {
+        self.map = map;
         self.xspeed = (x-self.x)/4;
         self.yspeed = (y-self.y)/4;
         self.interpolationStage = 0;
-        self.angle = angle;
+        self.rotationspeed = (angle-self.angle)/4;
         self.updated = true;
     };
     self.draw = function() {
-        CTX.save();
-        CTX.translate(self.x, self.y);
-        CTX.rotate(self.angle);
-        CTX.drawImage(self.animationsCanvas, self.animationStage*self.rawWidth, 0, self.rawWidth, self.rawHeight, -self.width/2, -self.height/2, self.width, self.height);
-        // CTX.drawImage(self.animationsCanvas, self.animationStage*self.rawWidth, 0, self.rawWidth, self.rawHeight, 0-self.width/2, 0-self.height/2, self.width, self.height);
-        CTX.restore();
+        LAYERS.elower.save();
+        LAYERS.elower.translate(self.x, self.y);
+        LAYERS.elower.rotate(self.angle);
+        LAYERS.elower.drawImage(self.animationsCanvas, self.animationStage*self.rawWidth, 0, self.rawWidth, self.rawHeight, -self.width/2, -self.height/2, self.width, self.height);
+        LAYERS.elower.restore();
         if (self.interpolationStage < 4) {
             self.x += self.xspeed;
             self.y += self.yspeed;
+            self.chunkx = Math.floor(self.x/64*MAPS[self.map].chunkwidth);
+            self.chunky = Math.floor(self.y/64*MAPS[self.map].chunkwidth);
+            self.angle += self.rotationspeed;
             self.interpolationStage++;
         }
     };
@@ -223,10 +256,10 @@ Projectile.update = function(data) {
     }
     for (var i in data) {
         if (Projectile.list[data[i].id]) {
-            Projectile.list[data[i].id].update(data[i].x, data[i].y, data[i].angle);
+            Projectile.list[data[i].id].update(data[i].x, data[i].y, data[i].map, data[i].angle);
         } else {
-            new Projectile(data[i].id, data[i].type, data[i].x, data[i].y);
-            Projectile.list[data[i].id].update(data[i].x, data[i].y, data[i].angle);
+            new Projectile(data[i].id, data[i].type, data[i].x, data[i].y, data[i].angle);
+            Projectile.list[data[i].id].update(data[i].x, data[i].y, data[i].map, data[i].angle);
         }
     }
     for (var i in Projectile.list) {
@@ -235,7 +268,18 @@ Projectile.update = function(data) {
         }
     }
 };
-$.getJSON('./client/projectile.json', function(data) {
-    Projectile.types = data;
-});
+var request = new XMLHttpRequest();
+request.open('GET', './client/projectile.json', true);
+request.onload = function() {
+    if (this.status >= 200 && this.status < 400) {
+        var json = JSON.parse(this.response);
+        Projectile.types = json;
+    } else {
+        console.error('Error: Server returned status ' + this.status);
+    }
+};
+request.onerror = function(){
+    console.error('There was a connection error. Please retry');
+};
+request.send();
 Projectile.list = [];

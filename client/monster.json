@@ -17,16 +17,10 @@
         "rawWidth": 11,
         "rawHeight": 13
     },
-    "redCherryBomb": {
-        "width": 48,
-        "height": 40,
-        "rawWidth": 12,
-        "rawHeight": 10
-    },
-    "cherryBombExplosion": {
+    "cherrybomb": {
         "width": 64,
         "height": 64,
-        "rawwidth": 16,
-        "rawheight": 16
+        "rawWidth": 16,
+        "rawHeight": 16
     }
 }

@@ -16,7 +16,7 @@ For help, type "help" into server console. (also doesn't apply)
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/definitely-nobody-is-here/Mountain_Guarder)
 
 ### Joining the Game
-Once the server is started, you can find your computer's name (available in Windows>System>About as "Device name"), or simply search [what's my ip](http://google.com/search?q=whats+my+ip) or click the link. The server console will tell you what port to visit and you can type either the ip address or computer name on the client side **connected to the same network as the host** and then followed by a ":" and then the port number. Example: 111.22.33.444:2000 or hostcomputer:1100
+Once the server is started, you can find your computer's name (available in Windows>System>About as "Device name"), or simply search [what's my ip](http://google.com/search?q=whats+my+ip) or click the link. The server console will tell you what port to visit and you can type either the ip address or computer name on the client side **connected to the same network as the host** and then followed by a ":" and then the port number. Example: 111.22.33.444:2000 or hostcomputer:1100. The port will always be 4000.
 
 ### Gameplay
 Visit the [wiki](https://github.com/definitely-nobody-is-here/Mountain_Guarder/wiki) for more information.
@@ -48,6 +48,7 @@ If you can't resolve your problem after trying these solutions or your problem i
 | 0.0.2   | <ul><li>Added collisions</li></ul> |
 | 0.0.3   | <ul><li>Add projectiles (no textures)</li><li>Fix heroku deploy</li><li>Add monster code</li><li>Add issue templates</li></ul> |
 | 0.0.4   | <ul><li>Add monsters (they follow you around)</li><li>Players and monsters can shoot arrows</li><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/2" target="_blank">Fixed getting stuck in corners of collisions (Issue #2)</a></li><li>Fixed other collision issues</li><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/4" target="_blank">Fixed heroku deploy again (Issue #4)</a></li></ul> |
+| 0.0.5   | <ul><li>Add world</li><li>Add chunk-based positions</li><li>Implemented full map drawing</li><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/4" target="_blank">Fixed heroku deploy again (Issue #4)</a></li></ul> |
 
 ***
 
@@ -68,7 +69,7 @@ Full license can be found in the LICENSE file.
 ##### Resources:
 - Various articles on the internet
 - [ScriptersWar](https://www.youtube.com/channel/UC8Yp-YagXZ4C5vOduEhcjRw) [tutorial series](https://www.youtube.com/playlist?list=PLcIaPHraYF7k4FbeGIDY-1mZZdjTu9QyL)
-- [Meadow Guarder](https://github.com/maitian352/Meadow-Guarder)
+- [Meadow Guarder](https://github.com/maitian352/Meadow-Guarder-old)
 
 ***
 

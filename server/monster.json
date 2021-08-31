@@ -18,6 +18,7 @@
             "range": 1,
             "critChance": 0
         },
+        "animationLength": 1,
         "drops": {
             "to be determined": 0
         }
@@ -41,6 +42,7 @@
             "range": 1,
             "critChance": 0
         },
+        "animationLength": 1,
         "drops": {
             "to be determined": 0
         }
@@ -64,11 +66,12 @@
             "range": 0.5,
             "critChance": 10
         },
+        "animationLength": 1,
         "drops": {
             "to be determined": 0
         }
     },
-    "redCherryBomb": {
+    "cherrybomb": {
         "spawnChance": 0.5,
         "width": 48,
         "height": 20,
@@ -87,6 +90,7 @@
             "range": 1,
             "critChance": 0
         },
+        "animationLength": 1,
         "drops": {
             "to be determined": 0
         }
@@ -110,6 +114,7 @@
             "range": 1,
             "critChance": 0
         },
+        "animationLength": 1,
         "drops": {
             "to be determined": 0
         }

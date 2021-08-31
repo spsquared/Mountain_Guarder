@@ -49,7 +49,7 @@ Collision = function(map, x, y, type) {
             coltype = 14;
             break;
         default:
-            console.error('invalid collision');
+            error('invalid collision');
             break;
     }
     Collision.list[map][y][x] = coltype;
@@ -220,3 +220,28 @@ Collision.getColEntity = function(map, x, y) {
     return collision;
 };
 Collision.list = [];
+
+Spawner = function(map, x, y, type) {
+    var self = {
+        id: null,
+        x: x,
+        y: y,
+        map: map,
+        type: type
+    };
+    self.id = Math.random();
+    var spawnedmonster = new Monster(self.type, self.x, self.y, self.map);
+    var spawnedmonster = new Monster(Spawner.list[self.spawnerID].type, Spawner.list[self.spawnerID].x, Spawner.list[self.spawnerID].y, Spawner.list[self.spawnerID].map);
+    setMonsterRespawn(spawnedmonster, Spawner.list[self.spawnerID]);
+};
+setMonsterRespawn = function(spawnedmonster, self) {
+    spawnedmonster.spawnerID = self.id;
+    spawnedmonster.onDeath = function() {
+        self.alive = false;
+        delete Monster.list[self.id];
+        setTimeout(async function() {
+            var spawnedmonster = new Monster(Spawner.list[self.spawnerID].type, Spawner.list[self.spawnerID].x, Spawner.list[self.spawnerID].y, Spawner.list[self.spawnerID].map);
+            setMonsterRespawn(spawnedmonster, Spawner.list[self.spawnerID]);
+        });
+    }
+};

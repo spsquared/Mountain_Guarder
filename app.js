@@ -1,7 +1,7 @@
 // Copyright (C) 2021 Radioactive64
 // Go to README.md for more information
 
-const version = 'v0.0.3';
+const version = 'v0.0.5';
 console.info('\x1b[33m%s\x1b[0m', 'Mountain Guarder ' + version + ' copyright (C) Radioactive64 2021');
 const express = require('express');
 const app = express();
@@ -61,8 +61,15 @@ prompt.on('close', function() {
 });
 
 // Tickrate
+TPS = 0;
+var tpscounter = 0;
 setInterval(function() {
     // update tick
     var pack = Entity.update();
     io.emit('updateTick', pack);
+    tpscounter++;
 }, 1000/20);
+setInterval(async function() {
+    TPS = tpscounter;
+    tpscounter = 0;
+}, 1000);

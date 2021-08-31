@@ -15,9 +15,9 @@ Entity = function() {
         gridx: 0,
         gridy: 0,
         moveSpeed: 0,
-        width: 16,
-        height: 16,
-        map: null
+        width: 0,
+        height: 0,
+        map: 'World'
     };
 
     self.update = function() {
@@ -38,10 +38,6 @@ Entity = function() {
             self.gridy = Math.floor(self.y/64);
             self.checkCollision();
         }
-        if (self.x-self.width/2 < 0) self.x = self.width/2;
-        if (self.x+self.width/2 > Collision.list[self.map].width*64) self.x = Collision.list[self.map].width*64-self.width/2;
-        if (self.y-self.height/2 < 0) self.y = self.height/2;
-        if (self.y+self.height/2 > Collision.list[self.map].height*64) self.y = Collision.list[self.map].height*64-self.height/2;
         self.x = Math.round(self.x);
         self.y = Math.round(self.y);
         self.gridx = Math.floor(self.x/64);
@@ -170,12 +166,17 @@ Entity.update = function() {
 // rigs
 Rig = function() {
     var self = new Entity();
+    self.width = 32;
+    self.height = 32;
     self.keys = {
         up: false,
         down: false,
         left: false,
         right: false
     };
+    self.animationStage = 0;
+    self.animationLength = 0;
+    self.lastFrameUpdate = 0;
     self.moveSpeed = 20;
     self.stats = {
         attack: 1,
@@ -186,14 +187,15 @@ Rig = function() {
         range: 1,
         critChance: 0
     };
-    self.hp = 0;
+    self.hp = 100;
     self.alive = true;
 
     self.update = function() {
         self.updatePos();
         if (self.hp < 1) {
-            self.alive = false;
+            self.onDeath();
         }
+        self.updateAnimation();
     };
     self.updatePos = function() {
         self.xspeed = 0;
@@ -203,6 +205,16 @@ Rig = function() {
         if (self.keys.left) self.xspeed = -self.moveSpeed;
         if (self.keys.right) self.xspeed = self.moveSpeed;
         self.collide();
+    };
+    self.updateAnimation = function() {
+        self.lastFrameUpdate++;
+        if (self.lastFrameUpdate > 100/(1000/20)) {
+            self.animationStage++;
+            if (self.animationStage > self.animationLength) self.animationStage = 0;
+        }
+    };
+    self.onDeath = function() {
+        self.alive = false;
     };
 
     return self;
@@ -226,6 +238,7 @@ Npc.update = function() {
             map: localnpc.map,
             x: localnpc.x,
             y: localnpc.y,
+            animationStage: localnpc.animationStage
         });
     }
     return pack;
@@ -238,9 +251,12 @@ Player = function(socket) {
     self.id = Math.random();
     self.x = 80;
     self.y = 80;
-    
-    self.map = 'The Village';
 
+    var maps = [];
+    for (var i in Collision.list) {
+        maps.push(i);
+    }
+    socket.emit('mapData', maps);
     socket.on('keyPress', function(data) {
         if (data.key == 'up') self.keys.up = data.state;
         if (data.key == 'down') self.keys.down = data.state;
@@ -265,7 +281,8 @@ Player.update = function() {
             id: localplayer.id,
             map: localplayer.map,
             x: localplayer.x,
-            y: localplayer.y
+            y: localplayer.y,
+            animationStage: localplayer.animationStage
         });
     }
     return pack;
@@ -309,11 +326,13 @@ Monster = function(type, x, y, map) {
     self.height = tempmonster.height;
     self.hp = tempmonster.hp;
     self.ai.attackType = tempmonster.attackType;
+    self.animationLength = tempmonster.animationLength;
 
     self.update = function() {
         if (self.hp < 1) {
-            self.alive = false;
+            self.onDeath();
         }
+        self.updateAnimation();
         self.updateAggro();
         self.updatePos();
     };
@@ -350,56 +369,75 @@ Monster = function(type, x, y, map) {
         self.collide();
     };
     self.updateAggro = function() {
-        if (self.ai.lastPath > 100/(1000/20)) self.path();
-        self.ai.lastPath++;
-        switch (self.ai.attackType) {
-            case 'bird':
-                // ninja stars (ninja birds lol)
-                break;
-            case 'snowbird':
-                // snowballs
-                break;
-            case 'cherrybomb':
-                if (self.getDistance(self.aggroTarget) < 20) {
-                    console.log('explosion sounds and pixelated explosions boom ha muahaha')
-                }
-                break;
-            case 'exploding':
-                break;
-            case 'snowball':
-                // snow things
-                break;
-            default:
-                error('Invalid attack type: ' + self.attackType);
-                break;
+        self.path();
+        if (self.ai.aggroTarget) {
+            switch (self.ai.attackType) {
+                case 'bird':
+                    // ninja stars (ninja birds lol)
+                    break;
+                case 'snowbird':
+                    // snowballs
+                    break;
+                case 'cherrybomb':
+                    if (self.getDistance(self.ai.aggroTarget) < 64) {
+                        self.ai.attackType = 'exploding';
+                        self.moveSpeed = 0;
+                        self.hp = 1000000000000;
+                        self.animationStage = 0;
+                        self.animationLength = 10;
+                        for (var i in Monster.list) {
+                            Monster.list[i].hp -= 1*self.stats.attack;
+                        }
+                        for (var i in Player.list) {
+                            Player.list[i].hp -= 1*self.stats.attack;
+                        }
+                    }
+                    break;
+                case 'exploding':
+                    if (self.animationStage >= 10) delete Monster.list[self.id];
+                    break;
+                case 'snowball':
+                    // snow things
+                    break;
+                default:
+                    error('Invalid attack type: ' + self.attackType);
+                    break;
+            }
         }
     };
     self.path = function() {
-        self.ai.lastPath = 0;
-        if (self.targetMonsters) {
-            var lowest = null;
-            for (var i in Monster.list) {
-                if (lowest == null) lowest = i;
-                if (self.getDistance(Monster.list[i]) < self.getDistance(Monster.list[lowest]) && i != self.id) lowest = i;
+        self.ai.lastPath++;
+        if (self.ai.lastPath > 100/(1000/20)) {
+            self.ai.lastPath = 0;
+            if (self.targetMonsters) {
+                var lowest = null;
+                for (var i in Monster.list) {
+                    if (lowest == null) lowest = i;
+                    if (self.getDistance(Monster.list[i]) < self.getDistance(Monster.list[lowest]) && i != self.id) lowest = i;
+                }
+                self.ai.aggroTarget = Monster.list[lowest];
+            } else {
+                var lowest = null;
+                for (var i in Player.list) {
+                    if (lowest == null) lowest = i;
+                    if (self.getDistance(Player.list[i]) < self.getDistance(Player.list[lowest]) && i != self.id) lowest = i;
+                }
+                self.ai.aggroTarget = Player.list[lowest];
             }
-            self.ai.aggroTarget = Monster.list[lowest];
-        } else {
-            var lowest = null;
-            for (var i in Player.list) {
-                if (lowest == null) lowest = i;
-                if (self.getDistance(Player.list[i]) < self.getDistance(Player.list[lowest]) && i != self.id) lowest = i;
+            if (self.ai.aggroTarget) {
+                var gridbackup = self.ai.grid.clone();
+                self.ai.path = self.ai.pathfinder.findPath(self.gridx, self.gridy, self.ai.aggroTarget.gridx, self.ai.aggroTarget.gridy, self.ai.grid);
+                self.ai.grid = gridbackup;
+                self.ai.currentNode = 1;
             }
-            self.ai.aggroTarget = Player.list[lowest];
-        }
-        if (self.ai.aggroTarget) {
-            var gridbackup = self.ai.grid.clone();
-            self.ai.path = self.ai.pathfinder.findPath(self.gridx, self.gridy, self.ai.aggroTarget.gridx, self.ai.aggroTarget.gridy, self.ai.grid);
-            self.ai.grid = gridbackup;
-            self.ai.currentNode = 1;
         }
     };
     self.getDistance = function(entity) {
         return Math.sqrt((Math.pow(Math.abs(self.x-entity.x), 2)) + (Math.pow(Math.abs(self.y-entity.y), 2)));
+    };
+    self.onDeath = function() {
+        self.alive = false;
+        delete Monster.list[self.id];
     };
 
     Monster.list[self.id] = self;
@@ -409,14 +447,21 @@ Monster.update = function() {
     var pack = [];
     for (var i in Monster.list) {
         var localmonster = Monster.list[i];
-        localmonster.update();
-        pack.push({
-            id: localmonster.id,
-            map: localmonster.map,
-            x: localmonster.x,
-            y: localmonster.y,
-            type: localmonster.type
-        });
+        var canupdate = false;
+        for (var i in Player.list) {
+            if (Player.list[i].map = localmonster.map) canupdate = true;
+        }
+        if (canupdate) {
+            localmonster.update();
+            pack.push({
+                id: localmonster.id,
+                map: localmonster.map,
+                x: localmonster.x,
+                y: localmonster.y,
+                type: localmonster.type,
+                animationStage: localmonster.animationStage
+            });
+        }
     }
     return pack;
 };
@@ -439,12 +484,14 @@ Projectile = function(type, x, y, map, mousex, mousey) {
     self.angle = Math.atan2(-(self.y-mousey), -(self.x-mousex));
     self.xspeed = Math.cos(self.angle)*self.moveSpeed;
     self.yspeed = Math.sin(self.angle)*self.moveSpeed;
+    self.x += self.xspeed;
+    self.y += self.yspeed;
 
     self.update = function() {
         self.updatePos();
         for (var i in Monster.list) {
             if (self.collideWith(Monster.list[i])) {
-                Monster.list[i].hp = 0;
+                Monster.list[i].hp -= 10;
                 delete Projectile.list[self.id];
             }
         }

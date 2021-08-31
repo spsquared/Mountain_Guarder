@@ -41,7 +41,12 @@ function resetCanvases() {
     CTX.scale(dpr, dpr);
     resetCanvas(CTXRAW);
     for (var i in MAPS) {
-        resetCanvas(MAPS[i]);
+        for (var j in MAPS[i].chunks) {
+            for (var k in MAPS[i].chunks[j]) {
+                resetCanvas(MAPS[i].chunks[j][k].upper);
+                resetCanvas(MAPS[i].chunks[j][k].lower);
+            }
+        }
     }
 };
 resetCanvases();
@@ -53,4 +58,9 @@ document.addEventListener('contextmenu', function(e) {e.preventDefault()});
 
 window.onerror = function() {
     // insert to chat
-}
+};
+
+// important sleep function
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+};
