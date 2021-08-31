@@ -9,18 +9,14 @@ const server = require('http').Server(app);
 const readline = require('readline');
 const prompt = readline.createInterface({input: process.stdin, output: process.stdout});
 
-console.log('start things')
 app.get('/', function(req, res) {res.sendFile(__dirname + '/client/index.html');});
 app.use('/client',express.static(__dirname + '/client'));
-console.log('got stuff')
 
 // start server
 require('./server/log.js');
 require('./server/collision.js');
 require('./server/entity.js');
 require('./server/maps.js');
-console.log('get files')
-
 if (process.env.PORT) {
     server.listen(process.env.PORT);
 } else {
@@ -76,4 +72,3 @@ setInterval(async function() {
     TPS = tpscounter;
     tpscounter = 0;
 }, 1000);
-console.log('started things')
