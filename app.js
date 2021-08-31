@@ -54,10 +54,10 @@ prompt.on('line', async function(input) {
         error(err);
     }
 });
-prompt.on('close', function() {
-    appendLog('----------------------------------------');
-    process.exit();
-});
+// prompt.on('close', function() {
+//     appendLog('----------------------------------------');
+//     process.exit();
+// });
 
 // Tickrate
 TPS = 0;
