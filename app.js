@@ -76,3 +76,4 @@ setInterval(async function() {
     TPS = tpscounter;
     tpscounter = 0;
 }, 1000);
+console.log('started things')
