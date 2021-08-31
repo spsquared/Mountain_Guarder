@@ -1,7 +1,7 @@
 // Copyright (C) 2021 Radioactive64
 // Go to README.md for more information
 
-const version = 'v0.0.5';
+const version = 'heroku testing';
 console.info('\x1b[33m%s\x1b[0m', 'Mountain Guarder ' + version + ' copyright (C) Radioactive64 2021');
 const express = require('express');
 const app = express();
@@ -9,14 +9,17 @@ const server = require('http').Server(app);
 const readline = require('readline');
 const prompt = readline.createInterface({input: process.stdin, output: process.stdout});
 
+console.log('start things')
 app.get('/', function(req, res) {res.sendFile(__dirname + '/client/index.html');});
 app.use('/client',express.static(__dirname + '/client'));
+console.log('got stuff')
 
 // start server
 require('./server/log.js');
 require('./server/collision.js');
 require('./server/entity.js');
 require('./server/maps.js');
+console.log('get files')
 
 if (process.env.PORT) {
     server.listen(process.env.PORT);
