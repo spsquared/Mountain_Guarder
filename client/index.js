@@ -54,7 +54,8 @@ resetCanvases();
 // random preventions
 document.querySelectorAll("input").forEach(function(item) {if (item.type != 'text' && item.type != 'password') {item.addEventListener('focus', function() {this.blur();});}});
 document.querySelectorAll("button").forEach(function(item) {item.addEventListener('focus', function() {this.blur();});});
-document.addEventListener('contextmenu', function(e) {e.preventDefault()});
+document.getElementById('ctx').addEventListener('contextmenu', function(e) {e.preventDefault()});
+document.getElementById('ctx').addEventListener('dblclick', function(e) {e.preventDefault()});
 
 window.onerror = function() {
     // insert to chat

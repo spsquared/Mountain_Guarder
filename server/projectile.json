@@ -4,6 +4,20 @@
         "height": 20,
         "speed": 40,
         "pattern": "none",
+        "damage": 10
+    },
+    "ninjastar": {
+        "width": 18,
+        "height": 18,
+        "speed": 60,
+        "pattern": "spin",
+        "damage": 10
+    },
+    "snowball": {
+        "width": 18,
+        "height": 18,
+        "speed": 30,
+        "pattern": "spin",
         "damage": 5
     }
 }

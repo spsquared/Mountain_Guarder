@@ -4,7 +4,7 @@
         "width": 44,
         "height": 40,
         "attackType": "bird",
-        "aggroRange": 8,
+        "aggroRange": 16,
         "boss": false,
         "idle": "random",
         "hp": 35,
@@ -28,10 +28,10 @@
         "width": 44,
         "height": 40,
         "attackType": "bird",
-        "aggroRange": 8,
+        "aggroRange": 16,
         "boss": false,
         "idle": "random",
-        "hp": 35,
+        "hp": 40,
         "moveSpeed": 5,
         "stats": {
             "attack": 1,
@@ -52,7 +52,7 @@
         "width": 44,
         "height": 40,
         "attackType": "snowbird",
-        "aggroRange": 12,
+        "aggroRange": 20,
         "boss": false,
         "idle": "random",
         "hp": 60,
@@ -76,11 +76,11 @@
         "width": 48,
         "height": 20,
         "attackType": "cherrybomb",
-        "aggroRange": 8,
+        "aggroRange": 16,
         "boss": false,
         "idle": "random",
         "hp": 50,
-        "moveSpeed": 20,
+        "moveSpeed": 10,
         "stats": {
             "attack": 1000000000000,
             "defense": 0,
@@ -100,11 +100,11 @@
         "width": 44,
         "height": 44,
         "attackType": "snowball",
-        "aggroRange": 8,
+        "aggroRange": 16,
         "boss": false,
         "idle": "random",
         "hp": 100,
-        "moveSpeed": 40,
+        "moveSpeed": 10,
         "stats": {
             "attack": 20,
             "defense": 0,
@@ -114,7 +114,7 @@
             "range": 1,
             "critChance": 0
         },
-        "animationLength": 1,
+        "animationLength": 0,
         "drops": {
             "to be determined": 0
         }

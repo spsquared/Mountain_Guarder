@@ -24,19 +24,20 @@ Visit the [wiki](https://github.com/definitely-nobody-is-here/Mountain_Guarder/w
 ***
 
 # Troubleshooting
+#### There are errors
+If you are getting errors or something seems broken (missing textures or broken UI) you can [submit a bug report](https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/new?assignees=&labels=bug&template=bug-report.md&title=BUG+-+%5BSummary+here%5D) including a screenshot of the most recent logs and any errors.
 #### My Server Crashed
-aaaaa
+In the case that your server crashes, [submit a bug report](https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/new?assignees=&labels=bug&template=bug-report.md&title=BUG+-+%5BSummary+here%5D) including a screenshot of the most recent logs and any error messages on the client or server.
 #### I can't Connect to the Server (ERROR_Connection_Refused)
 If you can't connect to the server, verify that:
  - The server is running
- - You have entered the correct port number
- - You have entered the correct computer name or IP adress
+ - You have entered the correct port number and hostname
  - You are connected to the same WiFi network as the server
 If you have verified all four of the above, try restarting the server. If your server is running on a dedicated server (like Heroku) check that your link is correct.
 #### The Server is Slow
 There is nothing we can do about this. It could be your connection speed or a slow server unable to run the game at full speed. Press "backslash" ("\\") ingame and in the top-right corner it should list TPS and Ping. If your Ping is high then that is likely the source of your lag. If you TPS is low then the server is lagging. Check that there is nothing eating your computer's resources by opening Task Manager (Windows) by pressing Ctrl+Shift+Esc.
 
-If you can't resolve your problem after trying these solutions or your problem is not on this page, go to the [Issues](https://github.com/definitely-nobody-is-here/BattleBoxes_Multiplayer/issues) page and [submit a bug report](https://github.com/definitely-nobody-is-here/BattleBoxes_Multiplayer/issues/new?assignees=&labels=bug&template=bug-report.md&title=BUG+-+%5BSummary+here%5D).
+If you can't resolve your problem after trying these solutions or your problem is not on this page, go to the [Issues](https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues) page and [submit a bug report](https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/new?assignees=&labels=bug&template=bug-report.md&title=BUG+-+%5BSummary+here%5D).
 
 ***
 
@@ -50,6 +51,7 @@ If you can't resolve your problem after trying these solutions or your problem i
 | 0.0.4   | <ul><li>Add monsters (they follow you around)</li><li>Players and monsters can shoot arrows</li><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/2" target="_blank">Fixed getting stuck in corners of collisions (Issue #2)</a></li><li>Fixed other collision issues</li><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/4" target="_blank">Fixed heroku deploy again (Issue #4)</a></li></ul> |
 | 0.0.5   | <ul><li>Add world</li><li>Add chunk-based positions</li><li>Implemented full map drawing</li><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/4" target="_blank">Fixed heroku deploy again (Issue #4)</a></li></ul> |
 | 0.0.6   | <ul><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/4" target="_blank">Fixed heroku deploy for the last time (Issue #4)</a></li></ul> |
+| 0.0.7   | <ul><li>Added monster spawners</li><li>Expanded map</li><li>Most monsters attack now</li><li>Monsters aggro on players when hit by them or their projectiles</li><li>Added snowballs</li><li>Projectiles can have patterns now</li><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/5" target="_blank">Fixed client not waiting for loading (Issue #5)</a></li><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/7" target="_blank">Projectiles now despawn (Issue #7)</a></li></ul> |
 
 ***
 

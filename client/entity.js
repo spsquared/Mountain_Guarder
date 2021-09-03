@@ -25,7 +25,9 @@ Entity = function(id, x, y) {
         self.updated = true;
     };
     self.draw = function() {
-        LAYERS.elower.fillText('MISSING TEXTURE', self.x, self.y);
+        if (self.chunkx >= player.chunkx-renderDistance && self.chunkx <= player.chunkx+renderDistance && self.chunky>= player.chunky-renderDistance && self.chunky <= player.chunky+renderDistance) {
+            LAYERS.elower.fillText('MISSING TEXTURE', self.x, self.y);
+        }
         if (self.interpolationStage < 4) {
             self.x += self.xspeed;
             self.y += self.yspeed;
@@ -80,7 +82,9 @@ Rig = function(id, x, y) {
         self.updated = true;
     };
     self.draw = function() {
-        LAYERS.elower.fillText('MISSING TEXTURE', self.x, self.y);
+        if (self.chunkx >= player.chunkx-renderDistance && self.chunkx <= player.chunkx+renderDistance && self.chunky>= player.chunky-renderDistance && self.chunky <= player.chunky+renderDistance) {
+            LAYERS.elower.fillText('MISSING TEXTURE', self.x, self.y);
+        }
         if (self.interpolationStage < 4) {
             self.x += self.xspeed;
             self.y += self.yspeed;
@@ -105,7 +109,9 @@ Player = function(id, x, y) {
     };
 
     self.draw = function () {
-        LAYERS.elower.drawImage(self.animationsCanvas, self.animationStage*8, 0, 8, 16, self.x-16, self.y-48, 32, 64);
+        if (self.chunkx >= player.chunkx-renderDistance && self.chunkx <= player.chunkx+renderDistance && self.chunky >= player.chunky-renderDistance && self.chunky <= player.chunky+renderDistance) {
+            LAYERS.elower.drawImage(self.animationsCanvas, self.animationStage*8, 0, 8, 16, self.x-16, self.y-48, 32, 64);
+        }
         if (self.interpolationStage < 4) {
             self.x += self.xspeed;
             self.y += self.yspeed;
@@ -153,10 +159,12 @@ Monster = function(id, type, x, y) {
         self.animationsCanvas.width = animationimg.width;
         self.animationsCanvas.height = animationimg.height;
         self.animations.drawImage(animationimg, 0, 0);
-    }
+    };
 
     self.draw = function () {
-        LAYERS.elower.drawImage(self.animationsCanvas, self.animationStage*self.rawWidth, 0, self.rawWidth, self.rawHeight, self.x-self.width/2, self.y-self.height/2, self.width, self.height);
+        if (self.chunkx >= player.chunkx-renderDistance && self.chunkx <= player.chunkx+renderDistance && self.chunky>= player.chunky-renderDistance && self.chunky <= player.chunky+renderDistance) {
+            LAYERS.elower.drawImage(self.animationsCanvas, self.animationStage*self.rawWidth, 0, self.rawWidth, self.rawHeight, self.x-self.width/2, self.y-self.height/2, self.width, self.height);
+        }
         if (self.interpolationStage < 4) {
             self.x += self.xspeed;
             self.y += self.yspeed;
@@ -233,16 +241,18 @@ Projectile = function(id, type, x, y, angle) {
         self.updated = true;
     };
     self.draw = function() {
-        LAYERS.elower.save();
-        LAYERS.elower.translate(self.x, self.y);
-        LAYERS.elower.rotate(self.angle);
-        LAYERS.elower.drawImage(self.animationsCanvas, self.animationStage*self.rawWidth, 0, self.rawWidth, self.rawHeight, -self.width/2, -self.height/2, self.width, self.height);
-        LAYERS.elower.restore();
+        if (self.chunkx >= player.chunkx-renderDistance && self.chunkx <= player.chunkx+renderDistance && self.chunky>= player.chunky-renderDistance && self.chunky <= player.chunky+renderDistance) {
+            LAYERS.elower.save();
+            LAYERS.elower.translate(self.x, self.y);
+            LAYERS.elower.rotate(self.angle);
+            LAYERS.elower.drawImage(self.animationsCanvas, self.animationStage*self.rawWidth, 0, self.rawWidth, self.rawHeight, -self.width/2, -self.height/2, self.width, self.height);
+            LAYERS.elower.restore();
+        }
         if (self.interpolationStage < 4) {
             self.x += self.xspeed;
             self.y += self.yspeed;
-            self.chunkx = Math.floor(self.x/64*MAPS[self.map].chunkwidth);
-            self.chunky = Math.floor(self.y/64*MAPS[self.map].chunkwidth);
+            self.chunkx = Math.floor(self.x/(64*MAPS[self.map].chunkwidth));
+            self.chunky = Math.floor(self.y/(64*MAPS[self.map].chunkwidth));
             self.angle += self.rotationspeed;
             self.interpolationStage++;
         }

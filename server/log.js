@@ -4,25 +4,16 @@ const fs = require('fs');
 
 // chat
 insertChat = function(text, textcolor) {
-    var time = new Date();
-    var utcminute = '' + time.getUTCMinutes();
-    if(utcminute.length === 1){
-        utcminute = '' + 0 + utcminute;
-    }
-    if(utcminute == '0'){
-        utcminute = '00';
-    }
     var color = '#000000';
     if (textcolor == 'server') {
         color = 'server';
-    } else if (textcolor == '#FFFFFF00') {
+    } else if (textcolor == '#FFFFFF00' || textcolor == 'special') {
         color = 'rainbow-pulse'
     } else {
         color = textcolor;
     }
     logColor(text, '\x1b[36m', 'chat');
-    var msg = '[' + time.getUTCHours() + ':' + utcminute + '] ' + text;
-    io.emit('insertChat', {msg:msg, color:color});
+    io.emit('insertChat', {text:text, color:color});
 };
 // logging
 log = function(text) {

@@ -52,7 +52,12 @@ Collision = function(map, x, y, type) {
             error('invalid collision');
             break;
     }
-    Collision.list[map][y][x] = coltype;
+    if (Collision.list[map][y]) {
+        Collision.list[map][y][x] = coltype;
+    } else {
+        Collision.list[map][y] = [];
+        Collision.list[map][y][x] = coltype;
+    }
 };
 Collision.getColEntity = function(map, x, y) {
     var collision = [];
@@ -221,27 +226,79 @@ Collision.getColEntity = function(map, x, y) {
 };
 Collision.list = [];
 
-Spawner = function(map, x, y, type) {
+Spawner = function(map, x, y, types) {
     var self = {
         id: null,
-        x: x,
-        y: y,
+        x: x*64+32,
+        y: y*64+32,
         map: map,
-        type: type
+        types: types
     };
     self.id = Math.random();
-    var spawnedmonster = new Monster(self.type, self.x, self.y, self.map);
-    var spawnedmonster = new Monster(Spawner.list[self.spawnerID].type, Spawner.list[self.spawnerID].x, Spawner.list[self.spawnerID].y, Spawner.list[self.spawnerID].map);
-    setMonsterRespawn(spawnedmonster, Spawner.list[self.spawnerID]);
+
+    self.spawnMonster = function() {
+        try {
+            var multiplier = 0;
+            for (var i in self.types) {
+                multiplier += Monster.types[self.types[i]].spawnChance;
+            }
+            var random = Math.random()*multiplier;
+            var min = 0;
+            var max = 0;
+            var monstertype;
+            for (var i in self.types) {
+                max += Monster.types[self.types[i]].spawnChance;
+                if (random >= min && random <= max) {
+                    monstertype = self.types[i];
+                    break;
+                }
+                min += Monster.types[self.types[i]].spawnChance;
+            }
+            var localmonster = new Monster(monstertype, self.x, self.y, self.map);
+            localmonster.spawnerID = self.id;
+            localmonster.onDeath = function() {
+                localmonster.alive = false;
+                try {
+                    Spawner.list[localmonster.spawnerID].onMonsterDeath();
+                } catch (err) {
+                    error(err);
+                }
+                delete Monster.list[localmonster.id];
+            };
+        } catch (err) {
+            error(err);
+        }
+    };
+    self.onMonsterDeath = function() {
+        var time = Math.random()*10000+10000;
+        setTimeout(function() {
+            self.spawnMonster();
+        }, time);
+    };
+    
+    self.spawnMonster();
+
+    Spawner.list[self.id] = self;
+    return self;
 };
-setMonsterRespawn = function(spawnedmonster, self) {
-    spawnedmonster.spawnerID = self.id;
-    spawnedmonster.onDeath = function() {
-        self.alive = false;
-        delete Monster.list[self.id];
-        setTimeout(async function() {
-            var spawnedmonster = new Monster(Spawner.list[self.spawnerID].type, Spawner.list[self.spawnerID].x, Spawner.list[self.spawnerID].y, Spawner.list[self.spawnerID].map);
-            setMonsterRespawn(spawnedmonster, Spawner.list[self.spawnerID]);
-        });
+Spawner.list = [];
+
+Region = function(map, x, y, properties) {
+    var data = {
+        name: 'missing name',
+        noattack: false,
+        nomonster: false
+    };
+    for (var i in properties) {
+        if (properties[i] == 'noattack') data.noattack = true;
+        else if (properties[i] == 'nomonster') data.nomonster = true;
+        else data.name = properties[i];
+    }
+    if (Region.list[map][y]) {
+        Region.list[map][y][x] = data;
+    } else {
+        Region.list[map][y] = [];
+        Region.list[map][y][x] = data;
     }
 };
+Region.list = [];

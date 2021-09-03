@@ -1,7 +1,7 @@
 // Copyright (C) 2021 Radioactive64
 // Go to README.md for more information
 
-const version = 'heroku testing';
+const version = 'v0.0.7';
 console.info('\x1b[33m%s\x1b[0m', 'Mountain Guarder ' + version + ' copyright (C) Radioactive64 2021');
 const express = require('express');
 const app = express();
@@ -43,8 +43,7 @@ io.on('connection', function(socket) {
 prompt.on('line', async function(input) {
     try {
         appendLog(input, 'log');
-        var command = Function('return (' + input + ')')();
-        var msg = await command;
+        var msg = eval(input)
         if (msg == undefined) {
             msg = 'Successfully executed command';
         }

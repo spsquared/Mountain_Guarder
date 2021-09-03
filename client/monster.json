@@ -22,5 +22,11 @@
         "height": 64,
         "rawWidth": 16,
         "rawHeight": 16
+    },
+    "snowball": {
+        "width": 44,
+        "height": 44,
+        "rawWidth": 11,
+        "rawHeight": 11
     }
 }

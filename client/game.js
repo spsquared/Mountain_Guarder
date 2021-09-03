@@ -21,7 +21,13 @@ LAYERS.mlower = LAYERS.map0.getContext('2d');
 LAYERS.elower = LAYERS.entity0.getContext('2d');
 LAYERS.mupper = LAYERS.map1.getContext('2d');
 LAYERS.eupper = LAYERS.entity1.getContext('2d');
+var mapsloaded = 0;
+var totalmaps = 1;
 socket.on('mapData', function(data) {
+    totalmaps = 0;
+    for (var i in data) {
+        totalmaps++;
+    }
     for (var i in data) {
         loadMap(data[i]);
     }
@@ -34,6 +40,7 @@ function loadMap(name) {
             if (this.status >= 200 && this.status < 400) {
                 var json = JSON.parse(this.response);
                 renderLayers(json, name);
+                mapsloaded++;
             } else {
                 console.error('Error: Server returned status ' + this.status);
             }
@@ -47,7 +54,7 @@ function loadMap(name) {
             loadMap(name);
         }, 100);
     }
-}
+};
 var renderDistance = 1;
 var tilesetloaded = false;
 var tileset = new Image();
@@ -80,11 +87,10 @@ function renderLayers(json, name) {
                     var tileid = rawchunk.data[k];
                     if (tileid != 0) {
                         tileid--;
-                        var imgx, imgy, dx, dy;
-                        imgx = (tileid % 86)*17;
-                        imgy = ~~(tileid / 86)*17;
-                        dx = (k % rawchunk.width)*16;
-                        dy = ~~(k / rawchunk.width)*16;
+                        var imgx = (tileid % 86)*17;
+                        var imgy = ~~(tileid / 86)*17;
+                        var dx = (k % rawchunk.width)*16;
+                        var dy = ~~(k / rawchunk.width)*16;
                         if (json.layers[i].name.includes('Above')) {
                             tupper.drawImage(tileset, Math.round(imgx), Math.round(imgy), 16, 16, Math.round(dx*4), Math.round(dy*4), 64, 64);
                         } else {
@@ -108,14 +114,15 @@ function renderLayers(json, name) {
         }
     }
 };
+
+// draw
 setInterval(function() {
-    if (player) {
+    if (player && mapsloaded >= totalmaps) {
         LAYERS.mlower.clearRect(0, 0, window.innerWidth, window.innerHeight);
         LAYERS.elower.clearRect(0, 0, window.innerWidth, window.innerHeight);
         LAYERS.mupper.clearRect(0, 0, window.innerWidth, window.innerHeight);
         LAYERS.eupper.clearRect(0, 0, window.innerWidth, window.innerHeight);
         CTX.clearRect(0, 0, window.innerWidth, window.innerHeight);
-        // LAYERS.mlower.fillRect(0, 0, 9999, 9999);
         drawMap();
         CTX.drawImage(LAYERS.map0, 0, 0, window.innerWidth, window.innerHeight);
         Entity.draw();
@@ -185,6 +192,11 @@ document.onmousedown = function(e) {
             break;
     }
 };
+
+// chat
+socket.on('insertChat', function(data) {
+    // something to do with css and time and stuff
+});
 
 // player wierdness
 socket.on('self', function(id) {
