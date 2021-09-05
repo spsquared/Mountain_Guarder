@@ -4,6 +4,7 @@
 #gameContainer {
     overflow: hidden;
 }
+
 /* canvas */
 #ctx {
     position: absolute;
@@ -12,4 +13,246 @@
     width: 100%;
     height: 100%;
     cursor: crosshair;
+    z-index: 0;
+}
+
+/* stats */
+#stats {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    cursor: crosshair;
+    width: 160px;
+    height: 80px;
+    z-index: 0;
+}
+#statsHP {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    width: 150px;
+    height: 20px;
+}
+#statsHPvalue {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 20px;
+    background-color: red;
+}
+#statsHPtext {
+    position: absolute;
+    left: 0px;
+    top: -2px;
+    width: 150px;
+    height: 20px;
+    text-align: center;
+}
+#statsXP {
+    position: absolute;
+    top: 30px;
+    left: 5px;
+    width: 150px;
+    height: 20px;
+}
+#statsXPvalue {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 20px;
+    background-color: #CCCC00;
+}
+#statsXPtext {
+    position: absolute;
+    left: 0px;
+    top: -2px;
+    width: 150px;
+    height: 20px;
+    text-align: center;
+}
+#statsMN {
+    position: absolute;
+    top: 55px;
+    left: 5px;
+    width: 150px;
+    height: 20px;
+}
+#statsMNvalue {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 20px;
+    background-color: #FF9900;
+}
+#statsMNtext {
+    position: absolute;
+    left: 0px;
+    top: -2px;
+    width: 150px;
+    height: 20px;
+    text-align: center;
+}
+
+/* region name */
+#regionName {
+    position: absolute;
+    top: 15%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 60px;
+    color: #362b20;
+    background-color: #725640;
+    border: 2px solid #000000;
+    margin-right: -50%;
+    padding: 8px 20px;
+    opacity: 0;
+    cursor: crosshair;
+    z-index: 2;
+}
+
+/* bossbars */
+#bossBars {
+    position: absolute;
+    text-align: center;
+    z-index: 1;
+}
+.bossBar {
+    width: 70vw;
+    height: 40px;
+    margin: 4px;
+    border: 2px solid black;
+    font-family: 'Pixel';
+    font-size: 30px;
+    color: white;
+    text-align: center;
+}
+.bossBar-value {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    background-color: red;
+}
+.bossBar-text {
+    padding-top: -2px;
+}
+
+/* fps */
+#fps {
+    position: absolute;
+    bottom: 16px;
+    left: 16px;
+    background-color: #00000055;
+    padding: 2px 4px;
+    padding-right: 2px;
+    cursor: crosshair;
+    z-index: 1;
+}
+
+/* chat */
+#chat {
+    position: absolute;
+    bottom: 0px;
+    left: 25vw;
+    text-align: center;
+    width: 50%;
+    z-index: 1;
+}
+#chatText {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+}
+#chatInput {
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+    width: 100%;
+}
+
+/* dropdown menu */
+#dropdownMenu {
+    position: absolute;
+    top: 0px;
+    left: 165px;
+    width: 80px;
+    z-index: 1;
+}
+#dropdownMenuItems {
+    display: none;
+}
+
+/* inventory */
+#inventoryItemsBlock {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 436px;
+    height: 528px;
+}
+#inventoryItems {
+    margin-top: 8px;
+    width: 100%;
+    height: 100%;
+    overflow-y: scroll;
+}
+#inventoryEquipsBlock {
+    position: absolute;
+    top: 0px;
+    left: 446px;
+    width: 436px;
+    height: 528px;
+}
+#inventoryEquips {
+    margin-top: 8px;
+    width: 100%;
+    height: 100%;
+}
+
+/* windows */
+.window {
+    display: none;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 900px;
+    height: 600px;
+    z-index: 3;
+}
+.window .window-bar {
+    padding-left: 6px;
+    padding-top: 3px;
+    height: 24px;
+    background-color: #2c2216;
+    cursor: move;
+}
+.window .window-bar .window-close {
+    cursor: pointer;
+    display: inline-block;
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    background-color: #eeeeee;
+    width: 16px;
+    height: 16px;
+    padding-left: 2px;
+    padding-top: 2px;
+}
+.window .window-body {
+    position: absolute;
+    top: 32px;
+    left: 8px;
+}
+.menuButton {
+    position: relative;
+    top: 3px;
+    left: 1px;
+    width: 103px;
+    height: 30px;
+    margin-bottom: 4px;
+    margin-right: 1px;
 }

@@ -13,10 +13,10 @@
         <script src="/socket.io/socket.io.js"></script>
         <script src="https://code.jquery.com/jquery-3.5.0.js"></script>
         <script>socket = io();</script>
-        <script src="./client/game.js" defer></script>
+        <script src="./client/index.js" defer></script>
         <script src="./client/menu.js" defer></script>
         <script src="./client/entity.js" defer></script>
-        <script src="./client/index.js" defer></script>
+        <script src="./client/game.js" defer></script>
         <link rel="stylesheet" href="./client/assets/main.css">
         <link rel="stylesheet" href="./client/assets/game.css">
     </head>
@@ -24,14 +24,74 @@
         <div id="signinContainer">
             <!-- sign in stuff, announcements, and changelog -->
         </div>
-        <div id="gameContainer" class="noSelect">
+        <div id="gameContainer">
             <canvas id="ctx"></canvas>
-            <div id="ingameStats"></div>
-            <div id="ingameDropdown">
-                <!-- not boring dropdown menu -->
+            <div id="stats" class="ui-block noSelect">
+                <div id="statsHP">
+                    <div id="statsHPvalue"></div>
+                    <div id="statsHPtext" class="ui-lighttext">0/100</div>
+                </div>
+                <div id="statsXP">
+                    <div id="statsXPvalue"></div>
+                    <div id="statsXPtext" class="ui-lighttext">0/0</div>
+                </div>
+                <div id="statsMN">
+                    <div id="statsMNvalue"></div>
+                    <div id="statsMNtext" class="ui-lighttext">0/200</div>
+                </div>
             </div>
-            <div id="ingameMenu">
-                <!-- inventory and stuff -->
+            <div id="bossBars" class="noSelect"></div>
+            <div id="regionName" class="ui-lighttext ui-block"></div>
+            <div class="ui-lighttext noSelect">
+                <div id="fps">0</div>
+            </div>
+            <div id="chat" class="ui-darktext">
+                <div id="chatText"></div>
+                <input type="text" id="chatInput" class="ui-textInput" maxlength="64" autocomplete="off" spellcheck="false">
+            </div>
+            <div id="dropdownMenu" class="noSelect">
+                <button id="dMenuButton" class="ui-lightbutton" onclick="toggleDropdown();">Menu &#x25BC;</button>
+                <div id="dropdownMenuItems">
+                    <button id="inventoryButton" class="ui-lightbutton" onclick="openInventory();">Inventory</button>
+                    <button id="settingsButton" class="ui-lightbutton" onclick="openSettings();">Settings</button>
+                </div>
+            </div>
+            <div class="noSelect">
+                <div id="inventory" class="window ui-block ui-lighttext">
+                    <div id="inventoryBar" class="window-bar ui-block">
+                        <span>Inventory</span>
+                        <span id="inventoryClose" class="window-close">
+                            <svg viewport="0 0 12 12" version="1.1" width="18" height="18" xmlns="http://www.w3.org/2000/svg">
+                                <line x1="2" y1="12" x2="12" y2="2" stroke="black" strokeWidth="5"/>
+                                <line x1="2" y1="2" x2="12" y2="12" stroke="black" strokeWidth="5"/>
+                            </svg>
+                        </span>
+                    </div>
+                    <div class="window-body">
+                        <div id="inventoryItemsBlock">
+                            <div>Items</div>
+                            <div id="inventoryItems" class="ui-block"></div>
+                        </div>
+                        <div id="inventoryEquipsBlock">
+                            <div>Equips</div>
+                            <div id="inventoryEquips" class="ui-block"></div>
+                        </div>
+                    </div>
+                </div>
+                <div id="settings" class="window ui-block ui-lighttext">
+                    <div id="settingsBar" class="window-bar ui-block">
+                        <span>Settings</span>
+                        <span id="settingsClose" class="window-close">
+                            <svg viewport="0 0 12 12" version="1.1" width="18" height="18" xmlns="http://www.w3.org/2000/svg">
+                                <line x1="2" y1="12" x2="12" y2="2" stroke="black" strokeWidth="5"/>
+                                <line x1="2" y1="2" x2="12" y2="12" stroke="black" strokeWidth="5"/>
+                            </svg>
+                        </span>
+                    </div>
+                    <div class="window-body">
+                        aaaa do something
+                    </div>
+                </div>
             </div>
         </div>
     </body>

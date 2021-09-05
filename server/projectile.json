@@ -1,7 +1,7 @@
 {
     "arrow": {
-        "width": 20,
-        "height": 20,
+        "width": 98,
+        "height": 10,
         "speed": 40,
         "pattern": "none",
         "damage": 10
@@ -9,7 +9,7 @@
     "ninjastar": {
         "width": 18,
         "height": 18,
-        "speed": 60,
+        "speed": 40,
         "pattern": "spin",
         "damage": 10
     },

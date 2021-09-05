@@ -2,25 +2,10 @@
 
 var player = null;
 var playerid = null;
+var mouseX = 0;
+var mouseY = 0;
 
-// rendering
-CTXRAW = document.getElementById('ctx')
-CTX = CTXRAW.getContext('2d');
-MAPS = [];
-LAYERS = {
-    map0: new OffscreenCanvas(100, 100),
-    entity0: new OffscreenCanvas(100, 100),
-    map1: new OffscreenCanvas(100, 100),
-    entity1: new OffscreenCanvas(100, 100),
-    mlower: null,
-    elower: null,
-    mupper: null,
-    eupper: null
-};
-LAYERS.mlower = LAYERS.map0.getContext('2d');
-LAYERS.elower = LAYERS.entity0.getContext('2d');
-LAYERS.mupper = LAYERS.map1.getContext('2d');
-LAYERS.eupper = LAYERS.entity1.getContext('2d');
+// maps
 var mapsloaded = 0;
 var totalmaps = 1;
 socket.on('mapData', function(data) {
@@ -114,6 +99,9 @@ function renderLayers(json, name) {
         }
     }
 };
+socket.on('region', function(name) {
+
+});
 
 // draw
 setInterval(function() {
@@ -185,12 +173,47 @@ document.onkeyup = function(e) {
 document.onmousedown = function(e) {
     switch (e.button) {
         case 0:
-            socket.emit('click', {button:'left', x:e.clientX+player.x-window.innerWidth/2, y:e.clientY+player.y-window.innerHeight/2});
+            socket.emit('click', {button: 'left', x: e.clientX-window.innerWidth/2, y: e.clientY-window.innerHeight/2, state: true});
             break;
         case 2:
-            socket.emit('click', {button:'right', x:e.clientX+player.x-window.innerWidth/2, y:e.clientY+player.y-window.innerHeight/2});
+            socket.emit('click', {button: 'right', x: e.clientX-window.innerWidth/2, y: e.clientY-window.innerHeight, state: true});
             break;
     }
+};
+document.onmouseup = function(e) {
+    switch (e.button) {
+        case 0:
+            socket.emit('click', {button: 'left', x: e.clientX-window.innerWidth/2, y: e.clientY-window.innerHeight/2, state: false});
+            break;
+        case 2:
+            socket.emit('click', {button: 'right', x: e.clientX-window.innerWidth/2, y: e.clientY-window.innerHeight, state: false});
+            break;
+    }
+};
+document.onmousemove = function(e) {
+    socket.emit('mouseMove', {x: e.clientX-window.innerWidth/2, y: e.clientY-window.innerHeight/2});
+};
+
+// menu buttons
+var menuopen = false;
+function toggleDropdown() {
+    if (menuopen) {
+        document.getElementById('dropdownMenuItems').style.display = 'none';
+        menuopen = false;
+    } else {
+        document.getElementById('dropdownMenuItems').style.display = 'block';
+        menuopen = true;
+    }
+};
+var inventoryWindow = new DraggableWindow('inventory');
+var settingsWindow = new DraggableWindow('settings');
+function openInventory() {
+    inventoryWindow.show();
+    toggleDropdown();
+};
+function openSettings() {
+    settingsWindow.show();
+    toggleDropdown();
 };
 
 // chat

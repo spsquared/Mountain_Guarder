@@ -14,11 +14,56 @@ html, body {
     margin: 0;
 }
 
+/* scrollbar */
+::-webkit-scrollbar {
+    width: 20px;
+  }
+::-webkit-scrollbar-track {
+    background: rgba(40, 40, 40, 0.5); 
+}
+::-webkit-scrollbar-thumb {
+    background: rgba(20, 20, 20, 0.5); 
+}
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(25, 25, 25, 0.5); 
+}
+::-webkit-scrollbar-thumb:active {
+    background: rgba(15, 15, 15, 0.5); 
+}
+
 /* ui classes */
 .ui-lighttext {
     font-family: 'Pixel';
-    font-size: 16;
+    font-size: 16px;
     color: white;
+}
+.ui-darktext {
+    font-family: 'Pixel';
+    font-size: 16px;
+    color: black;
+}
+.ui-lightbutton {
+    font-family: 'Pixel';
+    font-size: 16px;
+    color: white;
+    background-color: #362a1e;
+    border: 1px solid #000000;
+    transition-duration: 0.1s;
+    cursor: pointer;
+    padding: 2px 5px;
+}
+.ui-lightbutton:hover {
+    background-color: #231913;
+}
+.ui-block {
+    background-color: #362a1e;
+    border: 1px solid black;
+}
+.ui-textInput {
+    font-family: 'Pixel';
+    font-size: 14px;
+    color: black;
+
 }
 .noSelect {
     user-select: none;

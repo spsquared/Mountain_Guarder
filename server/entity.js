@@ -119,7 +119,7 @@ Entity = function() {
                 }
             }
         }
-    }
+    };
     self.collideWith = function(entity) {
         var bound1left = self.x-(self.width/2);
         var bound1right = self.x+(self.width/2);
@@ -181,7 +181,7 @@ Rig = function() {
     self.animationStage = 0;
     self.animationLength = 0;
     self.lastFrameUpdate = 0;
-    self.animationSpeed = 500;
+    self.animationSpeed = 100;
     self.moveSpeed = 20;
     self.stats = {
         attack: 1,
@@ -193,7 +193,13 @@ Rig = function() {
         critChance: 0
     };
     self.hp = 100;
+    self.maxHP = 100;
+    self.xp = 0;
+    self.maxXP = 0;
+    self.mana = 200;
+    self.maxMana = 200;
     self.alive = true;
+    self.lastAttack = 0;
 
     self.update = function() {
         self.updatePos();
@@ -225,6 +231,7 @@ Rig = function() {
         if (self.lastFrameUpdate >= seconds(self.animationSpeed/1000)) {
             self.animationStage++;
             if (self.animationStage > self.animationLength) self.animationStage = 0;
+            self.lastFrameUpdate = 0;
         }
     };
     self.onHit = function(entity, type) {
@@ -283,6 +290,9 @@ Player = function(socket) {
     self.id = Math.random();
     self.x = 80;
     self.y = 80;
+    self.attacking = false;
+    self.mouseX = 0;
+    self.mouseY = 0;
 
     var maps = [];
     for (var i in Collision.list) {
@@ -297,10 +307,32 @@ Player = function(socket) {
     });
     socket.on('click', function(data) {
         if (data.button == 'left') {
-            if (!self.region.noattack) new Projectile('arrow', self.x, self.y, self.map, data.x, data.y, self.id);
+            self.attacking = data.state;
+            self.mouseX = data.x;
+            self.mouseY = data.y; 
         }
     });
+    socket.on('mouseMove', function(data) {
+        self.mouseX = data.x;
+        self.mouseY = data.y;
+    });
 
+    self.update = function() {
+        self.updatePos();
+        if (self.hp < 1) {
+            self.onDeath();
+        }
+        self.lastAttack++;
+        if (self.attacking && !self.region.noattack && self.lastAttack > seconds(0.2)) {
+            self.lastAttack = 0;
+            new Projectile('arrow', self.x, self.y, self.map, self.x+self.mouseX, self.y+self.mouseY, self.id);
+        }
+        self.updateAnimation();
+        self.updateClient();
+    };
+    self.updateClient = function() {
+        
+    };
     self.onRegionChange = function() {
         socket.emit('region', self.region.name);
     };
@@ -403,23 +435,45 @@ Monster = function(type, x, y, map) {
         if (self.ai.aggroTarget) {
             switch (self.ai.attackType) {
                 case 'bird':
-                    // ninja stars (ninja birds lol)
+                    if (self.ai.lastAttack > seconds(1)) {
+                        if (self.ai.attackStage == 5) {
+                            new Projectile('ninjastar', self.x, self.y, self.map, self.ai.aggroTarget.x+Math.random()*10-20, self.ai.aggroTarget.y+Math.random()*10-20, self.id);
+                            self.ai.attackStage = 0;
+                            self.ai.lastAttack = 0;
+                        }
+                        if (self.ai.attackStage == 1) {
+                            new Projectile('ninjastar', self.x, self.y, self.map, self.ai.aggroTarget.x+Math.random()*10-20, self.ai.aggroTarget.y+Math.random()*10-20, self.id);
+                        }
+                        self.ai.attackStage++;
+                    }
                     break;
                 case 'snowbird':
-                    // snowballs
+                    if (self.ai.lastAttack > seconds(1)) {
+                        if (self.ai.attackStage == 5) {
+                            new Projectile('snowball', self.x, self.y, self.map, self.ai.aggroTarget.x+Math.random()*10-20, self.ai.aggroTarget.y+Math.random()*10-20, self.id);
+                            self.ai.attackStage = 0;
+                            self.ai.lastAttack = 0;
+                        }
+                        if (self.ai.attackStage == 1) {
+                            new Projectile('snowball', self.x, self.y, self.map, self.ai.aggroTarget.x+Math.random()*10-20, self.ai.aggroTarget.y+Math.random()*10-20, self.id);
+                        }
+                        self.ai.attackStage++;
+                    }
                     break;
                 case 'cherrybomb':
                     if (self.getDistance(self.ai.aggroTarget) < 64) {
                         self.ai.attackType = 'exploding';
                         self.moveSpeed = 0;
-                        self.hp = 1000000000000;
+                        self.hp = 1000000000000000000;
+                        self.alive = false;
                         self.animationStage = 0;
                         self.animationLength = 10;
+                        self.onDeath = function() {};
                         for (var i in Monster.list) {
-                            Monster.list[i].hp -= self.stats.attack;
+                            if (parseFloat(i) != self.id && self.getDistance(Monster.list[i]) < 128) Monster.list[i].hp = 0;
                         }
                         for (var i in Player.list) {
-                            Player.list[i].hp -= self.stats.attack;
+                            if (self.getDistance(Player.list[i]) < 128) Player.list[i].hp = 0;
                         }
                     }
                     break;
@@ -432,18 +486,20 @@ Monster = function(type, x, y, map) {
                             self.ai.attackStage = 0;
                             self.ai.lastAttack = 0;
                         }
-                        self.animationLength = 7;
-                        self.animationSpeed = 100;
-                        var angle = 18*self.ai.attackStage;
+                        if (self.ai.attackStage == 1) {
+                            self.animationLength = 7;
+                            self.animationSpeed = 100;
+                        }
+                        var angle = 16*self.ai.attackStage;
                         new Projectile('snowball', self.x, self.y, self.map, self.x+Math.cos(angle*(Math.PI/180)), self.y+Math.sin(angle*(Math.PI/180)), self.id);
                         new Projectile('snowball', self.x, self.y, self.map, self.x+Math.cos((angle-90)*(Math.PI/180)), self.y+Math.sin((angle-90)*(Math.PI/180)), self.id);
                         new Projectile('snowball', self.x, self.y, self.map, self.x+Math.cos((angle-180)*(Math.PI/180)), self.y+Math.sin((angle-180)*(Math.PI/180)), self.id);
                         new Projectile('snowball', self.x, self.y, self.map, self.x+Math.cos((angle-270)*(Math.PI/180)), self.y+Math.sin((angle-270)*(Math.PI/180)), self.id);
                         self.ai.attackStage++;
                     }
-                    if (self.animationStage >= 6) {
+                    if (self.animationStage == 7) {
                         self.animationLength = 0;
-                        self.animationSpeed = 500;
+                        self.animationSpeed = 100;
                     }
                     break;
                 default:
@@ -663,6 +719,44 @@ Projectile = function(type, x, y, map, mousex, mousey, parentID) {
                 }
             }
         }
+    };
+    self.collideWith = function(entity) {
+        var vertices = [
+            {x: ((self.width/2)*Math.cos(self.angle))-((self.height/2)*Math.sin(self.angle))+self.x, y: ((self.width/2)*Math.sin(self.angle))+((self.height/2)*Math.cos(self.angle))+self.y},
+            {x: ((self.width/2)*Math.cos(self.angle))-((-self.height/2)*Math.sin(self.angle))+self.x, y: ((self.width/2)*Math.sin(self.angle))+((-self.height/2)*Math.cos(self.angle))+self.y},
+            {x: ((-self.width/2)*Math.cos(self.angle))-((-self.height/2)*Math.sin(self.angle))+self.x, y: ((-self.width/2)*Math.sin(self.angle))+((-self.height/2)*Math.cos(self.angle))+self.y},
+            {x: ((-self.width/2)*Math.cos(self.angle))-((self.height/2)*Math.sin(self.angle))+self.x, y: ((-self.width/2)*Math.sin(self.angle))+((self.height/2)*Math.cos(self.angle))+self.y},
+            {x: self.x, y: self.y}
+        ];
+        var vertices2 = [
+            {x: entity.x+entity.width/2, y: entity.y+entity.height/2},
+            {x: entity.x+entity.width/2, y: entity.y-entity.height/2},
+            {x: entity.x-entity.width/2, y: entity.y-entity.height/2},
+            {x: entity.x-entity.width/2, y: entity.y+entity.height/2}
+        ];
+        function getSlope(pt1, pt2) {
+            return (pt2.y - pt1.y) / (pt2.x - pt1.x);
+        };
+
+        for (var i = 0; i < 4; i++) {
+            if (vertices2[i].y-vertices[0].y < (getSlope(vertices[0],vertices[1])*(vertices2[i].x-vertices[0].x))) {
+                if (vertices2[i].y-vertices[1].y > (getSlope(vertices[1],vertices[2])*(vertices2[i].x-vertices[1].x))) {
+                    if (vertices2[i].y-vertices[2].y > (getSlope(vertices[2],vertices[3])*(vertices2[i].x-vertices[2].x))) {
+                        if (vertices2[i].y-vertices[3].y < (getSlope(vertices[3],vertices[0])*(vertices2[i].x-vertices[3].x))) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            if (vertices[i].x > vertices2[2].x && vertices[i].x < vertices2[0].x && vertices[i].y > vertices2[2].y && vertices[i].y < vertices2[0].y) {
+                return true;
+            }
+        }
+        if (vertices[4].x > vertices2[2].x && vertices[4].x < vertices2[0].x && vertices[4].y > vertices2[2].y && vertices[4].y < vertices2[0].y) {
+            return true;
+        }
+
+        return false;
     };
     
     Projectile.list[self.id] = self;

@@ -2,6 +2,25 @@
 
 $.ajaxSetup({cache: true, async:false});
 
+// canvas
+CTXRAW = document.getElementById('ctx')
+CTX = CTXRAW.getContext('2d');
+MAPS = [];
+LAYERS = {
+    map0: new OffscreenCanvas(100, 100),
+    entity0: new OffscreenCanvas(100, 100),
+    map1: new OffscreenCanvas(100, 100),
+    entity1: new OffscreenCanvas(100, 100),
+    mlower: null,
+    elower: null,
+    mupper: null,
+    eupper: null
+};
+LAYERS.mlower = LAYERS.map0.getContext('2d');
+LAYERS.elower = LAYERS.entity0.getContext('2d');
+LAYERS.mupper = LAYERS.map1.getContext('2d');
+LAYERS.eupper = LAYERS.entity1.getContext('2d');
+
 // canvas scaling and pixelation
 var dpr = 1;
 if (window.devicePixelRatio) {
