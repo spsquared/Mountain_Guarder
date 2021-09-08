@@ -16,5 +16,11 @@
         "height": 18,
         "rawWidth": 9,
         "rawHeight": 9
+    },
+    "fastsnowball": {
+        "width": 18,
+        "height": 18,
+        "rawWidth": 9,
+        "rawHeight": 9
     }
 }

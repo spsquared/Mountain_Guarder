@@ -11,7 +11,7 @@
         "height": 18,
         "speed": 40,
         "pattern": "spin",
-        "damage": 10
+        "damage": 5
     },
     "snowball": {
         "width": 18,
@@ -19,5 +19,12 @@
         "speed": 30,
         "pattern": "spin",
         "damage": 5
+    },
+    "fastsnowball": {
+        "width": 18,
+        "height": 18,
+        "speed": 40,
+        "pattern": "spin",
+        "damage": 10
     }
 }

@@ -19,6 +19,7 @@
             "critChance": 0
         },
         "animationLength": 1,
+        "xpDrop": 5,
         "drops": {
             "to be determined": 0
         }
@@ -43,6 +44,7 @@
             "critChance": 0
         },
         "animationLength": 1,
+        "xpDrop": 5,
         "drops": {
             "to be determined": 0
         }
@@ -67,6 +69,7 @@
             "critChance": 10
         },
         "animationLength": 1,
+        "xpDrop": 10,
         "drops": {
             "to be determined": 0
         }
@@ -91,6 +94,7 @@
             "critChance": 0
         },
         "animationLength": 1,
+        "xpDrop": 20,
         "drops": {
             "to be determined": 0
         }
@@ -115,6 +119,7 @@
             "critChance": 0
         },
         "animationLength": 0,
+        "xpDrop": 10,
         "drops": {
             "to be determined": 0
         }

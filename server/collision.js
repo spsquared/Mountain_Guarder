@@ -256,8 +256,11 @@ Spawner = function(map, x, y, types) {
             }
             var localmonster = new Monster(monstertype, self.x, self.y, self.map);
             localmonster.spawnerID = self.id;
-            localmonster.onDeath = function() {
+            localmonster.onDeath = function(entity) {
                 localmonster.alive = false;
+                if (entity) {
+                    entity.xp += self.xpDrop;
+                }
                 try {
                     Spawner.list[localmonster.spawnerID].onMonsterDeath();
                 } catch (err) {

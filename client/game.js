@@ -4,6 +4,8 @@ var player = null;
 var playerid = null;
 var mouseX = 0;
 var mouseY = 0;
+var mapnameFade = null;
+var mapnameWait = null;
 
 // maps
 var mapsloaded = 0;
@@ -99,9 +101,6 @@ function renderLayers(json, name) {
         }
     }
 };
-socket.on('region', function(name) {
-
-});
 
 // draw
 setInterval(function() {
@@ -137,7 +136,7 @@ function drawMap() {
     LAYERS.mupper.restore();
 };
 
-// update ticks
+// send/recieve packets
 socket.on('updateTick', function(data) {
     Entity.update(data);
     player = Player.list[playerid];
@@ -193,6 +192,58 @@ document.onmouseup = function(e) {
 document.onmousemove = function(e) {
     socket.emit('mouseMove', {x: e.clientX-window.innerWidth/2, y: e.clientY-window.innerHeight/2});
 };
+socket.on('region', function(name) {
+    clearInterval(mapnameFade);
+    clearTimeout(mapnameWait);
+    document.getElementById('regionName').innerText = name;
+    var opacity = 0;
+    mapnameFade = setInterval(function() {
+        opacity += 0.04;
+        document.getElementById('regionName').style.opacity = opacity;
+        if (opacity >= 1) {
+            clearInterval(mapnameFade);
+            fade = null;
+        }
+    }, 20);
+    mapnameWait = setTimeout(function() {
+        opacity = 1;
+        mapnameFade = setInterval(function() {
+            opacity -= 0.02;
+            document.getElementById('regionName').style.opacity = opacity;
+            if (opacity <= 0) {
+                clearInterval(mapnameFade);
+                fade = null;
+            }
+        }, 20);
+    }, 6000);
+});
+socket.on('updateSelf', function(data) {
+    document.getElementById('statsHPvalue').style.width = (data.hp/data.maxHP)*100 + '%';
+    document.getElementById('statsHPtext').innerText = data.hp + '/' + data.maxHP;
+    document.getElementById('statsXPvalue').style.width = (data.xp/data.maxXP)*100 + '%';
+    document.getElementById('statsXPtext').innerText = data.xp + '/' + data.maxXP;
+    document.getElementById('statsMNvalue').style.width = (data.mana/data.maxMana)*100 + '%';
+    document.getElementById('statsMNtext').innerText = data.mana + '/' + data.maxMana;
+});
+socket.on('playerDied', function() {
+    document.getElementById('respawnButton').style.display = 'none';
+    document.getElementById('deathScreen').style.display = 'block';
+    var time = 5;
+    document.getElementById('respawnTimer').innerText = time;
+    var timer = setInterval(function() {
+        time--;
+        document.getElementById('respawnTimer').innerText = time;
+        if (time == 0) {
+            clearInterval(timer);
+            document.getElementById('respawnButton').style.display = 'block';
+        }
+    }, 1000);
+});
+function respawn() {
+    socket.emit('respawn');
+    document.getElementById('respawnButton').style.display = 'none';
+    document.getElementById('deathScreen').style.display = 'none';
+}
 
 // menu buttons
 var menuopen = false;

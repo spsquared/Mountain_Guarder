@@ -53,6 +53,7 @@ If you can't resolve your problem after trying these solutions or your problem i
 | 0.0.6   | <ul><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/4" target="_blank">Fixed heroku deploy for the last time (Issue #4)</a></li></ul> |
 | 0.0.7   | <ul><li>Added monster spawners</li><li>Expanded map</li><li>Most monsters attack now</li><li>Monsters aggro on players when hit by them or their projectiles</li><li>Added snowballs</li><li>Projectiles can have patterns now</li><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/5" target="_blank">Fixed client not waiting for loading (Issue #5)</a></li><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/7" target="_blank">Projectiles now despawn (Issue #7)</a></li></ul> |
 | 0.0.8   | <ul><li>Added diagonal projectile collisions</li><li>Filled in placeholders for some of the UI</li><li>Fixed cherrybombs</li><li>Holding the mouse button now continuously attacks</li><li>Improved snowballs</li><li>Birds and Snow Birds now attack</li></ul> |
+| 0.0.9   | <ul><li>Added region name sign</li><li>Expanded map and added "The Tundra" region</li><li>Added death screen</li><li>Cherry Bombs can now trigger and explode other Cherry Bombs</li><li>Snowbirds now throw faster snowballs</li></ul> |
 
 ***
 

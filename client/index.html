@@ -41,7 +41,7 @@
                 </div>
             </div>
             <div id="bossBars" class="noSelect"></div>
-            <div id="regionName" class="ui-lighttext ui-block"></div>
+            <div id="regionName" class="ui-lighttext ui-block noSelect"></div>
             <div class="ui-lighttext noSelect">
                 <div id="fps">0</div>
             </div>
@@ -57,7 +57,7 @@
                 </div>
             </div>
             <div class="noSelect">
-                <div id="inventory" class="window ui-block ui-lighttext">
+                <div id="inventory" class="window ui-block ui-lighttext noSelect">
                     <div id="inventoryBar" class="window-bar ui-block">
                         <span>Inventory</span>
                         <span id="inventoryClose" class="window-close">
@@ -78,7 +78,7 @@
                         </div>
                     </div>
                 </div>
-                <div id="settings" class="window ui-block ui-lighttext">
+                <div id="settings" class="window ui-block ui-lighttext noSelect">
                     <div id="settingsBar" class="window-bar ui-block">
                         <span>Settings</span>
                         <span id="settingsClose" class="window-close">
@@ -92,6 +92,11 @@
                         aaaa do something
                     </div>
                 </div>
+            </div>
+            <div id="deathScreen" class="noSelect">
+                <p id="youdied" class="ui-lighttext">You Died!</p>
+                <p id="respawnTimer" class="ui-lighttext">0</p>
+                <button id="respawnButton" class="ui-lightbutton" onclick="respawn();">Respawn</button>
             </div>
         </div>
     </body>

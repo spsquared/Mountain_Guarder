@@ -203,9 +203,6 @@ Rig = function() {
 
     self.update = function() {
         self.updatePos();
-        if (self.hp < 1) {
-            self.onDeath();
-        }
         self.updateAnimation();
     };
     self.updatePos = function() {
@@ -216,13 +213,18 @@ Rig = function() {
         if (self.keys.left) self.xspeed = -self.moveSpeed;
         if (self.keys.right) self.xspeed = self.moveSpeed;
         self.collide();
-        self.region = {
-            name: 'The Wilderness',
-            noattack: false,
-            nomonster: false
-        };
+        var foundregion = false;
         if (Region.list[self.map][self.gridy]) if (Region.list[self.map][self.gridy][self.gridx]) if (Region.list[self.map][self.gridy][self.gridx].name != self.region.name) {
             self.region = Region.list[self.map][self.gridy][self.gridx];
+            self.onRegionChange();
+        }
+        if (Region.list[self.map][self.gridy]) if (Region.list[self.map][self.gridy][self.gridx]) foundregion = true;
+        if (!foundregion && self.region.name != 'The Wilderness') {
+            self.region = {
+                name: 'The Wilderness',
+                noattack: false,
+                nomonster: false
+            };
             self.onRegionChange();
         }
     };
@@ -300,28 +302,32 @@ Player = function(socket) {
     }
     socket.emit('mapData', maps);
     socket.on('keyPress', function(data) {
-        if (data.key == 'up') self.keys.up = data.state;
-        if (data.key == 'down') self.keys.down = data.state;
-        if (data.key == 'left') self.keys.left = data.state;
-        if (data.key == 'right') self.keys.right = data.state;
+        if (self.alive) {
+            if (data.key == 'up') self.keys.up = data.state;
+            if (data.key == 'down') self.keys.down = data.state;
+            if (data.key == 'left') self.keys.left = data.state;
+            if (data.key == 'right') self.keys.right = data.state;
+        }
     });
     socket.on('click', function(data) {
-        if (data.button == 'left') {
-            self.attacking = data.state;
-            self.mouseX = data.x;
-            self.mouseY = data.y; 
+        if (self.alive) {
+            if (data.button == 'left') {
+                self.attacking = data.state;
+                self.mouseX = data.x;
+                self.mouseY = data.y; 
+            }
         }
     });
     socket.on('mouseMove', function(data) {
         self.mouseX = data.x;
         self.mouseY = data.y;
     });
+    socket.on('respawn', function() {
+        self.respawn();
+    });
 
     self.update = function() {
         self.updatePos();
-        if (self.hp < 1) {
-            self.onDeath();
-        }
         self.lastAttack++;
         if (self.attacking && !self.region.noattack && self.lastAttack > seconds(0.2)) {
             self.lastAttack = 0;
@@ -331,10 +337,33 @@ Player = function(socket) {
         self.updateClient();
     };
     self.updateClient = function() {
-        
+        var pack = {
+            hp: self.hp,
+            maxHP: self.maxHP,
+            xp: self.xp,
+            maxXP: self.maxXP,
+            mana: self.mana,
+            maxMana: self.maxMana,
+        }
+        socket.emit('updateSelf', pack);
     };
     self.onRegionChange = function() {
         socket.emit('region', self.region.name);
+    };
+    self.onDeath = function(entity) {
+        self.alive = false;
+        socket.emit('playerDied');
+        self.keys = {
+            up: false,
+            down: false,
+            left: false,
+            right: false
+        };
+        self.attacking = false;
+    };
+    self.respawn = function() {
+        self.hp = self.maxHP;
+        self.alive = true;
     };
 
     Player.list[self.id] = self;
@@ -379,7 +408,8 @@ Monster = function(type, x, y, map) {
         lastAttack: 0,
         attackStage: 0,
         attackTime: 0,
-        aggroRange: 0
+        aggroRange: 0,
+        damaged: false
     };
     self.targetMonsters = false;
     var tempmonster = Monster.types[type];
@@ -389,17 +419,17 @@ Monster = function(type, x, y, map) {
     self.width = tempmonster.width;
     self.height = tempmonster.height;
     self.hp = tempmonster.hp;
+    self.xpDrop = tempmonster.xpDrop;
     self.ai.attackType = tempmonster.attackType;
     self.ai.aggroRange = tempmonster.aggroRange;
     self.animationLength = tempmonster.animationLength;
 
     self.update = function() {
-        if (self.hp < 1) {
-            self.onDeath();
-        }
         self.updateAnimation();
         self.updateAggro();
+        self.path();
         self.updatePos();
+        self.attack();
     };
     self.updatePos = function() {
         self.collide();
@@ -414,23 +444,33 @@ Monster = function(type, x, y, map) {
         }
     };
     self.updateAggro = function() {
-        self.ai.aggroTarget = null;
         if (self.targetMonsters) {
+            var targetfound = false;
             var lowest = null;
             for (var i in Monster.list) {
                 if (lowest == null) lowest = i;
-                if (self.getDistance(Monster.list[i]) < self.ai.aggroRange*64 && self.getDistance(Monster.list[i]) < self.getDistance(Monster.list[lowest]) && i != self.id && !Monster.list[i].region.nomonster) lowest = i;
+                if (self.getDistance(Monster.list[i]) < self.ai.aggroRange*64 && self.getDistance(Monster.list[i]) < self.getDistance(Monster.list[lowest]) && i != self.id && !Monster.list[i].region.nomonster && Monster.list[i].alive) {
+                    lowest = i;
+                }
             }
-            self.ai.aggroTarget = Monster.list[lowest];
+            if (lowest) targetfound = true;
+            if (targetfound) self.ai.aggroTarget = Monster.list[lowest];
+            if (!targetfound && !self.damaged) self.ai.aggroTarget = null;
         } else {
+            var targetfound = false;
             var lowest = null;
             for (var i in Player.list) {
                 if (lowest == null) lowest = i;
-                if (self.getDistance(Player.list[i]) < self.ai.aggroRange*64 && self.getDistance(Player.list[i]) < self.getDistance(Player.list[lowest]) && !Player.list[i].region.nomonster) lowest = i;
+                if (self.getDistance(Player.list[i]) < self.ai.aggroRange*64 && self.getDistance(Player.list[i]) < self.getDistance(Player.list[lowest]) && !Player.list[i].region.nomonster && Player.list[i].alive) {
+                    lowest = i;
+                }
             }
-            self.ai.aggroTarget = Player.list[lowest];
+            if (lowest) targetfound = true;
+            if (targetfound) self.ai.aggroTarget = Player.list[lowest];
+            if (!targetfound && !self.damaged) self.ai.aggroTarget = null;
         }
-        self.path();
+    };
+    self.attack = function() {
         self.ai.lastAttack++;
         if (self.ai.aggroTarget) {
             switch (self.ai.attackType) {
@@ -450,12 +490,12 @@ Monster = function(type, x, y, map) {
                 case 'snowbird':
                     if (self.ai.lastAttack > seconds(1)) {
                         if (self.ai.attackStage == 5) {
-                            new Projectile('snowball', self.x, self.y, self.map, self.ai.aggroTarget.x+Math.random()*10-20, self.ai.aggroTarget.y+Math.random()*10-20, self.id);
+                            new Projectile('fastsnowball', self.x, self.y, self.map, self.ai.aggroTarget.x+Math.random()*10-20, self.ai.aggroTarget.y+Math.random()*10-20, self.id);
                             self.ai.attackStage = 0;
                             self.ai.lastAttack = 0;
                         }
                         if (self.ai.attackStage == 1) {
-                            new Projectile('snowball', self.x, self.y, self.map, self.ai.aggroTarget.x+Math.random()*10-20, self.ai.aggroTarget.y+Math.random()*10-20, self.id);
+                            new Projectile('fastsnowball', self.x, self.y, self.map, self.ai.aggroTarget.x+Math.random()*10-20, self.ai.aggroTarget.y+Math.random()*10-20, self.id);
                         }
                         self.ai.attackStage++;
                     }
@@ -470,11 +510,38 @@ Monster = function(type, x, y, map) {
                         self.animationLength = 10;
                         self.onDeath = function() {};
                         for (var i in Monster.list) {
-                            if (parseFloat(i) != self.id && self.getDistance(Monster.list[i]) < 128) Monster.list[i].hp = 0;
+                            if (parseFloat(i) != self.id && self.getDistance(Monster.list[i]) < 128) {
+                                if (Monster.list[i].ai.attackType == 'cherrybomb') {
+                                    Monster.list[i].ai.attackType = 'triggeredcherrybomb';
+                                    Monster.list[i].attack();
+                                } else {
+                                    Monster.list[i].onDeath();
+                                }
+                            }
                         }
                         for (var i in Player.list) {
-                            if (self.getDistance(Player.list[i]) < 128) Player.list[i].hp = 0;
+                            if (self.getDistance(Player.list[i]) < 128) Player.list[i].onDeath();
                         }
+                    }
+                    break;
+                case 'triggeredcherrybomb':
+                    self.ai.attackType = 'exploding';
+                    self.moveSpeed = 0;
+                    self.hp = 1000000000000000000;
+                    self.alive = false;
+                    self.animationStage = 0;
+                    self.animationLength = 10;
+                    self.onDeath = function() {};
+                    for (var i in Monster.list) {
+                        if (Monster.list[i].ai.attackType == 'cherrybomb') {
+                            Monster.list[i].ai.attackType = 'triggeredcherrybomb';
+                            Monster.list[i].attack();
+                        } else {
+                            Monster.list[i].onDeath();
+                        }
+                    }
+                    for (var i in Player.list) {
+                        if (self.getDistance(Player.list[i]) < 128) Player.list[i].onDeath();
                     }
                     break;
                 case 'exploding':
@@ -597,15 +664,20 @@ Monster = function(type, x, y, map) {
                     } else {
                         self.aggroTarget = Monster.list[entity.parentID];
                     }
+                    self.damaged = true;
                 }
                 break;
             default:
                 error('Invalid Entity type: ' + type);
                 break;
         }
-    }
-    self.onDeath = function() {
+    };
+    self.onDeath = function(entity) {
+        self.hp = 0;
         self.alive = false;
+        if (entity) {
+            entity.xp += self.xpDrop;
+        }
         delete Monster.list[self.id];
     };
     self.onRegionChange = function() {
@@ -671,16 +743,18 @@ Projectile = function(type, x, y, map, mousex, mousey, parentID) {
         self.updatePos();
         if (self.parentIsPlayer) {
             for (var i in Monster.list) {
-                if (self.collideWith(Monster.list[i])) {
+                if (self.collideWith(Monster.list[i]) && Monster.list[i].alive) {
                     Monster.list[i].onHit(self, 'projectile');
+                    if (Monster.list[i].hp <= 0) Monster.list[i].onDeath(Player.list[self.parentID]);
                     delete Projectile.list[self.id];
                     break;
                 }
             }
         } else {
             for (var i in Player.list) {
-                if (self.collideWith(Player.list[i])) {
+                if (self.collideWith(Player.list[i]) && Player.list[i].alive) {
                     Player.list[i].onHit(self, 'projectile');
+                    if (Player.list[i].hp <= 0) Player.list[i].onDeath();
                     delete Projectile.list[self.id];
                     break;
                 }

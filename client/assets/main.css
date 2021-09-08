@@ -49,6 +49,7 @@ html, body {
     background-color: #362a1e;
     border: 1px solid #000000;
     transition-duration: 0.1s;
+    text-align: center;
     cursor: pointer;
     padding: 2px 5px;
 }
