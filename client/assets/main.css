@@ -46,7 +46,7 @@ html, body {
     font-family: 'Pixel';
     font-size: 16px;
     color: white;
-    background-color: #362a1e;
+    background-color: #362A1E;
     border: 1px solid #000000;
     transition-duration: 0.1s;
     text-align: center;
@@ -54,11 +54,10 @@ html, body {
     padding: 2px 5px;
 }
 .ui-lightbutton:hover {
-    background-color: #231913;
+    background-color: #2D2219;
 }
-.ui-block {
-    background-color: #362a1e;
-    border: 1px solid black;
+.ui-lightbutton:active {
+    background-color: #231913;
 }
 .ui-textInput {
     font-family: 'Pixel';
@@ -66,9 +65,107 @@ html, body {
     color: black;
 
 }
+.ui-slider {
+    width: 100%;
+}
+.ui-colorSelect {
+    padding: 0px 0px;
+    width: 100%;
+    background-color: #362A1E;
+    border: none;
+    cursor: pointer;
+}
+.ui-block {
+    background-color: #362A1E;
+    border: 1px solid black;
+}
+.ui-link {
+    color: #00ff90;
+}
+.ui-link:focus {
+    color: #00aa70;
+}
 .noSelect {
     user-select: none;
     -webkit-user-select: none;
     -webkit-user-drag: none;
     -moz-user-select: none;
+}
+
+/* menu */
+#signinContainer {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    padding: 0px;
+    margin: 0px;
+    width: 100%;
+    height: 100%;
+    background-image: url("../img/Preview.png");
+    background-size: 100%, 100%;
+}
+#backgroundShade {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    padding: 0px;
+    margin: 0px;
+    height: 100%;
+    width: 100%;
+    background-color: #ffffff;
+    opacity: 0.3;
+}
+#menuTitle {
+    position: relative;
+    top: 15%;
+    text-align: center;
+    font-family: 'pixel';
+    font-size: 80px;
+    color: #000000;
+}
+#stackScroll {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100vw;
+    height: 100vh;
+    margin: 0px 0px;
+    padding: 0px 0px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+#stackLeft {
+    position: absolute;
+    top: 50%;
+    left: 10%;
+    width: 35%;
+}
+#stackRight {
+    position: absolute;
+    top: 50%;
+    left: 55%;
+    width: 35%;
+}
+.stack {
+    width: 100%;
+    overflow: hidden;
+    margin: 0px 0px;
+    margin-bottom: 8px;
+    padding: 8px 16px;
+}
+.stack .stackHeader {
+    font-size: 30px;
+    margin-bottom: 8px;
+}
+.stack .stackBody {
+    font-size: 14px;
+    line-height: 20px;
+    padding: 0px 0px;
+    margin: 0px 0px;
+}
+
+/* login */
+#signInError {
+    color: red;
+    font-weight: lighter;
 }

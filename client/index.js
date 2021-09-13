@@ -1,7 +1,6 @@
 // Copyright (C) 2021 Radioactive64
 
-$.ajaxSetup({cache: true, async:false});
-
+const version = 'v0.1.0';
 // canvas
 CTXRAW = document.getElementById('ctx')
 CTX = CTXRAW.getContext('2d');
@@ -20,6 +19,8 @@ LAYERS.mlower = LAYERS.map0.getContext('2d');
 LAYERS.elower = LAYERS.entity0.getContext('2d');
 LAYERS.mupper = LAYERS.map1.getContext('2d');
 LAYERS.eupper = LAYERS.entity1.getContext('2d');
+OFFSETX = 0;
+OFFSETY = 0;
 
 // canvas scaling and pixelation
 var dpr = 1;
@@ -70,11 +71,13 @@ function resetCanvases() {
 };
 resetCanvases();
 
-// random preventions
+// right click and highlight prevention
 document.querySelectorAll("input").forEach(function(item) {if (item.type != 'text' && item.type != 'password') {item.addEventListener('focus', function() {this.blur();});}});
 document.querySelectorAll("button").forEach(function(item) {item.addEventListener('focus', function() {this.blur();});});
 document.getElementById('ctx').addEventListener('contextmenu', function(e) {e.preventDefault()});
 document.getElementById('ctx').addEventListener('dblclick', function(e) {e.preventDefault()});
+// version
+document.getElementById('version').innerText = version;
 
 window.onerror = function() {
     // insert to chat

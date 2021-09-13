@@ -26,7 +26,7 @@ Entity = function(id, x, y) {
     };
     self.draw = function() {
         if (self.chunkx >= player.chunkx-renderDistance && self.chunkx <= player.chunkx+renderDistance && self.chunky>= player.chunky-renderDistance && self.chunky <= player.chunky+renderDistance) {
-            LAYERS.elower.fillText('MISSING TEXTURE', self.x, self.y);
+            LAYERS.elower.fillText('MISSING TEXTURE', self.x+OFFSETX, self.y+OFFSETY);
         }
         if (self.interpolationStage < 4) {
             self.x += self.xspeed;
@@ -69,9 +69,7 @@ Rig = function(id, x, y) {
     var self = new Entity(id, x, y);
     self.rawWidth = 0;
     self.rawHeight = 0;
-    self.animationsCanvas = new OffscreenCanvas(1, 1);
-    self.animations = self.animationsCanvas.getContext('2d');
-    self.animationStage = 0;
+    self.animationImage = new Image();
     
     self.update = function(x, y, map, animationStage) {
         self.map = map;
@@ -83,7 +81,7 @@ Rig = function(id, x, y) {
     };
     self.draw = function() {
         if (self.chunkx >= player.chunkx-renderDistance && self.chunkx <= player.chunkx+renderDistance && self.chunky>= player.chunky-renderDistance && self.chunky <= player.chunky+renderDistance) {
-            LAYERS.elower.fillText('MISSING TEXTURE', self.x, self.y);
+            LAYERS.elower.fillText('MISSING TEXTURE', self.x+OFFSETX, self.y+OFFSETY);
         }
         if (self.interpolationStage < 4) {
             self.x += self.xspeed;
@@ -100,17 +98,21 @@ Rig = function(id, x, y) {
 // players
 Player = function(id, x, y) {
     var self = new Rig(id, x, y);
-    self.animationsCanvas.width = 192;
-    self.animationsCanvas.height = 16;
-    var badImage = new Image();
-    badImage.src = './client/img/player/worseimage.png';
-    badImage.onload = function() {
-        self.animations.drawImage(badImage, 0, 0);
+    self.animationImage = null;
+    self.characterStyle = {
+        hair: 0,
+        hairColor: '#000000',
+        bodyColor: '#FFF0B4',
+        shirtColor: '#FF3232',
+        pantsColor: '#6464FF'
     };
 
     self.draw = function () {
         if (self.chunkx >= player.chunkx-renderDistance && self.chunkx <= player.chunkx+renderDistance && self.chunky >= player.chunky-renderDistance && self.chunky <= player.chunky+renderDistance) {
-            LAYERS.elower.drawImage(self.animationsCanvas, self.animationStage*8, 0, 8, 16, self.x-16, self.y-48, 32, 64);
+            LAYERS.elower.drawImage(self.getTintedFrame('body'), self.x-16+OFFSETX, self.y-48+OFFSETY, 32, 64);
+            LAYERS.elower.drawImage(self.getTintedFrame('shirt'), self.x-16+OFFSETX, self.y-48+OFFSETY, 32, 64);
+            LAYERS.elower.drawImage(self.getTintedFrame('pants'), self.x-16+OFFSETX, self.y-48+OFFSETY, 32, 64);
+            LAYERS.elower.drawImage(self.getTintedFrame('hair'), self.x-16+OFFSETX, self.y-48+OFFSETY, 32, 64);
         }
         if (self.interpolationStage < 4) {
             self.x += self.xspeed;
@@ -119,6 +121,19 @@ Player = function(id, x, y) {
             self.chunky = Math.floor(self.y/(64*MAPS[self.map].chunkwidth));
             self.interpolationStage++;
         }
+    };
+    self.getTintedFrame = function(asset) {
+        var buffer = new OffscreenCanvas(8, 16);
+        var btx = buffer.getContext('2d');
+        if (asset == 'hair') btx.drawImage(Player.animations[asset][self.characterStyle.hair], (self.animationStage % 5)*8, (~~(self.animationStage / 5))*16, 8, 16, 0, 0, 8, 16);
+        else btx.drawImage(Player.animations[asset], (self.animationStage % 5)*8, (~~(self.animationStage / 5)), 8, 16, 0, 0, 8, 16);
+        btx.fillStyle = self.characterStyle[asset + 'Color'];
+        btx.globalCompositeOperation = 'multiply';
+        btx.fillRect(0, 0, 32, 64);
+        btx.globalCompositeOperation = 'destination-in';
+        if (asset == 'hair') btx.drawImage(Player.animations[asset][self.characterStyle.hair], (self.animationStage % 5)*8, (~~(self.animationStage / 5)), 8, 16, 0, 0, 8, 16);
+        else btx.drawImage(Player.animations[asset], (self.animationStage % 5)*8, (~~(self.animationStage / 5)), 8, 16, 0, 0, 8, 16);
+        return buffer;
     };
 
     Player.list[self.id] = self;
@@ -143,6 +158,18 @@ Player.update = function(data) {
     }
 };
 Player.list = [];
+Player.animations = {
+    hair: [
+        new Image(),
+        new Image(),
+        new Image(),
+        new Image(),
+        new Image(),
+    ],
+    body: new Image(),
+    shirt: new Image(),
+    pants: new Image(),
+};
 
 // monsters
 Monster = function(id, type, x, y) {
@@ -153,17 +180,11 @@ Monster = function(id, type, x, y) {
     self.height = tempmonster.height;
     self.rawWidth = tempmonster.rawWidth;
     self.rawHeight = tempmonster.rawHeight;
-    var animationimg = new Image();
-    animationimg.src = './client/img/monster/' + self.type + '.png';
-    animationimg.onload = function() {
-        self.animationsCanvas.width = animationimg.width;
-        self.animationsCanvas.height = animationimg.height;
-        self.animations.drawImage(animationimg, 0, 0);
-    };
+    self.animationImage.src = './client/img/monster/' + self.type + '.png';
 
     self.draw = function () {
         if (self.chunkx >= player.chunkx-renderDistance && self.chunkx <= player.chunkx+renderDistance && self.chunky>= player.chunky-renderDistance && self.chunky <= player.chunky+renderDistance) {
-            LAYERS.elower.drawImage(self.animationsCanvas, self.animationStage*self.rawWidth, 0, self.rawWidth, self.rawHeight, self.x-self.width/2, self.y-self.height/2, self.width, self.height);
+            LAYERS.elower.drawImage(self.animationImage, self.animationStage*self.rawWidth, 0, self.rawWidth, self.rawHeight, self.x-self.width/2+OFFSETX, self.y-self.height/2+OFFSETY, self.width, self.height);
         }
         if (self.interpolationStage < 4) {
             self.x += self.xspeed;
@@ -194,20 +215,6 @@ Monster.update = function(data) {
         }
     }
 };
-var request = new XMLHttpRequest();
-request.open('GET', './client/monster.json', true);
-request.onload = function() {
-    if (this.status >= 200 && this.status < 400) {
-        var json = JSON.parse(this.response);
-        Monster.types = json;
-    } else {
-        console.error('Error: Server returned status ' + this.status);
-    }
-};
-request.onerror = function(){
-    console.error('There was a connection error. Please retry');
-};
-request.send();
 Monster.list = [];
 
 // projectiles
@@ -243,7 +250,7 @@ Projectile = function(id, type, x, y, angle) {
     self.draw = function() {
         if (self.chunkx >= player.chunkx-renderDistance && self.chunkx <= player.chunkx+renderDistance && self.chunky>= player.chunky-renderDistance && self.chunky <= player.chunky+renderDistance) {
             LAYERS.elower.save();
-            LAYERS.elower.translate(self.x, self.y);
+            LAYERS.elower.translate(self.x+OFFSETX, self.y+OFFSETY);
             LAYERS.elower.rotate(self.angle);
             LAYERS.elower.drawImage(self.animationsCanvas, self.animationStage*self.rawWidth, 0, self.rawWidth, self.rawHeight, -self.width/2, -self.height/2, self.width, self.height);
             LAYERS.elower.restore();
@@ -278,18 +285,60 @@ Projectile.update = function(data) {
         }
     }
 };
-var request = new XMLHttpRequest();
-request.open('GET', './client/projectile.json', true);
-request.onload = function() {
-    if (this.status >= 200 && this.status < 400) {
-        var json = JSON.parse(this.response);
-        Projectile.types = json;
-    } else {
-        console.error('Error: Server returned status ' + this.status);
-    }
-};
-request.onerror = function(){
-    console.error('There was a connection error. Please retry');
-};
-request.send();
 Projectile.list = [];
+
+// load data
+function loadEntitydata() {
+    // players
+    for (var i in Player.animations) {
+        if (i == 'hair') {
+            for (var j in Player.animations[i]) {
+                totalassets++;
+                Player.animations[i][j].src = './client/img/player/playermap_' + i + j + '.png';
+                Player.animations[i][j].onload = function() {loadedassets++;};
+            }
+        } else {
+            totalassets++;
+            Player.animations[i].src = './client/img/player/playermap_' + i + '.png';
+            Player.animations[i].onload = function() {loadedassets++;};
+        }
+    }
+    // monsters
+    totalassets++;
+    var request = new XMLHttpRequest();
+    request.open('GET', './client/monster.json', true);
+    request.onload = async function() {
+        if (this.status >= 200 && this.status < 400) {
+            var json = JSON.parse(this.response);
+            Monster.types = json;
+            loadedassets++;
+        } else {
+            console.error('Error: Server returned status ' + this.status);
+            await sleep(1000);
+            request.send();
+        }
+    };
+    request.onerror = function(){
+        console.error('There was a connection error. Please retry');
+    };
+    request.send();
+    // projectiles
+    totalassets++;
+    var request = new XMLHttpRequest();
+    request.open('GET', './client/projectile.json', true);
+    request.onload = async function() {
+        if (this.status >= 200 && this.status < 400) {
+            var json = JSON.parse(this.response);
+            Projectile.types = json;
+            loadedassets++;
+        } else {
+            console.error('Error: Server returned status ' + this.status);
+            await sleep(1000);
+            request.send();
+        }
+    };
+    request.onerror = function(){
+        console.error('There was a connection error. Please retry');
+    };
+    request.send();
+};

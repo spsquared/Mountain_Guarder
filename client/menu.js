@@ -1,5 +1,25 @@
 // Copyright (C) 2021 Radioactive64
 
+// sign in
+function signIn() {
+    socket.emit('signIn', {
+        usename: document.getElementById('username').value,
+        password: document.getElementById('password').value
+    });
+};
+socket.on('signInState', function(state) {
+    switch (state) {
+        case "loggedIn":
+            document.getElementById('signinContainer').style.display = 'none';
+            document.getElementById('gameContainer').style.display = 'block';
+            break;
+        default: 
+            console.error('Invalid signInState: ' + state);
+            document.getElementById('signInError').innerText = 'Invalid signInState: ' + state;
+            break;
+    }
+});
+
 // window creator
 DraggableWindow = function(id) {
     var self = {
@@ -20,6 +40,8 @@ DraggableWindow = function(id) {
         self.offsetX = e.pageX - self.x;
         self.offsetY = e.pageY - self.y;
         self.dragging = true;
+        resetZIndex();
+        self.window.style.zIndex = 4;
     };
     document.addEventListener('mousemove', function(e) {
         if (self.dragging) {
@@ -39,7 +61,13 @@ DraggableWindow = function(id) {
     };
     self.show = function() {
         self.window.style.display = 'block';
+        resetZIndex();
+        self.window.style.zIndex = 4;
     };
 
     return self;
+};
+function resetZIndex() {
+    document.getElementById('inventory').style.zIndex = 3;
+    document.getElementById('settings').style.zIndex = 3;
 };

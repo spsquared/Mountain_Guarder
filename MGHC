@@ -1,0 +1,128 @@
+javascript:
+var hacks = document.createElement('div');
+hacks.innerHTML = '<div style="display: block; position: absolute; top: 100px;"><div><button id="Mtracers" class="ui-lightbutton" style="background-color: #FFFFFFAA; color: black;" onclick="toggleMTracers();">Monster Tracers</button><button id="Mattack" class="ui-lightbutton" style="background-color: #FFFFFFAA; color: black;" onclick="toggleMAttack();">Attack Monsters</button></div><br><div><button id="autoheal" class="ui-lightbutton" style="background-color: #FFFFFFAA; color: black;" onclick="toggleHeal();">Auto Heal</button><button id="autorespawn" class="ui-lightbutton" style="background-color: #FFFFFFAA; color: black;" onclick="toggleRespawn();">Auto Respawn</button></div></div>';
+document.getElementById('gameContainer').appendChild(hacks);
+var mTracers = false;
+var mAttack = false;
+var autoheal = false;
+var autorespawn = false;
+function toggleMTracers() {
+    if (mTracers) {
+        document.getElementById('Mtracers').style.backgroundColor = '#FFFFFFAA';
+        document.getElementById('Mtracers').style.color = '#000000';
+        mTracers = false;
+    } else {
+        document.getElementById('Mtracers').style.backgroundColor = '#000000AA';
+        document.getElementById('Mtracers').style.color = '#FFFFFF';
+        mTracers = true;
+    }
+};
+function toggleMAttack() {
+    if (mAttack) {
+        document.getElementById('Mattack').style.backgroundColor = '#FFFFFFAA';
+        document.getElementById('Mattack').style.color = '#000000';
+        socket.emit('click', {button: 'left', x: 0, y: 0, state: false});
+        mAttack = false;
+    } else {
+        document.getElementById('Mattack').style.backgroundColor = '#000000AA';
+        document.getElementById('Mattack').style.color = '#FFFFFF';
+        mAttack = true;
+    }
+};
+function toggleHeal() {
+    if (autoheal) {
+        document.getElementById('autoheal').style.backgroundColor = '#FFFFFFAA';
+        document.getElementById('autoheal').style.color = '#000000';
+        socket.emit('keyPress', {key:'heal', state:false});
+        autoheal = false;
+    } else {
+        document.getElementById('autoheal').style.backgroundColor = '#000000AA';
+        document.getElementById('autoheal').style.color = '#FFFFFF';
+        autoheal = true;
+    }
+};
+function toggleRespawn() {
+    if (autorespawn) {
+        document.getElementById('autorespawn').style.backgroundColor = '#FFFFFFAA';
+        document.getElementById('autorespawn').style.color = '#000000';
+        autorespawn = false;
+    } else {
+        document.getElementById('autorespawn').style.backgroundColor = '#000000AA';
+        document.getElementById('autorespawn').style.color = '#FFFFFF';
+        autorespawn = true;
+    }
+};
+MGHC = function() {
+    if (mTracers) {
+        CTX.save();
+        CTX.translate((window.innerWidth/2)-player.x, (window.innerHeight/2)-player.y);
+        for (var i in Monster.list) {
+            switch (Monster.list[i].type) {
+                case ('greenbird'):
+                    CTX.lineWidth = 2;
+                    CTX.strokeStyle = '#00DD00';
+                    break;
+                case ('bluebird'):
+                    CTX.lineWidth = 2;
+                    CTX.strokeStyle = '#00DD00';
+                    break;
+                case ('snowbird'):
+                    CTX.lineWidth = 4;
+                    CTX.strokeStyle = '#EEEEEE';
+                    break;
+                case ('cherrybomb'):
+                    CTX.lineWidth = 6;
+                    CTX.strokeStyle = '#FF0000';
+                    break;
+                case ('snowball'):
+                    CTX.lineWidth = 6;
+                    CTX.strokeStyle = '#EEEEEE';
+                    break;
+                default:
+                    CTX.lineWidth = 2;
+                    CTX.strokeStyle = '#000000';
+                    break;
+            }
+            CTX.beginPath();
+            CTX.moveTo(player.x+OFFSETX, player.y+OFFSETY);
+            CTX.lineTo(Monster.list[i].x+OFFSETX, Monster.list[i].y+OFFSETY);
+            CTX.stroke();
+        }
+        CTX.restore();
+    }
+    if (mAttack) {
+        var lowest = null;
+        for (var i in Monster.list) {
+            if (lowest == null && Monster.list[i].map == player.map) lowest = i;
+            if (lowest) if (Monster.list[i].map == player.map && getDistance(Monster.list[i]) < getDistance(Monster.list[lowest])) lowest = i;
+        }
+        socket.emit('click', {button: 'left', x: Monster.list[lowest].x-player.x, y: Monster.list[lowest].y-player.y, state: true});
+    }
+    if (autoheal) socket.emit('keyPress', {key:'heal', state:true});
+};
+function getDistance(entity) {
+    return Math.sqrt(Math.pow(player.x-entity.x, 2) + Math.pow(player.y-entity.y, 2));
+};
+document.onmousemove = function(e) {
+    if (!mAttack) socket.emit('mouseMove', {x: e.clientX-window.innerWidth/2-OFFSETX, y: e.clientY-window.innerHeight/2-OFFSETY});
+};
+socket.on('playerDied', function() {
+    if (autorespawn) {
+        setTimeout(function() {
+            respawn();
+        }, Math.random()*500);
+    } else {
+        document.getElementById('respawnButton').style.display = 'none';
+        document.getElementById('deathScreen').style.display = 'block';
+        var time = 5;
+        document.getElementById('respawnTimer').innerText = time;
+        var timer = setInterval(function() {
+            time--;
+            document.getElementById('respawnTimer').innerText = time;
+            if (time == 0) {
+                clearInterval(timer);
+                document.getElementById('respawnButton').style.display = 'block';
+            }
+        }, 1000);
+    }
+});

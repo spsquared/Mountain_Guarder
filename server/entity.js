@@ -176,12 +176,14 @@ Rig = function() {
         up: false,
         down: false,
         left: false,
-        right: false
+        right: false,
+        heal: false
     };
     self.animationStage = 0;
     self.animationLength = 0;
     self.lastFrameUpdate = 0;
     self.animationSpeed = 100;
+    self.animationDirection = 'none';
     self.moveSpeed = 20;
     self.stats = {
         attack: 1,
@@ -200,18 +202,44 @@ Rig = function() {
     self.maxMana = 200;
     self.alive = true;
     self.lastAttack = 0;
+    self.characterStyle = {
+        hair: 0,
+        hairColor: '#000000',
+        bodyColor: '#FFF0B4',
+        shirtColor: '#FF3232',
+        pantsColor: '#6464FF'
+    };
 
     self.update = function() {
         self.updatePos();
+        self.lastHeal++;
+        if (self.keys.heal && self.hp < self.maxHP && self.lastHeal >= seconds(0.5) && self.mana >= 10) {
+            self.lastHeal = 0;
+            self.hp = Math.min(self.hp+20, self.maxHP);
+            self.mana -= 10;
+        }
+        self.mana = Math.min(self.mana+1, self.maxMana);
         self.updateAnimation();
     };
     self.updatePos = function() {
         self.xspeed = 0;
         self.yspeed = 0;
-        if (self.keys.up) self.yspeed = -self.moveSpeed;
-        if (self.keys.down) self.yspeed = self.moveSpeed;
-        if (self.keys.left) self.xspeed = -self.moveSpeed;
-        if (self.keys.right) self.xspeed = self.moveSpeed;
+        if (self.keys.up) {
+            self.yspeed = -self.moveSpeed;
+            self.animationDirection = 'up';
+        }
+        if (self.keys.down) {
+            self.yspeed = self.moveSpeed;
+            self.animationDirection = 'down';
+        }
+        if (self.keys.left) {
+            self.xspeed = -self.moveSpeed;
+            self.animationDirection = 'left';
+        }
+        if (self.keys.right) {
+            self.xspeed = self.moveSpeed;
+            self.animationDirection = 'right';
+        }
         self.collide();
         var foundregion = false;
         if (Region.list[self.map][self.gridy]) if (Region.list[self.map][self.gridy][self.gridx]) if (Region.list[self.map][self.gridy][self.gridx].name != self.region.name) {
@@ -293,24 +321,35 @@ Player = function(socket) {
     self.x = 80;
     self.y = 80;
     self.attacking = false;
+    self.lastHeal = 0;
     self.mouseX = 0;
     self.mouseY = 0;
+    self.name = 'Unknown';
+    self.canMove = false;
+    self.alive = false;
 
     var maps = [];
     for (var i in Collision.list) {
         maps.push(i);
     }
-    socket.emit('mapData', maps);
+    socket.on('signIn', function(cred) {
+        self.name = cred.username;
+        socket.emit('signInState', 'loggedIn');
+        socket.emit('mapData', maps);
+        self.canMove = true;
+        self.alive = true;
+    });
     socket.on('keyPress', function(data) {
-        if (self.alive) {
+        if (self.alive && self.canMove) {
             if (data.key == 'up') self.keys.up = data.state;
             if (data.key == 'down') self.keys.down = data.state;
             if (data.key == 'left') self.keys.left = data.state;
             if (data.key == 'right') self.keys.right = data.state;
+            if (data.key == 'heal') self.keys.heal = data.state;
         }
     });
     socket.on('click', function(data) {
-        if (self.alive) {
+        if (self.alive && self.canMove) {
             if (data.button == 'left') {
                 self.attacking = data.state;
                 self.mouseX = data.x;
@@ -323,7 +362,8 @@ Player = function(socket) {
         self.mouseY = data.y;
     });
     socket.on('respawn', function() {
-        self.respawn();
+        if (self.alive) self.onDeath();
+        else self.respawn();
     });
 
     self.update = function() {
@@ -333,8 +373,17 @@ Player = function(socket) {
             self.lastAttack = 0;
             new Projectile('arrow', self.x, self.y, self.map, self.x+self.mouseX, self.y+self.mouseY, self.id);
         }
+        self.lastHeal++;
+        if (self.keys.heal && self.hp < self.maxHP && self.lastHeal >= seconds(0.5) && self.mana >= 10) {
+            self.lastHeal = 0;
+            self.hp = Math.min(self.hp+20, self.maxHP);
+            self.mana -= 10;
+        }
+        self.mana = Math.min(self.mana+1, self.maxMana);
         self.updateAnimation();
         self.updateClient();
+    };
+    self.updateAnimation = function() {
     };
     self.updateClient = function() {
         var pack = {
@@ -357,7 +406,8 @@ Player = function(socket) {
             up: false,
             down: false,
             left: false,
-            right: false
+            right: false,
+            heal: false
         };
         self.attacking = false;
     };
@@ -379,6 +429,7 @@ Player.update = function() {
             map: localplayer.map,
             x: localplayer.x,
             y: localplayer.y,
+            name: localplayer.name,
             animationStage: localplayer.animationStage,
             isNPC: false
         });
@@ -445,7 +496,6 @@ Monster = function(type, x, y, map) {
     };
     self.updateAggro = function() {
         if (self.targetMonsters) {
-            var targetfound = false;
             var lowest = null;
             for (var i in Monster.list) {
                 if (lowest == null) lowest = i;
@@ -453,21 +503,20 @@ Monster = function(type, x, y, map) {
                     lowest = i;
                 }
             }
-            if (lowest) targetfound = true;
-            if (targetfound) self.ai.aggroTarget = Monster.list[lowest];
-            if (!targetfound && !self.damaged) self.ai.aggroTarget = null;
+            if (lowest) self.ai.aggroTarget = Monster.list[lowest];
+            if (lowest == null && !self.damaged) self.ai.aggroTarget = null;
         } else {
-            var targetfound = false;
             var lowest = null;
             for (var i in Player.list) {
-                if (lowest == null) lowest = i;
-                if (self.getDistance(Player.list[i]) < self.ai.aggroRange*64 && self.getDistance(Player.list[i]) < self.getDistance(Player.list[lowest]) && !Player.list[i].region.nomonster && Player.list[i].alive) {
+                if (self.getDistance(Player.list[i]) < self.ai.aggroRange*64 && !Player.list[i].region.nomonster && Player.list[i].alive) {
+                    lowest = i;
+                }
+                if (lowest) if (self.getDistance(Player.list[i]) < self.ai.aggroRange*64 && self.getDistance(Player.list[i]) < self.getDistance(Player.list[lowest]) && !Player.list[i].region.nomonster && Player.list[i].alive) {
                     lowest = i;
                 }
             }
-            if (lowest) targetfound = true;
-            if (targetfound) self.ai.aggroTarget = Player.list[lowest];
-            if (!targetfound && !self.damaged) self.ai.aggroTarget = null;
+            if (lowest) self.ai.aggroTarget = Player.list[lowest];
+            if (lowest == null && !self.damaged) self.ai.aggroTarget = null;
         }
     };
     self.attack = function() {
@@ -579,6 +628,7 @@ Monster = function(type, x, y, map) {
         self.ai.lastPath++;
         if (self.ai.lastPath >= seconds(0.1)) {
             self.ai.lastPath = 0;
+            self.ai.path = [];
             if (self.ai.aggroTarget) {
                 try {
                     if (self.getDistance(self.ai.aggroTarget) < self.ai.aggroRange*64) {
@@ -619,15 +669,16 @@ Monster = function(type, x, y, map) {
                 up: false,
                 down: false,
                 left: false,
-                right: false
+                right: false,
+                heal: false
             };
             self.xspeed = 0;
             self.yspeed = 0;
             if (self.ai.path[0]) {
-                if (self.ai.path[0][0]+0.5 < self.x/64) self.keys.left = true;
-                if (self.ai.path[0][0]+0.5 > self.x/64) self.keys.right = true;
-                if (self.ai.path[0][1]+0.5 < self.y/64) self.keys.up = true;
-                if (self.ai.path[0][1]+0.5 > self.y/64) self.keys.down = true;
+                if (self.ai.path[0][0]*64+32 < self.x) self.keys.left = true;
+                if (self.ai.path[0][0]*64+32 > self.x) self.keys.right = true;
+                if (self.ai.path[0][1]*64+32 < self.y) self.keys.up = true;
+                if (self.ai.path[0][1]*64+32 > self.y) self.keys.down = true;
                 if (self.gridx == self.ai.path[0][0] && self.gridy == self.ai.path[0][1]) {
                     self.ai.path.shift();
                 }
@@ -652,7 +703,7 @@ Monster = function(type, x, y, map) {
         self.gridy = Math.floor(self.y/64);
     };
     self.getDistance = function(entity) {
-        return Math.sqrt(Math.pow(self.x-entity.x, 2) + Math.pow(self.y-entity.y, 2))
+        return Math.sqrt(Math.pow(self.x-entity.x, 2) + Math.pow(self.y-entity.y, 2));
     };
     self.onHit = function(entity, type) {
         switch (type) {
@@ -853,6 +904,7 @@ Projectile.update = function() {
     return pack;
 };
 Projectile.types = require('./projectile.json');
+Projectile.list = [];
 Projectile.patterns = {
     none: function(self) {},
     spin: function(self) {
@@ -870,7 +922,6 @@ Projectile.patterns = {
         self.yspeed = Math.sin(self.angle)*self.moveSpeed;
     }
 };
-Projectile.list = [];
 
 // particle storage
 Particle = function(map, x, y, type, value) {

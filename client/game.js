@@ -7,19 +7,43 @@ var mouseY = 0;
 var mapnameFade = null;
 var mapnameWait = null;
 
-// maps
-var mapsloaded = 0;
-var totalmaps = 1;
+// loading
+var loaded = false;
+// maploading
+var loadedassets = 0;
+var totalassets = 1;
 socket.on('mapData', function(data) {
-    totalmaps = 0;
-    for (var i in data) {
-        totalmaps++;
-    }
-    for (var i in data) {
-        loadMap(data[i]);
-    }
+    load(data);
 });
-function loadMap(name) {
+var renderDistance = 1;
+var tilesetloaded = false;
+var tileset = new Image();
+tileset.onload = function() {
+    tilesetloaded = true;
+};
+function load(data) {
+    tileset.src = './client/maps/roguelikeSheet.png';
+    totalassets = 0;
+    for (var i in data) {
+        totalassets++;
+    }
+    var wait = setInterval(async function() {
+        if (tilesetloaded) {
+            clearInterval(wait);
+            for (var i in data) {
+                await loadMap(data[i]);
+            }
+            loadEntitydata();
+        }
+    }, 100);
+    var updateLoadBar = setInterval(function() {
+        if (loadedassets >= totalassets) {
+            clearInterval(updateLoadBar);
+            loaded = true;
+        }
+    });
+};
+async function loadMap(name) {
     if (tilesetloaded) {
         var request = new XMLHttpRequest();
         request.open('GET', './client/maps/' + name + '.json', true);
@@ -27,7 +51,7 @@ function loadMap(name) {
             if (this.status >= 200 && this.status < 400) {
                 var json = JSON.parse(this.response);
                 renderLayers(json, name);
-                mapsloaded++;
+                loadedassets++;
             } else {
                 console.error('Error: Server returned status ' + this.status);
             }
@@ -37,29 +61,30 @@ function loadMap(name) {
         };
         request.send();
     } else {
-        setTimeout(function() {
-            loadMap(name);
-        }, 100);
+        await sleep(100);
+        await loadMap(name);
     }
-};
-var renderDistance = 1;
-var tilesetloaded = false;
-var tileset = new Image();
-tileset.src = './client/maps/roguelikeSheet.png';
-tileset.onload = function() {
-    tilesetloaded = true;
 };
 function renderLayers(json, name) {
     MAPS[name] = {
-        width: json.width,
+        width: 0,
+        height: 0,
+        offsetX: 0,
+        offsetY: 0,
         chunkwidth: 0,
         chunks: []
     };
     for (var i in json.layers) {
         if (json.layers[i].visible) {
+            if (json.layers[i].name == 'Ground Terrain') {
+                MAPS[name].width = json.layers[i].width;
+                MAPS[name].height = json.layers[i].height;
+            }
             for (var j in json.layers[i].chunks) {
                 var rawchunk = json.layers[i].chunks[j];
                 MAPS[name].chunkwidth = rawchunk.width;
+                MAPS[name].offsetX = Math.min(rawchunk.x*64, MAPS[name].offsetX);
+                MAPS[name].offsetY = Math.min(rawchunk.y*64, MAPS[name].offsetY);
                 var templower = new OffscreenCanvas(rawchunk.width * 64, rawchunk.height * 64);
                 var tempupper = new OffscreenCanvas(rawchunk.width * 64, rawchunk.height * 64);
                 if (MAPS[name].chunks[rawchunk.y/rawchunk.width]) if (MAPS[name].chunks[rawchunk.y/rawchunk.width][rawchunk.x/rawchunk.width]) {
@@ -101,20 +126,25 @@ function renderLayers(json, name) {
         }
     }
 };
+function MGHC() {};
 
 // draw
 setInterval(function() {
-    if (player && mapsloaded >= totalmaps) {
+    if (player && loadedassets >= totalassets) {
         LAYERS.mlower.clearRect(0, 0, window.innerWidth, window.innerHeight);
         LAYERS.elower.clearRect(0, 0, window.innerWidth, window.innerHeight);
         LAYERS.mupper.clearRect(0, 0, window.innerWidth, window.innerHeight);
         LAYERS.eupper.clearRect(0, 0, window.innerWidth, window.innerHeight);
         CTX.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        OFFSETX = -Math.max((window.innerWidth/2) - (player.x - MAPS[player.map].offsetX), Math.min((MAPS[player.map].offsetX + (MAPS[player.map].width*64)) - player.x - (window.innerWidth/2), 0));
+        OFFSETY = -Math.max((window.innerHeight/2) - (player.y - MAPS[player.map].offsetY), Math.min((MAPS[player.map].offsetY + (MAPS[player.map].height*64)) - player.y - (window.innerHeight/2), 0));
         drawMap();
         CTX.drawImage(LAYERS.map0, 0, 0, window.innerWidth, window.innerHeight);
         Entity.draw();
         CTX.drawImage(LAYERS.entity0, 0, 0, window.innerWidth, window.innerHeight);
         CTX.drawImage(LAYERS.map1, 0, 0, window.innerWidth, window.innerHeight);
+        CTX.drawImage(LAYERS.entity1, 0, 0, window.innerWidth, window.innerHeight);
+        MGHC();
     }
 }, 1000/60);
 function drawMap() {
@@ -122,13 +152,13 @@ function drawMap() {
     LAYERS.mlower.translate((window.innerWidth/2)-player.x,(window.innerHeight/2)-player.y);
     LAYERS.mupper.save();
     LAYERS.mupper.translate((window.innerWidth/2)-player.x,(window.innerHeight/2)-player.y);
-    for (var i = player.chunkx-renderDistance; i <= player.chunkx+renderDistance; i++) {
-        for (var j = player.chunky-renderDistance; j <= player.chunky+renderDistance; j++) {
-            if (MAPS[player.map].chunks[j]) if (MAPS[player.map].chunks[j][i]) {
-                var chunk = MAPS[player.map].chunks[j][i];
+    for (var x = player.chunkx-renderDistance; x <= player.chunkx+renderDistance; x++) {
+        for (var y = player.chunky-renderDistance; y <= player.chunky+renderDistance; y++) {
+            if (MAPS[player.map].chunks[y]) if (MAPS[player.map].chunks[y][x]) {
+                var chunk = MAPS[player.map].chunks[y][x];
                 var width = MAPS[player.map].chunkwidth;
-                LAYERS.mlower.drawImage(chunk.lower, i*width*64, j*width*64, width*64, width*64);
-                LAYERS.mupper.drawImage(chunk.upper, i*width*64, j*width*64, width*64, width*64);
+                LAYERS.mlower.drawImage(chunk.lower, (x*width*64)+OFFSETX, (y*width*64)+OFFSETY, width*64, width*64);
+                LAYERS.mupper.drawImage(chunk.upper, (x*width*64)+OFFSETX, (y*width*64)+OFFSETY, width*64, width*64);
             }
         }
     }
@@ -138,8 +168,10 @@ function drawMap() {
 
 // send/recieve packets
 socket.on('updateTick', function(data) {
-    Entity.update(data);
-    player = Player.list[playerid];
+    if (loaded) {
+        Entity.update(data);
+        player = Player.list[playerid];
+    }
 });
 document.onkeydown = function(e) {
     if (e.key == 'w' || e.key == 'W' || e.key == 'ArrowUp') {
@@ -153,6 +185,9 @@ document.onkeydown = function(e) {
     }
     if (e.key == 'd' || e.key == 'D' || e.key == 'ArrowRight') {
         socket.emit('keyPress', {key:'right', state:true});
+    }
+    if (e.key == ' ') {
+        socket.emit('keyPress', {key:'heal', state:true});
     }
 };
 document.onkeyup = function(e) {
@@ -168,29 +203,32 @@ document.onkeyup = function(e) {
     if (e.key == 'd' || e.key == 'D' || e.key == 'ArrowRight') {
         socket.emit('keyPress', {key:'right', state:false});
     }
+    if (e.key == ' ') {
+        socket.emit('keyPress', {key:'heal', state:false});
+    }
 };
 document.onmousedown = function(e) {
     switch (e.button) {
         case 0:
-            socket.emit('click', {button: 'left', x: e.clientX-window.innerWidth/2, y: e.clientY-window.innerHeight/2, state: true});
+            socket.emit('click', {button: 'left', x: e.clientX-window.innerWidth/2-OFFSETX, y: e.clientY-window.innerHeight/2-OFFSETY, state: true});
             break;
         case 2:
-            socket.emit('click', {button: 'right', x: e.clientX-window.innerWidth/2, y: e.clientY-window.innerHeight, state: true});
+            socket.emit('click', {button: 'right', x: e.clientX-window.innerWidth/2-OFFSETX, y: e.clientY-window.innerHeight-OFFSETY, state: true});
             break;
     }
 };
 document.onmouseup = function(e) {
     switch (e.button) {
         case 0:
-            socket.emit('click', {button: 'left', x: e.clientX-window.innerWidth/2, y: e.clientY-window.innerHeight/2, state: false});
+            socket.emit('click', {button: 'left', x: e.clientX-window.innerWidth/2-OFFSETX, y: e.clientY-window.innerHeight/2-OFFSETY, state: false});
             break;
         case 2:
-            socket.emit('click', {button: 'right', x: e.clientX-window.innerWidth/2, y: e.clientY-window.innerHeight, state: false});
+            socket.emit('click', {button: 'right', x: e.clientX-window.innerWidth/2-OFFSETX, y: e.clientY-window.innerHeight-OFFSETY, state: false});
             break;
     }
 };
 document.onmousemove = function(e) {
-    socket.emit('mouseMove', {x: e.clientX-window.innerWidth/2, y: e.clientY-window.innerHeight/2});
+    socket.emit('mouseMove', {x: e.clientX-window.innerWidth/2-OFFSETX, y: e.clientY-window.innerHeight/2-OFFSETY});
 };
 socket.on('region', function(name) {
     clearInterval(mapnameFade);
@@ -225,6 +263,9 @@ socket.on('updateSelf', function(data) {
     document.getElementById('statsMNvalue').style.width = (data.mana/data.maxMana)*100 + '%';
     document.getElementById('statsMNtext').innerText = data.mana + '/' + data.maxMana;
 });
+socket.on('self', function(id) {
+    playerid = id;
+});
 socket.on('playerDied', function() {
     document.getElementById('respawnButton').style.display = 'none';
     document.getElementById('deathScreen').style.display = 'block';
@@ -243,7 +284,7 @@ function respawn() {
     socket.emit('respawn');
     document.getElementById('respawnButton').style.display = 'none';
     document.getElementById('deathScreen').style.display = 'none';
-}
+};
 
 // menu buttons
 var menuopen = false;
@@ -269,10 +310,20 @@ function openSettings() {
 
 // chat
 socket.on('insertChat', function(data) {
-    // something to do with css and time and stuff
+    insertChat(data);
 });
-
-// player wierdness
-socket.on('self', function(id) {
-    playerid = id;
-});
+function insertChat(data) {
+    var time = new Date();
+    var minute = '' + time.getMinutes();
+    if(minute.length == 1){
+        minute = '' + 0 + minute;
+    }
+    if(minute == '0'){
+        minute = '00';
+    }
+    var msg = document.createElement('div');
+    msg.style = data.style;
+    msg.innerText = '[' + time.getHours() + ':' + minute + '] ' + data.text;
+    document.getElementById('chatText').appendChild(msg);
+    console.log(msg)
+}

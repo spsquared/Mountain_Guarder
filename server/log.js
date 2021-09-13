@@ -4,16 +4,14 @@ const fs = require('fs');
 
 // chat
 insertChat = function(text, textcolor) {
-    var color = '#000000';
+    var style = '';
     if (textcolor == 'server') {
-        color = 'server';
-    } else if (textcolor == '#FFFFFF00' || textcolor == 'special') {
-        color = 'rainbow-pulse'
+        style='color: #FF0000; font-weight: bold';
     } else {
-        color = textcolor;
+        style='color: ' + textcolor + ';';
     }
     logColor(text, '\x1b[36m', 'chat');
-    io.emit('insertChat', {text:text, color:color});
+    io.emit('insertChat', {text:text, style:style});
 };
 // logging
 log = function(text) {

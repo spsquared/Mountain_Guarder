@@ -2,6 +2,7 @@
 
 /* game container */
 #gameContainer {
+    display: none;
     overflow: hidden;
 }
 
@@ -12,6 +13,7 @@
     left: 0px;
     width: 100%;
     height: 100%;
+    background-color: black;
     cursor: crosshair;
     z-index: 0;
 }
@@ -143,14 +145,23 @@
     padding-top: -2px;
 }
 
-/* fps */
+/* footer/debug */
 #fps {
     position: absolute;
-    bottom: 16px;
+    bottom: 20px;
     left: 16px;
     background-color: #00000055;
     padding: 2px 4px;
     padding-right: 2px;
+    cursor: crosshair;
+    z-index: 1;
+}
+#version {
+    position: absolute;
+    bottom: 4px;
+    left: 4px;
+    font-size: 10px;
+    color: black;
     cursor: crosshair;
     z-index: 1;
 }
@@ -160,21 +171,28 @@
     position: absolute;
     bottom: 0px;
     left: 25vw;
-    text-align: center;
-    width: 50%;
+    width: 50vw;
+    height: 160px;
+    padding: 0px 2px;
+    border: 1px solid black;
     z-index: 1;
 }
 #chatText {
     position: absolute;
     top: 0px;
     left: 0px;
-    width: 100%;
+    width: 50vw;
+    height: 140px;
+    padding: 0px 2px;
+    overflow-y: scroll;
 }
 #chatInput {
     position: absolute;
-    bottom: 0px;
-    left: 0px;
-    width: 100%;
+    bottom: -1px;
+    left: -1px;
+    width: 50vw;
+    padding: 0px 2px;
+    border: 1px solid black;
 }
 
 /* dropdown menu */
@@ -187,33 +205,6 @@
 }
 #dropdownMenuItems {
     display: none;
-}
-
-/* inventory */
-#inventoryItemsBlock {
-    position: absolute;
-    top: 0px;
-    left: 0px;
-    width: 436px;
-    height: 528px;
-}
-#inventoryItems {
-    margin-top: 8px;
-    width: 100%;
-    height: 100%;
-    overflow-y: scroll;
-}
-#inventoryEquipsBlock {
-    position: absolute;
-    top: 0px;
-    left: 446px;
-    width: 436px;
-    height: 528px;
-}
-#inventoryEquips {
-    margin-top: 8px;
-    width: 100%;
-    height: 100%;
 }
 
 /* windows */
@@ -250,7 +241,15 @@
     top: 32px;
     left: 8px;
 }
-.menuButton {
+.window .window-select {
+    position: absolute;
+    top: 32px;
+    right: 8px;
+    border: 1px solid black;
+    width: 106px;
+    height: 558px;
+}
+.window .window-select .window-select-button {
     position: relative;
     top: 3px;
     left: 1px;
@@ -258,6 +257,40 @@
     height: 30px;
     margin-bottom: 4px;
     margin-right: 1px;
+}
+
+/* inventory */
+#inventoryItemsBlock {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 436px;
+    height: 528px;
+}
+#inventoryItems {
+    margin-top: 8px;
+    width: 100%;
+    height: 100%;
+    overflow-y: scroll;
+}
+#inventoryEquipsBlock {
+    position: absolute;
+    top: 0px;
+    left: 446px;
+    width: 436px;
+    height: 528px;
+}
+#inventoryEquips {
+    margin-top: 8px;
+    width: 100%;
+    height: 100%;
+}
+
+/* settings */ 
+#playerPreview {
+    width: 150px;
+    height: 200px;
+    border: 2px solid black;
 }
 
 /* spuhctator div */

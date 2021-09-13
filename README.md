@@ -13,7 +13,7 @@ To stop the server, type "stop" into the server console.
 For help, type "help" into server console. (also doesn't apply)
 
 ##### Heroku Installation
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/definitely-nobody-is-here/Mountain_Guarder)
+[![Deploy](https://www.Herokucdn.com/deploy/button.svg)](https://Heroku.com/deploy?template=https://github.com/definitely-nobody-is-here/Mountain_Guarder)
 
 ### Joining the Game
 Once the server is started, you can find your computer's name (available in Windows>System>About as "Device name"), or simply search [what's my ip](http://google.com/search?q=whats+my+ip) or click the link. The server console will tell you what port to visit and you can type either the ip address or computer name on the client side **connected to the same network as the host** and then followed by a ":" and then the port number. Example: 111.22.33.444:2000 or hostcomputer:1100. The port will always be 4000.
@@ -47,13 +47,14 @@ If you can't resolve your problem after trying these solutions or your problem i
 | ------- | ---------------------------- |
 | 0.0.1   | <ul><li>Added base game functionality</li></ul> |
 | 0.0.2   | <ul><li>Added collisions</li></ul> |
-| 0.0.3   | <ul><li>Add projectiles (no textures)</li><li>Fix heroku deploy</li><li>Add monster code</li><li>Add issue templates</li></ul> |
-| 0.0.4   | <ul><li>Add monsters (they follow you around)</li><li>Players and monsters can shoot arrows</li><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/2" target="_blank">Fixed getting stuck in corners of collisions (Issue #2)</a></li><li>Fixed other collision issues</li><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/4" target="_blank">Fixed heroku deploy again (Issue #4)</a></li></ul> |
-| 0.0.5   | <ul><li>Add world</li><li>Add chunk-based positions</li><li>Implemented full map drawing</li><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/4" target="_blank">Fixed heroku deploy again (Issue #4)</a></li></ul> |
-| 0.0.6   | <ul><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/4" target="_blank">Fixed heroku deploy for the last time (Issue #4)</a></li></ul> |
+| 0.0.3   | <ul><li>Add projectiles (no textures)</li><li>Fix Heroku deploy</li><li>Add monster code</li><li>Add issue templates</li></ul> |
+| 0.0.4   | <ul><li>Add monsters (they follow you around)</li><li>Players and monsters can shoot arrows</li><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/2" target="_blank">Fixed getting stuck in corners of collisions (Issue #2)</a></li><li>Fixed other collision issues</li><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/4" target="_blank">Fixed Heroku deploy again (Issue #4)</a></li></ul> |
+| 0.0.5   | <ul><li>Add world</li><li>Add chunk-based positions</li><li>Implemented full map drawing</li><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/4" target="_blank">Fixed Heroku deploy again (Issue #4)</a></li></ul> |
+| 0.0.6   | <ul><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/4" target="_blank">Fixed Heroku deploy for the last time (Issue #4)</a></li></ul> |
 | 0.0.7   | <ul><li>Added monster spawners</li><li>Expanded map</li><li>Most monsters attack now</li><li>Monsters aggro on players when hit by them or their projectiles</li><li>Added snowballs</li><li>Projectiles can have patterns now</li><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/5" target="_blank">Fixed client not waiting for loading (Issue #5)</a></li><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/7" target="_blank">Projectiles now despawn (Issue #7)</a></li></ul> |
 | 0.0.8   | <ul><li>Added diagonal projectile collisions</li><li>Filled in placeholders for some of the UI</li><li>Fixed cherrybombs</li><li>Holding the mouse button now continuously attacks</li><li>Improved snowballs</li><li>Birds and Snow Birds now attack</li></ul> |
 | 0.0.9   | <ul><li>Added region name sign</li><li>Expanded map and added "The Tundra" region</li><li>Added death screen</li><li>Cherry Bombs can now trigger and explode other Cherry Bombs</li><li>Snowbirds now throw faster snowballs</li></ul> |
+| 0.1.0   | <ul><li>Added menu screen</li><li>Menu screen includes: changelog, announcements, credits/contributors, ads</li><li>Changed "Snowy Tundra" region to have more stuff</li><li>Spacebar can be used to heal and costs Mana</li><li>Added player textures</li><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/9" target="_blank">Fixed errors in client console (Issue #9)</a></li><li>Fixed monster non-deaggro bug</li><li>Added more placeholders for draggable windows</li><li>Windows now overlap each other in order of last clicked</li><li>Add a little anticheat - respawning while alive kills you</li></ul> |
 
 ***
 
