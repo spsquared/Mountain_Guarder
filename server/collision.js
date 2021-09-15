@@ -259,7 +259,7 @@ Spawner = function(map, x, y, types) {
             localmonster.onDeath = function(entity) {
                 localmonster.alive = false;
                 if (entity) {
-                    entity.xp += self.xpDrop;
+                    entity.xp += localmonster.xpDrop;
                 }
                 try {
                     Spawner.list[localmonster.spawnerID].onMonsterDeath();

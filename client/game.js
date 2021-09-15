@@ -2,10 +2,14 @@
 
 var player = null;
 var playerid = null;
-var mouseX = 0;
-var mouseY = 0;
+mouseX = 0;
+mouseY = 0;
 var mapnameFade = null;
 var mapnameWait = null;
+settings = {
+    fps: 60
+};
+var drawLoop = null;
 
 // loading
 var loaded = false;
@@ -30,10 +34,10 @@ function load(data) {
     var wait = setInterval(async function() {
         if (tilesetloaded) {
             clearInterval(wait);
+            loadEntitydata();
             for (var i in data) {
                 await loadMap(data[i]);
             }
-            loadEntitydata();
         }
     }, 100);
     var updateLoadBar = setInterval(function() {
@@ -129,7 +133,7 @@ function renderLayers(json, name) {
 function MGHC() {};
 
 // draw
-setInterval(function() {
+function drawFrame() {
     if (player && loadedassets >= totalassets) {
         LAYERS.mlower.clearRect(0, 0, window.innerWidth, window.innerHeight);
         LAYERS.elower.clearRect(0, 0, window.innerWidth, window.innerHeight);
@@ -146,7 +150,7 @@ setInterval(function() {
         CTX.drawImage(LAYERS.entity1, 0, 0, window.innerWidth, window.innerHeight);
         MGHC();
     }
-}, 1000/60);
+};
 function drawMap() {
     LAYERS.mlower.save();
     LAYERS.mlower.translate((window.innerWidth/2)-player.x,(window.innerHeight/2)-player.y);
@@ -165,6 +169,13 @@ function drawMap() {
     LAYERS.mlower.restore();
     LAYERS.mupper.restore();
 };
+function resetFPS() {
+    clearInterval(drawLoop);
+    drawLoop = setInterval(function() {
+        drawFrame();
+    }, 1000/settings.fps);
+};
+resetFPS();
 
 // send/recieve packets
 socket.on('updateTick', function(data) {
@@ -174,6 +185,9 @@ socket.on('updateTick', function(data) {
     }
 });
 document.onkeydown = function(e) {
+    if (!e.isTrusted) {
+        socket.emit('timeout');
+    }
     if (e.key == 'w' || e.key == 'W' || e.key == 'ArrowUp') {
         socket.emit('keyPress', {key:'up', state:true});
     }
@@ -189,8 +203,18 @@ document.onkeydown = function(e) {
     if (e.key == ' ') {
         socket.emit('keyPress', {key:'heal', state:true});
     }
+    if(e.key === 'Meta' || e.key === 'Alt' || e.key === 'Control'){
+        socket.emit('keyPress', {key:'up', state:false});
+        socket.emit('keyPress', {key:'down', state:false});
+        socket.emit('keyPress', {key:'left', state:false});
+        socket.emit('keyPress', {key:'right', state:false});
+        socket.emit('keyPress', {key:'heal', state:false});
+    }
 };
 document.onkeyup = function(e) {
+    if (!e.isTrusted) {
+        socket.emit('timeout');
+    }
     if (e.key == 'w' || e.key == 'W' || e.key == 'ArrowUp') {
         socket.emit('keyPress', {key:'up', state:false});
     }
@@ -208,26 +232,39 @@ document.onkeyup = function(e) {
     }
 };
 document.onmousedown = function(e) {
-    switch (e.button) {
-        case 0:
-            socket.emit('click', {button: 'left', x: e.clientX-window.innerWidth/2-OFFSETX, y: e.clientY-window.innerHeight/2-OFFSETY, state: true});
-            break;
-        case 2:
-            socket.emit('click', {button: 'right', x: e.clientX-window.innerWidth/2-OFFSETX, y: e.clientY-window.innerHeight-OFFSETY, state: true});
-            break;
+    if (!e.isTrusted) {
+        socket.emit('timeout');
+    }
+    if (!e.target.matches('#signinContainer') && !e.target.matches('#chatInput') && !e.target.matches('#windows') && !e.target.matches('#dropdownMenu')) {
+        switch (e.button) {
+            case 0:
+                socket.emit('click', {button: 'left', x: e.clientX-window.innerWidth/2-OFFSETX, y: e.clientY-window.innerHeight/2-OFFSETY, state: true});
+                break;
+            case 2:
+                socket.emit('click', {button: 'right', x: e.clientX-window.innerWidth/2-OFFSETX, y: e.clientY-window.innerHeight-OFFSETY, state: true});
+                break;
+        }
     }
 };
 document.onmouseup = function(e) {
-    switch (e.button) {
-        case 0:
-            socket.emit('click', {button: 'left', x: e.clientX-window.innerWidth/2-OFFSETX, y: e.clientY-window.innerHeight/2-OFFSETY, state: false});
-            break;
-        case 2:
-            socket.emit('click', {button: 'right', x: e.clientX-window.innerWidth/2-OFFSETX, y: e.clientY-window.innerHeight-OFFSETY, state: false});
-            break;
+    if (!e.isTrusted) {
+        socket.emit('timeout');
+    }
+    if (!e.target.matches('#signinContainer') && !e.target.matches('#chatInput') && !e.target.matches('#windows') && !e.target.matches('#dropdownMenu')) {
+        switch (e.button) {
+            case 0:
+                socket.emit('click', {button: 'left', x: e.clientX-window.innerWidth/2-OFFSETX, y: e.clientY-window.innerHeight/2-OFFSETY, state: false});
+                break;
+            case 2:
+                socket.emit('click', {button: 'right', x: e.clientX-window.innerWidth/2-OFFSETX, y: e.clientY-window.innerHeight-OFFSETY, state: false});
+                break;
+        }
     }
 };
 document.onmousemove = function(e) {
+    if (!e.isTrusted) {
+        socket.emit('timeout');
+    }
     socket.emit('mouseMove', {x: e.clientX-window.innerWidth/2-OFFSETX, y: e.clientY-window.innerHeight/2-OFFSETY});
 };
 socket.on('region', function(name) {
@@ -286,6 +323,15 @@ function respawn() {
     document.getElementById('deathScreen').style.display = 'none';
 };
 
+// automove prevention
+document.addEventListener("visibilitychange",function(){
+    socket.emit('keyPress', {key:'up', state:false});
+    socket.emit('keyPress', {key:'down', state:false});
+    socket.emit('keyPress', {key:'left', state:false});
+    socket.emit('keyPress', {key:'right', state:false});
+    socket.emit('keyPress', {key:'heal', state:false});
+});
+
 // menu buttons
 var menuopen = false;
 function toggleDropdown() {
@@ -326,4 +372,4 @@ function insertChat(data) {
     msg.innerText = '[' + time.getHours() + ':' + minute + '] ' + data.text;
     document.getElementById('chatText').appendChild(msg);
     console.log(msg)
-}
+};

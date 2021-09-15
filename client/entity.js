@@ -19,8 +19,8 @@ Entity = function(id, x, y) {
 
     self.update = function(x, y, map) {
         self.map = map;
-        self.xspeed = (x-self.x)/4;
-        self.yspeed = (y-self.y)/4;
+        self.xspeed = (x-self.x)/(settings.fps/20);
+        self.yspeed = (y-self.y)/(settings.fps/20);
         self.interpolationStage = 0;
         self.updated = true;
     };
@@ -28,7 +28,7 @@ Entity = function(id, x, y) {
         if (self.chunkx >= player.chunkx-renderDistance && self.chunkx <= player.chunkx+renderDistance && self.chunky>= player.chunky-renderDistance && self.chunky <= player.chunky+renderDistance) {
             LAYERS.elower.fillText('MISSING TEXTURE', self.x+OFFSETX, self.y+OFFSETY);
         }
-        if (self.interpolationStage < 4) {
+        if (self.interpolationStage < (settings.fps/20)) {
             self.x += self.xspeed;
             self.y += self.yspeed;
             self.chunkx = Math.floor(self.x/(64*MAPS[self.map].chunkwidth));
@@ -70,11 +70,12 @@ Rig = function(id, x, y) {
     self.rawWidth = 0;
     self.rawHeight = 0;
     self.animationImage = new Image();
+    self.drawHealthBar = true;
     
     self.update = function(x, y, map, animationStage) {
         self.map = map;
-        self.xspeed = (x-self.x)/4;
-        self.yspeed = (y-self.y)/4;
+        self.xspeed = (x-self.x)/(settings.fps/20);
+        self.yspeed = (y-self.y)/(settings.fps/20);
         self.interpolationStage = 0;
         self.animationStage = animationStage;
         self.updated = true;
@@ -83,7 +84,7 @@ Rig = function(id, x, y) {
         if (self.chunkx >= player.chunkx-renderDistance && self.chunkx <= player.chunkx+renderDistance && self.chunky>= player.chunky-renderDistance && self.chunky <= player.chunky+renderDistance) {
             LAYERS.elower.fillText('MISSING TEXTURE', self.x+OFFSETX, self.y+OFFSETY);
         }
-        if (self.interpolationStage < 4) {
+        if (self.interpolationStage < (settings.fps/20)) {
             self.x += self.xspeed;
             self.y += self.yspeed;
             self.chunkx = Math.floor(self.x/(64*MAPS[self.map].chunkwidth));
@@ -96,7 +97,7 @@ Rig = function(id, x, y) {
 };
 
 // players
-Player = function(id, x, y) {
+Player = function(id, x, y, isNPC) {
     var self = new Rig(id, x, y);
     self.animationImage = null;
     self.characterStyle = {
@@ -106,6 +107,7 @@ Player = function(id, x, y) {
         shirtColor: '#FF3232',
         pantsColor: '#6464FF'
     };
+    if (isNPC) self.drawHealthBar = false;
 
     self.draw = function () {
         if (self.chunkx >= player.chunkx-renderDistance && self.chunkx <= player.chunkx+renderDistance && self.chunky >= player.chunky-renderDistance && self.chunky <= player.chunky+renderDistance) {
@@ -114,7 +116,7 @@ Player = function(id, x, y) {
             LAYERS.elower.drawImage(self.getTintedFrame('pants'), self.x-16+OFFSETX, self.y-48+OFFSETY, 32, 64);
             LAYERS.elower.drawImage(self.getTintedFrame('hair'), self.x-16+OFFSETX, self.y-48+OFFSETY, 32, 64);
         }
-        if (self.interpolationStage < 4) {
+        if (self.interpolationStage < (settings.fps/20)) {
             self.x += self.xspeed;
             self.y += self.yspeed;
             self.chunkx = Math.floor(self.x/(64*MAPS[self.map].chunkwidth));
@@ -147,7 +149,7 @@ Player.update = function(data) {
         if (Player.list[data[i].id]) {
             Player.list[data[i].id].update(data[i].x, data[i].y, data[i].map, data[i].animationStage);
         } else {
-            new Player(data[i].id, data[i].x, data[i].y);
+            new Player(data[i].id, data[i].x, data[i].y, data.isNPC);
             Player.list[data[i].id].update(data[i].x, data[i].y, data[i].map, data[i].animationStage);
         }
     }
@@ -186,7 +188,7 @@ Monster = function(id, type, x, y) {
         if (self.chunkx >= player.chunkx-renderDistance && self.chunkx <= player.chunkx+renderDistance && self.chunky>= player.chunky-renderDistance && self.chunky <= player.chunky+renderDistance) {
             LAYERS.elower.drawImage(self.animationImage, self.animationStage*self.rawWidth, 0, self.rawWidth, self.rawHeight, self.x-self.width/2+OFFSETX, self.y-self.height/2+OFFSETY, self.width, self.height);
         }
-        if (self.interpolationStage < 4) {
+        if (self.interpolationStage < (settings.fps/20)) {
             self.x += self.xspeed;
             self.y += self.yspeed;
             self.chunkx = Math.floor(self.x/(64*MAPS[self.map].chunkwidth));
@@ -241,10 +243,10 @@ Projectile = function(id, type, x, y, angle) {
 
     self.update = function(x, y, map, angle) {
         self.map = map;
-        self.xspeed = (x-self.x)/4;
-        self.yspeed = (y-self.y)/4;
+        self.xspeed = (x-self.x)/(settings.fps/20);
+        self.yspeed = (y-self.y)/(settings.fps/20);
         self.interpolationStage = 0;
-        self.rotationspeed = (angle-self.angle)/4;
+        self.rotationspeed = (angle-self.angle)/(settings.fps/20);
         self.updated = true;
     };
     self.draw = function() {
@@ -255,7 +257,7 @@ Projectile = function(id, type, x, y, angle) {
             LAYERS.elower.drawImage(self.animationsCanvas, self.animationStage*self.rawWidth, 0, self.rawWidth, self.rawHeight, -self.width/2, -self.height/2, self.width, self.height);
             LAYERS.elower.restore();
         }
-        if (self.interpolationStage < 4) {
+        if (self.interpolationStage < (settings.fps/20)) {
             self.x += self.xspeed;
             self.y += self.yspeed;
             self.chunkx = Math.floor(self.x/(64*MAPS[self.map].chunkwidth));
@@ -289,6 +291,14 @@ Projectile.list = [];
 
 // load data
 function loadEntitydata() {
+    // health bars
+    totalassets += 2;
+    Rig.healthBarG = new Image();
+    Rig.healthBarG.src = './client/img/player/healthbar_green.png';
+    Rig.healthBarG.onload = function() {loadedassets++;};
+    Rig.healthBarR = new Image();
+    Rig.healthBarR.src = './client/img/monster/healthbar_red.png';
+    Rig.healthBarR.onload = function() {loadedassets++;};
     // players
     for (var i in Player.animations) {
         if (i == 'hair') {
@@ -304,7 +314,7 @@ function loadEntitydata() {
         }
     }
     // monsters
-    totalassets++;
+    totalassets += 2;
     var request = new XMLHttpRequest();
     request.open('GET', './client/monster.json', true);
     request.onload = async function() {
@@ -312,6 +322,11 @@ function loadEntitydata() {
             var json = JSON.parse(this.response);
             Monster.types = json;
             loadedassets++;
+            for (var i in Monster.types) {
+                var loadImage = new Image();
+                loadImage.src = './client/img/monster/' + i + '.png';
+                loadImage.onload = function() {loadedassets++;}
+            }
         } else {
             console.error('Error: Server returned status ' + this.status);
             await sleep(1000);
@@ -323,7 +338,7 @@ function loadEntitydata() {
     };
     request.send();
     // projectiles
-    totalassets++;
+    totalassets += 2;
     var request = new XMLHttpRequest();
     request.open('GET', './client/projectile.json', true);
     request.onload = async function() {
@@ -331,6 +346,11 @@ function loadEntitydata() {
             var json = JSON.parse(this.response);
             Projectile.types = json;
             loadedassets++;
+            for (var i in Projectile.types) {
+                var loadImage = new Image();
+                loadImage.src = './client/img/projectile/' + i + '.png';
+                loadImage.onload = function() {loadedassets++;}
+            }
         } else {
             console.error('Error: Server returned status ' + this.status);
             await sleep(1000);

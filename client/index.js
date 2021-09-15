@@ -1,6 +1,6 @@
 // Copyright (C) 2021 Radioactive64
 
-const version = 'v0.1.0';
+const version = 'v0.1.1';
 // canvas
 CTXRAW = document.getElementById('ctx')
 CTX = CTXRAW.getContext('2d');
@@ -33,6 +33,7 @@ window.onresize = function() {
         dpr = window.devicePixelRatio;
     }
     resetCanvases();
+    drawFrame();
 };
 function resetCanvas(ctx) {
     ctx.getContext('2d').imageSmoothingEnabled = false;
@@ -79,8 +80,14 @@ document.getElementById('ctx').addEventListener('dblclick', function(e) {e.preve
 // version
 document.getElementById('version').innerText = version;
 
-window.onerror = function() {
-    // insert to chat
+window.onerror = function(err) {
+    insertChat({
+        text: 'An error occurred: ' + err,
+        style: 'color: #FF0000;'
+    });
+};
+window.onoffline = function(e){
+    socket.emit('timeout');
 };
 
 // important sleep function

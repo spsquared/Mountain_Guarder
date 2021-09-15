@@ -268,6 +268,7 @@ Rig = function() {
         switch (type) {
             case 'projectile':
                 self.hp -= entity.damage;
+                if (self.hp < 0) self.hp = 0;
                 break;
             default:
                 error('Invalid Entity type: ' + type);
@@ -521,7 +522,7 @@ Monster = function(type, x, y, map) {
     };
     self.attack = function() {
         self.ai.lastAttack++;
-        if (self.ai.aggroTarget) {
+        if (self.ai.aggroTarget && !self.region.noattack) {
             switch (self.ai.attackType) {
                 case 'bird':
                     if (self.ai.lastAttack > seconds(1)) {
@@ -647,6 +648,9 @@ Monster = function(type, x, y, map) {
                                 if (Collision.list[self.map][checky]) if (Collision.list[self.map][checky][checkx]) {
                                     self.ai.grid.setWalkableAt(x, y, false);
                                 }
+                                if (Region.list[self.map]) if (Region.list[self.map][checky]) if (Region.list[self.map][checky][checkx]) if (Region.list[self.map][checky][checkx].nomonster) {
+                                    self.ai.grid.setWalkableAt(x, y, false);
+                                }
                             }
                         }
                         var path = self.ai.pathfinder.findPath(x1, y1, x2, y2, self.ai.grid);
@@ -709,6 +713,7 @@ Monster = function(type, x, y, map) {
         switch (type) {
             case 'projectile':
                 self.hp -= entity.damage;
+                if (self.hp < 0) self.hp = 0;
                 if (entity.parentID) {
                     if (entity.parentIsPlayer) {
                         self.aggroTarget = Player.list[entity.parentID];
@@ -783,8 +788,8 @@ Projectile = function(type, x, y, map, mousex, mousey, parentID) {
     self.angle = Math.atan2(-(self.y-mousey), -(self.x-mousex));
     self.xspeed = Math.cos(self.angle)*self.moveSpeed;
     self.yspeed = Math.sin(self.angle)*self.moveSpeed;
-    self.x += self.xspeed;
-    self.y += self.yspeed;
+    self.x += Math.cos(self.angle)*self.width/3;
+    self.y += Math.sin(self.angle)*self.width/3;
     self.parentID = parentID;
     self.parentIsPlayer = true;
     if (Monster.list[self.parentID]) self.parentIsPlayer = false;

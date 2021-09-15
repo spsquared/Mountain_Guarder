@@ -54,6 +54,24 @@
                     </div> -->
                     <div class="stack ui-block ui-lighttext">
                         <div class="ui-lighttext stackHeader">
+                            v0.1.1 - 9/13/2021
+                        </div>
+                        <div class="ui-lighttext stackBody">
+                            Lots of bugfixes. Lots. Please don't spam.
+                            <ul>
+                                <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/13" target="_blank" class="ui-link">Fixed xp becoming <code>null</code> from killing a monster spawned by a spawner (Issue #13)</a></li>
+                                <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/17" target="_blank" class="ui-link">Fixed monster shooting in noattack regions (Issue #17)</a></li>
+                                <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/31" target="_blank" class="ui-link">Fixed negative health (Issue #31)</a></li>
+                                <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/34" target="_blank" class="ui-link">Fixed monsters crossing through nomonster regions (Issue #34)</a></li>
+                                <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/35" target="_blank" class="ui-link">Fixed projectiles spawning very far from parent entity (Issue #35)</a></li>
+                                <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/40" target="_blank" class="ui-link">Fixed missing collision on sign (Issue #40)</a></li>
+                                <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/42" target="_blank" class="ui-link">Fixed a typo in the changelog (Issue #42)</a></li>
+                                <li>Changed region borders a bit</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="stack ui-block ui-lighttext">
+                        <div class="ui-lighttext stackHeader">
                             v0.1.0 - 9/12/2021
                         </div>
                         <div class="ui-lighttext stackBody">
@@ -102,7 +120,7 @@
                                 <li>Birds and Snow Birds now attack</li>
                             </ul>
                         </div>
-                    </div> -->
+                    </div>
                     <div class="stack ui-block ui-lighttext">
                         <div class="ui-lighttext stackHeader">
                             v0.0.7 - 9/3/2021
@@ -231,13 +249,13 @@
                             Credits
                         </div>
                         <div class="ui-lighttext stackBody">
-							Map Tilesets: Kinney | <a href="https://www.kenney.nl/" class="ui-link" target="_blank">Link</a>
+							Map Tilesets: Kinney | <a href="https://www.kenney.nl/" target="_blank" class="ui-link">Link</a>
 							<br>
-							Item Images: Kyrise | <a href="https://kyrise.itch.io/kyrises-free-16x16-rpg-icon-pack?download" class="ui-link" target="_blank">Link</a>
+							Item Images: Kyrise | <a href="https://kyrise.itch.io/kyrises-free-16x16-rpg-icon-pack?download" target="_blank" class="ui-link">Link</a>
 							<br>
-							Window Code: Columbia.edu | <a href="https://www.columbia.edu/~njn2118/journal/2019/4/26.html" class="ui-link" target="_blank">Link</a>
+							Window Code: Columbia.edu | <a href="https://www.columbia.edu/~njn2118/journal/2019/4/26.html" target="_blank" class="ui-link">Link</a>
 							<br>
-							Player Sprites: Based on CouchFerret Makes Games | <a href="https://www.youtube.com/channel/UCp5WDvPDLCkSZWp9hP5xIvQ" class="ui-link" target="_blank">Link</a>
+							Player Sprites: Based on CouchFerret Makes Games | <a href="https://www.youtube.com/channel/UCp5WDvPDLCkSZWp9hP5xIvQ" target="_blank" class="ui-link">Link</a>
                         </div>
                     </div>
                     <div class="stack ui-block ui-lighttext">
@@ -258,7 +276,7 @@
                             Ads
                         </div>
                         <div class="ui-lighttext stackBody">
-                            <iframe src="https://www.youtube.com/embed/ih8MFqBU4L4" width="300" height="200"></iframe><br>
+                            <!-- <iframe src="https://www.youtube.com/embed/ih8MFqBU4L4" width="300" height="200"></iframe><br> -->
                             <!-- <embed src="https://meadowguarderold.herokuapp.com/" width="540" height="400"><br> -->
                             Go play <a href="https://meadowguarderold.herokuapp.com/" target="_blank" class="ui-link">Meadow Guarder</a>!
                         </div>
@@ -300,7 +318,7 @@
                     <button id="logOutButton" class="ui-lightbutton" onclick="window.location.reload();">Log Out</button>
                 </div>
             </div>
-            <div class="noSelect">
+            <div id="windows" class="noSelect">
                 <div id="inventory" class="window ui-block ui-lighttext noSelect">
                     <div id="inventoryBar" class="window-bar ui-block">
                         <span>Inventory</span>
