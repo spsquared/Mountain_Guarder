@@ -6,10 +6,6 @@ mouseX = 0;
 mouseY = 0;
 var mapnameFade = null;
 var mapnameWait = null;
-settings = {
-    fps: 60
-};
-var drawLoop = null;
 
 // loading
 var loaded = false;
@@ -19,7 +15,6 @@ var totalassets = 1;
 socket.on('mapData', function(data) {
     load(data);
 });
-var renderDistance = 1;
 var tilesetloaded = false;
 var tileset = new Image();
 tileset.onload = function() {
@@ -54,7 +49,36 @@ async function loadMap(name) {
         request.onload = function() {
             if (this.status >= 200 && this.status < 400) {
                 var json = JSON.parse(this.response);
-                renderLayers(json, name);
+                MAPS[name] = {
+                    width: 0,
+                    height: 0,
+                    offsetX: 0,
+                    offsetY: 0,
+                    chunkwidth: 0,
+                    chunks: [],
+                    chunkJSON: []
+                };
+                for (var i in json.layers) {
+                    if (json.layers[i].visible) {
+                        if (json.layers[i].name == 'Ground Terrain') {
+                            MAPS[name].width = json.layers[i].width;
+                            MAPS[name].height = json.layers[i].height;
+                        }
+                        for (var j in json.layers[i].chunks) {
+                            var rawchunk = json.layers[i].chunks[j];
+                            MAPS[name].chunkwidth = rawchunk.width;
+                            MAPS[name].offsetX = Math.min(rawchunk.x*64, MAPS[name].offsetX);
+                            MAPS[name].offsetY = Math.min(rawchunk.y*64, MAPS[name].offsetY);
+                            if (MAPS[name].chunkJSON[rawchunk.y/rawchunk.width] == null) {
+                                MAPS[name].chunkJSON[rawchunk.y/rawchunk.width] = [];
+                            }
+                            if (MAPS[name].chunkJSON[rawchunk.y/rawchunk.width][rawchunk.x/rawchunk.height] == null) {
+                                MAPS[name].chunkJSON[rawchunk.y/rawchunk.width][rawchunk.x/rawchunk.height] = [];
+                            }
+                            MAPS[name].chunkJSON[rawchunk.y/rawchunk.width][rawchunk.x/rawchunk.width][json.layers[i].name] = rawchunk.data;
+                        }
+                    }
+                }
                 loadedassets++;
             } else {
                 console.error('Error: Server returned status ' + this.status);
@@ -133,6 +157,7 @@ function renderLayers(json, name) {
 function MGHC() {};
 
 // draw
+var drawLoop = null;
 function drawFrame() {
     if (player && loadedassets >= totalassets) {
         LAYERS.mlower.clearRect(0, 0, window.innerWidth, window.innerHeight);
@@ -152,22 +177,71 @@ function drawFrame() {
     }
 };
 function drawMap() {
+    for (var y in MAPS[player.map].chunks) {
+        for (var x in MAPS[player.map].chunks[y]) {
+            if (Math.abs(player.chunkx-x) > settings.renderDistance || Math.abs(player.chunky-y) > settings.renderDistance) {
+                delete MAPS[player.map].chunks[y][x];
+            }
+        }
+    }
+    for (var y = player.chunky-settings.renderDistance; y <= player.chunky+settings.renderDistance; y++) {
+        for (var x = player.chunkx-settings.renderDistance; x <= player.chunkx+settings.renderDistance; x++) {
+            if (MAPS[player.map].chunkJSON[y]) if (MAPS[player.map].chunkJSON[y][x]) {
+                if (MAPS[player.map].chunks[y] == undefined) {
+                    renderChunk(MAPS[player.map].chunkJSON[y][x], x, y, player.map);
+                } else if (MAPS[player.map].chunks[y][x] == undefined) {
+                    renderChunk(MAPS[player.map].chunkJSON[y][x], x, y, player.map);
+                }
+            }
+        }
+    }
     LAYERS.mlower.save();
     LAYERS.mlower.translate((window.innerWidth/2)-player.x,(window.innerHeight/2)-player.y);
     LAYERS.mupper.save();
     LAYERS.mupper.translate((window.innerWidth/2)-player.x,(window.innerHeight/2)-player.y);
-    for (var x = player.chunkx-renderDistance; x <= player.chunkx+renderDistance; x++) {
-        for (var y = player.chunky-renderDistance; y <= player.chunky+renderDistance; y++) {
-            if (MAPS[player.map].chunks[y]) if (MAPS[player.map].chunks[y][x]) {
-                var chunk = MAPS[player.map].chunks[y][x];
-                var width = MAPS[player.map].chunkwidth;
-                LAYERS.mlower.drawImage(chunk.lower, (x*width*64)+OFFSETX, (y*width*64)+OFFSETY, width*64, width*64);
-                LAYERS.mupper.drawImage(chunk.upper, (x*width*64)+OFFSETX, (y*width*64)+OFFSETY, width*64, width*64);
-            }
+    for (var y in MAPS[player.map].chunks) {
+        for (var x in MAPS[player.map].chunks[y]) {
+            var chunk = MAPS[player.map].chunks[y][x];
+            var width = MAPS[player.map].chunkwidth;
+            LAYERS.mlower.drawImage(chunk.lower, (x*width*64)+OFFSETX, (y*width*64)+OFFSETY, width*64, width*64);
+            LAYERS.mupper.drawImage(chunk.upper, (x*width*64)+OFFSETX, (y*width*64)+OFFSETY, width*64, width*64);
         }
     }
     LAYERS.mlower.restore();
     LAYERS.mupper.restore();
+};
+function renderChunk(data, x, y, map) {
+    var width = MAPS[map].chunkwidth;
+    var templower = new OffscreenCanvas(width * 64, width * 64);
+    var tempupper = new OffscreenCanvas(width * 64, width * 64);
+    var tlower = templower.getContext('2d');
+    var tupper = tempupper.getContext('2d');
+    resetCanvas(tempupper);
+    resetCanvas(templower);
+    for (var i in data) {
+        for (var j in data[i]) {
+            var tileid = data[i][j];
+            if (tileid != 0) {
+                tileid--;
+                var imgx = (tileid % 86)*17;
+                var imgy = ~~(tileid / 86)*17;
+                var dx = (j % width)*16;
+                var dy = ~~(j / width)*16;
+                if (i.includes('Above')) {
+                    tupper.drawImage(tileset, Math.round(imgx), Math.round(imgy), 16, 16, Math.round(dx*4), Math.round(dy*4), 64, 64);
+                } else {
+                    tlower.drawImage(tileset, Math.round(imgx), Math.round(imgy), 16, 16, Math.round(dx*4), Math.round(dy*4), 64, 64);
+                }
+            }
+        }
+    }
+    if (MAPS[map].chunks[y] == null) {
+        MAPS[map].chunks[y] = [];
+    }
+    MAPS[map].chunks[y][x] = {
+        upper: tempupper,
+        lower: templower
+    };
 };
 function resetFPS() {
     clearInterval(drawLoop);
@@ -177,7 +251,7 @@ function resetFPS() {
 };
 resetFPS();
 
-// send/recieve packets
+// tick update and movement
 socket.on('updateTick', function(data) {
     if (loaded) {
         Entity.update(data);
@@ -267,6 +341,7 @@ document.onmousemove = function(e) {
     }
     socket.emit('mouseMove', {x: e.clientX-window.innerWidth/2-OFFSETX, y: e.clientY-window.innerHeight/2-OFFSETY});
 };
+// game
 socket.on('region', function(name) {
     clearInterval(mapnameFade);
     clearTimeout(mapnameWait);
@@ -371,5 +446,31 @@ function insertChat(data) {
     msg.style = data.style;
     msg.innerText = '[' + time.getHours() + ':' + minute + '] ' + data.text;
     document.getElementById('chatText').appendChild(msg);
-    console.log(msg)
 };
+
+// performance metrics
+var fps = 0;
+var fpsCounter = 0;
+var ping = 0;
+var pingSend = new Date();
+var pingCounter = 0;
+setInterval(async function() {
+    fps = fpsCounter;
+    fpsCounter = 0;
+    ping = pingCounter;
+    document.getElementById('fps').innerText = 'FPS: ' + fps;
+}, 1000);
+function fpsLoop() {
+    window.requestAnimationFrame(function() {
+        fpsCounter++;
+        fpsLoop();
+    });
+};
+fpsLoop();
+socket.on('ping', function() {
+    var current = new Date();
+    pingCounter = current-pingSend;
+    socket.emit('ping');
+    pingSend = new Date();
+});
+socket.emit('ping');

@@ -1,7 +1,7 @@
 // Copyright (C) 2021 Radioactive64
 // Go to README.md for more information
 
-const version = 'v0.1.1';
+const version = 'v0.1.2';
 console.info('\x1b[33m%s\x1b[0m', 'Mountain Guarder ' + version + ' copyright (C) Radioactive64 2021');
 const express = require('express');
 const app = express();
@@ -42,7 +42,11 @@ io.on('connection', function(socket) {
         delete Player.list[player.id];
         delete SOCKET_LIST[socket.id];
         socket.disconnect();
-    })
+    });
+    // performance metrics
+    socket.on('ping', async function() {
+        socket.emit('ping');
+    });
 });
 
 // console inputs
@@ -62,6 +66,7 @@ prompt.on('line', async function(input) {
 prompt.on('close', function() {
     if (!process.env.PORT) {
         appendLog('----------------------------------------');
+        io.emit('disconnected');
         process.exit();
     }
 });

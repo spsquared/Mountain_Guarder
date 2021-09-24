@@ -183,7 +183,7 @@ Rig = function() {
     self.animationLength = 0;
     self.lastFrameUpdate = 0;
     self.animationSpeed = 100;
-    self.animationDirection = 'none';
+    self.animationDirection = 'loop';
     self.moveSpeed = 20;
     self.stats = {
         attack: 1,
@@ -202,6 +202,22 @@ Rig = function() {
     self.maxMana = 200;
     self.alive = true;
     self.lastAttack = 0;
+    self.ai = {
+        entityTarget: null,
+        posTarget: {
+            x: null,
+            y: null
+        },
+        idleMove: 'none',
+        path: [],
+        pathfinder: new PF.BiAStarFinder({
+            allowDiagonal: true,
+            dontCrossCorners: true
+        }),
+        grid: new PF.Grid(),
+        lastPath: 0,
+        maxRange: 100
+    };
     self.characterStyle = {
         hair: 0,
         hairColor: '#000000',
@@ -224,6 +240,7 @@ Rig = function() {
     self.updatePos = function() {
         self.xspeed = 0;
         self.yspeed = 0;
+        self.animationDirection = 'none';
         if (self.keys.up) {
             self.yspeed = -self.moveSpeed;
             self.animationDirection = 'up';
@@ -234,11 +251,15 @@ Rig = function() {
         }
         if (self.keys.left) {
             self.xspeed = -self.moveSpeed;
-            self.animationDirection = 'left';
+            if (self.keys.down) self.animationDirection = 'downleft';
+            else if (self.keys.up) self.animationDirection = 'upleft';
+            else self.animationDirection = 'left';
         }
         if (self.keys.right) {
             self.xspeed = self.moveSpeed;
-            self.animationDirection = 'right';
+            if (self.keys.down) self.animationDirection = 'downright';
+            else if (self.keys.up) self.animationDirection = 'upright';
+            else self.animationDirection = 'right';
         }
         self.collide();
         var foundregion = false;
@@ -256,12 +277,189 @@ Rig = function() {
             self.onRegionChange();
         }
     };
+    self.collide = function() {
+        var xdir = self.xspeed/self.moveSpeed;
+        var ydir = self.yspeed/self.moveSpeed;
+        for (var i = 0; i < self.moveSpeed; i++) {
+            if (self.ai.path[0]) {
+                self.keys = {
+                    up: false,
+                    down: false,
+                    left: false,
+                    right: false,
+                    heal: false
+                };
+                self.xspeed = 0;
+                self.yspeed = 0;
+                if (self.ai.path[0]) {
+                    if (self.ai.path[0][0]*64+32 < self.x) self.keys.left = true;
+                    if (self.ai.path[0][0]*64+32 > self.x) self.keys.right = true;
+                    if (self.ai.path[0][1]*64+32 < self.y) self.keys.up = true;
+                    if (self.ai.path[0][1]*64+32 > self.y) self.keys.down = true;
+                    if (self.gridx == self.ai.path[0][0] && self.gridy == self.ai.path[0][1]) {
+                        self.ai.path.shift();
+                    }
+                }
+                if (self.keys.up) self.yspeed = -self.moveSpeed;
+                if (self.keys.down) self.yspeed = self.moveSpeed;
+                if (self.keys.left) self.xspeed = -self.moveSpeed;
+                if (self.keys.right) self.xspeed = self.moveSpeed;
+                xdir = self.xspeed/self.moveSpeed;
+                ydir = self.yspeed/self.moveSpeed;
+            }
+            self.lastx = self.x;
+            self.lasty = self.y;
+            self.x += xdir;
+            self.y += ydir;
+            self.gridx = Math.floor(self.x/64);
+            self.gridy = Math.floor(self.y/64);
+            self.checkCollision();
+        }
+        self.x = Math.round(self.x);
+        self.y = Math.round(self.y);
+        self.gridx = Math.floor(self.x/64);
+        self.gridy = Math.floor(self.y/64);
+    };
     self.updateAnimation = function() {
         self.lastFrameUpdate++;
         if (self.lastFrameUpdate >= seconds(self.animationSpeed/1000)) {
-            self.animationStage++;
-            if (self.animationStage > self.animationLength) self.animationStage = 0;
             self.lastFrameUpdate = 0;
+            switch (self.animationDirection) {
+                case 'loop':
+                    self.animationStage++;
+                    if (self.animationStage > self.animationLength) self.animationStage = 0;
+                    break;
+                case 'none':
+                    self.animationStage = 0;
+                    break;
+                case 'up':
+                    self.animationStage++;
+                    if (self.animationStage < 25) self.animationStage = 25;
+                    if (self.animationStage > 29) self.animationStage = 25;
+                    break;
+                case 'down':
+                    self.animationStage++;
+                    if (self.animationStage < 1) self.animationStage = 1;
+                    if (self.animationStage > 5) self.animationStage = 1;
+                    break;
+                case 'left':;
+                    self.animationStage++;
+                    if (self.animationStage < 37) self.animationStage = 37;
+                    if (self.animationStage > 41) self.animationStage = 37;
+                    break;
+                case 'right':
+                    self.animationStage++;
+                    if (self.animationStage < 13) self.animationStage = 13;
+                    if (self.animationStage > 17) self.animationStage = 13;
+                    break;
+                case 'upleft':
+                    self.animationStage++;
+                    if (self.animationStage < 31) self.animationStage = 31;
+                    if (self.animationStage > 35) self.animationStage = 31;
+                    break;
+                case 'downleft':
+                    self.animationStage++;
+                    if (self.animationStage < 43) self.animationStage = 43;
+                    if (self.animationStage > 47) self.animationStage = 43;
+                    break;
+                case 'upright':
+                    self.animationStage++;
+                    if (self.animationStage < 19) self.animationStage = 19;
+                    if (self.animationStage > 23) self.animationStage = 23;
+                    break;
+                case 'downright':
+                    self.animationStage++;
+                    if (self.animationStage < 7) self.animationStage = 7;
+                    if (self.animationStage > 11) self.animationStage = 7;
+                    break;
+                default:
+                    error('Invalid animationDirection ' + self.animationDirection);
+                    break;
+            }
+        }
+    };
+    self.ai.pathtoEntity = function() {
+        self.ai.lastPath++;
+        if (self.ai.lastPath >= seconds(0.1)) {
+            self.ai.lastPath = 0;
+            self.ai.path = [];
+            if (self.ai.entityTarget) {
+                try {
+                    if (self.getDistance(self.ai.entityTarget) < self.ai.maxRange*64) {
+                        var offsetx = self.gridx-self.ai.maxRange-1;
+                        var offsety = self.gridy-self.ai.maxRange-1;
+                        var x1 = self.ai.maxRange+1;
+                        var y1 = self.ai.maxRange+1;
+                        var x2 = self.ai.entityTarget.gridx-offsetx;
+                        var y2 = self.ai.entityTarget.gridy-offsety;
+                        var size = self.ai.maxRange*2+1;
+                        self.ai.grid = new PF.Grid(size, size);
+                        for (var y = 0; y < size; y++) {
+                            for (var x = 0; x < size; x++) {
+                                var checkx = x+offsetx;
+                                var checky = y+offsety;
+                                if (Collision.list[self.map][checky]) if (Collision.list[self.map][checky][checkx]) {
+                                    self.ai.grid.setWalkableAt(x, y, false);
+                                }
+                                if (Region.list[self.map]) if (Region.list[self.map][checky]) if (Region.list[self.map][checky][checkx]) if (Region.list[self.map][checky][checkx].nomonster) {
+                                    self.ai.grid.setWalkableAt(x, y, false);
+                                }
+                            }
+                        }
+                        var path = self.ai.pathfinder.findPath(x1, y1, x2, y2, self.ai.grid);
+                        self.ai.path = PF.Util.compressPath(path);
+                        self.ai.path.shift();
+                        for (var i in self.ai.path) {
+                            self.ai.path[i][0] += offsetx;
+                            self.ai.path[i][1] += offsety;
+                        }
+                    }
+                } catch (err) {
+                    error(err);
+                }
+            }
+        }
+    };
+    self.ai.pathtoPos = function() {
+        self.ai.lastPath++;
+        if (self.ai.lastPath >= seconds(0.1)) {
+            self.ai.lastPath = 0;
+            self.ai.path = [];
+            if (self.ai.posTarget) {
+                try {
+                    if (self.getManhattanDistance(self.ai.posTarget) < self.ai.maxRange*64) {
+                        var offsetx = self.gridx-self.ai.maxRange-1;
+                        var offsety = self.gridy-self.ai.maxRange-1;
+                        var x1 = self.ai.maxRange+1;
+                        var y1 = self.ai.maxRange+1;
+                        var x2 = Math.floor(self.ai.posTarget.x/64)-offsetx;
+                        var y2 = Math.floor(self.ai.posTarget.y/64)-offsety;
+                        var size = self.ai.maxRange*2+1;
+                        self.ai.grid = new PF.Grid(size, size);
+                        for (var y = 0; y < size; y++) {
+                            for (var x = 0; x < size; x++) {
+                                var checkx = x+offsetx;
+                                var checky = y+offsety;
+                                if (Collision.list[self.map][checky]) if (Collision.list[self.map][checky][checkx]) {
+                                    self.ai.grid.setWalkableAt(x, y, false);
+                                }
+                                if (Region.list[self.map]) if (Region.list[self.map][checky]) if (Region.list[self.map][checky][checkx]) if (Region.list[self.map][checky][checkx].nomonster) {
+                                    self.ai.grid.setWalkableAt(x, y, false);
+                                }
+                            }
+                        }
+                        var path = self.ai.pathfinder.findPath(x1, y1, x2, y2, self.ai.grid);
+                        self.ai.path = PF.Util.compressPath(path);
+                        self.ai.path.shift();
+                        for (var i in self.ai.path) {
+                            self.ai.path[i][0] += offsetx;
+                            self.ai.path[i][1] += offsety;
+                        }
+                    }
+                } catch (err) {
+                    error(err);
+                }
+            }
         }
     };
     self.onHit = function(entity, type) {
@@ -285,6 +483,12 @@ Rig = function() {
         self.y = y*64+32;
         // particles
     };
+    self.getDistance = function(entity) {
+        return Math.sqrt(Math.pow(self.x-entity.x, 2) + Math.pow(self.y-entity.y, 2));
+    };
+    self.getManhattanDistance = function(entity) {
+        return Math.abs(self.x-entity.x) + Math.abs(self.y-entity.y);
+    };
 
     return self;
 };
@@ -293,6 +497,7 @@ Rig = function() {
 Npc = function(param) {
     var self = new Rig();
     self.id = Math.random();
+    self.animationDirection = 'none';
 
     Npc.list[self.id] = self;
     return self;
@@ -321,6 +526,8 @@ Player = function(socket) {
     self.id = Math.random();
     self.x = 80;
     self.y = 80;
+    self.animationDirection = 'none';
+    self.animationSpeed = 100;
     self.attacking = false;
     self.lastHeal = 0;
     self.mouseX = 0;
@@ -384,8 +591,6 @@ Player = function(socket) {
         self.updateAnimation();
         self.updateClient();
     };
-    self.updateAnimation = function() {
-    };
     self.updateClient = function() {
         var pack = {
             hp: self.hp,
@@ -432,6 +637,8 @@ Player.update = function() {
             y: localplayer.y,
             name: localplayer.name,
             animationStage: localplayer.animationStage,
+            hp: localplayer.hp,
+            maxHP: localplayer.maxHP,
             isNPC: false
         });
     }
@@ -446,23 +653,13 @@ Monster = function(type, x, y, map) {
     self.x = x;
     self.y = y;
     self.map = map;
-    self.ai = {
-        aggroTarget: null,
-        attackType: 'none',
-        idleMove: 'random',
-        path: [],
-        pathfinder: new PF.BiAStarFinder({
-            allowDiagonal: true,
-            dontCrossCorners: true
-        }),
-        grid: new PF.Grid(),
-        lastPath: 0,
-        lastAttack: 0,
-        attackStage: 0,
-        attackTime: 0,
-        aggroRange: 0,
-        damaged: false
-    };
+    self.ai.idleMove = 'random';
+    self.ai.attackType = 'none';
+    self.ai.lastAttack = 0;
+    self.ai.attackStage = 0;
+    self.ai.attackTime = 0;
+    self.ai.maxRange = 0;
+    self.ai.damaged = false;
     self.targetMonsters = false;
     var tempmonster = Monster.types[type];
     self.type = type;
@@ -473,13 +670,13 @@ Monster = function(type, x, y, map) {
     self.hp = tempmonster.hp;
     self.xpDrop = tempmonster.xpDrop;
     self.ai.attackType = tempmonster.attackType;
-    self.ai.aggroRange = tempmonster.aggroRange;
+    self.ai.maxRange = tempmonster.aggroRange;
     self.animationLength = tempmonster.animationLength;
 
     self.update = function() {
         self.updateAnimation();
         self.updateAggro();
-        self.path();
+        self.ai.pathtoEntity();
         self.updatePos();
         self.attack();
     };
@@ -500,39 +697,39 @@ Monster = function(type, x, y, map) {
             var lowest = null;
             for (var i in Monster.list) {
                 if (lowest == null) lowest = i;
-                if (self.getDistance(Monster.list[i]) < self.ai.aggroRange*64 && self.getDistance(Monster.list[i]) < self.getDistance(Monster.list[lowest]) && i != self.id && !Monster.list[i].region.nomonster && Monster.list[i].alive) {
+                if (self.getDistance(Monster.list[i]) < self.ai.maxRange*64 && self.getDistance(Monster.list[i]) < self.getDistance(Monster.list[lowest]) && i != self.id && !Monster.list[i].region.nomonster && Monster.list[i].alive) {
                     lowest = i;
                 }
             }
-            if (lowest) self.ai.aggroTarget = Monster.list[lowest];
-            if (lowest == null && !self.damaged) self.ai.aggroTarget = null;
+            if (lowest) self.ai.entityTarget = Monster.list[lowest];
+            if (lowest == null && !self.damaged) self.ai.entityTarget = null;
         } else {
             var lowest = null;
             for (var i in Player.list) {
-                if (self.getDistance(Player.list[i]) < self.ai.aggroRange*64 && !Player.list[i].region.nomonster && Player.list[i].alive) {
+                if (self.getDistance(Player.list[i]) < self.ai.maxRange*64 && !Player.list[i].region.nomonster && Player.list[i].alive) {
                     lowest = i;
                 }
-                if (lowest) if (self.getDistance(Player.list[i]) < self.ai.aggroRange*64 && self.getDistance(Player.list[i]) < self.getDistance(Player.list[lowest]) && !Player.list[i].region.nomonster && Player.list[i].alive) {
+                if (lowest) if (self.getDistance(Player.list[i]) < self.ai.maxRange*64 && self.getDistance(Player.list[i]) < self.getDistance(Player.list[lowest]) && !Player.list[i].region.nomonster && Player.list[i].alive) {
                     lowest = i;
                 }
             }
-            if (lowest) self.ai.aggroTarget = Player.list[lowest];
-            if (lowest == null && !self.damaged) self.ai.aggroTarget = null;
+            if (lowest) self.ai.entityTarget = Player.list[lowest];
+            if (lowest == null && !self.damaged) self.ai.entityTarget = null;
         }
     };
     self.attack = function() {
         self.ai.lastAttack++;
-        if (self.ai.aggroTarget && !self.region.noattack) {
+        if (self.ai.entityTarget && !self.region.noattack) {
             switch (self.ai.attackType) {
                 case 'bird':
                     if (self.ai.lastAttack > seconds(1)) {
                         if (self.ai.attackStage == 5) {
-                            new Projectile('ninjastar', self.x, self.y, self.map, self.ai.aggroTarget.x+Math.random()*10-20, self.ai.aggroTarget.y+Math.random()*10-20, self.id);
+                            new Projectile('ninjastar', self.x, self.y, self.map, self.ai.entityTarget.x+Math.random()*10-20, self.ai.entityTarget.y+Math.random()*10-20, self.id);
                             self.ai.attackStage = 0;
                             self.ai.lastAttack = 0;
                         }
                         if (self.ai.attackStage == 1) {
-                            new Projectile('ninjastar', self.x, self.y, self.map, self.ai.aggroTarget.x+Math.random()*10-20, self.ai.aggroTarget.y+Math.random()*10-20, self.id);
+                            new Projectile('ninjastar', self.x, self.y, self.map, self.ai.entityTarget.x+Math.random()*10-20, self.ai.entityTarget.y+Math.random()*10-20, self.id);
                         }
                         self.ai.attackStage++;
                     }
@@ -540,18 +737,18 @@ Monster = function(type, x, y, map) {
                 case 'snowbird':
                     if (self.ai.lastAttack > seconds(1)) {
                         if (self.ai.attackStage == 5) {
-                            new Projectile('fastsnowball', self.x, self.y, self.map, self.ai.aggroTarget.x+Math.random()*10-20, self.ai.aggroTarget.y+Math.random()*10-20, self.id);
+                            new Projectile('fastsnowball', self.x, self.y, self.map, self.ai.entityTarget.x+Math.random()*10-20, self.ai.entityTarget.y+Math.random()*10-20, self.id);
                             self.ai.attackStage = 0;
                             self.ai.lastAttack = 0;
                         }
                         if (self.ai.attackStage == 1) {
-                            new Projectile('fastsnowball', self.x, self.y, self.map, self.ai.aggroTarget.x+Math.random()*10-20, self.ai.aggroTarget.y+Math.random()*10-20, self.id);
+                            new Projectile('fastsnowball', self.x, self.y, self.map, self.ai.entityTarget.x+Math.random()*10-20, self.ai.entityTarget.y+Math.random()*10-20, self.id);
                         }
                         self.ai.attackStage++;
                     }
                     break;
                 case 'cherrybomb':
-                    if (self.getDistance(self.ai.aggroTarget) < 64) {
+                    if (self.getDistance(self.ai.entityTarget) < 64) {
                         self.ai.attackType = 'exploding';
                         self.moveSpeed = 0;
                         self.hp = 1000000000000000000;
@@ -625,49 +822,9 @@ Monster = function(type, x, y, map) {
             }
         }
     };
-    self.path = function() {
-        self.ai.lastPath++;
-        if (self.ai.lastPath >= seconds(0.1)) {
-            self.ai.lastPath = 0;
-            self.ai.path = [];
-            if (self.ai.aggroTarget) {
-                try {
-                    if (self.getDistance(self.ai.aggroTarget) < self.ai.aggroRange*64) {
-                        var offsetx = self.gridx-self.ai.aggroRange-1;
-                        var offsety = self.gridy-self.ai.aggroRange-1;
-                        var x1 = self.ai.aggroRange+1;
-                        var y1 = self.ai.aggroRange+1;
-                        var x2 = self.ai.aggroTarget.gridx-offsetx;
-                        var y2 = self.ai.aggroTarget.gridy-offsety;
-                        var size = self.ai.aggroRange*2+1;
-                        self.ai.grid = new PF.Grid(size, size);
-                        for (var y = 0; y < size; y++) {
-                            for (var x = 0; x < size; x++) {
-                                var checkx = x+offsetx;
-                                var checky = y+offsety;
-                                if (Collision.list[self.map][checky]) if (Collision.list[self.map][checky][checkx]) {
-                                    self.ai.grid.setWalkableAt(x, y, false);
-                                }
-                                if (Region.list[self.map]) if (Region.list[self.map][checky]) if (Region.list[self.map][checky][checkx]) if (Region.list[self.map][checky][checkx].nomonster) {
-                                    self.ai.grid.setWalkableAt(x, y, false);
-                                }
-                            }
-                        }
-                        var path = self.ai.pathfinder.findPath(x1, y1, x2, y2, self.ai.grid);
-                        self.ai.path = PF.Util.compressPath(path);
-                        self.ai.path.shift();
-                        for (var i in self.ai.path) {
-                            self.ai.path[i][0] += offsetx;
-                            self.ai.path[i][1] += offsety;
-                        }
-                    }
-                } catch (err) {
-                    error(err);
-                }
-            }
-        }
-    };
     self.collide = function() {
+        var xdir = self.xspeed/self.moveSpeed;
+        var ydir = self.yspeed/self.moveSpeed;
         for (var i = 0; i < self.moveSpeed; i++) {
             self.keys = {
                 up: false,
@@ -686,13 +843,13 @@ Monster = function(type, x, y, map) {
                 if (self.gridx == self.ai.path[0][0] && self.gridy == self.ai.path[0][1]) {
                     self.ai.path.shift();
                 }
+                if (self.keys.up) self.yspeed = -self.moveSpeed;
+                if (self.keys.down) self.yspeed = self.moveSpeed;
+                if (self.keys.left) self.xspeed = -self.moveSpeed;
+                if (self.keys.right) self.xspeed = self.moveSpeed;
+                xdir = self.xspeed/self.moveSpeed;
+                ydir = self.yspeed/self.moveSpeed;
             }
-            if (self.keys.up) self.yspeed = -self.moveSpeed;
-            if (self.keys.down) self.yspeed = self.moveSpeed;
-            if (self.keys.left) self.xspeed = -self.moveSpeed;
-            if (self.keys.right) self.xspeed = self.moveSpeed;
-            var xdir = self.xspeed/self.moveSpeed;
-            var ydir = self.yspeed/self.moveSpeed;
             self.lastx = self.x;
             self.lasty = self.y;
             self.x += xdir;
@@ -706,9 +863,6 @@ Monster = function(type, x, y, map) {
         self.gridx = Math.floor(self.x/64);
         self.gridy = Math.floor(self.y/64);
     };
-    self.getDistance = function(entity) {
-        return Math.sqrt(Math.pow(self.x-entity.x, 2) + Math.pow(self.y-entity.y, 2));
-    };
     self.onHit = function(entity, type) {
         switch (type) {
             case 'projectile':
@@ -716,9 +870,9 @@ Monster = function(type, x, y, map) {
                 if (self.hp < 0) self.hp = 0;
                 if (entity.parentID) {
                     if (entity.parentIsPlayer) {
-                        self.aggroTarget = Player.list[entity.parentID];
+                        self.entityTarget = Player.list[entity.parentID];
                     } else {
-                        self.aggroTarget = Monster.list[entity.parentID];
+                        self.entityTarget = Monster.list[entity.parentID];
                     }
                     self.damaged = true;
                 }
@@ -761,7 +915,9 @@ Monster.update = function() {
                 x: localmonster.x,
                 y: localmonster.y,
                 type: localmonster.type,
-                animationStage: localmonster.animationStage
+                animationStage: localmonster.animationStage,
+                hp: localmonster.hp,
+                maxHP: localmonster.maxHP
             });
         }
     }
@@ -785,7 +941,7 @@ Projectile = function(type, x, y, map, mousex, mousey, parentID) {
     self.moveSpeed = tempprojectile.speed;
     self.damage = tempprojectile.damage;
     self.pattern = Projectile.patterns[tempprojectile.pattern];
-    self.angle = Math.atan2(-(self.y-mousey), -(self.x-mousex));
+    self.angle = Math.atan2(mousey-self.y, mousex-self.y);
     self.xspeed = Math.cos(self.angle)*self.moveSpeed;
     self.yspeed = Math.sin(self.angle)*self.moveSpeed;
     self.x += Math.cos(self.angle)*self.width/3;

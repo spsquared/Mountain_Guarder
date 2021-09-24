@@ -1,5 +1,10 @@
 // Copyright (C) 2021 Radioactive64
 
+settings = {
+    fps: 60,
+    renderDistance: 1,
+};
+
 // sign in
 function signIn() {
     socket.emit('signIn', {

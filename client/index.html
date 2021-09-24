@@ -61,7 +61,7 @@
                             <ul>
                                 <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/13" target="_blank" class="ui-link">Fixed xp becoming <code>null</code> from killing a monster spawned by a spawner (Issue #13)</a></li>
                                 <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/17" target="_blank" class="ui-link">Fixed monster shooting in noattack regions (Issue #17)</a></li>
-                                <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/20" target="_blank">Patched automove glitch (Issue #20)</a></li>
+                                <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/20" target="_blank" class="ui-link">Patched automove glitch (Issue #20)</a></li>
                                 <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/31" target="_blank" class="ui-link">Fixed negative health (Issue #31)</a></li>
                                 <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/34" target="_blank" class="ui-link">Fixed monsters crossing through nomonster regions (Issue #34)</a></li>
                                 <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/35" target="_blank" class="ui-link">Fixed projectiles spawning very far from parent entity (Issue #35)</a></li>
@@ -242,7 +242,12 @@
                             Announcements
                         </div>
                         <div class="ui-lighttext stackBody">
-                            <!-- insert announcements here -->
+                            <div class="stackSub">
+                                9/date/2021
+                            </div>
+                            <div class="stackBody">
+                                Please <b>do not</b> go around spamming bug reports about "random lag spikes". These can be caused by internet hiccups, sudden drops in performance (possibly by background update), and even just slow computers. Only post a bug report if you have evidence of a real bug, like errors and missing things.
+                            </div>
                         </div>
                     </div>
                     <div class="stack ui-block ui-lighttext">
@@ -305,7 +310,7 @@
             <div id="regionName" class="ui-lighttext ui-block noSelect"></div>
             <div class="ui-lighttext noSelect">
                 <div id="version">v0.0.0</div>
-                <div id="fps">0</div>
+                <div id="fps">FPS: 0</div>
             </div>
             <div id="chat" class="ui-darktext">
                 <div id="chatText"></div>
@@ -367,7 +372,7 @@
                                 <label for="playerPantsColor">Pants Color:</label>
                             </div>
                             <div style="display: inline-block;">
-                                <input type="range" id="playerHairType" class="ui-slider" min="0" max="5" step="1"><br>
+                                <input type="range" id="playerHairType" class="ui-slider" min="0" max="6" step="1"><br>
                                 <input type="color" id="playerHairColor" class="ui-colorSelect"><br>
                                 <input type="color" id="playerSkinColor" class="ui-colorSelect"><br>
                                 <input type="color" id="playerShirtColor" class="ui-colorSelect"><br>

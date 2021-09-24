@@ -157,6 +157,9 @@ html, body {
     font-size: 30px;
     margin-bottom: 8px;
 }
+.stack .stackSub {
+    font-size: 20px;
+}
 .stack .stackBody {
     font-size: 14px;
     line-height: 20px;
