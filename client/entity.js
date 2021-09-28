@@ -16,6 +16,7 @@ Entity = function(id, x, y) {
         hp: 0,
         maxHP: 0,
         interpolationStage: 0,
+        animationImage: new Image(),
         updated: true
     };
 
@@ -74,7 +75,6 @@ Rig = function(id, x, y) {
     var self = new Entity(id, x, y);
     self.rawWidth = 0;
     self.rawHeight = 0;
-    self.animationImage = new Image();
     self.drawHealthBar = true;
     self.hp = 0;
     
@@ -125,10 +125,10 @@ Player = function(id, x, y, isNPC) {
 
     self.draw = function () {
         if (self.chunkx >= player.chunkx-settings.renderDistance && self.chunkx <= player.chunkx+settings.renderDistance && self.chunky >= player.chunky-settings.renderDistance && self.chunky <= player.chunky+settings.renderDistance) {
-            LAYERS.elower.drawImage(self.animationsCanvas, (self.animationStage % 6)*8, (~~(self.animationStage / 6))*16, 8, 16, self.x-16+OFFSETX, self.y-32+OFFSETY, 32, 64);
+            LAYERS.elower.drawImage(self.animationsCanvas, (self.animationStage % 6)*8, (~~(self.animationStage / 6))*16, 8, 16, self.x-16+OFFSETX, self.y-48+OFFSETY, 32, 64);
             if (self.drawHealthBar) {
-                LAYERS.eupper.drawImage(Rig.healthBarG, 0, 0, 42, 5, self.x-63+OFFSETX, self.y-52+OFFSETY, 126, 15);
-                LAYERS.eupper.drawImage(Rig.healthBarG, 1, 5, (self.hp/self.maxHP)*40, 5, self.x-60+OFFSETX, self.y-52+OFFSETY, (self.hp/self.maxHP)*120, 15);
+                LAYERS.eupper.drawImage(Rig.healthBarG, 0, 0, 42, 5, self.x-63+OFFSETX, self.y-68+OFFSETY, 126, 15);
+                LAYERS.eupper.drawImage(Rig.healthBarG, 1, 5, (self.hp/self.maxHP)*40, 5, self.x-60+OFFSETX, self.y-68+OFFSETY, (self.hp/self.maxHP)*120, 15);
             }
         }
         if (self.interpolationStage < (settings.fps/20)) {
@@ -206,7 +206,7 @@ Monster = function(id, type, x, y) {
     self.height = tempmonster.height;
     self.rawWidth = tempmonster.rawWidth;
     self.rawHeight = tempmonster.rawHeight;
-    self.animationImage.src = './client/img/monster/' + self.type + '.png';
+    self.animationImage = Monster.images[type];
 
     self.draw = function () {
         if (self.chunkx >= player.chunkx-settings.renderDistance && self.chunkx <= player.chunkx+settings.renderDistance && self.chunky>= player.chunky-settings.renderDistance && self.chunky <= player.chunky+settings.renderDistance) {
@@ -245,6 +245,7 @@ Monster.update = function(data) {
 };
 Monster.list = [];
 Monster.types = [];
+Monster.images = [];
 
 // projectiles
 Projectile = function(id, type, x, y, angle) {
@@ -257,16 +258,8 @@ Projectile = function(id, type, x, y, angle) {
     self.height = tempprojectile.height;
     self.rawWidth = tempprojectile.rawWidth;
     self.rawHeight = tempprojectile.rawHeight;
-    self.animationsCanvas = new OffscreenCanvas(1, 1);
-    self.animations = self.animationsCanvas.getContext('2d');
+    self.animationImage = Projectile.images[type];
     self.animationStage = 0;
-    var animationimg = new Image();
-    animationimg.src = './client/img/projectile/' + self.type + '.png';
-    animationimg.onload = function() {
-        self.animationsCanvas.width = animationimg.width;
-        self.animationsCanvas.height = animationimg.height;
-        self.animations.drawImage(animationimg, 0, 0);
-    }
 
     self.update = function(param) {
         self.map = param.map;
@@ -281,7 +274,7 @@ Projectile = function(id, type, x, y, angle) {
             LAYERS.elower.save();
             LAYERS.elower.translate(self.x+OFFSETX, self.y+OFFSETY);
             LAYERS.elower.rotate(self.angle);
-            LAYERS.elower.drawImage(self.animationsCanvas, self.animationStage*self.rawWidth, 0, self.rawWidth, self.rawHeight, -self.width/2, -self.height/2, self.width, self.height);
+            LAYERS.elower.drawImage(self.animationImage, self.animationStage*self.rawWidth, 0, self.rawWidth, self.rawHeight, -self.width/2, -self.height/2, self.width, self.height);
             LAYERS.elower.restore();
         }
         if (self.interpolationStage < (settings.fps/20)) {
@@ -316,6 +309,7 @@ Projectile.update = function(data) {
 };
 Projectile.list = [];
 Projectile.types = [];
+Projectile.images = [];
 
 // load data
 function loadEntitydata() {
@@ -350,9 +344,9 @@ function loadEntitydata() {
             loadedassets++;
             for (var i in Monster.types) {
                 totalassets++;
-                var loadImage = new Image();
-                loadImage.src = './client/img/monster/' + i + '.png';
-                loadImage.onload = function() {loadedassets++;}
+                Monster.images[i] = new Image();
+                Monster.images[i].src = './client/img/monster/' + i + '.png';
+                Monster.images[i].onload = function() {loadedassets++;}
             }
         } else {
             console.error('Error: Server returned status ' + this.status);
@@ -375,9 +369,9 @@ function loadEntitydata() {
             loadedassets++;
             for (var i in Projectile.types) {
                 totalassets++;
-                var loadImage = new Image();
-                loadImage.src = './client/img/projectile/' + i + '.png';
-                loadImage.onload = function() {loadedassets++;}
+                Projectile.images[i] = new Image();
+                Projectile.images[i].src = './client/img/projectile/' + i + '.png';
+                Projectile.images[i].onload = function() {loadedassets++;}
             }
         } else {
             console.error('Error: Server returned status ' + this.status);

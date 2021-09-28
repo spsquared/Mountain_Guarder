@@ -18,6 +18,63 @@
     z-index: 0;
 }
 
+/* region name */
+#regionName {
+    display: none;
+    position: absolute;
+    top: 15%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 60px;
+    color: #362b20;
+    background-color: #725640;
+    border: 2px solid #000000;
+    margin-right: -50%;
+    padding: 8px 20px;
+    opacity: 0;
+    cursor: crosshair;
+    z-index: 2;
+}
+
+/* bossbars */
+#bossBars {
+    position: absolute;
+    text-align: center;
+    z-index: 1;
+}
+.bossBar {
+    width: 70vw;
+    height: 40px;
+    margin: 4px;
+    border: 2px solid black;
+    font-family: 'Pixel';
+    font-size: 30px;
+    color: white;
+    text-align: center;
+}
+.bossBar-value {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    background-color: red;
+}
+.bossBar-text {
+    padding-top: -2px;
+}
+
+/* fade */
+#fade {
+    display: none;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100vw;
+    height: 100vh;
+    background-color: black;
+    z-index: 3;
+}
+
 /* stats */
 #stats {
     position: absolute;
@@ -101,50 +158,6 @@
     text-align: center;
 }
 
-/* region name */
-#regionName {
-    position: absolute;
-    top: 15%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 60px;
-    color: #362b20;
-    background-color: #725640;
-    border: 2px solid #000000;
-    margin-right: -50%;
-    padding: 8px 20px;
-    opacity: 0;
-    cursor: crosshair;
-    z-index: 2;
-}
-
-/* bossbars */
-#bossBars {
-    position: absolute;
-    text-align: center;
-    z-index: 1;
-}
-.bossBar {
-    width: 70vw;
-    height: 40px;
-    margin: 4px;
-    border: 2px solid black;
-    font-family: 'Pixel';
-    font-size: 30px;
-    color: white;
-    text-align: center;
-}
-.bossBar-value {
-    position: absolute;
-    top: 0px;
-    left: 0px;
-    width: 100%;
-    background-color: red;
-}
-.bossBar-text {
-    padding-top: -2px;
-}
-
 /* footer/debug */
 #fps {
     position: absolute;
@@ -215,7 +228,7 @@
     left: 0px;
     width: 900px;
     height: 600px;
-    z-index: 3;
+    z-index: 4;
 }
 .window .window-bar {
     padding-left: 6px;
@@ -302,7 +315,7 @@
     width: 100vw;
     height: 100vh;
     background-color: #FF000055;
-    z-index: 4;
+    z-index: 5;
 }
 #youdied {
     position: absolute;

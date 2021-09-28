@@ -49,7 +49,7 @@ Collision = function(map, x, y, type) {
             coltype = 14;
             break;
         default:
-            error('invalid collision');
+            error('invalid collision at (' + x + ',' + y + ')');
             break;
     }
     if (Collision.list[map][y]) {
@@ -58,6 +58,8 @@ Collision = function(map, x, y, type) {
         Collision.list[map][y] = [];
         Collision.list[map][y][x] = coltype;
     }
+
+    return coltype;
 };
 Collision.getColEntity = function(map, x, y) {
     var collision = [];
@@ -303,5 +305,29 @@ Region = function(map, x, y, properties) {
         Region.list[map][y] = [];
         Region.list[map][y][x] = data;
     }
+
+    return data;
 };
 Region.list = [];
+
+Teleporter = function(map, x, y, properties) {
+    var data = {
+        x: 0,
+        y: 0,
+        map: 'World',
+        direction: null
+    };
+    data.map = properties[0];
+    data.x = parseInt(properties[1]);
+    data.y = parseInt(properties[2]);
+    data.direction = properties[3];
+    if (Teleporter.list[map][y]) {
+        Teleporter.list[map][y][x] = data;
+    } else {
+        Teleporter.list[map][y] = [];
+        Teleporter.list[map][y][x] = data;
+    }
+
+    return data;
+};
+Teleporter.list = [];

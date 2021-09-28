@@ -55,6 +55,7 @@ async function loadMap(name) {
                     offsetX: 0,
                     offsetY: 0,
                     chunkwidth: 0,
+                    chunkheight: 0,
                     chunks: [],
                     chunkJSON: []
                 };
@@ -64,18 +65,38 @@ async function loadMap(name) {
                             MAPS[name].width = json.layers[i].width;
                             MAPS[name].height = json.layers[i].height;
                         }
-                        for (var j in json.layers[i].chunks) {
-                            var rawchunk = json.layers[i].chunks[j];
-                            MAPS[name].chunkwidth = rawchunk.width;
-                            MAPS[name].offsetX = Math.min(rawchunk.x*64, MAPS[name].offsetX);
-                            MAPS[name].offsetY = Math.min(rawchunk.y*64, MAPS[name].offsetY);
-                            if (MAPS[name].chunkJSON[rawchunk.y/rawchunk.width] == null) {
-                                MAPS[name].chunkJSON[rawchunk.y/rawchunk.width] = [];
+                        if (json.layers[i].chunks) {
+                            for (var j in json.layers[i].chunks) {
+                                var rawchunk = json.layers[i].chunks[j];
+                                MAPS[name].chunkwidth = rawchunk.width;
+                                MAPS[name].chunkheight = rawchunk.height;
+                                MAPS[name].offsetX = Math.min(rawchunk.x*64, MAPS[name].offsetX);
+                                MAPS[name].offsetY = Math.min(rawchunk.y*64, MAPS[name].offsetY);
+                                if (MAPS[name].chunkJSON[rawchunk.y/rawchunk.width] == null) {
+                                    MAPS[name].chunkJSON[rawchunk.y/rawchunk.width] = [];
+                                }
+                                if (MAPS[name].chunkJSON[rawchunk.y/rawchunk.width][rawchunk.x/rawchunk.height] == null) {
+                                    MAPS[name].chunkJSON[rawchunk.y/rawchunk.width][rawchunk.x/rawchunk.height] = [];
+                                }
+                                MAPS[name].chunkJSON[rawchunk.y/rawchunk.width][rawchunk.x/rawchunk.width][json.layers[i].name] = rawchunk.data;
+                                MAPS[name].chunkJSON[rawchunk.y/rawchunk.width][rawchunk.x/rawchunk.width][json.layers[i].name].offsetX = 0;
+                                MAPS[name].chunkJSON[rawchunk.y/rawchunk.width][rawchunk.x/rawchunk.width][json.layers[i].name].offsetY = 0;
+                                if (json.layers[i].offsetx) MAPS[name].chunkJSON[rawchunk.y/rawchunk.width][rawchunk.x/rawchunk.width][json.layers[i].name].offsetX = json.layers[i].offsetx;
+                                if (json.layers[i].offsety) MAPS[name].chunkJSON[rawchunk.y/rawchunk.width][rawchunk.x/rawchunk.width][json.layers[i].name].offsetY = json.layers[i].offsety;
                             }
-                            if (MAPS[name].chunkJSON[rawchunk.y/rawchunk.width][rawchunk.x/rawchunk.height] == null) {
-                                MAPS[name].chunkJSON[rawchunk.y/rawchunk.width][rawchunk.x/rawchunk.height] = [];
+                        } else {
+                            if (json.layers[i].name == 'Ground Terrain') {
+                                MAPS[name].chunkwidth = json.layers[i].width;
+                                MAPS[name].chunkheight = json.layers[i].height;
                             }
-                            MAPS[name].chunkJSON[rawchunk.y/rawchunk.width][rawchunk.x/rawchunk.width][json.layers[i].name] = rawchunk.data;
+                            if (MAPS[name].chunkJSON[0] == null) {
+                                MAPS[name].chunkJSON[0] = [[]];
+                            }
+                            MAPS[name].chunkJSON[0][0][json.layers[i].name] = json.layers[i].data;
+                            MAPS[name].chunkJSON[0][0][json.layers[i].name].offsetX = 0;
+                            MAPS[name].chunkJSON[0][0][json.layers[i].name].offsetY = 0;
+                            if (json.layers[i].offsetx) MAPS[name].chunkJSON[0][0][json.layers[i].name].offsetX = json.layers[i].offsetx;
+                            if (json.layers[i].offsety) MAPS[name].chunkJSON[0][0][json.layers[i].name].offsetY = json.layers[i].offsety;
                         }
                     }
                 }
@@ -93,67 +114,6 @@ async function loadMap(name) {
         await loadMap(name);
     }
 };
-function renderLayers(json, name) {
-    MAPS[name] = {
-        width: 0,
-        height: 0,
-        offsetX: 0,
-        offsetY: 0,
-        chunkwidth: 0,
-        chunks: []
-    };
-    for (var i in json.layers) {
-        if (json.layers[i].visible) {
-            if (json.layers[i].name == 'Ground Terrain') {
-                MAPS[name].width = json.layers[i].width;
-                MAPS[name].height = json.layers[i].height;
-            }
-            for (var j in json.layers[i].chunks) {
-                var rawchunk = json.layers[i].chunks[j];
-                MAPS[name].chunkwidth = rawchunk.width;
-                MAPS[name].offsetX = Math.min(rawchunk.x*64, MAPS[name].offsetX);
-                MAPS[name].offsetY = Math.min(rawchunk.y*64, MAPS[name].offsetY);
-                var templower = new OffscreenCanvas(rawchunk.width * 64, rawchunk.height * 64);
-                var tempupper = new OffscreenCanvas(rawchunk.width * 64, rawchunk.height * 64);
-                if (MAPS[name].chunks[rawchunk.y/rawchunk.width]) if (MAPS[name].chunks[rawchunk.y/rawchunk.width][rawchunk.x/rawchunk.width]) {
-                    templower = MAPS[name].chunks[rawchunk.y/rawchunk.width][rawchunk.x/rawchunk.width].lower;
-                    tempupper = MAPS[name].chunks[rawchunk.y/rawchunk.width][rawchunk.x/rawchunk.width].upper;
-                }
-                var tlower = templower.getContext('2d');
-                var tupper = tempupper.getContext('2d');
-                resetCanvas(tempupper);
-                resetCanvas(templower);
-                for (var k in rawchunk.data) {
-                    var tileid = rawchunk.data[k];
-                    if (tileid != 0) {
-                        tileid--;
-                        var imgx = (tileid % 86)*17;
-                        var imgy = ~~(tileid / 86)*17;
-                        var dx = (k % rawchunk.width)*16;
-                        var dy = ~~(k / rawchunk.width)*16;
-                        if (json.layers[i].name.includes('Above')) {
-                            tupper.drawImage(tileset, Math.round(imgx), Math.round(imgy), 16, 16, Math.round(dx*4), Math.round(dy*4), 64, 64);
-                        } else {
-                            tlower.drawImage(tileset, Math.round(imgx), Math.round(imgy), 16, 16, Math.round(dx*4), Math.round(dy*4), 64, 64);
-                        }
-                    }
-                }
-                if (MAPS[name].chunks[rawchunk.y/rawchunk.width]) {
-                    MAPS[name].chunks[rawchunk.y/rawchunk.width][rawchunk.x/rawchunk.width] = {
-                        upper: tempupper,
-                        lower: templower
-                    };
-                } else {
-                    MAPS[name].chunks[rawchunk.y/rawchunk.width] = [];
-                    MAPS[name].chunks[rawchunk.y/rawchunk.width][rawchunk.x/rawchunk.width] = {
-                        upper: tempupper,
-                        lower: templower
-                    };
-                }
-            }
-        }
-    }
-};
 function MGHC() {};
 
 // draw
@@ -165,8 +125,10 @@ function drawFrame() {
         LAYERS.mupper.clearRect(0, 0, window.innerWidth, window.innerHeight);
         LAYERS.eupper.clearRect(0, 0, window.innerWidth, window.innerHeight);
         CTX.clearRect(0, 0, window.innerWidth, window.innerHeight);
-        OFFSETX = -Math.max((window.innerWidth/2) - (player.x - MAPS[player.map].offsetX), Math.min((MAPS[player.map].offsetX + (MAPS[player.map].width*64)) - player.x - (window.innerWidth/2), 0));
-        OFFSETY = -Math.max((window.innerHeight/2) - (player.y - MAPS[player.map].offsetY), Math.min((MAPS[player.map].offsetY + (MAPS[player.map].height*64)) - player.y - (window.innerHeight/2), 0));
+        OFFSETX = 0;
+        OFFSETY = 0;
+        if (MAPS[player.map].width*64 > window.innerWidth) OFFSETX = -Math.max((window.innerWidth/2) - (player.x - MAPS[player.map].offsetX), Math.min((MAPS[player.map].offsetX + (MAPS[player.map].width*64)) - player.x - (window.innerWidth/2), 0));
+        if (MAPS[player.map].height*64 > window.innerHeight) OFFSETY = -Math.max((window.innerHeight/2) - (player.y - MAPS[player.map].offsetY), Math.min((MAPS[player.map].offsetY + (MAPS[player.map].height*64)) - player.y - (window.innerHeight/2), 0));
         drawMap();
         CTX.drawImage(LAYERS.map0, 0, 0, window.innerWidth, window.innerHeight);
         Entity.draw();
@@ -201,19 +163,16 @@ function drawMap() {
     LAYERS.mupper.translate((window.innerWidth/2)-player.x,(window.innerHeight/2)-player.y);
     for (var y in MAPS[player.map].chunks) {
         for (var x in MAPS[player.map].chunks[y]) {
-            var chunk = MAPS[player.map].chunks[y][x];
-            var width = MAPS[player.map].chunkwidth;
-            LAYERS.mlower.drawImage(chunk.lower, (x*width*64)+OFFSETX, (y*width*64)+OFFSETY, width*64, width*64);
-            LAYERS.mupper.drawImage(chunk.upper, (x*width*64)+OFFSETX, (y*width*64)+OFFSETY, width*64, width*64);
+            LAYERS.mlower.drawImage(MAPS[player.map].chunks[y][x].lower, (x*MAPS[player.map].chunkwidth*64)+OFFSETX, (y*MAPS[player.map].chunkheight*64)+OFFSETY, MAPS[player.map].chunkwidth*64, MAPS[player.map].chunkheight*64);
+            LAYERS.mupper.drawImage(MAPS[player.map].chunks[y][x].upper, (x*MAPS[player.map].chunkwidth*64)+OFFSETX, (y*MAPS[player.map].chunkheight*64)+OFFSETY, MAPS[player.map].chunkwidth*64, MAPS[player.map].chunkheight*64);
         }
     }
     LAYERS.mlower.restore();
     LAYERS.mupper.restore();
 };
 function renderChunk(data, x, y, map) {
-    var width = MAPS[map].chunkwidth;
-    var templower = new OffscreenCanvas(width * 64, width * 64);
-    var tempupper = new OffscreenCanvas(width * 64, width * 64);
+    var templower = new OffscreenCanvas(MAPS[map].chunkwidth * 64, MAPS[map].chunkheight * 64);
+    var tempupper = new OffscreenCanvas(MAPS[map].chunkwidth * 64, MAPS[map].chunkheight * 64);
     var tlower = templower.getContext('2d');
     var tupper = tempupper.getContext('2d');
     resetCanvas(tempupper);
@@ -225,8 +184,8 @@ function renderChunk(data, x, y, map) {
                 tileid--;
                 var imgx = (tileid % 86)*17;
                 var imgy = ~~(tileid / 86)*17;
-                var dx = (j % width)*16;
-                var dy = ~~(j / width)*16;
+                var dx = (j % MAPS[map].chunkwidth)*16+data[i].offsetX;
+                var dy = ~~(j / MAPS[map].chunkwidth)*16+data[i].offsetY;
                 if (i.includes('Above')) {
                     tupper.drawImage(tileset, Math.round(imgx), Math.round(imgy), 16, 16, Math.round(dx*4), Math.round(dy*4), 64, 64);
                 } else {
@@ -309,7 +268,7 @@ document.onmousedown = function(e) {
     if (!e.isTrusted) {
         socket.emit('timeout');
     }
-    if (!e.target.matches('#signinContainer') && !e.target.matches('#chatInput') && !e.target.matches('#windows') && !e.target.matches('#dropdownMenu')) {
+    if (!e.target.matches('#signinContainer') && !e.target.matches('#chatInput') && !e.target.matches('#windows') && !e.target.matches('#dropdownMenu') && !e.target.matches('#regionName')) {
         switch (e.button) {
             case 0:
                 socket.emit('click', {button: 'left', x: e.clientX-window.innerWidth/2-OFFSETX, y: e.clientY-window.innerHeight/2-OFFSETY, state: true});
@@ -324,7 +283,7 @@ document.onmouseup = function(e) {
     if (!e.isTrusted) {
         socket.emit('timeout');
     }
-    if (!e.target.matches('#signinContainer') && !e.target.matches('#chatInput') && !e.target.matches('#windows') && !e.target.matches('#dropdownMenu')) {
+    if (!e.target.matches('#signinContainer') && !e.target.matches('#chatInput') && !e.target.matches('#windows') && !e.target.matches('#dropdownMenu') && !e.target.matches('#regionName')) {
         switch (e.button) {
             case 0:
                 socket.emit('click', {button: 'left', x: e.clientX-window.innerWidth/2-OFFSETX, y: e.clientY-window.innerHeight/2-OFFSETY, state: false});
@@ -342,10 +301,22 @@ document.onmousemove = function(e) {
     socket.emit('mouseMove', {x: e.clientX-window.innerWidth/2-OFFSETX, y: e.clientY-window.innerHeight/2-OFFSETY});
 };
 // game
+socket.on('updateSelf', function(data) {
+    document.getElementById('statsHPvalue').style.width = (data.hp/data.maxHP)*100 + '%';
+    document.getElementById('statsHPtext').innerText = data.hp + '/' + data.maxHP;
+    document.getElementById('statsXPvalue').style.width = (data.xp/data.maxXP)*100 + '%';
+    document.getElementById('statsXPtext').innerText = data.xp + '/' + data.maxXP;
+    document.getElementById('statsMNvalue').style.width = (data.mana/data.maxMana)*100 + '%';
+    document.getElementById('statsMNtext').innerText = data.mana + '/' + data.maxMana;
+});
+socket.on('self', function(id) {
+    playerid = id;
+});
 socket.on('region', function(name) {
     clearInterval(mapnameFade);
     clearTimeout(mapnameWait);
     document.getElementById('regionName').innerText = name;
+    document.getElementById('regionName').style.display = 'block';
     var opacity = 0;
     mapnameFade = setInterval(function() {
         opacity += 0.04;
@@ -363,20 +334,35 @@ socket.on('region', function(name) {
             if (opacity <= 0) {
                 clearInterval(mapnameFade);
                 fade = null;
+                document.getElementById('regionName').style.display = 'none';
             }
         }, 20);
     }, 6000);
 });
-socket.on('updateSelf', function(data) {
-    document.getElementById('statsHPvalue').style.width = (data.hp/data.maxHP)*100 + '%';
-    document.getElementById('statsHPtext').innerText = data.hp + '/' + data.maxHP;
-    document.getElementById('statsXPvalue').style.width = (data.xp/data.maxXP)*100 + '%';
-    document.getElementById('statsXPtext').innerText = data.xp + '/' + data.maxXP;
-    document.getElementById('statsMNvalue').style.width = (data.mana/data.maxMana)*100 + '%';
-    document.getElementById('statsMNtext').innerText = data.mana + '/' + data.maxMana;
-});
-socket.on('self', function(id) {
-    playerid = id;
+socket.on('teleport', function(pos) {
+    document.getElementById('fade').style.display = 'block';
+    document.getElementById('fade').style.opacity = 0;
+    var opacity = 0;
+    var fade = setInterval(function() {
+        document.getElementById('fade').style.opacity = opacity;
+        opacity += 0.04;
+        if (opacity >= 1) {
+            clearInterval(fade);
+            opacity = 1;
+            player.x = pos.x;
+            player.y = pos.y;
+            socket.emit('teleport1')
+            fade = setInterval(function() {
+                document.getElementById('fade').style.opacity = opacity;
+                opacity -= 0.04;
+                if (opacity <= 0) {
+                    clearInterval(fade);
+                    document.getElementById('fade').style.display = 'none';
+                    socket.emit('teleport2');
+                }
+            }, 20);
+        }
+    }, 20)
 });
 socket.on('playerDied', function() {
     document.getElementById('respawnButton').style.display = 'none';
