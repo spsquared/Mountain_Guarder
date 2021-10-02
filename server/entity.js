@@ -282,7 +282,7 @@ Rig = function() {
     self.collide = function() {
         var xdir = self.xspeed/self.moveSpeed;
         var ydir = self.yspeed/self.moveSpeed;
-        if (xdir != 0 || ydir != 0) {
+        if (xdir != 0 || ydir != 0 || self.ai.path[0]) {
             for (var i = 0; i < self.moveSpeed; i++) {
                 if (self.ai.path[0]) {
                     self.keys = {
@@ -811,7 +811,7 @@ Monster = function(type, x, y, map) {
                     if (self.getDistance(self.ai.entityTarget) < 64) {
                         self.ai.attackType = 'exploding';
                         self.moveSpeed = 0;
-                        self.hp = 1000000000000000000;
+                        self.invincible = true;
                         self.alive = false;
                         self.animationStage = 0;
                         self.animationLength = 10;
@@ -834,7 +834,7 @@ Monster = function(type, x, y, map) {
                 case 'triggeredcherrybomb':
                     self.ai.attackType = 'exploding';
                     self.moveSpeed = 0;
-                    self.hp = 1000000000000000000;
+                    self.invincible = true;
                     self.alive = false;
                     self.animationStage = 0;
                     self.animationLength = 10;

@@ -1,9 +1,10 @@
 // Copyright (C) 2021 Radioactive64
 
 // entities
-Entity = function(id, x, y) {
+Entity = function(id, map, x, y) {
     var self = {
         id: id,
+        map: map,
         x: x,
         y: y,
         xspeed: 0,
@@ -13,8 +14,6 @@ Entity = function(id, x, y) {
         width: 0,
         height: 0,
         rotation: 0,
-        hp: 0,
-        maxHP: 0,
         interpolationStage: 0,
         animationImage: new Image(),
         updated: true
@@ -28,7 +27,7 @@ Entity = function(id, x, y) {
         self.updated = true;
     };
     self.draw = function() {
-        if (self.chunkx >= player.chunkx-settings.renderDistance && self.chunkx <= player.chunkx+settings.renderDistance && self.chunky>= player.chunky-settings.renderDistance && self.chunky <= player.chunky+settings.renderDistance) {
+        if (self.map == player.map && self.chunkx >= player.chunkx-settings.renderDistance && self.chunkx <= player.chunkx+settings.renderDistance && self.chunky>= player.chunky-settings.renderDistance && self.chunky <= player.chunky+settings.renderDistance) {
             LAYERS.elower.fillText('MISSING TEXTURE', self.x+OFFSETX, self.y+OFFSETY);
         }
         if (self.interpolationStage < (settings.fps/20)) {
@@ -71,12 +70,15 @@ Entity.draw = function() {
 };
 
 // rigs
-Rig = function(id, x, y) {
-    var self = new Entity(id, x, y);
+Rig = function(id, map, x, y) {
+    var self = new Entity(id, map, x, y);
     self.rawWidth = 0;
     self.rawHeight = 0;
     self.drawHealthBar = true;
     self.hp = 0;
+    self.maxHP = 0;
+    self.xp = 0;
+    self.manaFull = false;
     
     self.update = function(param) {
         self.map = param.map;
@@ -89,7 +91,7 @@ Rig = function(id, x, y) {
         self.updated = true;
     };
     self.draw = function() {
-        if (self.chunkx >= player.chunkx-settings.renderDistance && self.chunkx <= player.chunkx+settings.renderDistance && self.chunky>= player.chunky-settings.renderDistance && self.chunky <= player.chunky+settings.renderDistance) {
+        if (self.map == player.map && self.chunkx >= player.chunkx-settings.renderDistance && self.chunkx <= player.chunkx+settings.renderDistance && self.chunky>= player.chunky-settings.renderDistance && self.chunky <= player.chunky+settings.renderDistance) {
             LAYERS.elower.fillText('MISSING TEXTURE', self.x+OFFSETX, self.y+OFFSETY);
             LAYERS.eupper.drawImage(Rig.healthBarR, 0, 0, 42, 5, self.x-63+OFFSETX, self.y-52+OFFSETY, 126, 15);
             LAYERS.eupper.drawImage(Rig.healthBarR, 1, 5, (self.hp/self.maxHP)*40, 5, self.x-60+OFFSETX, self.y-52+OFFSETY, (self.hp/self.maxHP)*120, 15);
@@ -109,8 +111,8 @@ Rig.healthBarG = new Image();
 Rig.healthBarR = new Image();
 
 // players
-Player = function(id, x, y, isNPC) {
-    var self = new Rig(id, x, y);
+Player = function(id, map, x, y, isNPC) {
+    var self = new Rig(id, map, x, y);
     self.animationImage = null;
     self.animationsCanvas = new OffscreenCanvas(48, 128);
     self.animationsContext = self.animationsCanvas.getContext('2d');
@@ -124,8 +126,8 @@ Player = function(id, x, y, isNPC) {
     if (isNPC) self.drawHealthBar = false;
 
     self.draw = function () {
-        if (self.chunkx >= player.chunkx-settings.renderDistance && self.chunkx <= player.chunkx+settings.renderDistance && self.chunky >= player.chunky-settings.renderDistance && self.chunky <= player.chunky+settings.renderDistance) {
-            LAYERS.elower.drawImage(self.animationsCanvas, (self.animationStage % 6)*8, (~~(self.animationStage / 6))*16, 8, 16, self.x-16+OFFSETX, self.y-48+OFFSETY, 32, 64);
+        if (self.map == player.map && self.chunkx >= player.chunkx-settings.renderDistance && self.chunkx <= player.chunkx+settings.renderDistance && self.chunky >= player.chunky-settings.renderDistance && self.chunky <= player.chunky+settings.renderDistance) {
+            LAYERS.elower.drawImage(self.animationsCanvas, (self.animationStage % 6)*8, (~~(self.animationStage / 6))*16, 8, 16, self.x-16+OFFSETX, self.y-52+OFFSETY, 32, 64);
             if (self.drawHealthBar) {
                 LAYERS.eupper.drawImage(Rig.healthBarG, 0, 0, 42, 5, self.x-63+OFFSETX, self.y-68+OFFSETY, 126, 15);
                 LAYERS.eupper.drawImage(Rig.healthBarG, 1, 5, (self.hp/self.maxHP)*40, 5, self.x-60+OFFSETX, self.y-68+OFFSETY, (self.hp/self.maxHP)*120, 15);
@@ -170,7 +172,7 @@ Player.update = function(data) {
         if (Player.list[data[i].id]) {
             Player.list[data[i].id].update(data[i]);
         } else {
-            new Player(data[i].id, data[i].x, data[i].y, data.isNPC);
+            new Player(data[i].id, data[i].map, data[i].x, data[i].y, data.isNPC);
             Player.list[data[i].id].updateAnimationCanvas();
             Player.list[data[i].id].update(data[i]);
         }
@@ -198,8 +200,8 @@ Player.animations = {
 };
 
 // monsters
-Monster = function(id, type, x, y) {
-    var self = new Rig(id, x, y);
+Monster = function(id, map, x, y, type) {
+    var self = new Rig(id, map, x, y);
     var tempmonster = Monster.types[type];
     self.type = type;
     self.width = tempmonster.width;
@@ -209,7 +211,7 @@ Monster = function(id, type, x, y) {
     self.animationImage = Monster.images[type];
 
     self.draw = function () {
-        if (self.chunkx >= player.chunkx-settings.renderDistance && self.chunkx <= player.chunkx+settings.renderDistance && self.chunky>= player.chunky-settings.renderDistance && self.chunky <= player.chunky+settings.renderDistance) {
+        if (self.map == player.map && self.chunkx >= player.chunkx-settings.renderDistance && self.chunkx <= player.chunkx+settings.renderDistance && self.chunky>= player.chunky-settings.renderDistance && self.chunky <= player.chunky+settings.renderDistance) {
             LAYERS.elower.drawImage(self.animationImage, self.animationStage*self.rawWidth, 0, self.rawWidth, self.rawHeight, self.x-self.width/2+OFFSETX, self.y-self.height/2+OFFSETY, self.width, self.height);
             LAYERS.eupper.drawImage(Rig.healthBarR, 0, 0, 42, 5, self.x-63+OFFSETX, self.y-self.height/2-20+OFFSETY, 126, 15);
             LAYERS.eupper.drawImage(Rig.healthBarR, 1, 5, (self.hp/self.maxHP)*40, 5, self.x-60+OFFSETX, self.y-self.height/2-20+OFFSETY, (self.hp/self.maxHP)*120, 15);
@@ -224,6 +226,7 @@ Monster = function(id, type, x, y) {
     };
 
     Monster.list[self.id] = self;
+    return self;
 };
 Monster.update = function(data) {
     for (var i in Monster.list) {
@@ -233,8 +236,8 @@ Monster.update = function(data) {
         if (Monster.list[data[i].id]) {
             Monster.list[data[i].id].update(data[i]);
         } else {
-            new Monster(data[i].id, data[i].type, data[i].x, data[i].y);
-            Monster.list[data[i].id].update(data[i]);
+            new Monster(data[i].id, data[i].map, data[i].x, data[i].y, data[i].type);
+            Monster.list[data[i].id].update(data[i])
         }
     }
     for (var i in Monster.list) {
@@ -248,8 +251,8 @@ Monster.types = [];
 Monster.images = [];
 
 // projectiles
-Projectile = function(id, type, x, y, angle) {
-    var self = new Entity(id, x, y);
+Projectile = function(id, map, x, y, angle, type) {
+    var self = new Entity(id, map, x, y);
     self.angle = angle;
     self.rotationspeed = 0;
     var tempprojectile = Projectile.types[type];
@@ -270,7 +273,7 @@ Projectile = function(id, type, x, y, angle) {
         self.updated = true;
     };
     self.draw = function() {
-        if (self.chunkx >= player.chunkx-settings.renderDistance && self.chunkx <= player.chunkx+settings.renderDistance && self.chunky>= player.chunky-settings.renderDistance && self.chunky <= player.chunky+settings.renderDistance) {
+        if (self.map == player.map && self.chunkx >= player.chunkx-settings.renderDistance && self.chunkx <= player.chunkx+settings.renderDistance && self.chunky>= player.chunky-settings.renderDistance && self.chunky <= player.chunky+settings.renderDistance) {
             LAYERS.elower.save();
             LAYERS.elower.translate(self.x+OFFSETX, self.y+OFFSETY);
             LAYERS.elower.rotate(self.angle);
@@ -288,6 +291,7 @@ Projectile = function(id, type, x, y, angle) {
     };
 
     Projectile.list[self.id] = self;
+    return self;
 };
 Projectile.update = function(data) {
     for (var i in Projectile.list) {
@@ -297,7 +301,7 @@ Projectile.update = function(data) {
         if (Projectile.list[data[i].id]) {
             Projectile.list[data[i].id].update(data[i]);
         } else {
-            new Projectile(data[i].id, data[i].type, data[i].x, data[i].y, data[i].angle);
+            new Projectile(data[i].id, data[i].map, data[i].x, data[i].y, data[i].angle, data[i].type);
             Projectile.list[data[i].id].update(data[i]);
         }
     }

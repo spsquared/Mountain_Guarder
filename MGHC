@@ -96,7 +96,9 @@ MGHC = function() {
             if (lowest == null && Monster.list[i].map == player.map) lowest = i;
             if (lowest) if (Monster.list[i].map == player.map && getDistance(Monster.list[i]) < getDistance(Monster.list[lowest])) lowest = i;
         }
-        socket.emit('click', {button: 'left', x: Monster.list[lowest].x-player.x, y: Monster.list[lowest].y-player.y, state: true});
+        if (lowest) {
+            socket.emit('click', {button: 'left', x: Monster.list[lowest].x-player.x, y: Monster.list[lowest].y-player.y, state: true});
+        }
     }
     if (autoheal) socket.emit('keyPress', {key:'heal', state:true});
 };

@@ -1,6 +1,6 @@
 // Copyright (C) 2021 Radioactive64
 
-const version = 'v0.2.0';
+const version = 'v0.2.1';
 // canvas
 CTXRAW = document.getElementById('ctx')
 CTX = CTXRAW.getContext('2d');
@@ -82,7 +82,7 @@ document.getElementById('version').innerText = version;
 
 window.onerror = function(err) {
     insertChat({
-        text: 'An error occurred: ' + err,
+        text: 'An error occurred:\n' + err,
         style: 'color: #FF0000;'
     });
 };
