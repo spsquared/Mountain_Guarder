@@ -1,6 +1,6 @@
 // Copyright (C) 2021 Radioactive64
 
-const version = 'v0.2.1';
+const version = 'v0.3.0';
 // canvas
 CTXRAW = document.getElementById('ctx')
 CTX = CTXRAW.getContext('2d');
@@ -76,7 +76,21 @@ resetCanvases();
 document.querySelectorAll("input").forEach(function(item) {if (item.type != 'text' && item.type != 'password') {item.addEventListener('focus', function() {this.blur();});}});
 document.querySelectorAll("button").forEach(function(item) {item.addEventListener('focus', function() {this.blur();});});
 document.getElementById('ctx').addEventListener('contextmenu', function(e) {e.preventDefault()});
+document.getElementById('fade').addEventListener('contextmenu', function(e) {e.preventDefault()});
+document.getElementById('deathScreen').addEventListener('contextmenu', function(e) {e.preventDefault()});
+document.getElementById('regionName').addEventListener('contextmenu', function(e) {e.preventDefault()});
+document.getElementById('stats').addEventListener('contextmenu', function(e) {e.preventDefault()});
+document.getElementById('chatText').addEventListener('contextmenu', function(e) {e.preventDefault()});
+document.getElementById('dropdownMenu').addEventListener('contextmenu', function(e) {e.preventDefault()});
+document.getElementById('windows').addEventListener('contextmenu', function(e) {e.preventDefault()});
 document.getElementById('ctx').addEventListener('dblclick', function(e) {e.preventDefault()});
+document.getElementById('fade').addEventListener('dblclick', function(e) {e.preventDefault()});
+document.getElementById('deathScreen').addEventListener('dblclick', function(e) {e.preventDefault()});
+document.getElementById('regionName').addEventListener('dblclick', function(e) {e.preventDefault()});
+document.getElementById('stats').addEventListener('dblclick', function(e) {e.preventDefault()});
+document.getElementById('chatText').addEventListener('dblclick', function(e) {e.preventDefault()});
+document.getElementById('dropdownMenu').addEventListener('dblclick', function(e) {e.preventDefault()});
+document.getElementById('windows').addEventListener('dblclick', function(e) {e.preventDefault()});
 // version
 document.getElementById('version').innerText = version;
 

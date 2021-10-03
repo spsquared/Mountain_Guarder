@@ -472,6 +472,7 @@ Rig = function() {
         }
     };
     self.onHit = function(entity, type) {
+        var oldhp = self.hp;
         switch (type) {
             case 'projectile':
                 self.hp -= entity.damage;
@@ -481,16 +482,28 @@ Rig = function() {
                 error('Invalid Entity type: ' + type);
                 break;
         }
+        new Particle(self.map, self.x, self.y, 'damage', self.hp-oldhp);
     };
     self.onDeath = function(entity) {
+        var oldhp = self.hp;
+        self.hp = 0;
         self.alive = false;
+        if (self.hp != oldhp) {
+            new Particle(self.map, self.x, self.y, 'damage', self.hp-oldhp);
+        }
+        for (var i = 0; i < 20; i++) {
+            new Particle(self.map, self.x, self.y, 'death');
+        }
     };
     self.onRegionChange = function() {};
     self.teleport = function(map, x, y) {
+        for (var i = 0; i < 20; i++) {
+            new Particle(self.map, self.x, self.y, 'teleport');
+        }
         self.map = map;
         self.x = x*64+32;
         self.y = y*64+32;
-        for (var i = 0; i < 30; i++) {
+        for (var i = 0; i < 20; i++) {
             new Particle(self.map, self.x, self.y, 'teleport');
         }
     };
@@ -591,13 +604,13 @@ Player = function(socket) {
         else self.respawn();
     });
     socket.on('teleport1', function() {
-        for (var i = 0; i < 30; i++) {
+        for (var i = 0; i < 20; i++) {
             new Particle(self.map, self.x, self.y, 'teleport');
         }
         self.map = self.teleportLocation.map;
         self.x = self.teleportLocation.x;
         self.y = self.teleportLocation.y;
-        for (var i = 0; i < 30; i++) {
+        for (var i = 0; i < 20; i++) {
             new Particle(self.map, self.x, self.y, 'teleport');
         }
     });
@@ -614,9 +627,11 @@ Player = function(socket) {
         }
         self.lastHeal++;
         if (self.keys.heal && self.hp < self.maxHP && self.lastHeal >= seconds(0.5) && self.mana >= 10) {
+            var oldhp = self.hp;
             self.lastHeal = 0;
             self.hp = Math.min(self.hp+20, self.maxHP);
             self.mana -= 10;
+            new Particle(self.map, self.x, self.y, 'heal', '+' + self.hp-oldhp);
         }
         self.mana = Math.min(self.mana+1, self.maxMana);
         self.updateAnimation();
@@ -654,6 +669,8 @@ Player = function(socket) {
         self.canMove = false;
     };
     self.onDeath = function(entity) {
+        var oldhp = self.hp;
+        self.hp = 0;
         self.alive = false;
         socket.emit('playerDied');
         self.keys = {
@@ -664,6 +681,12 @@ Player = function(socket) {
             heal: false
         };
         self.attacking = false;
+        if (self.hp != oldhp) {
+            new Particle(self.map, self.x, self.y, 'damage', self.hp-oldhp);
+        }
+        for (var i = 0; i < 20; i++) {
+            new Particle(self.map, self.x, self.y, 'playerdeath');
+        }
     };
     self.respawn = function() {
         self.hp = self.maxHP;
@@ -738,6 +761,15 @@ Monster = function(type, x, y, map) {
         }
     };
     self.updatePos = function() {
+        self.keys = {
+            up: false,
+            down: false,
+            left: false,
+            right: false,
+            heal: false
+        };
+        self.xspeed = 0;
+        self.yspeed = 0;
         self.collide();
         self.region = {
             name: 'The Wilderness',
@@ -776,20 +808,32 @@ Monster = function(type, x, y, map) {
     };
     self.attack = function() {
         self.ai.lastAttack++;
-        if (self.ai.attackType == 'exploding') {
-            if (self.animationStage >= 10) delete Monster.list[self.id];
+        switch (self.ai.attackType) {
+            case 'exploding':
+                if (self.animationStage >= 10) delete Monster.list[self.id];
+                break;
+            case 'snowball':
+                if (self.animationStage == 7) {
+                    self.animationLength = 0;
+                    self.animationSpeed = 100;
+                }
+                break;
+            default:
+                break;
         }
         if (self.ai.entityTarget && !self.region.noattack) {
             switch (self.ai.attackType) {
                 case 'bird':
                     if (self.ai.lastAttack > seconds(1)) {
                         if (self.ai.attackStage == 5) {
-                            new Projectile('ninjastar', self.x, self.y, self.map, self.ai.entityTarget.x+Math.random()*10-20, self.ai.entityTarget.y+Math.random()*10-20, self.id);
+                            var angle = Math.atan2(self.ai.entityTarget.y-self.y, self.ai.entityTarget.x-self.x);
+                            new Projectile('ninjastar', self.x, self.y, self.map, self.x+Math.cos(angle)*20+Math.random()*2-1, self.y+Math.sin(angle)*20+Math.random()*2-1, self.id);
                             self.ai.attackStage = 0;
                             self.ai.lastAttack = 0;
                         }
                         if (self.ai.attackStage == 1) {
-                            new Projectile('ninjastar', self.x, self.y, self.map, self.ai.entityTarget.x+Math.random()*10-20, self.ai.entityTarget.y+Math.random()*10-20, self.id);
+                            var angle = Math.atan2(self.ai.entityTarget.y-self.y, self.ai.entityTarget.x-self.x);
+                            new Projectile('ninjastar', self.x, self.y, self.map, self.x+Math.cos(angle)*20+Math.random()*2-1, self.y+Math.sin(angle)*20+Math.random()*2-1, self.id);
                         }
                         self.ai.attackStage++;
                     }
@@ -797,12 +841,14 @@ Monster = function(type, x, y, map) {
                 case 'snowbird':
                     if (self.ai.lastAttack > seconds(1)) {
                         if (self.ai.attackStage == 5) {
-                            new Projectile('fastsnowball', self.x, self.y, self.map, self.ai.entityTarget.x+Math.random()*10-20, self.ai.entityTarget.y+Math.random()*10-20, self.id);
+                            var angle = Math.atan2(self.ai.entityTarget.y-self.y, self.ai.entityTarget.x-self.x);
+                            new Projectile('fastsnowball', self.x, self.y, self.map, self.x+Math.cos(angle)*10+Math.random()*2-1, self.y+Math.sin(angle)*10+Math.random()*2-1, self.id);
                             self.ai.attackStage = 0;
                             self.ai.lastAttack = 0;
                         }
                         if (self.ai.attackStage == 1) {
-                            new Projectile('fastsnowball', self.x, self.y, self.map, self.ai.entityTarget.x+Math.random()*10-20, self.ai.entityTarget.y+Math.random()*10-20, self.id);
+                            var angle = Math.atan2(self.ai.entityTarget.y-self.y, self.ai.entityTarget.x-self.x);
+                            new Projectile('fastsnowball', self.x, self.y, self.map, self.x+Math.cos(angle)*10+Math.random()*2-1, self.y+Math.sin(angle)*10+Math.random()*2-1, self.id);
                         }
                         self.ai.attackStage++;
                     }
@@ -816,6 +862,9 @@ Monster = function(type, x, y, map) {
                         self.animationStage = 0;
                         self.animationLength = 10;
                         self.onDeath = function() {};
+                        for (var i = 0; i < 50; i++) {
+                            new Particle(self.map, self.x, self.y, 'explosion');
+                        }
                         for (var i in Monster.list) {
                             if (parseFloat(i) != self.id && self.getDistance(Monster.list[i]) < 128) {
                                 if (Monster.list[i].ai.attackType == 'cherrybomb') {
@@ -839,6 +888,9 @@ Monster = function(type, x, y, map) {
                     self.animationStage = 0;
                     self.animationLength = 10;
                     self.onDeath = function() {};
+                    for (var i = 0; i < 50; i++) {
+                        new Particle(self.map, self.x, self.y, 'explosion');
+                    }
                     for (var i in Monster.list) {
                         if (Monster.list[i].ai.attackType == 'cherrybomb') {
                             Monster.list[i].ai.attackType = 'triggeredcherrybomb';
@@ -877,12 +929,13 @@ Monster = function(type, x, y, map) {
                     }
                     break;
                 default:
-                    error('Invalid attack type: ' + self.attackType);
+                    error('Invalid attack type: ' + self.ai.attackType);
                     break;
             }
         }
     };
     self.onHit = function(entity, type) {
+        var oldhp = self.hp;
         switch (type) {
             case 'projectile':
                 self.hp -= entity.damage;
@@ -900,12 +953,20 @@ Monster = function(type, x, y, map) {
                 error('Invalid Entity type: ' + type);
                 break;
         }
+        new Particle(self.map, self.x, self.y, 'damage', self.hp-oldhp);
     };
     self.onDeath = function(entity) {
+        var oldhp = self.hp;
         self.hp = 0;
         self.alive = false;
         if (entity) {
             entity.xp += self.xpDrop;
+        }
+        if (self.hp != oldhp) {
+            new Particle(self.map, self.x, self.y, 'damage', self.hp-oldhp);
+        }
+        for (var i = 0; i < 20; i++) {
+            new Particle(self.map, self.x+Math.random()*self.width*2-self.width, self.y+Math.random()*self.height*2-self.height, 'death');
         }
         delete Monster.list[self.id];
     };
@@ -974,7 +1035,7 @@ Projectile = function(type, x, y, map, mousex, mousey, parentID) {
         self.updatePos();
         if (self.parentIsPlayer) {
             for (var i in Monster.list) {
-                if (self.collideWith(Monster.list[i]) && Monster.list[i].alive) {
+                if (self.collideWith(Monster.list[i]) && Monster.list[i].map == self.map && Monster.list[i].alive) {
                     Monster.list[i].onHit(self, 'projectile');
                     if (Monster.list[i].hp <= 0) Monster.list[i].onDeath(Player.list[self.parentID]);
                     delete Projectile.list[self.id];
@@ -983,7 +1044,7 @@ Projectile = function(type, x, y, map, mousex, mousey, parentID) {
             }
         } else {
             for (var i in Player.list) {
-                if (self.collideWith(Player.list[i]) && Player.list[i].alive) {
+                if (self.collideWith(Player.list[i]) && Player.list[i].map == self.map && Player.list[i].alive) {
                     Player.list[i].onHit(self, 'projectile');
                     if (Player.list[i].hp <= 0) Player.list[i].onDeath();
                     delete Projectile.list[self.id];
@@ -1026,42 +1087,44 @@ Projectile = function(type, x, y, map, mousex, mousey, parentID) {
         }
     };
     self.collideWith = function(entity) {
-        var vertices = [
-            {x: ((self.width/2)*Math.cos(self.angle))-((self.height/2)*Math.sin(self.angle))+self.x, y: ((self.width/2)*Math.sin(self.angle))+((self.height/2)*Math.cos(self.angle))+self.y},
-            {x: ((self.width/2)*Math.cos(self.angle))-((-self.height/2)*Math.sin(self.angle))+self.x, y: ((self.width/2)*Math.sin(self.angle))+((-self.height/2)*Math.cos(self.angle))+self.y},
-            {x: ((-self.width/2)*Math.cos(self.angle))-((-self.height/2)*Math.sin(self.angle))+self.x, y: ((-self.width/2)*Math.sin(self.angle))+((-self.height/2)*Math.cos(self.angle))+self.y},
-            {x: ((-self.width/2)*Math.cos(self.angle))-((self.height/2)*Math.sin(self.angle))+self.x, y: ((-self.width/2)*Math.sin(self.angle))+((self.height/2)*Math.cos(self.angle))+self.y},
-            {x: self.x, y: self.y}
-        ];
-        var vertices2 = [
-            {x: entity.x+entity.width/2, y: entity.y+entity.height/2},
-            {x: entity.x+entity.width/2, y: entity.y-entity.height/2},
-            {x: entity.x-entity.width/2, y: entity.y-entity.height/2},
-            {x: entity.x-entity.width/2, y: entity.y+entity.height/2}
-        ];
-        function getSlope(pt1, pt2) {
-            return (pt2.y - pt1.y) / (pt2.x - pt1.x);
-        };
-
-        for (var i = 0; i < 4; i++) {
-            if (vertices2[i].y-vertices[0].y < (getSlope(vertices[0],vertices[1])*(vertices2[i].x-vertices[0].x))) {
-                if (vertices2[i].y-vertices[1].y > (getSlope(vertices[1],vertices[2])*(vertices2[i].x-vertices[1].x))) {
-                    if (vertices2[i].y-vertices[2].y > (getSlope(vertices[2],vertices[3])*(vertices2[i].x-vertices[2].x))) {
-                        if (vertices2[i].y-vertices[3].y < (getSlope(vertices[3],vertices[0])*(vertices2[i].x-vertices[3].x))) {
-                            return true;
+        if (entity.map == self.map) {
+            var vertices = [
+                {x: ((self.width/2)*Math.cos(self.angle))-((self.height/2)*Math.sin(self.angle))+self.x, y: ((self.width/2)*Math.sin(self.angle))+((self.height/2)*Math.cos(self.angle))+self.y},
+                {x: ((self.width/2)*Math.cos(self.angle))-((-self.height/2)*Math.sin(self.angle))+self.x, y: ((self.width/2)*Math.sin(self.angle))+((-self.height/2)*Math.cos(self.angle))+self.y},
+                {x: ((-self.width/2)*Math.cos(self.angle))-((-self.height/2)*Math.sin(self.angle))+self.x, y: ((-self.width/2)*Math.sin(self.angle))+((-self.height/2)*Math.cos(self.angle))+self.y},
+                {x: ((-self.width/2)*Math.cos(self.angle))-((self.height/2)*Math.sin(self.angle))+self.x, y: ((-self.width/2)*Math.sin(self.angle))+((self.height/2)*Math.cos(self.angle))+self.y},
+                {x: self.x, y: self.y}
+            ];
+            var vertices2 = [
+                {x: entity.x+entity.width/2, y: entity.y+entity.height/2},
+                {x: entity.x+entity.width/2, y: entity.y-entity.height/2},
+                {x: entity.x-entity.width/2, y: entity.y-entity.height/2},
+                {x: entity.x-entity.width/2, y: entity.y+entity.height/2}
+            ];
+            function getSlope(pt1, pt2) {
+                return (pt2.y - pt1.y) / (pt2.x - pt1.x);
+            };
+    
+            for (var i = 0; i < 4; i++) {
+                if (vertices2[i].y-vertices[0].y < (getSlope(vertices[0],vertices[1])*(vertices2[i].x-vertices[0].x))) {
+                    if (vertices2[i].y-vertices[1].y > (getSlope(vertices[1],vertices[2])*(vertices2[i].x-vertices[1].x))) {
+                        if (vertices2[i].y-vertices[2].y > (getSlope(vertices[2],vertices[3])*(vertices2[i].x-vertices[2].x))) {
+                            if (vertices2[i].y-vertices[3].y < (getSlope(vertices[3],vertices[0])*(vertices2[i].x-vertices[3].x))) {
+                                return true;
+                            }
                         }
                     }
                 }
+                if (vertices[i].x > vertices2[2].x && vertices[i].x < vertices2[0].x && vertices[i].y > vertices2[2].y && vertices[i].y < vertices2[0].y) {
+                    return true;
+                }
             }
-            if (vertices[i].x > vertices2[2].x && vertices[i].x < vertices2[0].x && vertices[i].y > vertices2[2].y && vertices[i].y < vertices2[0].y) {
+            if (vertices[4].x > vertices2[2].x && vertices[4].x < vertices2[0].x && vertices[4].y > vertices2[2].y && vertices[4].y < vertices2[0].y) {
                 return true;
             }
+    
+            return false;
         }
-        if (vertices[4].x > vertices2[2].x && vertices[4].x < vertices2[0].x && vertices[4].y > vertices2[2].y && vertices[4].y < vertices2[0].y) {
-            return true;
-        }
-
-        return false;
     };
     
     Projectile.list[self.id] = self;
@@ -1103,25 +1166,23 @@ Projectile.patterns = {
     }
 };
 
-// particle storage
 Particle = function(map, x, y, type, value) {
     var self = {
         map: map,
         x: x,
         y: y,
-        type: type
+        type: type,
+        value: value
     };
-    if (value) self.value = value;
 
     Particle.list.push(self);
     return self;
 };
 Particle.update = function() {
-    var particles = Particle.list;
-    for (var i in Particle.list) {
-        delete Particle.list[i];
-    }
-    return particles;
+    var pack = Particle.list;
+    Particle.list = [];
+
+    return pack;
 };
 Particle.list = [];
 

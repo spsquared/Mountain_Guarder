@@ -177,5 +177,6 @@ function loadMap(name) {
     }
 };
 loadMap('World');
+loadMap('The Void')
 loadMap('Outpost Cottage 1');
 loadMap('Outpost Cottage 2');

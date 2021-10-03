@@ -33,14 +33,14 @@
     padding: 8px 20px;
     opacity: 0;
     cursor: crosshair;
-    z-index: 2;
+    z-index: 1;
 }
 
 /* bossbars */
 #bossBars {
     position: absolute;
     text-align: center;
-    z-index: 1;
+    z-index: 4;
 }
 .bossBar {
     width: 70vw;
@@ -72,7 +72,7 @@
     width: 100vw;
     height: 100vh;
     background-color: black;
-    z-index: 3;
+    z-index: 2;
 }
 
 /* stats */
@@ -83,7 +83,7 @@
     cursor: crosshair;
     width: 160px;
     height: 80px;
-    z-index: 0;
+    z-index: 4;
 }
 #statsHP {
     position: absolute;
@@ -167,7 +167,7 @@
     padding: 2px 4px;
     padding-right: 2px;
     cursor: crosshair;
-    z-index: 1;
+    z-index: 4;
 }
 #version {
     position: absolute;
@@ -176,7 +176,7 @@
     font-size: 10px;
     color: black;
     cursor: crosshair;
-    z-index: 1;
+    z-index: 4;
 }
 
 /* chat */
@@ -188,7 +188,7 @@
     height: 160px;
     padding: 0px 2px;
     border: 1px solid black;
-    z-index: 1;
+    z-index: 4;
 }
 #chatText {
     position: absolute;
@@ -214,7 +214,7 @@
     top: 0px;
     left: 165px;
     width: 80px;
-    z-index: 1;
+    z-index: 4;
 }
 #dropdownMenuItems {
     display: none;
@@ -228,7 +228,7 @@
     left: 0px;
     width: 900px;
     height: 600px;
-    z-index: 4;
+    z-index: 5;
 }
 .window .window-bar {
     padding-left: 6px;
@@ -315,7 +315,7 @@
     width: 100vw;
     height: 100vh;
     background-color: #FF000055;
-    z-index: 5;
+    z-index: 3;
 }
 #youdied {
     position: absolute;

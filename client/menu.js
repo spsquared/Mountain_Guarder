@@ -46,7 +46,7 @@ DraggableWindow = function(id) {
         self.offsetY = e.pageY - self.y;
         self.dragging = true;
         resetZIndex();
-        self.window.style.zIndex = 4;
+        self.window.style.zIndex = 6;
     };
     document.addEventListener('mousemove', function(e) {
         if (self.dragging) {
@@ -67,12 +67,12 @@ DraggableWindow = function(id) {
     self.show = function() {
         self.window.style.display = 'block';
         resetZIndex();
-        self.window.style.zIndex = 4;
+        self.window.style.zIndex = 6;
     };
 
     return self;
 };
 function resetZIndex() {
-    document.getElementById('inventory').style.zIndex = 3;
-    document.getElementById('settings').style.zIndex = 3;
+    document.getElementById('inventory').style.zIndex = 5;
+    document.getElementById('settings').style.zIndex = 5;
 };
