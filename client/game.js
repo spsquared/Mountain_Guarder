@@ -1,11 +1,11 @@
 // Copyright (C) 2021 Radioactive64
 
-var player = null;
-var playerid = null;
+var player, playerid;
 mouseX = 0;
 mouseY = 0;
-var mapnameFade = null;
-var mapnameWait = null;
+var mapnameFade, mapnameWait;
+var lastchunkx, lastchunky, lastmap;
+var showDebug = false;
 
 // loading
 var loaded = false;
@@ -139,22 +139,44 @@ function drawFrame() {
     }
 };
 function drawMap() {
-    for (var y in MAPS[player.map].chunks) {
-        for (var x in MAPS[player.map].chunks[y]) {
-            if (Math.abs(player.chunkx-x) > settings.renderDistance || Math.abs(player.chunky-y) > settings.renderDistance) {
-                delete MAPS[player.map].chunks[y][x];
+    if (lastmap != player.map) {
+        for (var i in MAPS) {
+            for (var j in MAPS[i].chunks) {
+                delete MAPS[i].chunks[j];
             }
         }
+        lastmap = player.map;
+        lastchunkx = null;
+        lastchunky = null;
     }
-    for (var y = player.chunky-settings.renderDistance; y <= player.chunky+settings.renderDistance; y++) {
-        for (var x = player.chunkx-settings.renderDistance; x <= player.chunkx+settings.renderDistance; x++) {
-            if (MAPS[player.map].chunkJSON[y]) if (MAPS[player.map].chunkJSON[y][x]) {
-                if (MAPS[player.map].chunks[y] == undefined) {
-                    renderChunk(MAPS[player.map].chunkJSON[y][x], x, y, player.map);
-                } else if (MAPS[player.map].chunks[y][x] == undefined) {
-                    renderChunk(MAPS[player.map].chunkJSON[y][x], x, y, player.map);
+    if (player.map == 'World') {
+        if (lastchunkx != player.chunkx || lastchunky != player.chunky) {
+            for (var y in MAPS['World'].chunks) {
+                for (var x in MAPS['World'].chunks[y]) {
+                    if (Math.abs(player.chunkx-x) > settings.renderDistance || Math.abs(player.chunky-y) > settings.renderDistance) {
+                        delete MAPS['World'].chunks[y][x];
+                    }
                 }
             }
+            for (var y = player.chunky-settings.renderDistance; y <= player.chunky+settings.renderDistance; y++) {
+                for (var x = player.chunkx-settings.renderDistance; x <= player.chunkx+settings.renderDistance; x++) {
+                    if (MAPS['World'].chunkJSON[y]) if (MAPS['World'].chunkJSON[y][x]) {
+                        if (MAPS['World'].chunks[y] == undefined) {
+                            renderChunk(MAPS['World'].chunkJSON[y][x], x, y, 'World');
+                        } else if (MAPS['World'].chunks[y][x] == undefined) {
+                            renderChunk(MAPS['World'].chunkJSON[y][x], x, y, 'World');
+                        }
+                    }
+                }
+            }
+            lastchunkx = player.chunkx;
+            lastchunky = player.chunky;
+        }
+    } else {
+        if (MAPS[player.map].chunks[0] == undefined) {
+            renderChunk(MAPS[player.map].chunkJSON[0][0], 0, 0, player.map);
+        } else if (MAPS[player.map].chunks[0][0] == undefined) {
+            renderChunk(MAPS[player.map].chunkJSON[0][0], 0, 0, player.map);
         }
     }
     LAYERS.mlower.save();
@@ -236,12 +258,15 @@ document.onkeydown = function(e) {
     if (e.key == ' ') {
         socket.emit('keyPress', {key:'heal', state:true});
     }
-    if(e.key === 'Meta' || e.key === 'Alt' || e.key === 'Control'){
+    if (e.key == 'Meta' || e.key == 'Alt' || e.key == 'Control'){
         socket.emit('keyPress', {key:'up', state:false});
         socket.emit('keyPress', {key:'down', state:false});
         socket.emit('keyPress', {key:'left', state:false});
         socket.emit('keyPress', {key:'right', state:false});
         socket.emit('keyPress', {key:'heal', state:false});
+    }
+    if (e.key == '\\') {
+        showDebug = !showDebug;
     }
 };
 document.onkeyup = function(e) {
@@ -339,7 +364,7 @@ socket.on('region', function(name) {
         }, 20);
     }, 6000);
 });
-socket.on('teleport', function(pos) {
+socket.on('teleport1', function() {
     document.getElementById('fade').style.display = 'block';
     document.getElementById('fade').style.opacity = 0;
     var opacity = 0;
@@ -348,21 +373,22 @@ socket.on('teleport', function(pos) {
         opacity += 0.04;
         if (opacity >= 1) {
             clearInterval(fade);
-            opacity = 1;
-            player.x = pos.x;
-            player.y = pos.y;
-            socket.emit('teleport1')
-            fade = setInterval(function() {
-                document.getElementById('fade').style.opacity = opacity;
-                opacity -= 0.04;
-                if (opacity <= 0) {
-                    clearInterval(fade);
-                    document.getElementById('fade').style.display = 'none';
-                    socket.emit('teleport2');
-                }
-            }, 20);
+            document.getElementById('fade').style.opacity = 1;
+            socket.emit('teleport1');
         }
-    }, 20)
+    }, 20);
+});
+socket.on('teleport2', function() {
+    var opacity = 1;
+    var fade = setInterval(function() {
+        document.getElementById('fade').style.opacity = opacity;
+        opacity -= 0.04;
+        if (opacity <= 0) {
+            clearInterval(fade);
+            document.getElementById('fade').style.display = 'none';
+            socket.emit('teleport2');
+        }
+    }, 20);
 });
 socket.on('playerDied', function() {
     document.getElementById('respawnButton').style.display = 'none';

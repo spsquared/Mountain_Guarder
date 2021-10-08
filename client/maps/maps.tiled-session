@@ -1,0 +1,221 @@
+{
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "C:/Users/jacki/Google Drive/BattleBoxes Files/Game/Map7.tmx",
+    "expandedProjectPaths": [
+    ],
+    "exportAsImage.useCurrentScale": false,
+    "exportAsImage.visibleLayersOnly": true,
+    "file.lastUsedOpenFilter": "All Files (*)",
+    "fileStates": {
+        "C:/Users/jacki/Google Drive/BattleBoxes Files/Game/BlackWhite.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "C:/Users/jacki/Google Drive/BattleBoxes Files/Game/Lobby.tmx": {
+            "scale": 1.4690243902439024,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 399.92528640212515,
+                "y": 199.7924622281255
+            }
+        },
+        "C:/Users/jacki/Google Drive/BattleBoxes Files/Game/Map1.tmx": {
+            "scale": 1,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 639.5,
+                "y": 360.5
+            }
+        },
+        "C:/Users/jacki/Google Drive/BattleBoxes Files/Game/Map2.tmx": {
+            "scale": 0.94109375,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 639.1499252864021,
+                "y": 360.7504565830981
+            }
+        },
+        "C:/Users/jacki/Google Drive/BattleBoxes Files/Game/Map3.tmx": {
+            "scale": 0.6209278350515464,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 959.0486468537275,
+                "y": 638.5605180142786
+            }
+        },
+        "C:/Users/jacki/Google Drive/BattleBoxes Files/Game/Map4.tmx": {
+            "scale": 0.75,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 630,
+                "y": 240.66666666666663
+            }
+        },
+        "C:/Users/jacki/Google Drive/BattleBoxes Files/Game/Map5.tmx": {
+            "scale": 0.5,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 1341,
+                "y": 25
+            }
+        },
+        "C:/Users/jacki/Google Drive/BattleBoxes Files/Game/Map7.tmx": {
+            "scale": 0.5,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 693,
+                "y": 455
+            }
+        },
+        "C:/Users/jacki/Google Drive/BattleBoxes Files/Game/Ready.tmx": {
+            "scale": 2,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 165.25,
+                "y": 173.75
+            }
+        },
+        "C:/Users/jacki/Google Drive/BattleBoxes Files/Game/Rready.tmx": {
+            "scale": 2.5709375,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 152.27908107451077,
+                "y": 160.05834447550748
+            }
+        },
+        "C:/Users/jacki/Google Drive/BattleBoxes Files/Game/Text.tmx": {
+            "scale": 2,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 273.75,
+                "y": 67.75
+            }
+        },
+        "C:/Users/jacki/Google Drive/BattleBoxes Files/Game/WinOverlay.tmx": {
+            "scale": 3.5429411764705883,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 150.01660302174994,
+                "y": 90.46156400464884
+            }
+        },
+        "C:/Users/jacki/Google Drive/BattleBoxes Files/Game/blackwhite andabitofgreen.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "C:/Users/jacki/Google Drive/BattleBoxes Files/Game/sdfsdf.tmx": {
+            "scale": 0.75,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 1136.6666666666665,
+                "y": 92.66666666666663
+            }
+        },
+        "C:/Users/jacki/Google Drive/BattleBoxes Files/Game/untitled.tmx": {
+            "scale": 0.5963366336633663,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 990.2125186783996,
+                "y": 61.207039681222
+            }
+        },
+        "C:/Users/jacki/Google Drive/Meadow-Guarder/client/maps/Secret Tunnel Part 2.tmx": {
+            "scale": 3,
+            "selectedLayer": 10,
+            "viewCenter": {
+                "x": 453,
+                "y": 250.83333333333334
+            }
+        },
+        "C:/Users/jacki/Google Drive/Meadow-Guarder/client/maps/roguelikeSheet.tsx": {
+            "scaleInDock": 1
+        },
+        "Outpost Cottage 1.tmx": {
+            "scale": 4,
+            "selectedLayer": 10,
+            "viewCenter": {
+                "x": 117.375,
+                "y": 121.375
+            }
+        },
+        "Outpost Cottage 2.tmx": {
+            "scale": 3,
+            "selectedLayer": 3,
+            "viewCenter": {
+                "x": 166.83333333333334,
+                "y": 129.16666666666666
+            }
+        },
+        "Outpost Cottage.tmx": {
+            "scale": 4,
+            "selectedLayer": 8,
+            "viewCenter": {
+                "x": 68.75,
+                "y": 120.625
+            }
+        },
+        "Preview.tmx": {
+            "scale": 2,
+            "selectedLayer": 5,
+            "viewCenter": {
+                "x": 342.25,
+                "y": 341.75
+            }
+        },
+        "The Void.tmx": {
+            "scale": 1.6068359374999999,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 195.7262671690775,
+                "y": 256.09335116081195
+            }
+        },
+        "World.tmx": {
+            "scale": 2,
+            "selectedLayer": 7,
+            "viewCenter": {
+                "x": 595.25,
+                "y": 118.25
+            }
+        }
+    },
+    "last.exportedFilePath": "C:/Users/jacki/Google Drive/Mountain_Guarder/client/maps",
+    "map.height": 12,
+    "map.lastUsedExportFilter": "JSON map files (*.json)",
+    "map.lastUsedFormat": "tmx",
+    "map.tileHeight": 16,
+    "map.tileWidth": 16,
+    "map.width": 20,
+    "openFiles": [
+        "C:/Users/jacki/Google Drive/BattleBoxes Files/Game/Lobby.tmx",
+        "C:/Users/jacki/Google Drive/BattleBoxes Files/Game/Map1.tmx",
+        "C:/Users/jacki/Google Drive/BattleBoxes Files/Game/Map2.tmx",
+        "C:/Users/jacki/Google Drive/BattleBoxes Files/Game/Map3.tmx",
+        "C:/Users/jacki/Google Drive/BattleBoxes Files/Game/Map4.tmx",
+        "C:/Users/jacki/Google Drive/BattleBoxes Files/Game/Map5.tmx",
+        "C:/Users/jacki/Google Drive/BattleBoxes Files/Game/Map7.tmx"
+    ],
+    "project": "maps.tiled-project",
+    "recentFiles": [
+        "Outpost Cottage 2.tmx",
+        "The Void.tmx",
+        "Preview.tmx",
+        "Outpost Cottage 1.tmx",
+        "World.tmx",
+        "Outpost Cottage.tmx",
+        "C:/Users/jacki/Google Drive/Meadow-Guarder/client/maps/Secret Tunnel Part 2.tmx",
+        "C:/Users/jacki/Google Drive/BattleBoxes Files/Game/Lobby.tmx",
+        "C:/Users/jacki/Google Drive/BattleBoxes Files/Game/Map1.tmx",
+        "C:/Users/jacki/Google Drive/BattleBoxes Files/Game/Map2.tmx",
+        "C:/Users/jacki/Google Drive/BattleBoxes Files/Game/Map3.tmx",
+        "C:/Users/jacki/Google Drive/BattleBoxes Files/Game/Map4.tmx"
+    ],
+    "tileset.lastUsedFormat": "tsx",
+    "tileset.tileSize": {
+        "height": 16,
+        "width": 16
+    }
+}

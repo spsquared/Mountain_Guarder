@@ -34,7 +34,7 @@ Entity = function(id, map, x, y) {
             self.x += self.xspeed;
             self.y += self.yspeed;
             self.chunkx = Math.floor(self.x/(64*MAPS[self.map].chunkwidth));
-            self.chunky = Math.floor(self.y/(64*MAPS[self.map].chunkwidth));
+            self.chunky = Math.floor(self.y/(64*MAPS[self.map].chunkheight));
             self.interpolationStage++;
         }
     };
@@ -104,7 +104,7 @@ Rig = function(id, map, x, y) {
             self.x += self.xspeed;
             self.y += self.yspeed;
             self.chunkx = Math.floor(self.x/(64*MAPS[self.map].chunkwidth));
-            self.chunky = Math.floor(self.y/(64*MAPS[self.map].chunkwidth));
+            self.chunky = Math.floor(self.y/(64*MAPS[self.map].chunkheight));
             self.interpolationStage++;
         }
     };
@@ -141,7 +141,7 @@ Player = function(id, map, x, y, isNPC) {
             self.x += self.xspeed;
             self.y += self.yspeed;
             self.chunkx = Math.floor(self.x/(64*MAPS[self.map].chunkwidth));
-            self.chunky = Math.floor(self.y/(64*MAPS[self.map].chunkwidth));
+            self.chunky = Math.floor(self.y/(64*MAPS[self.map].chunkheight));
             self.interpolationStage++;
         }
     };
@@ -224,7 +224,7 @@ Monster = function(id, map, x, y, type) {
             self.x += self.xspeed;
             self.y += self.yspeed;
             self.chunkx = Math.floor(self.x/(64*MAPS[self.map].chunkwidth));
-            self.chunky = Math.floor(self.y/(64*MAPS[self.map].chunkwidth));
+            self.chunky = Math.floor(self.y/(64*MAPS[self.map].chunkheight));
             self.interpolationStage++;
         }
     };
@@ -288,7 +288,7 @@ Projectile = function(id, map, x, y, angle, type) {
             self.x += self.xspeed;
             self.y += self.yspeed;
             self.chunkx = Math.floor(self.x/(64*MAPS[self.map].chunkwidth));
-            self.chunky = Math.floor(self.y/(64*MAPS[self.map].chunkwidth));
+            self.chunky = Math.floor(self.y/(64*MAPS[self.map].chunkheight));
             self.angle += self.rotationspeed;
             self.interpolationStage++;
         }
@@ -383,7 +383,7 @@ Particle = function(map, x, y, type, value) {
         self.x += self.xspeed;
         self.y += self.yspeed;
         self.chunkx = Math.floor(self.x/(64*MAPS[self.map].chunkwidth));
-        self.chunky = Math.floor(self.y/(64*MAPS[self.map].chunkwidth));
+        self.chunky = Math.floor(self.y/(64*MAPS[self.map].chunkheight));
         if (self.opacity <= 0) {
             delete Particle.list[self.id];
             return;

@@ -217,7 +217,6 @@ Rig = function() {
             dontCrossCorners: true
         }),
         grid: new PF.Grid(),
-        lastPath: 0,
         maxRange: 100
     };
     self.characterStyle = {
@@ -388,86 +387,78 @@ Rig = function() {
         }
     };
     self.ai.pathtoEntity = function() {
-        self.ai.lastPath++;
-        if (self.ai.lastPath >= seconds(0.1)) {
-            self.ai.lastPath = 0;
+        if (self.ai.entityTarget) {
             self.ai.path = [];
-            if (self.ai.entityTarget) {
-                try {
-                    if (self.getDistance(self.ai.entityTarget) < self.ai.maxRange*64) {
-                        var offsetx = self.gridx-self.ai.maxRange-1;
-                        var offsety = self.gridy-self.ai.maxRange-1;
-                        var x1 = self.ai.maxRange+1;
-                        var y1 = self.ai.maxRange+1;
-                        var x2 = self.ai.entityTarget.gridx-offsetx;
-                        var y2 = self.ai.entityTarget.gridy-offsety;
-                        var size = self.ai.maxRange*2+1;
-                        self.ai.grid = new PF.Grid(size, size);
-                        for (var y = 0; y < size; y++) {
-                            for (var x = 0; x < size; x++) {
-                                var checkx = x+offsetx;
-                                var checky = y+offsety;
-                                if (Collision.list[self.map][checky]) if (Collision.list[self.map][checky][checkx]) {
-                                    self.ai.grid.setWalkableAt(x, y, false);
-                                }
-                                if (Region.list[self.map]) if (Region.list[self.map][checky]) if (Region.list[self.map][checky][checkx]) if (Region.list[self.map][checky][checkx].nomonster) {
-                                    self.ai.grid.setWalkableAt(x, y, false);
-                                }
+            try {
+                if (self.getDistance(self.ai.entityTarget) < self.ai.maxRange*64) {
+                    var offsetx = self.gridx-self.ai.maxRange-1;
+                    var offsety = self.gridy-self.ai.maxRange-1;
+                    var x1 = self.ai.maxRange+1;
+                    var y1 = self.ai.maxRange+1;
+                    var x2 = self.ai.entityTarget.gridx-offsetx;
+                    var y2 = self.ai.entityTarget.gridy-offsety;
+                    var size = self.ai.maxRange*2+1;
+                    self.ai.grid = new PF.Grid(size, size);
+                    for (var y = 0; y < size; y++) {
+                        for (var x = 0; x < size; x++) {
+                            var checkx = x+offsetx;
+                            var checky = y+offsety;
+                            if (Collision.list[self.map][checky]) if (Collision.list[self.map][checky][checkx]) {
+                                self.ai.grid.setWalkableAt(x, y, false);
+                            }
+                            if (Region.list[self.map]) if (Region.list[self.map][checky]) if (Region.list[self.map][checky][checkx]) if (Region.list[self.map][checky][checkx].nomonster) {
+                                self.ai.grid.setWalkableAt(x, y, false);
                             }
                         }
-                        var path = self.ai.pathfinder.findPath(x1, y1, x2, y2, self.ai.grid);
-                        self.ai.path = PF.Util.compressPath(path);
-                        self.ai.path.shift();
-                        for (var i in self.ai.path) {
-                            self.ai.path[i][0] += offsetx;
-                            self.ai.path[i][1] += offsety;
-                        }
                     }
-                } catch (err) {
-                    error(err);
+                    var path = self.ai.pathfinder.findPath(x1, y1, x2, y2, self.ai.grid);
+                    self.ai.path = PF.Util.compressPath(path);
+                    self.ai.path.shift();
+                    for (var i in self.ai.path) {
+                        self.ai.path[i][0] += offsetx;
+                        self.ai.path[i][1] += offsety;
+                    }
                 }
+            } catch (err) {
+                error(err);
             }
         }
     };
     self.ai.pathtoPos = function() {
-        self.ai.lastPath++;
-        if (self.ai.lastPath >= seconds(0.1)) {
-            self.ai.lastPath = 0;
+        if (self.ai.posTarget) {
             self.ai.path = [];
-            if (self.ai.posTarget) {
-                try {
-                    if (self.getManhattanDistance(self.ai.posTarget) < self.ai.maxRange*64) {
-                        var offsetx = self.gridx-self.ai.maxRange-1;
-                        var offsety = self.gridy-self.ai.maxRange-1;
-                        var x1 = self.ai.maxRange+1;
-                        var y1 = self.ai.maxRange+1;
-                        var x2 = Math.floor(self.ai.posTarget.x/64)-offsetx;
-                        var y2 = Math.floor(self.ai.posTarget.y/64)-offsety;
-                        var size = self.ai.maxRange*2+1;
-                        self.ai.grid = new PF.Grid(size, size);
-                        for (var y = 0; y < size; y++) {
-                            for (var x = 0; x < size; x++) {
-                                var checkx = x+offsetx;
-                                var checky = y+offsety;
-                                if (Collision.list[self.map][checky]) if (Collision.list[self.map][checky][checkx]) {
-                                    self.ai.grid.setWalkableAt(x, y, false);
-                                }
-                                if (Region.list[self.map]) if (Region.list[self.map][checky]) if (Region.list[self.map][checky][checkx]) if (Region.list[self.map][checky][checkx].nomonster) {
-                                    self.ai.grid.setWalkableAt(x, y, false);
-                                }
+            try {
+                if (self.getManhattanDistance(self.ai.posTarget) < self.ai.maxRange*64) {
+                    var offsetx = self.gridx-self.ai.maxRange-1;
+                    var offsety = self.gridy-self.ai.maxRange-1;
+                    var x1 = self.ai.maxRange+1;
+                    var y1 = self.ai.maxRange+1;
+                    var x2 = self.ai.posTarget.x/64-offsetx;
+                    var y2 = self.ai.posTarget.y/64-offsety;
+                    var size = self.ai.maxRange*2+1;
+                    self.ai.grid = new PF.Grid(size, size);
+                    for (var y = 0; y < size; y++) {
+                        for (var x = 0; x < size; x++) {
+                            var checkx = x+offsetx;
+                            var checky = y+offsety;
+                            if (Collision.list[self.map][checky]) if (Collision.list[self.map][checky][checkx]) {
+                                self.ai.grid.setWalkableAt(x, y, false);
+                            }
+                            if (Region.list[self.map]) if (Region.list[self.map][checky]) if (Region.list[self.map][checky][checkx]) if (Region.list[self.map][checky][checkx].nomonster) {
+                                self.ai.grid.setWalkableAt(x, y, false);
                             }
                         }
-                        var path = self.ai.pathfinder.findPath(x1, y1, x2, y2, self.ai.grid);
-                        self.ai.path = PF.Util.compressPath(path);
-                        self.ai.path.shift();
-                        for (var i in self.ai.path) {
-                            self.ai.path[i][0] += offsetx;
-                            self.ai.path[i][1] += offsety;
-                        }
                     }
-                } catch (err) {
-                    error(err);
+                    var path = self.ai.pathfinder.findPath(x1, y1, x2, y2, self.ai.grid);
+                    self.ai.path = PF.Util.compressPath(path);
+                    self.ai.path.shift();
+                    for (var i in self.ai.path) {
+                        self.ai.path[i][0] += offsetx;
+                        self.ai.path[i][1] += offsety;
+                    }
                 }
+            } catch (err) {
+                error(err);
             }
         }
     };
@@ -613,6 +604,7 @@ Player = function(socket) {
         for (var i = 0; i < 20; i++) {
             new Particle(self.map, self.x, self.y, 'teleport');
         }
+        socket.emit('teleport2');
     });
     socket.on('teleport2', function() {
         self.canMove = true;
@@ -655,10 +647,7 @@ Player = function(socket) {
         self.teleportLocation.map = map;
         self.teleportLocation.x = x*64+32;
         self.teleportLocation.y = y*64+32;
-        socket.emit('teleport', {
-            x: self.x,
-            y: self.y
-        });
+        socket.emit('teleport1');
         self.keys = {
             up: false,
             down: false,
@@ -729,7 +718,6 @@ Monster = function(type, x, y, map) {
     self.ai.lastAttack = 0;
     self.ai.attackStage = 0;
     self.ai.attackTime = 0;
-    self.ai.maxRange = 0;
     self.ai.damaged = false;
     self.targetMonsters = false;
     var tempmonster = Monster.types[type];
@@ -738,10 +726,16 @@ Monster = function(type, x, y, map) {
     self.moveSpeed = tempmonster.moveSpeed;
     self.width = tempmonster.width;
     self.height = tempmonster.height;
-    self.hp = tempmonster.hp;
-    self.xpDrop = tempmonster.xpDrop;
+    self.ai.lastPath = 0;
     self.ai.attackType = tempmonster.attackType;
+    self.ai.attackTime = 0;
     self.ai.maxRange = tempmonster.aggroRange;
+    self.ai.circleTarget = tempmonster.circleTarget;
+    self.ai.circleDistance = tempmonster.circleDistance;
+    self.ai.circleDirection = -1;
+    self.hp = tempmonster.hp;
+    self.maxHP = tempmonster.hp;
+    self.xpDrop = tempmonster.xpDrop;
     self.animationLength = tempmonster.animationLength;
     self.active = true;
 
@@ -755,7 +749,44 @@ Monster = function(type, x, y, map) {
         if (self.active) {
             self.updateAnimation();
             self.updateAggro();
-            self.ai.pathtoEntity();
+            self.ai.lastPath++;
+            if (self.ai.lastPath >= seconds(0.1)) {
+                self.ai.lastPath = 0;
+                if (self.ai.entityTarget) {
+                    if (self.ai.circleTarget && self.getDistance(self.ai.entityTarget) < self.ai.circleDistance*64) {
+                        var target = self.ai.entityTarget;
+                        var angle = Math.atan2(target.y-self.y, target.x-self.x);
+                        var x = target.gridx*64+Math.round(Math.cos(angle)*self.ai.circleDistance-1)*64;
+                        var y = target.gridy*64+Math.round(Math.sin(angle)*self.ai.circleDistance-1)*64;
+                        angle = Math.atan2(target.y-y, target.x-x);
+                        var oldangle = angle;
+                        angle += self.ai.circleDirection;
+                        x = target.gridx*64+Math.round(Math.cos(angle)*self.ai.circleDistance-1)*64;
+                        y = target.gridy*64+Math.round(Math.sin(angle)*self.ai.circleDistance-1)*64;
+                        var invalid = false;
+                        if (Collision.list[self.map][Math.floor(y/64)]) if (Collision.list[self.map][Math.floor(y/64)][Math.floor(x/64)]) {
+                            invalid = true;
+                        }
+                        if (Region.list[self.map]) if (Region.list[self.map][Math.floor(y/64)]) if (Region.list[self.map][Math.floor(y/64)][Math.floor(x/64)]) if (Region.list[self.map][Math.floor(y/64)][Math.floor(x/64)].nomonster) {
+                            invalid = true;
+                        }
+                        if (invalid) {
+                            angle = oldangle;
+                            self.ai.circleDirection *= -1;
+                            angle += self.ai.circleDirection;
+                            x = target.gridx*64+Math.round(Math.cos(angle)*self.ai.circleDistance-1)*64;
+                            y = target.gridy*64+Math.round(Math.sin(angle)*self.ai.circleDistance-1)*64;
+                        }
+                        self.ai.posTarget.x = target.gridx*64+Math.round(Math.cos(angle)*self.ai.circleDistance-1)*64;
+                        self.ai.posTarget.y = target.gridy*64+Math.round(Math.sin(angle)*self.ai.circleDistance-1)*64;
+                        self.ai.pathtoPos();
+                    } else {
+                        self.ai.pathtoEntity();
+                    }
+                } else {
+                    self.ai.path = [];
+                }
+            }
             self.updatePos();
             self.attack();
         }
@@ -785,9 +816,11 @@ Monster = function(type, x, y, map) {
         if (self.targetMonsters) {
             var lowest = null;
             for (var i in Monster.list) {
-                if (lowest == null) lowest = i;
-                if (self.getDistance(Monster.list[i]) < self.ai.maxRange*64 && self.getDistance(Monster.list[i]) < self.getDistance(Monster.list[lowest]) && i != self.id && !Monster.list[i].region.nomonster && Monster.list[i].alive) {
-                    lowest = i;
+                if (Monster.list[i].map == self.map && self.getDistance(Monster.list[i]) < self.ai.maxRange*64 && i != self.id && !Monster.list[i].region.nomonster && Monster.list[i].alive) {
+                    if (lowest == null) lowest = i;
+                    if (self.getDistance(Monster.list[i]) < self.getDistance(Monster.list[lowest])) {
+                        lowest = i;
+                    }
                 }
             }
             if (lowest) self.ai.entityTarget = Monster.list[lowest];
@@ -795,11 +828,11 @@ Monster = function(type, x, y, map) {
         } else {
             var lowest = null;
             for (var i in Player.list) {
-                if (self.getDistance(Player.list[i]) < self.ai.maxRange*64 && !Player.list[i].region.nomonster && Player.list[i].alive) {
-                    lowest = i;
-                }
-                if (lowest) if (self.getDistance(Player.list[i]) < self.ai.maxRange*64 && self.getDistance(Player.list[i]) < self.getDistance(Player.list[lowest]) && !Player.list[i].region.nomonster && Player.list[i].alive) {
-                    lowest = i;
+                if (Player.list[i].map == self.map && self.getDistance(Player.list[i]) < self.ai.maxRange*64 && i != self.id && !Player.list[i].region.nomonster && Player.list[i].alive) {
+                    if (lowest == null) lowest = i;
+                    if (self.getDistance(Player.list[i]) < self.getDistance(Player.list[lowest])) {
+                        lowest = i;
+                    }
                 }
             }
             if (lowest) self.ai.entityTarget = Player.list[lowest];
@@ -809,6 +842,34 @@ Monster = function(type, x, y, map) {
     self.attack = function() {
         self.ai.lastAttack++;
         switch (self.ai.attackType) {
+            case 'triggeredcherrybomb':
+                self.ai.attackTime++;
+                if (self.ai.attackTime >= 2) {
+                    self.ai.attackType = 'exploding';
+                    self.moveSpeed = 0;
+                    self.invincible = true;
+                    self.alive = false;
+                    self.animationStage = 0;
+                    self.animationLength = 10;
+                    self.onDeath = function() {};
+                    for (var i = 0; i < 50; i++) {
+                        new Particle(self.map, self.x, self.y, 'explosion');
+                    }
+                    for (var i in Monster.list) {
+                        if (parseFloat(i) != self.id && self.getDistance(Monster.list[i]) < 192) {
+                            if (Monster.list[i].ai.attackType == 'cherrybomb') {
+                                Monster.list[i].ai.attackType = 'triggeredcherrybomb';
+                                Monster.list[i].ai.attackTime = 0;
+                            } else if (Monster.list[i].ai.attackType != 'triggeredcherrybomb') {
+                                Monster.list[i].onDeath();
+                            }
+                        }
+                    }
+                    for (var i in Player.list) {
+                        if (self.getDistance(Player.list[i]) < 128) Player.list[i].onDeath();
+                    }
+                }
+                break;
             case 'exploding':
                 if (self.animationStage >= 10) delete Monster.list[self.id];
                 break;
@@ -866,11 +927,11 @@ Monster = function(type, x, y, map) {
                             new Particle(self.map, self.x, self.y, 'explosion');
                         }
                         for (var i in Monster.list) {
-                            if (parseFloat(i) != self.id && self.getDistance(Monster.list[i]) < 128) {
-                                if (Monster.list[i].ai.attackType == 'cherrybomb') {
+                            if (parseFloat(i) != self.id && self.getDistance(Monster.list[i]) < 192) {
+                                if (Monster.list[i].ai.attackType == 'cherrybomb' && Monster.list[i].ai.attackType != 'triggeredcherrybomb') {
                                     Monster.list[i].ai.attackType = 'triggeredcherrybomb';
-                                    Monster.list[i].attack();
-                                } else {
+                                    Monster.list[i].ai.attackTime = 0;
+                                } else if (Monster.list[i].ai.attackType != 'triggeredcherrybomb') {
                                     Monster.list[i].onDeath();
                                 }
                             }
@@ -881,30 +942,8 @@ Monster = function(type, x, y, map) {
                     }
                     break;
                 case 'triggeredcherrybomb':
-                    self.ai.attackType = 'exploding';
-                    self.moveSpeed = 0;
-                    self.invincible = true;
-                    self.alive = false;
-                    self.animationStage = 0;
-                    self.animationLength = 10;
-                    self.onDeath = function() {};
-                    for (var i = 0; i < 50; i++) {
-                        new Particle(self.map, self.x, self.y, 'explosion');
-                    }
-                    for (var i in Monster.list) {
-                        if (Monster.list[i].ai.attackType == 'cherrybomb') {
-                            Monster.list[i].ai.attackType = 'triggeredcherrybomb';
-                            Monster.list[i].attack();
-                        } else {
-                            Monster.list[i].onDeath();
-                        }
-                    }
-                    for (var i in Player.list) {
-                        if (self.getDistance(Player.list[i]) < 128) Player.list[i].onDeath();
-                    }
                     break;
                 case 'exploding':
-                    if (self.animationStage >= 10) delete Monster.list[self.id];
                     break;
                 case 'snowball':
                     if (self.ai.lastAttack >= seconds(3)) {
@@ -922,10 +961,6 @@ Monster = function(type, x, y, map) {
                         new Projectile('snowball', self.x, self.y, self.map, self.x+Math.cos((angle-180)*(Math.PI/180)), self.y+Math.sin((angle-180)*(Math.PI/180)), self.id);
                         new Projectile('snowball', self.x, self.y, self.map, self.x+Math.cos((angle-270)*(Math.PI/180)), self.y+Math.sin((angle-270)*(Math.PI/180)), self.id);
                         self.ai.attackStage++;
-                    }
-                    if (self.animationStage == 7) {
-                        self.animationLength = 0;
-                        self.animationSpeed = 100;
                     }
                     break;
                 default:
@@ -1024,8 +1059,8 @@ Projectile = function(type, x, y, map, mousex, mousey, parentID) {
     self.angle = Math.atan2(mousey-self.y, mousex-self.x);
     self.xspeed = Math.cos(self.angle)*self.moveSpeed;
     self.yspeed = Math.sin(self.angle)*self.moveSpeed;
-    self.x += Math.cos(self.angle)*self.width/3;
-    self.y += Math.sin(self.angle)*self.width/3;
+    self.x += Math.cos(self.angle)*self.width/2;
+    self.y += Math.sin(self.angle)*self.width/2;
     self.parentID = parentID;
     self.parentIsPlayer = true;
     if (Monster.list[self.parentID]) self.parentIsPlayer = false;

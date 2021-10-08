@@ -7,6 +7,8 @@
         "aggroRange": 16,
         "boss": false,
         "idle": "random",
+        "circleTarget": true,
+        "circleDistance": 4,
         "hp": 35,
         "moveSpeed": 5,
         "stats": {
@@ -32,6 +34,8 @@
         "aggroRange": 16,
         "boss": false,
         "idle": "random",
+        "circleTarget": true,
+        "circleDistance": 4,
         "hp": 40,
         "moveSpeed": 5,
         "stats": {
@@ -57,6 +61,8 @@
         "aggroRange": 20,
         "boss": false,
         "idle": "random",
+        "circleTarget": true,
+        "circleDistance": 6,
         "hp": 60,
         "moveSpeed": 5,
         "stats": {
@@ -77,11 +83,13 @@
     "cherrybomb": {
         "spawnChance": 0.5,
         "width": 48,
-        "height": 20,
+        "height": 40,
         "attackType": "cherrybomb",
         "aggroRange": 16,
         "boss": false,
         "idle": "random",
+        "circleTarget": false,
+        "circleDistance": 0,
         "hp": 50,
         "moveSpeed": 10,
         "stats": {
@@ -106,7 +114,9 @@
         "attackType": "snowball",
         "aggroRange": 16,
         "boss": false,
-        "idle": "random",
+        "idle": "none",
+        "circleTarget": true,
+        "circleDistance": 3,
         "hp": 100,
         "moveSpeed": 10,
         "stats": {

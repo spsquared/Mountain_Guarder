@@ -1,6 +1,7 @@
 // Copyright (C) 2021 Radioactive64
 
-const version = 'v0.3.0';
+const version = 'v0.3.1';
+var firstload = false;
 // canvas
 CTXRAW = document.getElementById('ctx')
 CTX = CTXRAW.getContext('2d');
@@ -94,6 +95,7 @@ document.getElementById('windows').addEventListener('dblclick', function(e) {e.p
 // version
 document.getElementById('version').innerText = version;
 
+// error logging
 window.onerror = function(err) {
     insertChat({
         text: 'An error occurred:\n' + err,
@@ -103,6 +105,13 @@ window.onerror = function(err) {
 window.onoffline = function(e){
     socket.emit('timeout');
 };
+// server restarts
+socket.on('checkReconnect', function() {
+    if (firstload) {
+        window.location.reload();
+    }
+    firstload = true;
+});
 
 // important sleep function
 function sleep(ms) {
