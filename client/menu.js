@@ -8,7 +8,7 @@ settings = {
 // sign in
 function signIn() {
     socket.emit('signIn', {
-        usename: document.getElementById('username').value,
+        username: document.getElementById('username').value,
         password: document.getElementById('password').value
     });
 };

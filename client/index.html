@@ -33,8 +33,8 @@
                         </div>
                         <div style="display: inline-block;">
                             <input type="text" id="username" class="ui-textInput" name="username" autocapitalize="off" autocomplete="off"><br>
-                            <input type="text" id="password" class="ui-textInput" name="password" autocapitalize="off" autocomplete="off"><br>
-                            <input type="text" id="newpassword" class="ui-textInput" name="newpassword" autocapitalize="off" autocomplete="off" style="display: none;">
+                            <input type="password" id="password" class="ui-textInput" name="password" autocapitalize="off" autocomplete="off"><br>
+                            <input type="password" id="newpassword" class="ui-textInput" name="newpassword" autocapitalize="off" autocomplete="off" style="display: none;">
                         </div>
                         <div style="margin-top: 8px;">
                             <button id="singIn" class="ui-lightbutton" onclick="signIn();">Sign In</button>
@@ -52,6 +52,23 @@
                             insert changes here
                         </div>
                     </div> -->
+                    <div class="stack ui-block ui-lighttext">
+                        <div class="ui-lighttext stackHeader">
+                            v0.3.2 - 10/10/21
+                        </div>
+                        <div class="ui-lighttext stackBody">
+                            Debug view can be enabled via the "backslash" (\) key. It allows players to view hitboxes, aggro range, aggro targets, and keypresses. Some random bugs were fixed as well. Some chat messages will be sent when joining and leaving.
+                            <ul>
+                                <li>Added debug info sent from server</li>
+                                <li>Adjusted monster aggro ranges</li>
+                                <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/60" target="_blank" class="ui-link">Fixed player animation getting stuck (Issue #60)</a></li>
+                                <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/52" target="_blank" class="ui-link">Patched rubberbanding while changing maps (Issue #52)</a></li>
+                                <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/66" target="_blank" class="ui-link">Fixed missing date (Issue #66)</a></li>
+                                <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/61" target="_blank" class="ui-link">Fixed missing credits (Issue #61)</a></li>
+                                <li>Added chat messages for joining and leaving game</li>
+                            </ul>
+                        </div>
+                    </div>
                     <div class="stack ui-block ui-lighttext">
                         <div class="ui-lighttext stackHeader">
                             v0.3.1 - 10/7/2021
@@ -327,7 +344,7 @@
                         </div>
                         <div class="ui-lighttext stackBody">
                             <div class="stackSub">
-                                9/date/2021
+                                9/23/2021
                             </div>
                             <div class="stackBody">
                                 Please <b>do not</b> go around spamming bug reports about "random lag spikes". These can be caused by internet hiccups, sudden drops in performance (possibly by background update), and even just slow computers. Only post a bug report if you have evidence of a real bug, like errors and missing things.
@@ -339,6 +356,8 @@
                             Credits
                         </div>
                         <div class="ui-lighttext stackBody">
+                            Inspiration: Meadow Guarder | <a href="https://meadowguarderold.herokuapp.com/" target="_blank" class="ui-link">Link</a>
+                            <br>
 							Map Tilesets: Kinney | <a href="https://www.kenney.nl/" target="_blank" class="ui-link">Link</a>
 							<br>
 							Item Images: Kyrise | <a href="https://kyrise.itch.io/kyrises-free-16x16-rpg-icon-pack?download" target="_blank" class="ui-link">Link</a>
@@ -357,6 +376,8 @@
                             sp: Bug finder
                             <br><br>
                             <a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder" target="_blank" class="ui-link">GitHub repository</a>
+                            <br><br>
+                            Ⓒ Radioactive64 2021
                             <br><br>
                             Would you like to contribute? In the case that you would like to make contributions to Mountain Guarder you can <a href="" target="_blank" class="ui-link">submit an application here</a>.
                         </div>

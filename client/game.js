@@ -6,6 +6,7 @@ mouseY = 0;
 var mapnameFade, mapnameWait;
 var lastchunkx, lastchunky, lastmap;
 var showDebug = false;
+var debugData = {};
 
 // loading
 var loaded = false;
@@ -130,12 +131,13 @@ function drawFrame() {
         if (MAPS[player.map].width*64 > window.innerWidth) OFFSETX = -Math.max((window.innerWidth/2) - (player.x - MAPS[player.map].offsetX), Math.min((MAPS[player.map].offsetX + (MAPS[player.map].width*64)) - player.x - (window.innerWidth/2), 0));
         if (MAPS[player.map].height*64 > window.innerHeight) OFFSETY = -Math.max((window.innerHeight/2) - (player.y - MAPS[player.map].offsetY), Math.min((MAPS[player.map].offsetY + (MAPS[player.map].height*64)) - player.y - (window.innerHeight/2), 0));
         drawMap();
-        CTX.drawImage(LAYERS.map0, 0, 0, window.innerWidth, window.innerHeight);
         Entity.draw();
+        CTX.drawImage(LAYERS.map0, 0, 0, window.innerWidth, window.innerHeight);
         CTX.drawImage(LAYERS.entity0, 0, 0, window.innerWidth, window.innerHeight);
         CTX.drawImage(LAYERS.map1, 0, 0, window.innerWidth, window.innerHeight);
         CTX.drawImage(LAYERS.entity1, 0, 0, window.innerWidth, window.innerHeight);
         MGHC();
+        drawDebug();
     }
 };
 function drawMap() {
@@ -224,6 +226,128 @@ function renderChunk(data, x, y, map) {
         lower: templower
     };
 };
+function drawDebug() {
+    if (debugData && showDebug) {
+        function getManhattanDistance(entity) {
+            return Math.abs(player.x-entity.x) + Math.abs(player.y-entity.y);
+        };
+        CTX.save();
+        CTX.translate((window.innerWidth/2)-player.x, (window.innerHeight/2)-player.y);
+        // players
+        for (var i in debugData.players) {
+            var localplayer = debugData.players[i];
+            if (localplayer.map == player.map && getManhattanDistance(localplayer) < settings.renderDistance*2*MAPS[player.map].chunkwidth*64) {
+                // keys
+                CTX.beginPath();
+                CTX.strokeStyle = '#000000';
+                CTX.lineWidth = 2;
+                if (localplayer.keys.left) {
+                    CTX.moveTo(localplayer.x+OFFSETX, localplayer.y+OFFSETY);
+                    CTX.lineTo(localplayer.x-localplayer.width/2+OFFSETX, localplayer.y+OFFSETY);
+                }
+                if (localplayer.keys.right) {
+                    CTX.moveTo(localplayer.x+OFFSETX, localplayer.y+OFFSETY);
+                    CTX.lineTo(localplayer.x+localplayer.width/2+OFFSETX, localplayer.y+OFFSETY);
+                }
+                if (localplayer.keys.up) {
+                    CTX.moveTo(localplayer.x+OFFSETX, localplayer.y+OFFSETY);
+                    CTX.lineTo(localplayer.x+OFFSETX, localplayer.y-localplayer.height/2+OFFSETY);
+                }
+                if (localplayer.keys.down) {
+                    CTX.moveTo(localplayer.x+OFFSETX, localplayer.y+OFFSETY);
+                    CTX.lineTo(localplayer.x+OFFSETX, localplayer.y+localplayer.height/2+OFFSETY);
+                }
+                CTX.stroke();
+                // hitbox
+                CTX.beginPath();
+                CTX.strokeStyle = '#FF9900';
+                CTX.lineWidth = 4;
+                CTX.moveTo(localplayer.x-localplayer.width/2+OFFSETX, localplayer.y-localplayer.height/2+OFFSETY);
+                CTX.lineTo(localplayer.x-localplayer.width/2+OFFSETX, localplayer.y+localplayer.height/2+OFFSETY);
+                CTX.lineTo(localplayer.x+localplayer.width/2+OFFSETX, localplayer.y+localplayer.height/2+OFFSETY);
+                CTX.lineTo(localplayer.x+localplayer.width/2+OFFSETX, localplayer.y-localplayer.height/2+OFFSETY);
+                CTX.lineTo(localplayer.x-localplayer.width/2+OFFSETX, localplayer.y-localplayer.height/2+OFFSETY);
+                CTX.stroke();
+            }
+        }
+        // monsters
+        for (var i in debugData.monsters) {
+            var localmonster = debugData.monsters[i];
+            if (localmonster.map == player.map && getManhattanDistance(localmonster) < settings.renderDistance*2*MAPS[player.map].chunkwidth*64) {
+                // keys
+                CTX.beginPath();
+                CTX.strokeStyle = '#000000';
+                CTX.lineWidth = 2;
+                if (localmonster.keys.left) {
+                    CTX.moveTo(localmonster.x+OFFSETX, localmonster.y+OFFSETY);
+                    CTX.lineTo(localmonster.x-localmonster.width/2+OFFSETX, localmonster.y+OFFSETY);
+                }
+                if (localmonster.keys.right) {
+                    CTX.moveTo(localmonster.x+OFFSETX, localmonster.y+OFFSETY);
+                    CTX.lineTo(localmonster.x+localmonster.width/2+OFFSETX, localmonster.y+OFFSETY);
+                }
+                if (localmonster.keys.up) {
+                    CTX.moveTo(localmonster.x+OFFSETX, localmonster.y+OFFSETY);
+                    CTX.lineTo(localmonster.x+OFFSETX, localmonster.y-localmonster.height/2+OFFSETY);
+                }
+                if (localmonster.keys.down) {
+                    CTX.moveTo(localmonster.x+OFFSETX, localmonster.y+OFFSETY);
+                    CTX.lineTo(localmonster.x+OFFSETX, localmonster.y+localmonster.height/2+OFFSETY);
+                }
+                CTX.stroke();
+                // hitbox
+                CTX.beginPath();
+                CTX.strokeStyle = '#FF9900';
+                CTX.lineWidth = 4;
+                CTX.moveTo(localmonster.x-localmonster.width/2+OFFSETX, localmonster.y-localmonster.height/2+OFFSETY);
+                CTX.lineTo(localmonster.x-localmonster.width/2+OFFSETX, localmonster.y+localmonster.height/2+OFFSETY);
+                CTX.lineTo(localmonster.x+localmonster.width/2+OFFSETX, localmonster.y+localmonster.height/2+OFFSETY);
+                CTX.lineTo(localmonster.x+localmonster.width/2+OFFSETX, localmonster.y-localmonster.height/2+OFFSETY);
+                CTX.lineTo(localmonster.x-localmonster.width/2+OFFSETX, localmonster.y-localmonster.height/2+OFFSETY);
+                CTX.stroke();
+                // aggro range
+                CTX.beginPath();
+                CTX.strokeStyle = '#FF0000';
+                CTX.fillStyle = '#FF00000F';
+                CTX.lineWidth = 4;
+                CTX.arc(localmonster.x+OFFSETX, localmonster.y+OFFSETY, localmonster.aggroRange*64, 0, 2*Math.PI, false);
+                CTX.fill();
+                CTX.stroke();
+                // aggro target
+                if (Player.list[localmonster.aggroTarget]) {
+                    CTX.beginPath();
+                    CTX.strokeStyle = '#FFAA00';
+                    CTX.lineWidth = 2;
+                    CTX.moveTo(localmonster.x+OFFSETX, localmonster.y+OFFSETY);
+                    CTX.lineTo(Player.list[localmonster.aggroTarget].x+OFFSETX, Player.list[localmonster.aggroTarget].y+OFFSETY);
+                    CTX.stroke();
+                }
+            }
+        }
+        // projectiles
+        for (var i in debugData.projectiles) {
+            var localprojectile = debugData.projectiles[i];
+            // hitbox
+            CTX.beginPath();
+            CTX.strokeStyle = '#FF9900';
+            CTX.lineWidth = 4;
+            CTX.moveTo(((localprojectile.width/2)*Math.cos(localprojectile.angle))-((localprojectile.height/2)*Math.sin(localprojectile.angle))+localprojectile.x+OFFSETX, ((localprojectile.width/2)*Math.sin(localprojectile.angle))+((localprojectile.height/2)*Math.cos(localprojectile.angle))+localprojectile.y+OFFSETY);
+            CTX.lineTo(((localprojectile.width/2)*Math.cos(localprojectile.angle))-((-localprojectile.height/2)*Math.sin(localprojectile.angle))+localprojectile.x+OFFSETX, ((localprojectile.width/2)*Math.sin(localprojectile.angle))+((-localprojectile.height/2)*Math.cos(localprojectile.angle))+localprojectile.y+OFFSETY);
+            CTX.lineTo(((-localprojectile.width/2)*Math.cos(localprojectile.angle))-((-localprojectile.height/2)*Math.sin(localprojectile.angle))+localprojectile.x+OFFSETX, ((-localprojectile.width/2)*Math.sin(localprojectile.angle))+((-localprojectile.height/2)*Math.cos(localprojectile.angle))+localprojectile.y+OFFSETY);
+            CTX.lineTo(((-localprojectile.width/2)*Math.cos(localprojectile.angle))-((localprojectile.height/2)*Math.sin(localprojectile.angle))+localprojectile.x+OFFSETX, ((-localprojectile.width/2)*Math.sin(localprojectile.angle))+((localprojectile.height/2)*Math.cos(localprojectile.angle))+localprojectile.y+OFFSETY);
+            CTX.lineTo(((localprojectile.width/2)*Math.cos(localprojectile.angle))-((localprojectile.height/2)*Math.sin(localprojectile.angle))+localprojectile.x+OFFSETX, ((localprojectile.width/2)*Math.sin(localprojectile.angle))+((localprojectile.height/2)*Math.cos(localprojectile.angle))+localprojectile.y+OFFSETY);
+            CTX.stroke();
+            // angle
+            CTX.beginPath();
+            CTX.strokeStyle = '#000000';
+            CTX.lineWidth = 2;
+            CTX.moveTo(localprojectile.x+OFFSETX, localprojectile.y+OFFSETY);
+            CTX.lineTo(((localprojectile.width/2)*Math.cos(localprojectile.angle))+localprojectile.x+OFFSETX, ((localprojectile.width/2)*Math.sin(localprojectile.angle))+localprojectile.y+OFFSETY);
+            CTX.stroke();
+        }
+        CTX.restore();
+    }
+};
 function resetFPS() {
     clearInterval(drawLoop);
     drawLoop = setInterval(function() {
@@ -232,7 +356,7 @@ function resetFPS() {
 };
 resetFPS();
 
-// tick update and movement
+// io
 socket.on('updateTick', function(data) {
     if (loaded) {
         Entity.update(data);
@@ -265,9 +389,6 @@ document.onkeydown = function(e) {
         socket.emit('keyPress', {key:'right', state:false});
         socket.emit('keyPress', {key:'heal', state:false});
     }
-    if (e.key == '\\') {
-        showDebug = !showDebug;
-    }
 };
 document.onkeyup = function(e) {
     if (!e.isTrusted) {
@@ -287,6 +408,10 @@ document.onkeyup = function(e) {
     }
     if (e.key == ' ') {
         socket.emit('keyPress', {key:'heal', state:false});
+    }
+    if (e.key == '\\') {
+        showDebug = !showDebug;
+        socket.emit('toggleDebug');
     }
 };
 document.onmousedown = function(e) {
@@ -325,7 +450,6 @@ document.onmousemove = function(e) {
     }
     socket.emit('mouseMove', {x: e.clientX-window.innerWidth/2-OFFSETX, y: e.clientY-window.innerHeight/2-OFFSETY});
 };
-// game
 socket.on('updateSelf', function(data) {
     document.getElementById('statsHPvalue').style.width = (data.hp/data.maxHP)*100 + '%';
     document.getElementById('statsHPtext').innerText = data.hp + '/' + data.maxHP;
@@ -378,7 +502,10 @@ socket.on('teleport1', function() {
         }
     }, 20);
 });
-socket.on('teleport2', function() {
+socket.on('teleport2', function(pos) {
+    player.map = pos.map;
+    player.x = pos.x;
+    player.y = pos.y;
     var opacity = 1;
     var fade = setInterval(function() {
         document.getElementById('fade').style.opacity = opacity;
@@ -409,6 +536,9 @@ function respawn() {
     document.getElementById('respawnButton').style.display = 'none';
     document.getElementById('deathScreen').style.display = 'none';
 };
+socket.on('debugTick', function(debug) {
+    debugData = debug;
+});
 
 // automove prevention
 document.addEventListener("visibilitychange",function(){

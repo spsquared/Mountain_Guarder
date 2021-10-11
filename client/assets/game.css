@@ -340,8 +340,13 @@
     font-size: 20px;
     opacity: 0.75;
     background-color: #555555;
+    border: 4px outset grey;
     transform: translate(-50%, -50%);
 }
 #respawnButton:hover {
     opacity: 1;
+}
+#respawnButton:active {
+    opacity: 1;
+    border: 4px inset grey;
 }

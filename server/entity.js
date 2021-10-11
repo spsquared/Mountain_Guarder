@@ -152,14 +152,35 @@ Entity.update = function() {
         particles: []
     };
     for (var i in pack1) {
-        pack.players[i] = pack1[i];
+        pack.players.push(pack1[i]);
     }
     pack.monsters = pack2;
-    pack.projectiles = pack3
+    pack.projectiles = pack3;
     for (var i in pack4) {
-        pack.players[i] = pack4[i];
+        pack.players.push(pack4[i]);
     }
     pack.particles = pack5;
+
+    return pack;
+};
+Entity.getDebugData = function() {
+    var pack1 = Player.getDebugData();
+    var pack2 = Monster.getDebugData();
+    var pack3 = Projectile.getDebugData();
+    var pack4 = Npc.getDebugData();
+    var pack = {
+        players: [],
+        monsters: [],
+        projectiles: []
+    };
+    for (var i in pack1) {
+        pack.players.push(pack1[i]);
+    }
+    pack.monsters = pack2;
+    pack.projectiles = pack3;
+    for (var i in pack4) {
+        pack.players.push(pack4[i]);
+    }
 
     return pack;
 };
@@ -373,7 +394,7 @@ Rig = function() {
                 case 'upright':
                     self.animationStage++;
                     if (self.animationStage < 19) self.animationStage = 19;
-                    if (self.animationStage > 23) self.animationStage = 23;
+                    if (self.animationStage > 23) self.animationStage = 19;
                     break;
                 case 'downright':
                     self.animationStage++;
@@ -531,6 +552,25 @@ Npc.update = function() {
             isNPC: true
         });
     }
+    
+    return pack;
+};
+Npc.getDebugData = function() {
+    var pack = [];
+    for (var i in Npc.list) {
+        var localnpc = Npc.list[i];
+        pack.push({
+            map: localnpc.map,
+            x: localnpc.x,
+            y: localnpc.y,
+            width: localnpc.width,
+            height: localnpc.height,
+            animationStage: localnpc.animationStage,
+            keys: localnpc.keys,
+            isNPC: true
+        });
+    }
+
     return pack;
 };
 Npc.list = [];
@@ -539,6 +579,7 @@ Npc.list = [];
 Player = function(socket) {
     var self = new Rig();
     self.id = Math.random();
+    self.socket = socket;
     self.map = ENV.spawnpoint.map;
     self.x = ENV.spawnpoint.x;
     self.y = ENV.spawnpoint.y;
@@ -556,6 +597,7 @@ Player = function(socket) {
     };
     self.canMove = false;
     self.alive = false;
+    self.debugEnabled = false;
 
     var maps = [];
     for (var i in Collision.list) {
@@ -564,6 +606,7 @@ Player = function(socket) {
     socket.on('signIn', function(cred) {
         self.name = cred.username;
         socket.emit('signInState', 'loggedIn');
+        insertChat(self.name + ' joined the game.', 'server');
         socket.emit('mapData', maps);
         self.canMove = true;
         self.alive = true;
@@ -591,8 +634,10 @@ Player = function(socket) {
         self.mouseY = data.y;
     });
     socket.on('respawn', function() {
-        if (self.alive) self.onDeath();
-        else self.respawn();
+        if (self.alive) {
+            self.onDeath();
+            insertChat(self.name + ' respawn cheated.', 'anticheat');
+        } else self.respawn();
     });
     socket.on('teleport1', function() {
         for (var i = 0; i < 20; i++) {
@@ -604,10 +649,13 @@ Player = function(socket) {
         for (var i = 0; i < 20; i++) {
             new Particle(self.map, self.x, self.y, 'teleport');
         }
-        socket.emit('teleport2');
+        socket.emit('teleport2', {map: self.map, x: self.x, y: self.y});
     });
     socket.on('teleport2', function() {
         self.canMove = true;
+    });
+    socket.on('toggleDebug', function() {
+        self.debugEnabled = !self.debugEnabled;
     });
 
     self.update = function() {
@@ -702,6 +750,25 @@ Player.update = function() {
             isNPC: false
         });
     }
+
+    return pack;
+};
+Player.getDebugData = function() {
+    var pack = [];
+    for (var i in Player.list) {
+        var localplayer = Player.list[i];
+        pack.push({
+            map: localplayer.map,
+            x: localplayer.x,
+            y: localplayer.y,
+            width: localplayer.width,
+            height: localplayer.height,
+            animationStage: localplayer.animationStage,
+            keys: localplayer.keys,
+            isNPC: false
+        });
+    }
+
     return pack;
 };
 Player.list = [];
@@ -1018,24 +1085,56 @@ Monster.update = function() {
     var pack = [];
     for (var i in Monster.list) {
         var localmonster = Monster.list[i];
-        var canupdate = false;
-        for (var i in Player.list) {
-            if (Player.list[i].map == localmonster.map) canupdate = true;
-        }
-        if (canupdate) {
-            localmonster.update();
+        localmonster.update();
+        pack.push({
+            id: localmonster.id,
+            map: localmonster.map,
+            x: localmonster.x,
+            y: localmonster.y,
+            type: localmonster.type,
+            animationStage: localmonster.animationStage,
+            hp: localmonster.hp,
+            maxHP: localmonster.maxHP
+        });
+    }
+
+    return pack;
+};
+Monster.getDebugData = function() {
+    var pack = [];
+    for (var i in Monster.list) {
+        var localmonster = Monster.list[i];
+        if (localmonster.ai.entityTarget) {
             pack.push({
-                id: localmonster.id,
                 map: localmonster.map,
                 x: localmonster.x,
                 y: localmonster.y,
-                type: localmonster.type,
+                width: localmonster.width,
+                height: localmonster.height,
                 animationStage: localmonster.animationStage,
-                hp: localmonster.hp,
-                maxHP: localmonster.maxHP
+                maxHP: localmonster.maxHP,
+                path: localmonster.ai.path,
+                keys: localmonster.keys,
+                aggroTarget: localmonster.ai.entityTarget.id,
+                aggroRange: localmonster.ai.maxRange
+            });
+        } else {
+            pack.push({
+                map: localmonster.map,
+                x: localmonster.x,
+                y: localmonster.y,
+                width: localmonster.width,
+                height: localmonster.height,
+                animationStage: localmonster.animationStage,
+                maxHP: localmonster.maxHP,
+                path: localmonster.ai.path,
+                keys: localmonster.keys,
+                aggroTarget: null,
+                aggroRange: localmonster.ai.maxRange
             });
         }
     }
+
     return pack;
 };
 Monster.types = require('./monster.json');
@@ -1179,6 +1278,25 @@ Projectile.update = function() {
             type: localprojectile.type
         });
     }
+
+    return pack;
+};
+Projectile.getDebugData = function() {
+    var pack = [];
+    for (var i in Projectile.list) {
+        localprojectile = Projectile.list[i];
+        pack.push({
+            map: localprojectile.map,
+            x: localprojectile.x,
+            y: localprojectile.y,
+            width: localprojectile.width,
+            height: localprojectile.height,
+            angle: localprojectile.angle,
+            parentIsPlayer: localprojectile.parentIsPlayer,
+            parent: localprojectile.parent
+        });
+    }
+    
     return pack;
 };
 Projectile.types = require('./projectile.json');

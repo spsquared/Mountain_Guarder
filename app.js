@@ -1,7 +1,7 @@
 // Copyright (C) 2021 Radioactive64
 // Go to README.md for more information
 
-const version = 'v0.3.1';
+const version = 'v0.3.2';
 console.info('\x1b[33m%s\x1b[0m', 'Mountain Guarder ' + version + ' copyright (C) Radioactive64 2021');
 const express = require('express');
 const app = express();
@@ -36,10 +36,12 @@ io.on('connection', function(socket) {
     socket.emit('self', player.id);
     // connection
     socket.on('disconnect', function() {
+        if (player.name) insertChat(player.name + ' left the game.', 'server');
         delete Player.list[player.id];
         delete SOCKET_LIST[socket.id];
     });
     socket.on('timeout', function() {
+        if (player.name) insertChat(player.name + ' left the game.', 'server');
         delete Player.list[player.id];
         delete SOCKET_LIST[socket.id];
         socket.disconnect();
@@ -88,6 +90,12 @@ setInterval(function() {
     // update tick
     var pack = Entity.update();
     io.emit('updateTick', pack);
+    var debugPack = Entity.getDebugData();
+    for (var i in Player.list) {
+        if (Player.list[i].debugEnabled) {
+            Player.list[i].socket.emit('debugTick', debugPack);
+        }
+    }
     tpscounter++;
 }, 1000/20);
 setInterval(async function() {

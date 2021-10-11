@@ -6,6 +6,8 @@ const fs = require('fs');
 insertChat = function(text, textcolor) {
     var style = '';
     if (textcolor == 'server') {
+        style='color: #FFDD00;';
+    } else if (textcolor == 'anticheat') {
         style='color: #FF0000; font-weight: bold';
     } else {
         style='color: ' + textcolor + ';';
