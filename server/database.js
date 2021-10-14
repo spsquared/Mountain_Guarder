@@ -3,9 +3,11 @@
 const bcrypt = require('bcrypt');
 const salt = 10;
 const {Client} = require('pg');
-require('./url.js');
+var url;
 if (process.env.PORT) {
     url = process.env.PORT;
+} else {
+    require('./url.js');
 }
 const connectionString = url;
 const database = new Client({
