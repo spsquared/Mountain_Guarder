@@ -6,17 +6,83 @@ settings = {
 };
 
 // sign in
+var deleteaccountconfirmed = false;
 function signIn() {
     socket.emit('signIn', {
+        state: 'signIn',
         username: document.getElementById('username').value,
         password: document.getElementById('password').value
     });
 };
+function createAccount() {
+    socket.emit('signIn', {
+        state: 'signUp',
+        username: document.getElementById('username').value,
+        password: document.getElementById('password').value
+    });
+};
+function deleteAccount() {
+    if (deleteaccountconfirmed) {
+        var input = window.prompt('Please enter your password to continue:');
+        socket.emit('signIn', {
+            state: 'deleteAccount',
+            username: document.getElementById('username').value,
+            password: input
+        });
+    } else {
+        document.getElementById('deleteAccount').innerText = 'Are you Sure?';
+        deleteaccountconfirmed = true;
+    }
+};
+function changePassword() {
+    window.alert('This feature has been disabled.');
+};
 socket.on('signInState', function(state) {
     switch (state) {
-        case "loggedIn":
+        case 'signedIn':
             document.getElementById('signinContainer').style.display = 'none';
             document.getElementById('gameContainer').style.display = 'block';
+            break;
+        case 'signedUp':
+            window.alert('Successfully signed up!');
+            socket.emit('signIn', {
+                state: 'signIn',
+                username: document.getElementById('username').value,
+                password: document.getElementById('password').value
+            });
+            break;
+        case 'deletedAccount':
+            window.alert('Account successfully deleted.');
+            window.location.reload();
+            break;
+        case 'incorrectPassword':
+            document.getElementById('deleteAccount').innerText = 'Delete Account';
+            deleteaccountconfirmed = false;
+            window.alert('Incorrect password.');
+            break;
+        case 'accountExists':
+            window.alert('Account already exists!');
+            break;
+        case 'noAccount':
+            document.getElementById('deleteAccount').innerText = 'Delete Account';
+            deleteaccountconfirmed = false;
+            window.alert('Account not found!');
+            break;
+        case 'invalidCharacters':
+            window.alert('Invalid characters!');
+            break;
+        case 'shortUsername':
+            window.alert('Your username has to be longer than 3 characters.');
+            break;
+        case 'noUsername':
+            window.alert('Please enter a username.');
+            break;
+        case 'noPassword':
+            window.alert('Please enter a password.');
+            break;
+        case 'databaseError':
+            console.error('DATABASE ERROR. SERVER STOP. YOU SHOULD NOT SEE THIS.');
+            window.alert('DATABASE ERROR. SERVER STOP. YOU SHOULD NOT SEE THIS.');
             break;
         default: 
             console.error('Invalid signInState: ' + state);

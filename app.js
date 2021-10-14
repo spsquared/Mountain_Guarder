@@ -1,7 +1,7 @@
 // Copyright (C) 2021 Radioactive64
 // Go to README.md for more information
 
-const version = 'v0.3.2';
+const version = 'v0.4.0';
 console.info('\x1b[33m%s\x1b[0m', 'Mountain Guarder ' + version + ' copyright (C) Radioactive64 2021');
 const express = require('express');
 const app = express();
@@ -17,6 +17,7 @@ require('./server/log.js');
 require('./server/collision.js');
 require('./server/entity.js');
 require('./server/maps.js');
+require('./server/database.js');
 if (process.env.PORT) {
     server.listen(process.env.PORT);
 } else {
@@ -79,7 +80,8 @@ prompt.on('close', function() {
     if (!process.env.PORT) {
         appendLog('----------------------------------------');
         io.emit('disconnected');
-        process.exit();
+        ACCOUNTS.close();
+        process.exit(0);
     }
 });
 

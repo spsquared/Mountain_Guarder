@@ -603,13 +603,81 @@ Player = function(socket) {
     for (var i in Collision.list) {
         maps.push(i);
     }
-    socket.on('signIn', function(cred) {
-        self.name = cred.username;
-        socket.emit('signInState', 'loggedIn');
-        insertChat(self.name + ' joined the game.', 'server');
-        socket.emit('mapData', maps);
-        self.canMove = true;
-        self.alive = true;
+    socket.on('signIn', async function(cred) {
+        var valid = ACCOUNTS.validateCredentials(cred.username, cred.password);
+        switch (valid) {
+            case 0:
+                switch (cred.state) {
+                    case 'signIn':
+                        var status = await ACCOUNTS.login(cred.username, cred.password);
+                        switch (status) {
+                            case 0:
+                                self.name = cred.username;
+                                socket.emit('signInState', 'signedIn');
+                                insertChat(self.name + ' joined the game.', 'server');
+                                socket.emit('mapData', maps);
+                                self.canMove = true;
+                                self.alive = true;
+                                break;
+                            case 1:
+                                socket.emit('signInState', 'signInFailed');
+                                break;
+                            case 2:
+                                socket.emit('signInState', 'noAccount');
+                                break;
+                        }
+                        break;
+                    case 'signUp':
+                        var status = await ACCOUNTS.signup(cred.username, cred.password);
+                        switch (status) {
+                            case 0:
+                                self.name = cred.username;
+                                socket.emit('signInState', 'signedUp');
+                                insertChat(self.name + ' joined the game.', 'server');
+                                socket.emit('mapData', maps);
+                                self.canMove = true;
+                                self.alive = true;
+                                break;
+                            case 1:
+                                socket.emit('signInState', 'signUpFailed');
+                                break;
+                            case 2:
+                                socket.emit('signInState', 'databaseError');
+                                break;
+                        }
+                        break;
+                    case 'deleteAccount':
+                        var status = await ACCOUNTS.deleteAccount(cred.username, cred.password);
+                        switch (status) {
+                            case 0:
+                                self.name = cred.username;
+                                socket.emit('signInState', 'deletedAccount');
+                                break;
+                            case 1:
+                                socket.emit('signInState', 'deleteAccountFailed');
+                                break;
+                            case 2:
+                                socket.emit('signInState', 'noAccount2');
+                                break;
+                        }
+                        break;
+                    default:
+                        error('Invalid sign in state ' + cred.state);
+                }
+            break;
+            case 1:
+                socket.emit('signInState', 'noUsername');
+                break;
+            case 2:
+                socket.emit('signInState', 'shortUsername');
+                break;
+            case 3:
+                socket.emit('signInState', 'noPassword');
+                break;
+            case 4:
+                socket.emit('signInState', 'invalidCharacters');
+                break;
+        }
     });
     socket.on('keyPress', function(data) {
         if (self.alive && self.canMove) {
