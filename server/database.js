@@ -4,8 +4,8 @@ const bcrypt = require('bcrypt');
 const salt = 10;
 const {Client} = require('pg');
 url = null;
-if (process.env.URL) {
-    url = process.env.URL;
+if (process.env.DATABASE_URL) {
+    url = process.env.DATABASE_URL;
 } else {
     require('./url.js');
 }
