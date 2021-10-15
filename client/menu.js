@@ -7,6 +7,7 @@ settings = {
 
 // sign in
 var deleteaccountconfirmed = false;
+var changePasswordActive = false;
 function signIn() {
     socket.emit('signIn', {
         state: 'signIn',
@@ -35,13 +36,25 @@ function deleteAccount() {
     }
 };
 function changePassword() {
-    window.alert('This feature has been disabled.');
+    if (changePasswordActive) {
+        socket.emit('signIn', {
+            state: 'changePassword',
+            username: document.getElementById('username').value,
+            oldPassword: document.getElementById('password').value,
+            password: document.getElementById('newpassword').value
+        });
+    } else {
+        document.getElementById('newpassword').style.display = 'block';
+        document.getElementById('newpasswordLabel').style.display = 'block';
+        changePasswordActive = true;
+    }
 };
 socket.on('signInState', function(state) {
     switch (state) {
         case 'signedIn':
             document.getElementById('signinContainer').style.display = 'none';
             document.getElementById('gameContainer').style.display = 'block';
+            insertChat({style:'color: #00FF00; font-weight: bold;', text: 'Mountain Guarder ' + version});
             break;
         case 'signedUp':
             window.alert('Successfully signed up!');
@@ -52,12 +65,26 @@ socket.on('signInState', function(state) {
             });
             break;
         case 'deletedAccount':
+            document.getElementById('deleteAccount').innerText = 'Delete Account';
+            deleteaccountconfirmed = false;
             window.alert('Account successfully deleted.');
+            window.location.reload();
+            break;
+        case 'changedPassword':
+            document.getElementById('newpassword').style.display = 'none';
+            document.getElementById('newpasswordLabel').style.display = 'none';
+            document.getElementById('newpassword').value = '';
+            changePasswordActive = false;
+            window.alert('Password successfully changed');
             window.location.reload();
             break;
         case 'incorrectPassword':
             document.getElementById('deleteAccount').innerText = 'Delete Account';
             deleteaccountconfirmed = false;
+            document.getElementById('newpassword').style.display = 'none';
+            document.getElementById('newpasswordLabel').style.display = 'none';
+            document.getElementById('newpassword').value = '';
+            changePasswordActive = false;
             window.alert('Incorrect password.');
             break;
         case 'accountExists':
@@ -66,21 +93,55 @@ socket.on('signInState', function(state) {
         case 'noAccount':
             document.getElementById('deleteAccount').innerText = 'Delete Account';
             deleteaccountconfirmed = false;
+            document.getElementById('newpassword').style.display = 'none';
+            document.getElementById('newpasswordLabel').style.display = 'none';
+            document.getElementById('newpassword').value = '';
+            changePasswordActive = false;
             window.alert('Account not found!');
             break;
         case 'invalidCharacters':
+            document.getElementById('deleteAccount').innerText = 'Delete Account';
+            deleteaccountconfirmed = false;
+            document.getElementById('newpassword').style.display = 'none';
+            document.getElementById('newpasswordLabel').style.display = 'none';
+            document.getElementById('newpassword').value = '';
+            changePasswordActive = false;
             window.alert('Invalid characters!');
             break;
         case 'shortUsername':
+            document.getElementById('deleteAccount').innerText = 'Delete Account';
+            deleteaccountconfirmed = false;
+            document.getElementById('newpassword').style.display = 'none';
+            document.getElementById('newpasswordLabel').style.display = 'none';
+            document.getElementById('newpassword').value = '';
+            changePasswordActive = false;
             window.alert('Your username has to be longer than 3 characters.');
             break;
         case 'noUsername':
+            document.getElementById('deleteAccount').innerText = 'Delete Account';
+            deleteaccountconfirmed = false;
+            document.getElementById('newpassword').style.display = 'none';
+            document.getElementById('newpasswordLabel').style.display = 'none';
+            document.getElementById('newpassword').value = '';
+            changePasswordActive = false;
             window.alert('Please enter a username.');
             break;
         case 'noPassword':
+            document.getElementById('deleteAccount').innerText = 'Delete Account';
+            deleteaccountconfirmed = false;
+            document.getElementById('newpassword').style.display = 'none';
+            document.getElementById('newpasswordLabel').style.display = 'none';
+            document.getElementById('newpassword').value = '';
+            changePasswordActive = false;
             window.alert('Please enter a password.');
             break;
         case 'databaseError':
+            document.getElementById('deleteAccount').innerText = 'Delete Account';
+            deleteaccountconfirmed = false;
+            document.getElementById('newpassword').style.display = 'none';
+            document.getElementById('newpasswordLabel').style.display = 'none';
+            document.getElementById('newpassword').value = '';
+            changePasswordActive = false;
             console.error('DATABASE ERROR. SERVER STOP. YOU SHOULD NOT SEE THIS.');
             window.alert('DATABASE ERROR. SERVER STOP. YOU SHOULD NOT SEE THIS.');
             break;

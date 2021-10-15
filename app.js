@@ -1,7 +1,7 @@
 // Copyright (C) 2021 Radioactive64
 // Go to README.md for more information
 
-const version = 'v0.4.0';
+const version = 'v0.4.1';
 console.info('\x1b[33m%s\x1b[0m', 'Mountain Guarder ' + version + ' copyright (C) Radioactive64 2021');
 const express = require('express');
 const app = express();
@@ -63,24 +63,28 @@ ENV = {
 };
 
 // console inputs
+var active = true;
 prompt.on('line', async function(input) {
-    try {
-        appendLog(input, 'log');
-        var msg = eval(input)
-        if (msg == undefined) {
-            msg = 'Successfully executed command';
+    if (active && input != '') {
+        try {
+            appendLog(input, 'log');
+            var msg = eval(input)
+            if (msg == undefined) {
+                msg = 'Successfully executed command';
+            }
+            logColor(msg, '\x1b[33m', 'log');
+        } catch (err) {
+            error('ERROR: "' + input + '" is not a valid input.');
+            error(err);
         }
-        logColor(msg, '\x1b[33m', 'log');
-    } catch (err) {
-        error('ERROR: "' + input + '" is not a valid input.');
-        error(err);
     }
 });
 prompt.on('close', function() {
-    if (!process.env.PORT) {
+    if (active && process.env.PORT == null) {
+        clearInterval(tickrate);
         appendLog('----------------------------------------');
         io.emit('disconnected');
-        ACCOUNTS.close();
+        ACCOUNTS.disconnect();
         process.exit(0);
     }
 });
@@ -88,7 +92,7 @@ prompt.on('close', function() {
 // Tickrate
 TPS = 0;
 var tpscounter = 0;
-setInterval(function() {
+const tickrate = setInterval(function() {
     // update tick
     var pack = Entity.update();
     io.emit('updateTick', pack);
@@ -104,3 +108,28 @@ setInterval(async function() {
     TPS = tpscounter;
     tpscounter = 0;
 }, 1000);
+
+// critical errors
+forceQuit = function(err, code) {
+    console.error('\n');
+    error('SERVER ENCOUNTERED A FATAL ERROR. STOP CODE:');
+    console.error(err);
+    appendLog(code, 'error');
+    error('STOP.\n');
+    io.emit('disconnected');
+    ACCOUNTS.disconnect();
+    active = false;
+    console.error('\x1b[33m%s\x1b[0m', 'If this issue persists, please submit a bug report on GitHub with a screenshot of this screen and/or logfiles before this.');
+    console.error('\x1b[33m%s\x1b[0m', 'Press ENTER or CTRL+C to exit.');
+    const stopprompt = readline.createInterface({input: process.stdin, output: process.stdout});
+    stopprompt.on('line', function(input) {
+        clearInterval(tickrate);
+        appendLog('----------------------------------------');
+        process.exit(code);
+    });
+    stopprompt.on('close', function() {
+        clearInterval(tickrate);
+        appendLog('----------------------------------------');
+        process.exit(code);
+    });
+};

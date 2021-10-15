@@ -620,7 +620,7 @@ Player = function(socket) {
                                 self.alive = true;
                                 break;
                             case 1:
-                                socket.emit('signInState', 'signInFailed');
+                                socket.emit('signInState', 'incorrectPassword');
                                 break;
                             case 2:
                                 socket.emit('signInState', 'noAccount');
@@ -639,7 +639,7 @@ Player = function(socket) {
                                 self.alive = true;
                                 break;
                             case 1:
-                                socket.emit('signInState', 'signUpFailed');
+                                socket.emit('signInState', 'accountExists');
                                 break;
                             case 2:
                                 socket.emit('signInState', 'databaseError');
@@ -654,10 +654,31 @@ Player = function(socket) {
                                 socket.emit('signInState', 'deletedAccount');
                                 break;
                             case 1:
-                                socket.emit('signInState', 'deleteAccountFailed');
+                                socket.emit('signInState', 'incorrectPassword');
                                 break;
                             case 2:
-                                socket.emit('signInState', 'noAccount2');
+                                socket.emit('signInState', 'noAccount');
+                                break;
+                            case 3:
+                                socket.emit('signInState', 'databaseError');
+                                break;
+                        }
+                        break;
+                    case 'changePassword':
+                        var status = await ACCOUNTS.changePassword(cred.username, cred.oldPassword, cred.password);
+                        switch (status) {
+                            case 0:
+                                self.name = cred.username;
+                                socket.emit('signInState', 'changedPassword');
+                                break;
+                            case 1:
+                                socket.emit('signInState', 'incorrectPassword');
+                                break;
+                            case 2:
+                                socket.emit('signInState', 'noAccount');
+                                break;
+                            case 3:
+                                socket.emit('signInState', 'databaseError');
                                 break;
                         }
                         break;
