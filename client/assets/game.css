@@ -251,7 +251,7 @@
 }
 .window .window-body {
     position: absolute;
-    top: 32px;
+    top: 36px;
     left: 8px;
 }
 .window .window-select {
@@ -278,9 +278,9 @@
     top: 0px;
     left: 0px;
     width: 436px;
-    height: 528px;
+    height: 524px;
 }
-#inventoryItems {
+#inventoryItemsBody {
     margin-top: 8px;
     width: 100%;
     height: 100%;
@@ -290,10 +290,22 @@
     position: absolute;
     top: 0px;
     left: 446px;
-    width: 436px;
-    height: 528px;
+    width: 320px;
+    height: 524px;
 }
-#inventoryEquips {
+#inventoryEquipsBody {
+    margin-top: 8px;
+    width: 100%;
+    height: 100%;
+}
+#inventoryCraftingBlock {
+    position: absolute;
+    top: 0px;
+    left: 446px;
+    width: 320px;
+    height: 524px;
+}
+#inventoryCraftingBody {
     margin-top: 8px;
     width: 100%;
     height: 100%;

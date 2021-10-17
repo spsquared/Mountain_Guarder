@@ -26,16 +26,32 @@
                 <div id="menuTitle">Mountain Guarder</div>
                 <div id="stackLeft">
                     <div class="stack ui-block ui-lighttext">
-                        <div style="display: inline-block; text-align: right; line-height: 26px;">
-                            <label for="username">Username:</label><br>
-                            <label for="password">Password:</label><br>
-                            <label id="newpasswordLabel" for="newpassword" style="display: none;">New Password:</label>
-                        </div>
-                        <div style="display: inline-block;">
-                            <input type="text" id="username" class="ui-textInput" name="username" autocapitalize="off" autocomplete="off"><br>
-                            <input type="password" id="password" class="ui-textInput" name="password" autocapitalize="off" autocomplete="off"><br>
-                            <input type="password" id="newpassword" class="ui-textInput" name="newpassword" autocapitalize="off" autocomplete="off" style="display: none;">
-                        </div>
+                        <table><tbody>
+                            <tr>
+                                <td style="text-align: right;">
+                                    <label for="username">Username:</label><br>
+                                </td>
+                                <td>
+                                    <input type="text" id="username" class="ui-textInput" name="username" autocapitalize="off" autocomplete="off"><br>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: right;">
+                                    <label for="password">Password:</label><br>
+                                </td>
+                                <td>
+                                    <input type="password" id="password" class="ui-textInput" name="password" autocapitalize="off" autocomplete="off"><br>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: right;">
+                                    <label id="newpasswordLabel" for="newpassword" style="display: none;">New Password:</label>
+                                </td>
+                                <td>
+                                    <input type="password" id="newpassword" class="ui-textInput" name="newpassword" autocapitalize="off" autocomplete="off" style="display: none;">
+                                </td>
+                            </tr>
+                        </tbody></table>
                         <div style="margin-top: 8px;">
                             <button id="singIn" class="ui-lightbutton" onclick="signIn();">Sign In</button>
                             <button id="createAccount" class="ui-lightbutton" onclick="createAccount();">Create Account</button>
@@ -52,6 +68,22 @@
                             insert changes here
                         </div>
                     </div> -->
+                    <div class="stack ui-block ui-lighttext">
+                        <div class="ui-lighttext stackHeader">
+                            v0.4.2 - 10/17/21
+                        </div>
+                        <div class="ui-lighttext stackBody">
+                            The settings window has been done and has settings for performance and debug, done with fancy toggle switches! Players have nametags now, projectiles can go over water, and some account stuff was changed. Next on the list is items!
+                            <ul>
+                                <li>Added settings - render distance, render quality, debug, particles - with fancy toggles!</li>
+                                <li>Players now have nametags ingame</li>
+                                <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/55" target="_blank" class="ui-link">Projectiles can go over water (Issue #55)</a></li>
+                                <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/72" target="_blank" class="ui-link">Signing in twice is now impossible (Issue #72)</a></li>
+                                <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/74" target="_blank" class="ui-link">Patched players on menu screen visible ingame (Issue #74)</a></li>
+                                <li>Added monster path debug and tweaked monster circle code</li>
+                            </ul>
+                        </div>
+                    </div>
                     <div class="stack ui-block ui-lighttext">
                         <div class="ui-lighttext stackHeader">
                             v0.4.1 - 10/14/21
@@ -485,12 +517,24 @@
                     <div class="window-body">
                         <div id="inventoryItemsBlock">
                             <div>Items</div>
-                            <div id="inventoryItems" class="ui-block"></div>
+                            <div id="inventoryItemsBody" class="ui-block"></div>
                         </div>
+                    </div>
+                    <div id="inventoryEquips" class="window-body">
                         <div id="inventoryEquipsBlock">
                             <div>Equips</div>
-                            <div id="inventoryEquips" class="ui-block"></div>
+                            <div id="inventoryEquipsBody" class="ui-block"></div>
                         </div>
+                    </div>
+                    <div id="inventoryCrafting" class="window-body">
+                        <div id="inventoryCraftingBlock">
+                            <div>Crafting</div>
+                            <div id="inventoryCraftingBody" class="ui-block"></div>
+                        </div>
+                    </div>
+                    <div id="inventorySelect" class="window-select">
+                        <button id="inventoryEquipsSelect" class="window-select-button ui-lightbutton">Equips</button>
+                        <button id="inventoryCraftingSelect" class="window-select-button ui-lightbutton">Crafting</button>
                     </div>
                 </div>
                 <div id="settings" class="window ui-block ui-lighttext noSelect">
@@ -503,33 +547,119 @@
                             </svg>
                         </span>
                     </div>
-                    <div id="gameSettings" class="window-body">
-                        aaaaa settings
+                    <div id="settingsGame" class="window-body">
+                        <table><tbody>
+                            <tr>
+                                <td>
+                                    Render Distance:
+                                </td>
+                                <td>
+                                    <input type="range" id="renderDistanceSlider" class="ui-slider" min="1" max="10" value="1" oninput="slider('renderDistance')">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Render Quality:
+                                </td>
+                                <td>
+                                    <input type="range" id="renderQualitySlider" class="ui-slider" min="50" max="150" value="100" step="10" oninput="slider('renderQuality')">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Particles:
+                                </td>
+                                <td>
+                                    <label class="ui-toggle">
+                                        <input type="checkbox" id="particlesToggle" class="ui-toggleInput" onclick="toggle('particles');" checked>
+                                        <span class="ui-toggleSlider"></span>
+                                    </label>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Chat Background:
+                                </td>
+                                <td>
+                                    <label class="ui-toggle">
+                                        <input type="checkbox" id="chatToggle" class="ui-toggleInput" onclick="toggle('chat');">
+                                        <span class="ui-toggleSlider"></span>
+                                    </label>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Chat Size:
+                                </td>
+                                <td>
+                                    <input type="range" id="chatSizeSlider" class="ui-slider" min="0" max="3" value="2">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Debug:
+                                </td>
+                                <td>
+                                    <label class="ui-toggle">
+                                        <input type="checkbox" id="debugToggle" class="ui-toggleInput" onclick="toggle('debug');">
+                                        <span class="ui-toggleSlider"></span>
+                                    </label>
+                                </td>
+                            </tr>
+                        </tbody></table>
                     </div>
-                    <div id="playerSettings" class="window-body">
+                    <div id="settingsPlayer" class="window-body">
                         <div style="display: inline-block;">
                             <canvas id="playerPreview" width="150" height="200"></canvas>
                         </div>
                         <div style="display: inline-block;">
-                            <div style="display: inline-block; text-align: right; line-height: 28px;">
-                                <label for="playerHairType">Hair:</label><br>
-                                <label for="playerHairColor">Hair Color:</label><br>
-                                <label for="playerSkinColor">Skin Color:</label><br>
-                                <label for="playerShirtColor">Shirt Color:</label><br>
-                                <label for="playerPantsColor">Pants Color:</label>
-                            </div>
-                            <div style="display: inline-block;">
-                                <input type="range" id="playerHairType" class="ui-slider" min="0" max="6" step="1"><br>
-                                <input type="color" id="playerHairColor" class="ui-colorSelect"><br>
-                                <input type="color" id="playerSkinColor" class="ui-colorSelect"><br>
-                                <input type="color" id="playerShirtColor" class="ui-colorSelect"><br>
-                                <input type="color" id="playerPantsColor" class="ui-colorSelect">
-                            </div>
+                            <table><tbody>
+                                <tr>
+                                    <td style="text-align: right;">
+                                        <label for="playerHairType">Hair:</label><br>
+                                    </td>
+                                    <td>
+                                        <input type="range" id="playerHairType" class="ui-slider" min="0" max="6" step="1"><br>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align: right;">
+                                        <label for="playerHairColor">Hair Color:</label><br>
+                                    </td>
+                                    <td>
+                                        <input type="color" id="playerHairColor" class="ui-colorSelect"><br>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align: right;">
+                                        <label for="playerSkinColor">Skin Color:</label><br>
+                                    </td>
+                                    <td>
+                                        <input type="color" id="playerSkinColor" class="ui-colorSelect"><br>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align: right;">
+                                        <label for="playerShirtColor">Shirt Color:</label><br>
+                                    </td>
+                                    <td>
+                                        <input type="color" id="playerShirtColor" class="ui-colorSelect"><br>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align: right;">
+                                        <label for="playerPantsColor">Pants Color:</label>
+                                    </td>
+                                    <td>
+                                        <input type="color" id="playerPantsColor" class="ui-colorSelect">
+                                    </td>
+                                </tr>
+                            </tbody></table>
                         </div>
                     </div>
-                    <div class="window-select">
-                        <button id="settingsSelectGame" class="window-select-button ui-lightbutton">Settings</button>
-                        <button id="settingsSelectPlayer" class="window-select-button ui-lightbutton">Customize</button>
+                    <div id="settingsSelect" class="window-select">
+                        <button id="settingsGameSelect" class="window-select-button ui-lightbutton">Settings</button>
+                        <button id="settingsPlayerSelect" class="window-select-button ui-lightbutton">Customize</button>
                     </div>
                 </div>
             </div>
@@ -538,6 +668,9 @@
                 <p id="respawnTimer" class="ui-lighttext">0</p>
                 <button id="respawnButton" class="ui-lightbutton" onclick="respawn();">Respawn</button>
             </div>
+        </div>
+        <div id="secret" style="display: none;">
+            <a href="https://grandcanyonshuttles.com/uploads/5/5/6/7/5567194/custom_themes/136734914403232081/drift_hunter.html" target="_blank" class="ui-link">DRIFT HUNTERS!!!</a>
         </div>
     </body>
 </html>

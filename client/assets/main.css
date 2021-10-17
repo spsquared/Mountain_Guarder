@@ -63,10 +63,64 @@ html, body {
     font-family: 'Pixel';
     font-size: 14px;
     color: black;
-
 }
 .ui-slider {
+    appearance: none;
     width: 100%;
+    height: 20px;
+    background-color: #999999;
+    border-radius: 10px;
+    margin: 0px 0px;
+}
+.ui-slider::-webkit-slider-thumb {
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background-color: #FFFFFF;
+    border-radius: 10px;
+    cursor: grab;
+}
+.ui-slider::-webkit-slider-thumb:active {
+    cursor: grabbing;
+}
+.ui-toggle {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 20px;
+}
+.ui-toggle .ui-toggleInput {
+    opacity: 0px;
+    width: 0px;
+    height: 0px;
+}
+.ui-toggle .ui-toggleSlider {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 40px;
+    height: 20px;
+    background-color: #EE0000;
+    border-radius: 10px;
+    transition: 0.1s linear;
+    cursor: pointer;
+}
+.ui-toggle .ui-toggleSlider::before {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 20px;
+    height: 20px;
+    content: "";
+    background-color: white;
+    border-radius: 10px;
+    transition: 0.1s linear;
+}
+.ui-toggle .ui-toggleInput:checked + .ui-toggleSlider {
+    background-color: #999999;
+}
+.ui-toggle .ui-toggleInput:checked + .ui-toggleSlider::before {
+    transform: translateX(20px);
 }
 .ui-colorSelect {
     padding: 0px 0px;

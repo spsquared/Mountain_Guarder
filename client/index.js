@@ -1,6 +1,6 @@
 // Copyright (C) 2021 Radioactive64
 
-const version = 'v0.4.1';
+const version = 'v0.4.2';
 var firstload = false;
 // canvas
 CTXRAW = document.getElementById('ctx')
@@ -22,6 +22,13 @@ LAYERS.mupper = LAYERS.map1.getContext('2d');
 LAYERS.eupper = LAYERS.entity1.getContext('2d');
 OFFSETX = 0;
 OFFSETY = 0;
+settings = {
+    fps: 60,
+    renderDistance: 1,
+    renderQuality: 100,
+    particles: true,
+    debug: false
+};
 
 // canvas scaling and pixelation
 var dpr = 1;
@@ -42,25 +49,26 @@ function resetCanvas(ctx) {
     ctx.getContext('2d').mozImageSmoothingEnabled = false;
 };
 function resetCanvases() {
-    LAYERS.map0.width = window.innerWidth*dpr;
-    LAYERS.map0.height = window.innerHeight*dpr;
-    LAYERS.mlower.scale(dpr, dpr);
+    var scale = dpr*(settings.renderQuality/100);
+    LAYERS.map0.width = window.innerWidth*scale;
+    LAYERS.map0.height = window.innerHeight*scale;
+    LAYERS.mlower.scale(scale, scale);
     resetCanvas(LAYERS.map0);
-    LAYERS.entity0.width = window.innerWidth*dpr;
-    LAYERS.entity0.height = window.innerHeight*dpr;
-    LAYERS.elower.scale(dpr, dpr);
+    LAYERS.entity0.width = window.innerWidth*scale;
+    LAYERS.entity0.height = window.innerHeight*scale;
+    LAYERS.elower.scale(scale, scale);
     resetCanvas(LAYERS.entity0);
-    LAYERS.map1.width = window.innerWidth*dpr;
-    LAYERS.map1.height = window.innerHeight*dpr;
-    LAYERS.mupper.scale(dpr, dpr);
+    LAYERS.map1.width = window.innerWidth*scale;
+    LAYERS.map1.height = window.innerHeight*scale;
+    LAYERS.mupper.scale(scale, scale);
     resetCanvas(LAYERS.map1);
-    LAYERS.entity1.width = window.innerWidth*dpr;
-    LAYERS.entity1.height = window.innerHeight*dpr;
-    LAYERS.eupper.scale(dpr, dpr);
+    LAYERS.entity1.width = window.innerWidth*scale;
+    LAYERS.entity1.height = window.innerHeight*scale;
+    LAYERS.eupper.scale(scale, scale);
     resetCanvas(LAYERS.entity1);
-    CTXRAW.width = window.innerWidth*dpr;
-    CTXRAW.height = window.innerHeight*dpr;
-    CTX.scale(dpr, dpr);
+    CTXRAW.width = window.innerWidth*scale;
+    CTXRAW.height = window.innerHeight*scale;
+    CTX.scale(scale, scale);
     resetCanvas(CTXRAW);
     for (var i in MAPS) {
         for (var j in MAPS[i].chunks) {
@@ -92,8 +100,22 @@ document.getElementById('stats').addEventListener('dblclick', function(e) {e.pre
 document.getElementById('chatText').addEventListener('dblclick', function(e) {e.preventDefault()});
 document.getElementById('dropdownMenu').addEventListener('dblclick', function(e) {e.preventDefault()});
 document.getElementById('windows').addEventListener('dblclick', function(e) {e.preventDefault()});
+
 // version
 document.getElementById('version').innerText = version;
+
+// load cookies
+try {
+    cookiesettings = JSON.parse(document.cookie.replace('settings=', ''));
+    for (var i in cookiesettings) {
+        if (settings[i]) settings[i] = cookiesettings[i];
+    }
+    document.getElementById('renderDistanceSlider').value = settings.renderDistance;
+    document.getElementById('renderQualitySlider').value = settings.renderQuality;
+    document.getElementById('particlesToggle').checked = settings.particles;
+    document.getElementById('debugToggle').checked = settings.debug;
+    if (settings.debug) socket.emit('toggleDebug');
+} catch {}
 
 // error logging
 window.onerror = function(err) {

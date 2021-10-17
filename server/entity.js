@@ -589,7 +589,7 @@ Player = function(socket) {
     self.lastHeal = 0;
     self.mouseX = 0;
     self.mouseY = 0;
-    self.name = 'Unknown';
+    self.name = null;
     self.teleportLocation = {
         map: 'World',
         x: 0,
@@ -612,12 +612,22 @@ Player = function(socket) {
                         var status = await ACCOUNTS.login(cred.username, cred.password);
                         switch (status) {
                             case 0:
-                                self.name = cred.username;
-                                socket.emit('signInState', 'signedIn');
-                                insertChat(self.name + ' joined the game.', 'server');
-                                socket.emit('mapData', maps);
-                                self.canMove = true;
-                                self.alive = true;
+                                var signedIn = false;
+                                for (var i in Player.list) {
+                                    if (Player.list[i].name == cred.username) {
+                                        signedIn = true;
+                                    }
+                                }
+                                if (!signedIn) {
+                                    self.name = cred.username;
+                                    socket.emit('signInState', 'signedIn');
+                                    insertChat(self.name + ' joined the game.', 'server');
+                                    socket.emit('mapData', maps);
+                                    self.canMove = true;
+                                    self.alive = true;
+                                } else {
+                                    socket.emit('signInState', 'alreadySignedIn');
+                                }
                                 break;
                             case 1:
                                 socket.emit('signInState', 'incorrectPassword');
@@ -826,18 +836,20 @@ Player.update = function() {
     var pack = [];
     for (var i in Player.list) {
         var localplayer = Player.list[i];
-        localplayer.update();
-        pack.push({
-            id: localplayer.id,
-            map: localplayer.map,
-            x: localplayer.x,
-            y: localplayer.y,
-            name: localplayer.name,
-            animationStage: localplayer.animationStage,
-            hp: localplayer.hp,
-            maxHP: localplayer.maxHP,
-            isNPC: false
-        });
+        if (localplayer.name) {
+            localplayer.update();
+            pack.push({
+                id: localplayer.id,
+                map: localplayer.map,
+                x: localplayer.x,
+                y: localplayer.y,
+                name: localplayer.name,
+                animationStage: localplayer.animationStage,
+                hp: localplayer.hp,
+                maxHP: localplayer.maxHP,
+                isNPC: false
+            });
+        }
     }
 
     return pack;
@@ -846,16 +858,18 @@ Player.getDebugData = function() {
     var pack = [];
     for (var i in Player.list) {
         var localplayer = Player.list[i];
-        pack.push({
-            map: localplayer.map,
-            x: localplayer.x,
-            y: localplayer.y,
-            width: localplayer.width,
-            height: localplayer.height,
-            animationStage: localplayer.animationStage,
-            keys: localplayer.keys,
-            isNPC: false
-        });
+        if (localplayer.name) {
+            pack.push({
+                map: localplayer.map,
+                x: localplayer.x,
+                y: localplayer.y,
+                width: localplayer.width,
+                height: localplayer.height,
+                animationStage: localplayer.animationStage,
+                keys: localplayer.keys,
+                isNPC: false
+            });
+        }
     }
 
     return pack;
@@ -888,7 +902,7 @@ Monster = function(type, x, y, map) {
     self.ai.maxRange = tempmonster.aggroRange;
     self.ai.circleTarget = tempmonster.circleTarget;
     self.ai.circleDistance = tempmonster.circleDistance;
-    self.ai.circleDirection = -1;
+    self.ai.circleDirection = -0.5;
     self.hp = tempmonster.hp;
     self.maxHP = tempmonster.hp;
     self.xpDrop = tempmonster.xpDrop;
@@ -909,7 +923,7 @@ Monster = function(type, x, y, map) {
             if (self.ai.lastPath >= seconds(0.1)) {
                 self.ai.lastPath = 0;
                 if (self.ai.entityTarget) {
-                    if (self.ai.circleTarget && self.getDistance(self.ai.entityTarget) < self.ai.circleDistance*64) {
+                    if (self.ai.circleTarget && self.getDistance(self.ai.entityTarget) < (self.ai.circleDistance+1)*64) {
                         var target = self.ai.entityTarget;
                         var angle = Math.atan2(target.y-self.y, target.x-self.x);
                         var x = target.gridx*64+Math.round(Math.cos(angle)*self.ai.circleDistance-1)*64;
@@ -1311,43 +1325,44 @@ Projectile = function(type, x, y, map, mousex, mousey, parentID) {
     };
     self.collideWith = function(entity) {
         if (entity.map == self.map) {
-            var vertices = [
-                {x: ((self.width/2)*Math.cos(self.angle))-((self.height/2)*Math.sin(self.angle))+self.x, y: ((self.width/2)*Math.sin(self.angle))+((self.height/2)*Math.cos(self.angle))+self.y},
-                {x: ((self.width/2)*Math.cos(self.angle))-((-self.height/2)*Math.sin(self.angle))+self.x, y: ((self.width/2)*Math.sin(self.angle))+((-self.height/2)*Math.cos(self.angle))+self.y},
-                {x: ((-self.width/2)*Math.cos(self.angle))-((-self.height/2)*Math.sin(self.angle))+self.x, y: ((-self.width/2)*Math.sin(self.angle))+((-self.height/2)*Math.cos(self.angle))+self.y},
-                {x: ((-self.width/2)*Math.cos(self.angle))-((self.height/2)*Math.sin(self.angle))+self.x, y: ((-self.width/2)*Math.sin(self.angle))+((self.height/2)*Math.cos(self.angle))+self.y},
-                {x: self.x, y: self.y}
-            ];
-            var vertices2 = [
-                {x: entity.x+entity.width/2, y: entity.y+entity.height/2},
-                {x: entity.x+entity.width/2, y: entity.y-entity.height/2},
-                {x: entity.x-entity.width/2, y: entity.y-entity.height/2},
-                {x: entity.x-entity.width/2, y: entity.y+entity.height/2}
-            ];
-            function getSlope(pt1, pt2) {
-                return (pt2.y - pt1.y) / (pt2.x - pt1.x);
-            };
-    
-            for (var i = 0; i < 4; i++) {
-                if (vertices2[i].y-vertices[0].y < (getSlope(vertices[0],vertices[1])*(vertices2[i].x-vertices[0].x))) {
-                    if (vertices2[i].y-vertices[1].y > (getSlope(vertices[1],vertices[2])*(vertices2[i].x-vertices[1].x))) {
-                        if (vertices2[i].y-vertices[2].y > (getSlope(vertices[2],vertices[3])*(vertices2[i].x-vertices[2].x))) {
-                            if (vertices2[i].y-vertices[3].y < (getSlope(vertices[3],vertices[0])*(vertices2[i].x-vertices[3].x))) {
-                                return true;
+            if (entity.noProjectile == null || entity.noProjectile == false) {
+                var vertices = [
+                    {x: ((self.width/2)*Math.cos(self.angle))-((self.height/2)*Math.sin(self.angle))+self.x, y: ((self.width/2)*Math.sin(self.angle))+((self.height/2)*Math.cos(self.angle))+self.y},
+                    {x: ((self.width/2)*Math.cos(self.angle))-((-self.height/2)*Math.sin(self.angle))+self.x, y: ((self.width/2)*Math.sin(self.angle))+((-self.height/2)*Math.cos(self.angle))+self.y},
+                    {x: ((-self.width/2)*Math.cos(self.angle))-((-self.height/2)*Math.sin(self.angle))+self.x, y: ((-self.width/2)*Math.sin(self.angle))+((-self.height/2)*Math.cos(self.angle))+self.y},
+                    {x: ((-self.width/2)*Math.cos(self.angle))-((self.height/2)*Math.sin(self.angle))+self.x, y: ((-self.width/2)*Math.sin(self.angle))+((self.height/2)*Math.cos(self.angle))+self.y},
+                    {x: self.x, y: self.y}
+                ];
+                var vertices2 = [
+                    {x: entity.x+entity.width/2, y: entity.y+entity.height/2},
+                    {x: entity.x+entity.width/2, y: entity.y-entity.height/2},
+                    {x: entity.x-entity.width/2, y: entity.y-entity.height/2},
+                    {x: entity.x-entity.width/2, y: entity.y+entity.height/2}
+                ];
+        
+                for (var i = 0; i < 4; i++) {
+                    if (vertices2[i].y-vertices[0].y < (self.getSlope(vertices[0],vertices[1])*(vertices2[i].x-vertices[0].x))) {
+                        if (vertices2[i].y-vertices[1].y > (self.getSlope(vertices[1],vertices[2])*(vertices2[i].x-vertices[1].x))) {
+                            if (vertices2[i].y-vertices[2].y > (self.getSlope(vertices[2],vertices[3])*(vertices2[i].x-vertices[2].x))) {
+                                if (vertices2[i].y-vertices[3].y < (self.getSlope(vertices[3],vertices[0])*(vertices2[i].x-vertices[3].x))) {
+                                    return true;
+                                }
                             }
                         }
                     }
+                    if (vertices[i].x > vertices2[2].x && vertices[i].x < vertices2[0].x && vertices[i].y > vertices2[2].y && vertices[i].y < vertices2[0].y) {
+                        return true;
+                    }
                 }
-                if (vertices[i].x > vertices2[2].x && vertices[i].x < vertices2[0].x && vertices[i].y > vertices2[2].y && vertices[i].y < vertices2[0].y) {
+                if (vertices[4].x > vertices2[2].x && vertices[4].x < vertices2[0].x && vertices[4].y > vertices2[2].y && vertices[4].y < vertices2[0].y) {
                     return true;
                 }
             }
-            if (vertices[4].x > vertices2[2].x && vertices[4].x < vertices2[0].x && vertices[4].y > vertices2[2].y && vertices[4].y < vertices2[0].y) {
-                return true;
-            }
-    
             return false;
         }
+    };
+    self.getSlope = function(pos1, pos2) {
+        return (pos2.y - pos1.y) / (pos2.x - pos1.x);
     };
     
     Projectile.list[self.id] = self;

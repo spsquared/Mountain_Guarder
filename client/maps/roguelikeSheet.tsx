@@ -31,12 +31,6 @@
    <frame tileid="619" duration="200"/>
   </animation>
  </tile>
- <tile id="620">
-  <animation>
-   <frame tileid="620" duration="200"/>
-   <frame tileid="619" duration="200"/>
-  </animation>
- </tile>
  <tile id="656">
   <animation>
    <frame tileid="656" duration="200"/>
@@ -55,22 +49,10 @@
    <frame tileid="702" duration="200"/>
   </animation>
  </tile>
- <tile id="703">
-  <animation>
-   <frame tileid="703" duration="200"/>
-   <frame tileid="702" duration="200"/>
-  </animation>
- </tile>
  <tile id="705">
   <animation>
    <frame tileid="705" duration="200"/>
    <frame tileid="706" duration="200"/>
-  </animation>
- </tile>
- <tile id="706">
-  <animation>
-   <frame tileid="706" duration="200"/>
-   <frame tileid="705" duration="200"/>
   </animation>
  </tile>
  <tile id="742">
@@ -116,6 +98,18 @@
  <tile id="1350" probability="0.125"/>
  <tile id="1436" probability="0.125"/>
  <tile id="1578" type="fad"/>
+ <tile id="3202">
+  <animation>
+   <frame tileid="3202" duration="200"/>
+   <frame tileid="3203" duration="200"/>
+  </animation>
+ </tile>
+ <tile id="3288">
+  <animation>
+   <frame tileid="3288" duration="200"/>
+   <frame tileid="3289" duration="200"/>
+  </animation>
+ </tile>
  <tile id="5101">
   <animation>
    <frame tileid="0" duration="1"/>

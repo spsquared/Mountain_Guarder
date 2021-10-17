@@ -1,7 +1,7 @@
 // Copyright (C) 2021 Radioactive64
 // Go to README.md for more information
 
-const version = 'v0.4.1';
+const version = 'v0.4.2';
 console.info('\x1b[33m%s\x1b[0m', 'Mountain Guarder ' + version + ' copyright (C) Radioactive64 2021');
 const express = require('express');
 const app = express();
@@ -18,13 +18,26 @@ require('./server/collision.js');
 require('./server/entity.js');
 require('./server/maps.js');
 require('./server/database.js');
-if (process.env.PORT) {
-    server.listen(process.env.PORT);
-} else {
-    server.listen(4000);
-    logColor('Server started on port 4000', '\x1b[32m', 'log');
-    log('---------------------------');
-}
+function start() {
+    if (ACCOUNTS.connected) {
+        if (process.env.PORT) {
+            server.listen(process.env.PORT);
+            logColor('Server started.', '\x1b[32m', 'log')
+            log('---------------------------');
+            start = null;
+        } else {
+            server.listen(4000);
+            logColor('Server started on port 4000', '\x1b[32m', 'log');
+            log('---------------------------');
+            start = null;
+        }
+    } else {
+        setTimeout(function() {
+            start();
+        }, 100);
+    }
+};
+start();
 
 // connections
 SOCKET_LIST = [];

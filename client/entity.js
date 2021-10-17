@@ -45,7 +45,9 @@ Entity.update = function(data) {
     Player.update(data.players);
     Monster.update(data.monsters);
     Projectile.update(data.projectiles);
-    Particle.update(data.particles);
+    if (settings.particles) {
+        Particle.update(data.particles);
+    }
 };
 Entity.draw = function() {
     var entities = [];
@@ -57,6 +59,9 @@ Entity.draw = function() {
     }
     for (var i in Projectile.list) {
         entities.push(Projectile.list[i]);
+    }
+    if (!settings.particles) {
+        Particle.list = [];
     }
     for (var i in Particle.list) {
         entities.push(Particle.list[i]);
@@ -115,7 +120,7 @@ Rig.healthBarG = new Image();
 Rig.healthBarR = new Image();
 
 // players
-Player = function(id, map, x, y, isNPC) {
+Player = function(id, map, x, y, isNPC, name) {
     var self = new Rig(id, map, x, y);
     self.animationImage = null;
     self.animationsCanvas = new OffscreenCanvas(48, 128);
@@ -128,14 +133,19 @@ Player = function(id, map, x, y, isNPC) {
         pantsColor: '#6464FF'
     };
     if (isNPC) self.drawHealthBar = false;
+    self.name = name;
 
     self.draw = function () {
         if (self.map == player.map && self.chunkx >= player.chunkx-settings.renderDistance && self.chunkx <= player.chunkx+settings.renderDistance && self.chunky >= player.chunky-settings.renderDistance && self.chunky <= player.chunky+settings.renderDistance) {
             LAYERS.elower.drawImage(self.animationsCanvas, (self.animationStage % 6)*8, (~~(self.animationStage / 6))*16, 8, 16, self.x-16+OFFSETX, self.y-52+OFFSETY, 32, 64);
             if (self.drawHealthBar) {
-                LAYERS.eupper.drawImage(Rig.healthBarG, 0, 0, 42, 5, self.x-63+OFFSETX, self.y-68+OFFSETY, 126, 15);
-                LAYERS.eupper.drawImage(Rig.healthBarG, 1, 5, (self.hp/self.maxHP)*40, 5, self.x-60+OFFSETX, self.y-68+OFFSETY, (self.hp/self.maxHP)*120, 15);
+                LAYERS.eupper.drawImage(Rig.healthBarG, 0, 0, 42, 5, self.x-63+OFFSETX, self.y-72+OFFSETY, 126, 15);
+                LAYERS.eupper.drawImage(Rig.healthBarG, 1, 5, (self.hp/self.maxHP)*40, 5, self.x-60+OFFSETX, self.y-72+OFFSETY, (self.hp/self.maxHP)*120, 15);
             }
+            LAYERS.eupper.textAlign = 'center';
+            LAYERS.eupper.font = '12px Pixel';
+            LAYERS.eupper.fillStyle = '#FF9900';
+            LAYERS.eupper.fillText(self.name, self.x+OFFSETX, self.y-80+OFFSETY);
         }
         if (self.interpolationStage < (settings.fps/20)) {
             self.x += self.xspeed;
@@ -176,7 +186,7 @@ Player.update = function(data) {
         if (Player.list[data[i].id]) {
             Player.list[data[i].id].update(data[i]);
         } else {
-            new Player(data[i].id, data[i].map, data[i].x, data[i].y, data.isNPC);
+            new Player(data[i].id, data[i].map, data[i].x, data[i].y, data[i].isNPC, data[i].name);
             Player.list[data[i].id].updateAnimationCanvas();
             Player.list[data[i].id].update(data[i]);
         }
@@ -550,3 +560,20 @@ function loadEntitydata() {
     };
     request.send();
 };
+
+// animated tiles
+AnimatedTile = function(map, x, y, id, above) {
+    var self = {
+        id: id,
+        map: map,
+        x: x*64,
+        y: y*64,
+        above: above,
+        chunkx: 0,
+        chunky: 0,
+        animationCanvas: null
+    };
+
+    return self;
+};
+AnimatedTile.ids = [570, 619, 656, 702, 705, 742, 828, 914, 3202, 3288];

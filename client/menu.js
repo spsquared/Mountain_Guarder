@@ -1,10 +1,5 @@
 // Copyright (C) 2021 Radioactive64
 
-settings = {
-    fps: 60,
-    renderDistance: 1,
-};
-
 // sign in
 var deleteaccountconfirmed = false;
 var changePasswordActive = false;
@@ -99,6 +94,9 @@ socket.on('signInState', function(state) {
             changePasswordActive = false;
             window.alert('Account not found!');
             break;
+        case 'alreadySignedIn':
+            window.alert('Already signed in, you may not sign in again!');
+            break;
         case 'invalidCharacters':
             document.getElementById('deleteAccount').innerText = 'Delete Account';
             deleteaccountconfirmed = false;
@@ -162,7 +160,8 @@ DraggableWindow = function(id) {
         dragging: false,
         window: document.getElementById(id),
         windowBar: document.getElementById(id + 'Bar'),
-        windowClose: document.getElementById(id + 'Close')
+        windowClose: document.getElementById(id + 'Close'),
+        tabs: []
     };
     self.renderWindow = function() {
         self.window.style.left = self.x + 'px';
@@ -188,6 +187,7 @@ DraggableWindow = function(id) {
     self.windowClose.onclick = function() {
         self.hide();
     };
+
     self.hide = function() {
         self.window.style.display = 'none';
     };
@@ -196,10 +196,70 @@ DraggableWindow = function(id) {
         resetZIndex();
         self.window.style.zIndex = 6;
     };
+    self.changeTab = function(tab) {
+        for (var i in self.tabs) {
+            document.getElementById(self.tabs[i]).style.display = 'none';
+        }
+        document.getElementById(tab).style.display = '';
+    };
+    var children = document.getElementById(id + 'Select').children;
+    if (children[0]) {
+        for (var i in children) {
+            const id = children[i].id;
+            if (id) {
+                self.tabs.push(id.replace('Select', ''));
+                children[i].onclick = function() {
+                    self.changeTab(id.replace('Select', ''));
+                };
+            }
+        }
+    };
+    self.changeTab(self.tabs[0]);
 
     return self;
 };
 function resetZIndex() {
     document.getElementById('inventory').style.zIndex = 5;
     document.getElementById('settings').style.zIndex = 5;
+};
+
+// menu buttons
+var menuopen = false;
+function toggleDropdown() {
+    if (menuopen) {
+        document.getElementById('dropdownMenuItems').style.display = 'none';
+        menuopen = false;
+    } else {
+        document.getElementById('dropdownMenuItems').style.display = 'block';
+        menuopen = true;
+    }
+};
+var inventoryWindow = new DraggableWindow('inventory');
+var settingsWindow = new DraggableWindow('settings');
+function openInventory() {
+    inventoryWindow.show();
+    toggleDropdown();
+};
+function openSettings() {
+    settingsWindow.show();
+    toggleDropdown();
+};
+
+// settings
+function toggle(setting) {
+    settings[setting] = !settings[setting];
+    if (setting == 'debug') socket.emit('toggleDebug');
+    saveSettings();
+};
+function slider(setting) {
+    settings[setting] = parseInt(document.getElementById(setting + 'Slider').value);
+    if (setting == 'renderDistance') updateRenderedChunks();
+    if (setting == 'renderQuality') resetCanvases();
+    saveSettings();
+};
+function saveSettings() {
+    var cookiestring = JSON.stringify(settings);
+    var date = new Date();
+    date.setUTCFullYear(date.getUTCFullYear()+10, date.getUTCMonth(), date.getUTCDate())
+    document.cookie = 'settings=' + cookiestring + '; expires=' + date + ';';
 };

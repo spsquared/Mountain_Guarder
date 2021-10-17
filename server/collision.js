@@ -48,6 +48,48 @@ Collision = function(map, x, y, type) {
         case 2211:
             coltype = 14;
             break;
+        case 2293:
+            coltype = 15;
+            break;
+        case 2294:
+            coltype = 16;
+            break;
+        case 2295:
+            coltype = 17;
+            break;
+        case 2296:
+            coltype = 18;
+            break;
+        case 2297:
+            coltype = 19;
+            break;
+        case 2298:
+            coltype = 20;
+            break;
+        case 2299:
+            coltype = 21;
+            break;
+        case 2230:
+            coltype = 22;
+            break;
+        case 2231:
+            coltype = 23;
+            break;
+        case 2379:
+            coltype = 24;
+            break;
+        case 2380:
+            coltype = 25;
+            break;
+        case 2381:
+            coltype = 26;
+            break;
+        case 2382:
+            coltype = 27;
+            break;
+        case 2383:
+            coltype = 28;
+            break;
         default:
             error('invalid collision at (' + x + ',' + y + ')');
             break;
@@ -63,7 +105,13 @@ Collision = function(map, x, y, type) {
 };
 Collision.getColEntity = function(map, x, y) {
     var collision = [];
-    switch (Collision.list[map][y][x]) {
+    var coltype = Collision.list[map][y][x];
+    var noProjectile = false;
+    if (coltype > 14) {
+        noProjectile = true;
+        coltype -= 14;
+    }
+    switch (coltype) {
         case 0:
             break;
         case 1:
@@ -72,7 +120,8 @@ Collision.getColEntity = function(map, x, y) {
                 x: x*64+32,
                 y: y*64+32,
                 width: 64,
-                height: 64
+                height: 64,
+                noProjectile: noProjectile
             };
             break;
         case 2:
@@ -81,7 +130,8 @@ Collision.getColEntity = function(map, x, y) {
                 x: x*64+32,
                 y: y*64+48,
                 width: 64,
-                height: 32
+                height: 32,
+                noProjectile: noProjectile
             };
             break;
         case 3:
@@ -90,7 +140,8 @@ Collision.getColEntity = function(map, x, y) {
                 x: x*64+32,
                 y: y*64+16,
                 width: 64,
-                height: 32
+                height: 32,
+                noProjectile: noProjectile
             };
             break;
         case 4:
@@ -99,7 +150,8 @@ Collision.getColEntity = function(map, x, y) {
                 x: x*64+16,
                 y: y*64+32,
                 width: 32,
-                height: 64
+                height: 64,
+                noProjectile: noProjectile
             };
             break;
         case 5:
@@ -108,7 +160,8 @@ Collision.getColEntity = function(map, x, y) {
                 x: x*64+48,
                 y: y*64+32,
                 width: 32,
-                height: 64
+                height: 64,
+                noProjectile: noProjectile
             };
             break;
         case 6:
@@ -117,14 +170,16 @@ Collision.getColEntity = function(map, x, y) {
                 x: x*64+32,
                 y: y*64+48,
                 width: 64,
-                height: 32
+                height: 32,
+                noProjectile: noProjectile
             };
             collision[1] = {
                 map: map,
                 x: x*64+48,
                 y: y*64+32,
                 width: 32,
-                height: 64
+                height: 64,
+                noProjectile: noProjectile
             };
             break;
         case 7:
@@ -133,14 +188,16 @@ Collision.getColEntity = function(map, x, y) {
                 x: x*64+32,
                 y: y*64+16,
                 width: 64,
-                height: 32
+                height: 32,
+                noProjectile: noProjectile
             };
             collision[1] = {
                 map: map,
                 x: x*64+16,
                 y: y*64+32,
                 width: 32,
-                height: 64
+                height: 64,
+                noProjectile: noProjectile
             };
             break;
         case 8:
@@ -149,14 +206,16 @@ Collision.getColEntity = function(map, x, y) {
                 x: x*64+32,
                 y: y*64+16,
                 width: 64,
-                height: 32
+                height: 32,
+                noProjectile: noProjectile
             };
             collision[1] = {
                 map: map,
                 x: x*64+48,
                 y: y*64+32,
                 width: 32,
-                height: 64
+                height: 64,
+                noProjectile: noProjectile
             };
             break;
         case 9:
@@ -165,14 +224,16 @@ Collision.getColEntity = function(map, x, y) {
                 x: x*64+32,
                 y: y*64+48,
                 width: 64,
-                height: 32
+                height: 32,
+                noProjectile: noProjectile
             };
             collision[1] = {
                 map: map,
                 x: x*64+16,
                 y: y*64+32,
                 width: 32,
-                height: 64
+                height: 64,
+                noProjectile: noProjectile
             };
             break;
         case 10:
@@ -181,7 +242,8 @@ Collision.getColEntity = function(map, x, y) {
                 x: x*64+32,
                 y: y*64+32,
                 width: 32,
-                height: 32
+                height: 32,
+                noProjectile: noProjectile
             };
             break;
         case 11:
@@ -190,7 +252,8 @@ Collision.getColEntity = function(map, x, y) {
                 x: x*64+16,
                 y: y*64+48,
                 width: 32,
-                height: 32
+                height: 32,
+                noProjectile: noProjectile
             };
             break;
         case 12:
@@ -199,7 +262,8 @@ Collision.getColEntity = function(map, x, y) {
                 x: x*64+48,
                 y: y*64+48,
                 width: 32,
-                height: 32
+                height: 32,
+                noProjectile: noProjectile
             };
             break;
         case 13:
@@ -208,7 +272,8 @@ Collision.getColEntity = function(map, x, y) {
                 x: x*64+48,
                 y: y*64+16,
                 width: 32,
-                height: 32
+                height: 32,
+                noProjectile: noProjectile
             };
             break;
         case 14:
@@ -217,13 +282,15 @@ Collision.getColEntity = function(map, x, y) {
                 x: x*64+16,
                 y: y*64+16,
                 width: 32,
-                height: 32
+                height: 32,
+                noProjectile: noProjectile
             };
             break;
         default:
             console.error('invalid collision');
             break;
     }
+    
     return collision;
 };
 Collision.list = [];

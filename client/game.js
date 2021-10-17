@@ -5,7 +5,6 @@ mouseX = 0;
 mouseY = 0;
 var mapnameFade, mapnameWait;
 var lastchunkx, lastchunky, lastmap;
-var showDebug = false;
 var debugData = {};
 
 // loading
@@ -153,26 +152,7 @@ function drawMap() {
     }
     if (player.map == 'World') {
         if (lastchunkx != player.chunkx || lastchunky != player.chunky) {
-            for (var y in MAPS['World'].chunks) {
-                for (var x in MAPS['World'].chunks[y]) {
-                    if (Math.abs(player.chunkx-x) > settings.renderDistance || Math.abs(player.chunky-y) > settings.renderDistance) {
-                        delete MAPS['World'].chunks[y][x];
-                    }
-                }
-            }
-            for (var y = player.chunky-settings.renderDistance; y <= player.chunky+settings.renderDistance; y++) {
-                for (var x = player.chunkx-settings.renderDistance; x <= player.chunkx+settings.renderDistance; x++) {
-                    if (MAPS['World'].chunkJSON[y]) if (MAPS['World'].chunkJSON[y][x]) {
-                        if (MAPS['World'].chunks[y] == undefined) {
-                            renderChunk(MAPS['World'].chunkJSON[y][x], x, y, 'World');
-                        } else if (MAPS['World'].chunks[y][x] == undefined) {
-                            renderChunk(MAPS['World'].chunkJSON[y][x], x, y, 'World');
-                        }
-                    }
-                }
-            }
-            lastchunkx = player.chunkx;
-            lastchunky = player.chunky;
+            updateRenderedChunks();
         }
     } else {
         if (MAPS[player.map].chunks[0] == undefined) {
@@ -193,6 +173,28 @@ function drawMap() {
     }
     LAYERS.mlower.restore();
     LAYERS.mupper.restore();
+};
+function updateRenderedChunks() {
+    for (var y in MAPS['World'].chunks) {
+        for (var x in MAPS['World'].chunks[y]) {
+            if (Math.abs(player.chunkx-x) > settings.renderDistance || Math.abs(player.chunky-y) > settings.renderDistance) {
+                delete MAPS['World'].chunks[y][x];
+            }
+        }
+    }
+    for (var y = player.chunky-settings.renderDistance; y <= player.chunky+settings.renderDistance; y++) {
+        for (var x = player.chunkx-settings.renderDistance; x <= player.chunkx+settings.renderDistance; x++) {
+            if (MAPS['World'].chunkJSON[y]) if (MAPS['World'].chunkJSON[y][x]) {
+                if (MAPS['World'].chunks[y] == undefined) {
+                    renderChunk(MAPS['World'].chunkJSON[y][x], x, y, 'World');
+                } else if (MAPS['World'].chunks[y][x] == undefined) {
+                    renderChunk(MAPS['World'].chunkJSON[y][x], x, y, 'World');
+                }
+            }
+        }
+    }
+    lastchunkx = player.chunkx;
+    lastchunky = player.chunky;
 };
 function renderChunk(data, x, y, map) {
     var templower = new OffscreenCanvas(MAPS[map].chunkwidth * 64, MAPS[map].chunkheight * 64);
@@ -227,7 +229,7 @@ function renderChunk(data, x, y, map) {
     };
 };
 function drawDebug() {
-    if (debugData && showDebug) {
+    if (debugData && settings.debug) {
         function getManhattanDistance(entity) {
             return Math.abs(player.x-entity.x) + Math.abs(player.y-entity.y);
         };
@@ -316,10 +318,21 @@ function drawDebug() {
                 // aggro target
                 if (Player.list[localmonster.aggroTarget]) {
                     CTX.beginPath();
-                    CTX.strokeStyle = '#FFAA00';
+                    CTX.strokeStyle = '#FF0000';
                     CTX.lineWidth = 2;
                     CTX.moveTo(localmonster.x+OFFSETX, localmonster.y+OFFSETY);
                     CTX.lineTo(Player.list[localmonster.aggroTarget].x+OFFSETX, Player.list[localmonster.aggroTarget].y+OFFSETY);
+                    CTX.stroke();
+                }
+                // path
+                if (localmonster.path[0]) {
+                    CTX.beginPath();
+                    CTX.strokeStyle = '#0000FF';
+                    CTX.lineWidth = 4;
+                    CTX.moveTo(localmonster.path[0][0]*64+32+OFFSETX, localmonster.path[0][1]*64+32+OFFSETY);
+                    for (var j in localmonster.path) {
+                        CTX.lineTo(localmonster.path[j][0]*64+32+OFFSETX, localmonster.path[j][1]*64+32+OFFSETY);
+                    }
                     CTX.stroke();
                 }
             }
@@ -410,7 +423,8 @@ document.onkeyup = function(e) {
         socket.emit('keyPress', {key:'heal', state:false});
     }
     if (e.key == '\\') {
-        showDebug = !showDebug;
+        settings.debug = !settings.debug;
+        document.getElementById('debugToggle').checked = settings.debug;
         socket.emit('toggleDebug');
     }
 };
@@ -548,28 +562,6 @@ document.addEventListener("visibilitychange",function(){
     socket.emit('keyPress', {key:'right', state:false});
     socket.emit('keyPress', {key:'heal', state:false});
 });
-
-// menu buttons
-var menuopen = false;
-function toggleDropdown() {
-    if (menuopen) {
-        document.getElementById('dropdownMenuItems').style.display = 'none';
-        menuopen = false;
-    } else {
-        document.getElementById('dropdownMenuItems').style.display = 'block';
-        menuopen = true;
-    }
-};
-var inventoryWindow = new DraggableWindow('inventory');
-var settingsWindow = new DraggableWindow('settings');
-function openInventory() {
-    inventoryWindow.show();
-    toggleDropdown();
-};
-function openSettings() {
-    settingsWindow.show();
-    toggleDropdown();
-};
 
 // chat
 socket.on('insertChat', function(data) {
