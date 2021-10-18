@@ -70,6 +70,18 @@
                     </div> -->
                     <div class="stack ui-block ui-lighttext">
                         <div class="ui-lighttext stackHeader">
+                            v0.4.3 - 10/18/21
+                        </div>
+                        <div class="ui-lighttext stackBody">
+                            Added the chat (finally) and the disconnected button (finally).
+                            <ul>
+                                <li>Added chat</li>
+                                <li>Added disconnected button</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="stack ui-block ui-lighttext">
+                        <div class="ui-lighttext stackHeader">
                             v0.4.2 - 10/17/21
                         </div>
                         <div class="ui-lighttext stackBody">
@@ -669,7 +681,10 @@
                 <button id="respawnButton" class="ui-lightbutton" onclick="respawn();">Respawn</button>
             </div>
         </div>
-        <div id="secret" style="display: none;">
+        <div id="disconnectedContainer">
+            <button id="disconnected" class="noselect" onclick="window.location.reload()">DISCONNECTED</button>
+        </div>
+        <div style="display: none;">
             <a href="https://grandcanyonshuttles.com/uploads/5/5/6/7/5567194/custom_themes/136734914403232081/drift_hunter.html" target="_blank" class="ui-link">DRIFT HUNTERS!!!</a>
         </div>
     </body>

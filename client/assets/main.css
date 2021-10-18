@@ -226,3 +226,37 @@ html, body {
     color: red;
     font-weight: lighter;
 }
+
+/* disconnected */
+#disconnectedContainer {
+    display: none;
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    padding: 0px;
+    margin: 0px;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+}
+/* disconnected message */
+#disconnected {
+    position: relative;
+    top: 50%;
+    padding: 20px 20px;
+    border-color: black;
+    border-width: 8px;
+    font-family: 'Pixel';
+    font-size: 64px;
+    background-color: rgba(255, 0, 0, 0.5);
+    transition: all .2s ease-in-out;
+    transform: translateY(-50%);
+    cursor: wait;
+    z-index: 100;
+}
+#disconnected:hover {
+    transform: translateY(-50%) scale(2) perspective(2px);
+}
+#disconnected:active {
+    background-color: rgb(255, 0, 0);
+}

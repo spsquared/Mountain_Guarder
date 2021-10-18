@@ -1,6 +1,6 @@
 // Copyright (C) 2021 Radioactive64
 
-const version = 'v0.4.2';
+const version = 'v0.4.3';
 var firstload = false;
 // canvas
 CTXRAW = document.getElementById('ctx')
@@ -133,6 +133,9 @@ socket.on('checkReconnect', function() {
         window.location.reload();
     }
     firstload = true;
+});
+socket.on('disconnected', function() {
+    document.getElementById('disconnectedContainer').style.display = 'block';
 });
 
 // important sleep function

@@ -380,49 +380,42 @@ document.onkeydown = function(e) {
     if (!e.isTrusted) {
         socket.emit('timeout');
     }
-    if (e.key == 'w' || e.key == 'W' || e.key == 'ArrowUp') {
-        socket.emit('keyPress', {key:'up', state:true});
-    }
-    if (e.key == 's' || e.key == 'S' || e.key == 'ArrowDown') {
-        socket.emit('keyPress', {key:'down', state:true});
-    }
-    if (e.key == 'a' || e.key == 'A' || e.key == 'ArrowLeft') {
-        socket.emit('keyPress', {key:'left', state:true});
-    }
-    if (e.key == 'd' || e.key == 'D' || e.key == 'ArrowRight') {
-        socket.emit('keyPress', {key:'right', state:true});
-    }
-    if (e.key == ' ') {
-        socket.emit('keyPress', {key:'heal', state:true});
-    }
-    if (e.key == 'Meta' || e.key == 'Alt' || e.key == 'Control'){
-        socket.emit('keyPress', {key:'up', state:false});
-        socket.emit('keyPress', {key:'down', state:false});
-        socket.emit('keyPress', {key:'left', state:false});
-        socket.emit('keyPress', {key:'right', state:false});
-        socket.emit('keyPress', {key:'heal', state:false});
+    if (!inchat) {
+        if (e.key == 'w' || e.key == 'W' || e.key == 'ArrowUp') {
+            socket.emit('keyPress', {key:'up', state:true});
+        } else if (e.key == 's' || e.key == 'S' || e.key == 'ArrowDown') {
+            socket.emit('keyPress', {key:'down', state:true});
+        } else if (e.key == 'a' || e.key == 'A' || e.key == 'ArrowLeft') {
+            socket.emit('keyPress', {key:'left', state:true});
+        } else if (e.key == 'd' || e.key == 'D' || e.key == 'ArrowRight') {
+            socket.emit('keyPress', {key:'right', state:true});
+        } else if (e.key == ' ') {
+            socket.emit('keyPress', {key:'heal', state:true});
+        } else if (e.key == 'Enter') {
+            document.getElementById('chatInput').focus();
+        } else if (e.key == 'Meta' || e.key == 'Alt' || e.key == 'Control'){
+            socket.emit('keyPress', {key:'up', state:false});
+            socket.emit('keyPress', {key:'down', state:false});
+            socket.emit('keyPress', {key:'left', state:false});
+            socket.emit('keyPress', {key:'right', state:false});
+            socket.emit('keyPress', {key:'heal', state:false});
+        }
     }
 };
 document.onkeyup = function(e) {
     if (!e.isTrusted) {
         socket.emit('timeout');
-    }
-    if (e.key == 'w' || e.key == 'W' || e.key == 'ArrowUp') {
+    } else if (e.key == 'w' || e.key == 'W' || e.key == 'ArrowUp') {
         socket.emit('keyPress', {key:'up', state:false});
-    }
-    if (e.key == 's' || e.key == 'S' || e.key == 'ArrowDown') {
+    } else if (e.key == 's' || e.key == 'S' || e.key == 'ArrowDown') {
         socket.emit('keyPress', {key:'down', state:false});
-    }
-    if (e.key == 'a' || e.key == 'A' || e.key == 'ArrowLeft') {
+    } else if (e.key == 'a' || e.key == 'A' || e.key == 'ArrowLeft') {
         socket.emit('keyPress', {key:'left', state:false});
-    }
-    if (e.key == 'd' || e.key == 'D' || e.key == 'ArrowRight') {
+    } else if (e.key == 'd' || e.key == 'D' || e.key == 'ArrowRight') {
         socket.emit('keyPress', {key:'right', state:false});
-    }
-    if (e.key == ' ') {
+    } else if (e.key == ' ') {
         socket.emit('keyPress', {key:'heal', state:false});
-    }
-    if (e.key == '\\') {
+    } else if (e.key == '\\') {
         settings.debug = !settings.debug;
         document.getElementById('debugToggle').checked = settings.debug;
         socket.emit('toggleDebug');
@@ -555,7 +548,7 @@ socket.on('debugTick', function(debug) {
 });
 
 // automove prevention
-document.addEventListener("visibilitychange",function(){
+document.addEventListener("visibilitychange", function() {
     socket.emit('keyPress', {key:'up', state:false});
     socket.emit('keyPress', {key:'down', state:false});
     socket.emit('keyPress', {key:'left', state:false});
@@ -564,6 +557,30 @@ document.addEventListener("visibilitychange",function(){
 });
 
 // chat
+var inchat = false;
+var chatInput = document.getElementById('chatInput');
+chatInput.onfocus = function() {
+    inchat = true;
+    socket.emit('keyPress', {key:'up', state:false});
+    socket.emit('keyPress', {key:'down', state:false});
+    socket.emit('keyPress', {key:'left', state:false});
+    socket.emit('keyPress', {key:'right', state:false});
+    socket.emit('keyPress', {key:'heal', state:false});
+};
+chatInput.onblur = function() {
+    inchat = false;
+};
+chatInput.onkeydown = function(e) {
+    if (!e.isTrusted) {
+        socket.emit('timeout');
+    }
+    if (e.key == 'Enter') {
+        if (chatInput.value != '') {
+            socket.emit('chat', chatInput.value);
+            chatInput.value = '';
+        }
+    }
+};
 socket.on('insertChat', function(data) {
     insertChat(data);
 });

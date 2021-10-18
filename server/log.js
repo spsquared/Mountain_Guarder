@@ -16,6 +16,7 @@ insertChat = function(text, textcolor) {
     logColor(text, '\x1b[36m', 'chat');
     io.emit('insertChat', {text:text, style:style});
 };
+
 // logging
 log = function(text) {
     logColor(text, '', 'log');
@@ -34,7 +35,6 @@ logColor = function(text, colorstring, type) {
 };
 warn = function(text) {
     logColor(text, '\x1b[33m', 'warn');
-
 };
 error = function(text) {
     logColor(text, '\x1b[31m', 'error');

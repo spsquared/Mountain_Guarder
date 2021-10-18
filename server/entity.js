@@ -756,6 +756,9 @@ Player = function(socket) {
     socket.on('toggleDebug', function() {
         self.debugEnabled = !self.debugEnabled;
     });
+    socket.on('chat', function(msg) {
+        insertChat(self.name + ': ' + msg, '');
+    });
 
     self.update = function() {
         self.updatePos();
