@@ -325,25 +325,14 @@ Spawner = function(map, x, y, types) {
             }
             var localmonster = new Monster(monstertype, self.x, self.y, self.map);
             localmonster.spawnerID = self.id;
+            localmonster.oldOnDeath = localmonster.onDeath;
             localmonster.onDeath = function(entity) {
-                var oldhp = localmonster.hp;
-                localmonster.hp = 0;
-                localmonster.alive = false;
-                if (entity) {
-                    entity.xp += localmonster.xpDrop;
-                }
-                if (localmonster.hp != oldhp) {
-                    new Particle(localmonster.map, localmonster.x, localmonster.y, 'damage', localmonster.hp-oldhp);
-                }
-                for (var i = 0; i < 20; i++) {
-                    new Particle(localmonster.map, localmonster.x+Math.random()*localmonster.width*2-localmonster.width, localmonster.y+Math.random()*localmonster.height*2-localmonster.height, 'death');
-                }
                 try {
                     Spawner.list[localmonster.spawnerID].onMonsterDeath();
                 } catch (err) {
                     error(err);
                 }
-                delete Monster.list[localmonster.id];
+                localmonster.oldOnDeath(entity);
             };
         } catch (err) {
             error(err);

@@ -8,14 +8,15 @@
         <meta id="viewport" name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=2.0, minimum-scale=1.0, user-scalable=no">
         <meta charset="utf-8">
         <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://meadowguarderold.herokuapp.com/ 'unsafe-eval' 'unsafe-inline'; script-src 'self' https://cdn.socket.io/socket.io-1.4.5.js https://code.jquery.com/jquery-3.5.0.js 'unsafe-eval' 'unsafe-inline'; script-src-elem 'self' https://cdn.socket.io/socket.io-1.4.5.js https://code.jquery.com/jquery-3.5.0.js 'unsafe-eval' 'unsafe-inline'; frame-src 'self' https://www.youtube.com/ https://meadowguarderold.herokuapp.com/ 'unsafe-eval' 'unsafe-inline'">
-        <link rel="icon" href="./client/favicon.ico" type="image/x-icon">
+        <link rel="icon" href="./client/assets/favicon.ico" type="image/x-icon">
         <!-- scripts and styling -->
         <script src="/socket.io/socket.io.js"></script>
         <script>socket = io();</script>
         <script src="./client/index.js" defer></script>
-        <script src="./client/menu.js" defer></script>
         <script src="./client/entity.js" defer></script>
+        <script src="./client/inventory.js" defer></script>
         <script src="./client/game.js" defer></script>
+        <script src="./client/menu.js" defer></script>
         <link rel="stylesheet" href="./client/assets/main.css">
         <link rel="stylesheet" href="./client/assets/game.css">
     </head>
@@ -68,6 +69,22 @@
                             insert changes here
                         </div>
                     </div> -->
+                    <div class="stack ui-block ui-lighttext">
+                        <div class="ui-lighttext stackHeader">
+                            v0.5.0 - 11/2/21
+                        </div>
+                        <div class="ui-lighttext stackBody">
+                            The complicated and very much needed inventory has been added! The mobs have a few drops, more items will be on the way along with an item creation tool for modders (and me). Currently items don't have any effect, that will be worked on. We just don't want to delay the update too much.
+                            <ul>
+                                <li>Added and implemented inventory</li>
+                                <li>Added equipping items (no effect yet)</li>
+                                <li>Added a few item drops</li><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/75" target="_blank" class="ui-link">Fixed settings not loading (Issue #75)</a></li>
+                                <li>Added Offline Mode for testing without corrupting database</li>
+                                <li>Patched some discrepancies</li>
+                                <li>Added some s commands</li>
+                            </ul>
+                        </div>
+                    </div>
                     <div class="stack ui-block ui-lighttext">
                         <div class="ui-lighttext stackHeader">
                             v0.4.3 - 10/18/21
@@ -428,7 +445,7 @@
                             <br>
 							Map Tilesets: Kinney | <a href="https://www.kenney.nl/" target="_blank" class="ui-link">Link</a>
 							<br>
-							Item Images: Kyrise | <a href="https://kyrise.itch.io/kyrises-free-16x16-rpg-icon-pack?download" target="_blank" class="ui-link">Link</a>
+							Item Images: Kyrise | <a href="https://kyrise.itch.io/kyrises-free-16x16-rpg-icon-pack" target="_blank" class="ui-link">Link</a>
 							<br>
 							Window Code: Columbia.edu | <a href="https://www.columbia.edu/~njn2118/journal/2019/4/26.html" target="_blank" class="ui-link">Link</a>
 							<br>
@@ -445,7 +462,7 @@
                             <br><br>
                             <a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder" target="_blank" class="ui-link">GitHub repository</a>
                             <br><br>
-                            Ⓒ Radioactive64 2021
+                            &copy; Radioactive64 2021
                             <br><br>
                             Would you like to contribute? Contributing can range from <a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/new?assignees=&labels=bug&template=bug-report.md&title=BUG+-+%5BSummary+here%5D" target="_blank" class="ui-link">submitting a bug report</a> or <a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/new?assignees=&labels=suggestion&template=feature_request.md&title=SUGGESTION+-+%5BSummary+here%5D" target="_blank" class="ui-link">creating a suggestion</a> to sending a pull request stating the reason the pull request was created and what it changes. For more information visit the <a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder" target="_blank" class="ui-link">GitHub</a> repository.
                         </div>
@@ -562,23 +579,40 @@
                     <div id="settingsGame" class="window-body">
                         <table><tbody>
                             <tr>
+                                <td style="text-align: right;">
+                                    Target FPS:
+                                </td>
                                 <td>
+                                    <input type="range" id="fpsSlider" class="ui-slider" min="20" max="120" step="10" value="60" oninput="slider('fps')">
+                                </td>
+                                <td>
+                                    <div id="fpsIndicator" class="ui-lighttext">60fps</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: right;">
                                     Render Distance:
                                 </td>
                                 <td>
                                     <input type="range" id="renderDistanceSlider" class="ui-slider" min="1" max="10" value="1" oninput="slider('renderDistance')">
                                 </td>
+                                <td>
+                                    <div id="renderDistanceIndicator" class="ui-lighttext">1</div>
+                                </td>
                             </tr>
                             <tr>
-                                <td>
+                                <td style="text-align: right;">
                                     Render Quality:
                                 </td>
                                 <td>
                                     <input type="range" id="renderQualitySlider" class="ui-slider" min="50" max="150" value="100" step="10" oninput="slider('renderQuality')">
                                 </td>
+                                <td>
+                                    <div id="renderQualityIndicator" class="ui-lighttext">100%</div>
+                                </td>
                             </tr>
                             <tr>
-                                <td>
+                                <td style="text-align: right;">
                                     Particles:
                                 </td>
                                 <td>
@@ -587,28 +621,37 @@
                                         <span class="ui-toggleSlider"></span>
                                     </label>
                                 </td>
+                                <td>
+                                    <div id="particlesIndicator" class="ui-lighttext">on</div>
+                                </td>
                             </tr>
                             <tr>
-                                <td>
+                                <td style="text-align: right;">
                                     Chat Background:
                                 </td>
                                 <td>
                                     <label class="ui-toggle">
-                                        <input type="checkbox" id="chatToggle" class="ui-toggleInput" onclick="toggle('chat');">
+                                        <input type="checkbox" id="chatBackgroundToggle" class="ui-toggleInput" onclick="toggle('chatBackground');">
                                         <span class="ui-toggleSlider"></span>
                                     </label>
                                 </td>
+                                <td>
+                                    <div id="chatBackgroundIndicator" class="ui-lighttext">off</div>
+                                </td>
                             </tr>
                             <tr>
-                                <td>
+                                <td style="text-align: right;">
                                     Chat Size:
                                 </td>
                                 <td>
                                     <input type="range" id="chatSizeSlider" class="ui-slider" min="0" max="3" value="2">
                                 </td>
+                                <td>
+                                    <div id="chatSizeIndicator" class="ui-lighttext">2</div>
+                                </td>
                             </tr>
                             <tr>
-                                <td>
+                                <td style="text-align: right;">
                                     Debug:
                                 </td>
                                 <td>
@@ -616,6 +659,9 @@
                                         <input type="checkbox" id="debugToggle" class="ui-toggleInput" onclick="toggle('debug');">
                                         <span class="ui-toggleSlider"></span>
                                     </label>
+                                </td>
+                                <td>
+                                    <div id="debugIndicator" class="ui-lighttext">off</div>
                                 </td>
                             </tr>
                         </tbody></table>
@@ -675,6 +721,8 @@
                     </div>
                 </div>
             </div>
+            <div id="invHoverTooltip" class="ui-block ui-lighttext">Tooltip</div>
+            <img id="invDragImg" class="invSlotImg">
             <div id="deathScreen" class="noSelect">
                 <p id="youdied" class="ui-lighttext">You Died!</p>
                 <p id="respawnTimer" class="ui-lighttext">0</p>

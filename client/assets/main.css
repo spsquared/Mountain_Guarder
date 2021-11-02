@@ -13,6 +13,10 @@
 html, body {
     margin: 0;
 }
+/* prevent image blurring */
+img {
+    image-rendering: pixelated;
+}
 
 /* scrollbar */
 ::-webkit-scrollbar {

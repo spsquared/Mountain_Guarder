@@ -277,7 +277,7 @@
     position: absolute;
     top: 0px;
     left: 0px;
-    width: 436px;
+    width: 460px;
     height: 524px;
 }
 #inventoryItemsBody {
@@ -289,8 +289,8 @@
 #inventoryEquipsBlock {
     position: absolute;
     top: 0px;
-    left: 446px;
-    width: 320px;
+    left: 470px;
+    width: 296px;
     height: 524px;
 }
 #inventoryEquipsBody {
@@ -301,8 +301,8 @@
 #inventoryCraftingBlock {
     position: absolute;
     top: 0px;
-    left: 446px;
-    width: 320px;
+    left: 470px;
+    width: 296px;
     height: 524px;
 }
 #inventoryCraftingBody {
@@ -311,9 +311,104 @@
     height: 100%;
 }
 
+/* inventory slot structure */
+.invSlot {
+    display: inline-block;
+    width: 70px;
+    height: 70px;
+    margin: 8px 8px;
+    background-color: #362A1E;
+    border: 1px solid black;
+}
+.invSlotImg {
+    position: relative;
+    top: 3px;
+    left: 3px;
+    width: 64px;
+    height: 64px;
+    padding: 0px 0px;
+    -webkit-user-drag: none;
+    cursor: grab;
+}
+.invSlotImgNoGrab {
+    position: relative;
+    top: 3px;
+    left: 3px;
+    width: 64px;
+    height: 64px;
+    -webkit-user-drag: none;
+}
+
+/* inventory drag/hover blocks */
+#invHoverTooltip {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    z-index: 6;
+}
+#invDragImg {
+    display: none;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    cursor: grabbing;
+    z-index: 6;
+}
+
+/* inventory equip slots */
+#invSlotEquipweapon {
+    position: absolute;
+    top: 123px;
+    left: 19px;
+}
+#invSlotEquipweapon2 {
+    position: absolute;
+    top: 123px;
+    left: 191px;
+}
+#invSlotEquiphelmet {
+    position: absolute;
+    top: 80px;
+    left: 105px;
+}
+#invSlotEquiparmor {
+    position: absolute;
+    top: 166px;
+    left: 105px;
+}
+#invSlotEquipboots {
+    position: absolute;
+    top: 252px;
+    left: 105px;
+}
+#invSlotEquipoffhand {
+    position: absolute;
+    top: 338px;
+    left: 191px;
+}
+#invSlotEquipkey {
+    position: absolute;
+    top: 338px;
+    left: 19px;
+}
+#invSlotEquipcrystal {
+    position: absolute;
+    top: 338px;
+    left: 105px;
+}
+
 /* settings */ 
+#settings {
+    width: 500px;
+    height: 300px;
+}
+#settingsSelect {
+    height: 258px;
+}
 #playerPreview {
-    width: 150px;
+    width: 120px;
     height: 200px;
     border: 2px solid black;
 }

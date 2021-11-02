@@ -1,0 +1,48 @@
+{
+    "simplewoodensword": {
+        "slotType": "weapon",
+        "projectile": "simplewoodensword",
+        "enchantments": ["speed", "burst", "reach", "aim", "sharpness"],
+        "damage": 1,
+        "damageType": "melee",
+        "critChance": 0.02,
+        "knockback": 0.2,
+        "useTime":15,
+        "manaCost": 0,
+        "rarity": 0,
+        "dropChance": 0.5
+    },
+    "simplewoodenbow": {
+        "slotType": "weapon",
+        "projectile": "arrow",
+        "enchantments": ["speed", "burst", "accuracy", "power"],
+        "damage": 0.5,
+        "damageType": "ranged",
+        "critChance": 0.02,
+        "knockback": 0.2,
+        "useTime": 10,
+        "manaCost": 0,
+        "rarity": 0,
+        "dropChance": 0.3
+    },
+    "simplewoodenstaff": {
+        "slotType": "weapon",
+        "projectile": "magicball",
+        "enchantments": ["speed", "burst", "sorcery", "focus"],
+        "damage": 0.5,
+        "damageType": "magic",
+        "critChance": 0.05,
+        "knockback": 0.2,
+        "useTime": 20,
+        "manaCost": 5,
+        "rarity": 0,
+        "dropChance": 0.2
+    },
+    "leatherhood": {
+        "slotType": "helmet",
+        "enchantments": ["smashing", "range"],
+        "effects": ["damageBoost"],
+        "rarity": 0,
+        "dropChance": 0.3
+    }
+}

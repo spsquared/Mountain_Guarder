@@ -209,6 +209,7 @@ Rig = function() {
     self.animationDirection = 'loop';
     self.moveSpeed = 20;
     self.stats = {
+        damageType: null,
         attack: 1,
         defense: 0,
         damageReduction: 0,
@@ -590,6 +591,7 @@ Player = function(socket) {
     self.mouseX = 0;
     self.mouseY = 0;
     self.name = null;
+    self.inventory = new Inventory(socket);
     self.teleportLocation = {
         map: 'World',
         x: 0,
@@ -909,6 +911,7 @@ Monster = function(type, x, y, map) {
     self.hp = tempmonster.hp;
     self.maxHP = tempmonster.hp;
     self.xpDrop = tempmonster.xpDrop;
+    self.drops = tempmonster.drops;
     self.animationLength = tempmonster.animationLength;
     self.active = true;
 
@@ -1169,6 +1172,30 @@ Monster = function(type, x, y, map) {
         self.alive = false;
         if (entity) {
             entity.xp += self.xpDrop;
+            if (entity.inventory != null && self.drops[0]) {
+                try {
+                    var multiplier = 0;
+                    for (var i in self.drops) {
+                        multiplier += Inventory.items[self.drops[i]].dropChance;
+                    }
+                    var random = Math.random()*multiplier;
+                    var min = 0;
+                    var max = 0;
+                    var item;
+                    for (var i in self.drops) {
+                        max += Inventory.items[self.drops[i]].dropChance;
+                        if (random >= min && random <= max) {
+                            item = self.drops[i];
+                            break;
+                        }
+                        min += Inventory.items[self.drops[i]].dropChance;
+                    }
+                    console.log(self.drops, item)
+                    entity.inventory.addItem(item);
+                } catch (err) {
+                    error(err);
+                }
+            }
         }
         if (self.hp != oldhp) {
             new Particle(self.map, self.x, self.y, 'damage', self.hp-oldhp);

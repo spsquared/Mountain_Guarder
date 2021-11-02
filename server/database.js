@@ -21,11 +21,18 @@ ACCOUNTS = {
     connected: false,
     connect: async function() {
         if (!ACCOUNTS.connected) {
-            try {
-                await database.connect();
+            if (ENV.offlineMode) {
                 ACCOUNTS.connected = true;
-            } catch (err) {
-                forceQuit(err);
+                warn('');
+                warn('!!! Offline Mode is enabled! Accounts and progress will not load or save! !!!');
+                warn('');
+            } else {
+                try {
+                    await database.connect();
+                    ACCOUNTS.connected = true;
+                } catch (err) {
+                    forceQuit(err);
+                }
             }
         } else {
             warn('Already connected!');
@@ -33,13 +40,14 @@ ACCOUNTS = {
     },
     disconnect: function() {
         if (ACCOUNTS.connected) {
-            database.end();
+            if (!ENV.offlineMode) database.end();
             ACCOUNTS.connected = false;
         } else {
             warn('Not Connected!');
         }
     },
     signup: async function(username, password) {
+        if (ENV.offlineMode) return 0;
         if (await getCredentials(username) == false) {
             var status = await writeCredentials(username, password);
             if (status) {
@@ -51,6 +59,7 @@ ACCOUNTS = {
         return 1;
     },
     login: async function(username, password) {
+        if (ENV.offlineMode) return 0;
         var cred = await getCredentials(username);
         if (cred) {
             if (bcrypt.compareSync(password, cred.password)) {
@@ -61,6 +70,7 @@ ACCOUNTS = {
         return 2;
     },
     logout: async function(username, password, data) {
+        if (ENV.offlineMode) return true;
         var status = await updateProgress(username, password, data);
         if (status) {
             return true;
@@ -69,6 +79,7 @@ ACCOUNTS = {
         return false;
     },
     deleteAccount: async function(username, password) {
+        if (ENV.offlineMode) return 0;
         var cred = await getCredentials(username);
         if (cred) {
             if (bcrypt.compareSync(password, cred.password)) {
@@ -85,6 +96,7 @@ ACCOUNTS = {
         return 2;
     },
     changePassword: async function(username, oldpassword, password) {
+        if (ENV.offlineMode) return 0;
         var cred = await getCredentials(username);
         if (cred) {
             if (bcrypt.compareSync(oldpassword, cred.password)) {
@@ -124,6 +136,7 @@ ACCOUNTS = {
         }
     },
     loadProgress: async function(username, password) {
+        if (ENV.offlineMode) return {};
         var progress = await getProgress(username, password);
         if (progress) {
             return progress;
@@ -132,6 +145,7 @@ ACCOUNTS = {
         return false;
     },
     saveProgress: async function(username, password, data) {
+        if (ENV.offlineMode) return true;
         var status = await updateProgress(username, password, data);
         if (status) {
             return true;

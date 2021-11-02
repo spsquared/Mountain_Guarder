@@ -27,7 +27,7 @@ Entity = function(id, map, x, y) {
         self.updated = true;
     };
     self.draw = function() {
-        if (self.map == player.map && self.chunkx >= player.chunkx-settings.renderDistance && self.chunkx <= player.chunkx+settings.renderDistance && self.chunky>= player.chunky-settings.renderDistance && self.chunky <= player.chunky+settings.renderDistance) {
+        if (inRenderDistance(self)) {
             LAYERS.elower.fillText('MISSING TEXTURE', self.x+OFFSETX, self.y+OFFSETY);
         }
         if (self.interpolationStage < (settings.fps/20)) {
@@ -100,7 +100,7 @@ Rig = function(id, map, x, y) {
         self.updated = true;
     };
     self.draw = function() {
-        if (self.map == player.map && self.chunkx >= player.chunkx-settings.renderDistance && self.chunkx <= player.chunkx+settings.renderDistance && self.chunky>= player.chunky-settings.renderDistance && self.chunky <= player.chunky+settings.renderDistance) {
+        if (inRenderDistance(self)) {
             LAYERS.elower.fillText('MISSING TEXTURE', self.x+OFFSETX, self.y+OFFSETY);
             LAYERS.eupper.drawImage(Rig.healthBarR, 0, 0, 42, 5, self.x-63+OFFSETX, self.y-52+OFFSETY, 126, 15);
             LAYERS.eupper.drawImage(Rig.healthBarR, 1, 5, (self.hp/self.maxHP)*40, 5, self.x-60+OFFSETX, self.y-52+OFFSETY, (self.hp/self.maxHP)*120, 15);
@@ -136,7 +136,7 @@ Player = function(id, map, x, y, isNPC, name) {
     self.name = name;
 
     self.draw = function () {
-        if (self.map == player.map && self.chunkx >= player.chunkx-settings.renderDistance && self.chunkx <= player.chunkx+settings.renderDistance && self.chunky >= player.chunky-settings.renderDistance && self.chunky <= player.chunky+settings.renderDistance) {
+        if (inRenderDistance(self)) {
             LAYERS.elower.drawImage(self.animationsCanvas, (self.animationStage % 6)*8, (~~(self.animationStage / 6))*16, 8, 16, self.x-16+OFFSETX, self.y-52+OFFSETY, 32, 64);
             if (self.drawHealthBar) {
                 LAYERS.eupper.drawImage(Rig.healthBarG, 0, 0, 42, 5, self.x-63+OFFSETX, self.y-72+OFFSETY, 126, 15);
@@ -225,7 +225,7 @@ Monster = function(id, map, x, y, type) {
     self.animationImage = Monster.images[type];
 
     self.draw = function () {
-        if (self.map == player.map && self.chunkx >= player.chunkx-settings.renderDistance && self.chunkx <= player.chunkx+settings.renderDistance && self.chunky>= player.chunky-settings.renderDistance && self.chunky <= player.chunky+settings.renderDistance) {
+        if (inRenderDistance(self)) {
             LAYERS.elower.drawImage(self.animationImage, self.animationStage*self.rawWidth, 0, self.rawWidth, self.rawHeight, self.x-self.width/2+OFFSETX, self.y-self.height/2+OFFSETY, self.width, self.height);
             LAYERS.eupper.drawImage(Rig.healthBarR, 0, 0, 42, 5, self.x-63+OFFSETX, self.y-self.height/2-20+OFFSETY, 126, 15);
             LAYERS.eupper.drawImage(Rig.healthBarR, 1, 5, (self.hp/self.maxHP)*40, 5, self.x-60+OFFSETX, self.y-self.height/2-20+OFFSETY, (self.hp/self.maxHP)*120, 15);
@@ -247,11 +247,13 @@ Monster.update = function(data) {
         Monster.list[i].updated = false;
     }
     for (var i in data) {
-        if (Monster.list[data[i].id]) {
-            Monster.list[data[i].id].update(data[i]);
-        } else {
-            new Monster(data[i].id, data[i].map, data[i].x, data[i].y, data[i].type);
-            Monster.list[data[i].id].update(data[i])
+        if (inRenderDistancePixels(data[i])) {
+            if (Monster.list[data[i].id]) {
+                Monster.list[data[i].id].update(data[i]);
+            } else {
+                new Monster(data[i].id, data[i].map, data[i].x, data[i].y, data[i].type);
+                Monster.list[data[i].id].update(data[i])
+            }
         }
     }
     for (var i in Monster.list) {
@@ -287,7 +289,7 @@ Projectile = function(id, map, x, y, angle, type) {
         self.updated = true;
     };
     self.draw = function() {
-        if (self.map == player.map && self.chunkx >= player.chunkx-settings.renderDistance && self.chunkx <= player.chunkx+settings.renderDistance && self.chunky>= player.chunky-settings.renderDistance && self.chunky <= player.chunky+settings.renderDistance) {
+        if (inRenderDistance(self)) {
             LAYERS.elower.save();
             LAYERS.elower.translate(self.x+OFFSETX, self.y+OFFSETY);
             LAYERS.elower.rotate(self.angle);
@@ -312,11 +314,13 @@ Projectile.update = function(data) {
         Projectile.list[i].updated = false;
     }
     for (var i in data) {
-        if (Projectile.list[data[i].id]) {
-            Projectile.list[data[i].id].update(data[i]);
-        } else {
-            new Projectile(data[i].id, data[i].map, data[i].x, data[i].y, data[i].angle, data[i].type);
-            Projectile.list[data[i].id].update(data[i]);
+        if (inRenderDistancePixels(data[i])) {
+            if (Projectile.list[data[i].id]) {
+                Projectile.list[data[i].id].update(data[i]);
+            } else {
+                new Projectile(data[i].id, data[i].map, data[i].x, data[i].y, data[i].angle, data[i].type);
+                Projectile.list[data[i].id].update(data[i]);
+            }
         }
     }
     for (var i in Projectile.list) {
@@ -403,7 +407,7 @@ Particle = function(map, x, y, type, value) {
                 self.xspeed *= 0.98;
                 self.yspeed += 0.5;
                 self.opacity -= 2;
-                if (self.map == player.map && self.chunkx >= player.chunkx-settings.renderDistance && self.chunkx <= player.chunkx+settings.renderDistance && self.chunky>= player.chunky-settings.renderDistance && self.chunky <= player.chunky+settings.renderDistance) {
+                if (inRenderDistance(self)) {
                     var opstring = self.opacity.toString(16);
                     if (opstring.length == 1) opstring = 0 + opstring;
                     LAYERS.elower.fillStyle = '#FF0000' + opstring;
@@ -416,7 +420,7 @@ Particle = function(map, x, y, type, value) {
                 self.xspeed *= 0.98;
                 self.yspeed += 0.5;
                 self.opacity -= 2;
-                if (self.map == player.map && self.chunkx >= player.chunkx-settings.renderDistance && self.chunkx <= player.chunkx+settings.renderDistance && self.chunky>= player.chunky-settings.renderDistance && self.chunky <= player.chunky+settings.renderDistance) {
+                if (inRenderDistance(self)) {
                     var opstring = self.opacity.toString(16);
                     if (opstring.length == 1) opstring = 0 + opstring;
                     LAYERS.elower.fillStyle = '#00FF00' + opstring;
@@ -429,7 +433,7 @@ Particle = function(map, x, y, type, value) {
                 self.xspeed *= 0.95;
                 self.yspeed *= 0.95;
                 self.opacity -= 1;
-                if (self.map == player.map && self.chunkx >= player.chunkx-settings.renderDistance && self.chunkx <= player.chunkx+settings.renderDistance && self.chunky>= player.chunky-settings.renderDistance && self.chunky <= player.chunky+settings.renderDistance) {
+                if (inRenderDistance(self)) {
                     var opstring = self.opacity.toString(16);
                     if (opstring.length == 1) opstring = 0 + opstring;
                     LAYERS.elower.fillStyle = '#9900CC' + opstring;
@@ -440,7 +444,7 @@ Particle = function(map, x, y, type, value) {
                 self.xspeed *= 0.9;
                 self.yspeed *= 0.9;
                 self.opacity -= 1;
-                if (self.map == player.map && self.chunkx >= player.chunkx-settings.renderDistance && self.chunkx <= player.chunkx+settings.renderDistance && self.chunky>= player.chunky-settings.renderDistance && self.chunky <= player.chunky+settings.renderDistance) {
+                if (inRenderDistance(self)) {
                     var opacity = Math.min(self.opacity, 100);
                     var opstring = opacity.toString(16);
                     if (opstring.length == 1) opstring = 0 + opstring;
@@ -451,7 +455,7 @@ Particle = function(map, x, y, type, value) {
             case 'death':
                 self.yspeed *= 0.95;
                 self.opacity -= 2;
-                if (self.map == player.map && self.chunkx >= player.chunkx-settings.renderDistance && self.chunkx <= player.chunkx+settings.renderDistance && self.chunky>= player.chunky-settings.renderDistance && self.chunky <= player.chunky+settings.renderDistance) {
+                if (inRenderDistance(self)) {
                     var opacity = Math.min(self.opacity, 100);
                     var opstring = opacity.toString(16);
                     if (opstring.length == 1) opstring = 0 + opstring;
@@ -463,7 +467,7 @@ Particle = function(map, x, y, type, value) {
                 self.xspeed *= 0.98;
                 self.yspeed += 0.5;
                 self.opacity -= 2;
-                if (self.map == player.map && self.chunkx >= player.chunkx-settings.renderDistance && self.chunkx <= player.chunkx+settings.renderDistance && self.chunky>= player.chunky-settings.renderDistance && self.chunky <= player.chunky+settings.renderDistance) {
+                if (inRenderDistance(self)) {
                     var opacity = Math.min(self.opacity, 100);
                     var opstring = opacity.toString(16);
                     if (opstring.length == 1) opstring = 0 + opstring;
@@ -482,13 +486,15 @@ Particle = function(map, x, y, type, value) {
 };
 Particle.update = function(data) {
     for (var i in data) {
-        new Particle(data[i].map, data[i].x, data[i].y, data[i].type, data[i].value);
+        if (inRenderDistancePixels(data[i])) {
+            new Particle(data[i].map, data[i].x, data[i].y, data[i].type, data[i].value);
+        }
     }
 };
 Particle.list = [];
 
 // load data
-function loadEntitydata() {
+function loadEntityData() {
     // health bars
     totalassets += 2;
     Rig.healthBarG.src = './client/img/player/healthbar_green.png';
@@ -577,3 +583,11 @@ AnimatedTile = function(map, x, y, id, above) {
     return self;
 };
 AnimatedTile.ids = [570, 619, 656, 702, 705, 742, 828, 914, 3202, 3288];
+
+// general
+function inRenderDistance(entity) {
+    if (player) return entity.map == player.map && entity.chunkx >= player.chunkx-settings.renderDistance && entity.chunkx <= player.chunkx+settings.renderDistance && entity.chunky >= player.chunky-settings.renderDistance && entity.chunky <= player.chunky+settings.renderDistance;
+};
+function inRenderDistancePixels(entity) {
+    if (player) return entity.map == player.map && Math.floor(entity.x/(64*MAPS[entity.map].chunkwidth)) >= player.chunkx-settings.renderDistance && Math.floor(entity.x/(64*MAPS[entity.map].chunkwidth)) <= player.chunkx+settings.renderDistance && Math.floor(entity.y/(64*MAPS[entity.map].chunkheight)) >= player.chunky-settings.renderDistance && Math.floor(entity.y/(64*MAPS[entity.map].chunkheight)) <= player.chunky+settings.renderDistance;
+};

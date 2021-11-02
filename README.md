@@ -66,6 +66,7 @@ If you can't resolve your problem after trying these solutions or your problem i
 | 0.4.1   | <ul><li>Fixed database unresponsive</li><li>Added change password function</li></ul> |
 | 0.4.2   | <ul><li>Added settings - render distance, render quality, debug, particles - with fancy toggles!</li><li>Players now have nametags ingame</li><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/55" target="_blank">Projectiles can go over water (Issue #55)</a></li><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/72" target="_blank">Signing in twice is now impossible (Issue #72)</a></li><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/74" target="_blank">Patched players on menu screen visible ingame (Issue #74)</a></li><li>Added monster path debug and tweaked monster circle code</li></ul> |
 | 0.4.3   | <ul><li>Added chat</li><li>Added disconnected button</li></ul> |
+| 0.5.0   | <ul><li>Added and implemented inventory</li><li>Added equipping items (no effect yet)</li><li>Added a few item drops</li><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/75" target="_blank">Fixed settings not loading (Issue #75)</a></li><li>Added Offline Mode for testing without corrupting database</li><li>Patched some discrepancies</li><li>Added some s commands</li></ul> |
 
 ***
 

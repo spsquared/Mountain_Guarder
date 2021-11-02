@@ -22,9 +22,10 @@
         },
         "animationLength": 1,
         "xpDrop": 5,
-        "drops": {
-            "to be determined": 0
-        }
+        "drops": [
+            "simplewoodenbow",
+            "simplewoodensword"
+        ]
     },
     "bluebird": {
         "spawnChance": 0.3,
@@ -49,9 +50,10 @@
         },
         "animationLength": 1,
         "xpDrop": 5,
-        "drops": {
-            "to be determined": 0
-        }
+        "drops": [
+            "simplewoodenbow",
+            "simplewoodensword"
+        ]
     },
     "snowbird": {
         "spawnChance": 0.5,
@@ -68,7 +70,7 @@
         "stats": {
             "attack": 1,
             "defense": 0,
-            "damageReduction": 10,
+            "damageReduction": 5,
             "heal": 0,
             "speed": 1,
             "range": 0.5,
@@ -76,9 +78,11 @@
         },
         "animationLength": 1,
         "xpDrop": 10,
-        "drops": {
-            "to be determined": 0
-        }
+        "drops": [
+            "simplewoodenbow",
+            "simplewoodensword",
+            "simplewoodenstaff"
+        ]
     },
     "cherrybomb": {
         "spawnChance": 0.5,
@@ -103,9 +107,9 @@
         },
         "animationLength": 1,
         "xpDrop": 20,
-        "drops": {
-            "to be determined": 0
-        }
+        "drops": [
+            "leatherhood"
+        ]
     },
     "snowball": {
         "spawnChance": 0.4,
@@ -120,9 +124,9 @@
         "hp": 100,
         "moveSpeed": 10,
         "stats": {
-            "attack": 20,
+            "attack": 1.5,
             "defense": 0,
-            "damageReduction": 0,
+            "damageReduction": 1,
             "heal": 0,
             "speed": 1,
             "range": 1,
@@ -130,8 +134,7 @@
         },
         "animationLength": 0,
         "xpDrop": 10,
-        "drops": {
-            "to be determined": 0
-        }
+        "drops": [
+        ]
     }
 }

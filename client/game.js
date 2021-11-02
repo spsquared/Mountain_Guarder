@@ -1,6 +1,7 @@
 // Copyright (C) 2021 Radioactive64
 
-var player, playerid;
+var player;
+var playerid = 0;
 mouseX = 0;
 mouseY = 0;
 var mapnameFade, mapnameWait;
@@ -29,10 +30,11 @@ function load(data) {
     var wait = setInterval(async function() {
         if (tilesetloaded) {
             clearInterval(wait);
-            loadEntitydata();
+            loadEntityData();
             for (var i in data) {
                 await loadMap(data[i]);
             }
+            loadInventoryData();
         }
     }, 100);
     var updateLoadBar = setInterval(function() {
@@ -419,6 +421,8 @@ document.onkeyup = function(e) {
         settings.debug = !settings.debug;
         document.getElementById('debugToggle').checked = settings.debug;
         socket.emit('toggleDebug');
+    } else if (e.key == 'i' || e.key == 'W' || e.key == 'e' || e.key == 'E') {
+        toggleInventory();
     }
 };
 document.onmousedown = function(e) {

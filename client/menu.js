@@ -155,6 +155,9 @@ DraggableWindow = function(id) {
     var self = {
         x: 0,
         y: 0,
+        width: 900,
+        height: 600,
+        open: false,
         offsetX: 0,
         offsetY: 0,
         dragging: false,
@@ -176,8 +179,8 @@ DraggableWindow = function(id) {
     };
     document.addEventListener('mousemove', function(e) {
         if (self.dragging) {
-            self.x = Math.min(Math.max(e.pageX-self.offsetX, 0), window.innerWidth-902);
-            self.y = Math.min(Math.max(e.pageY-self.offsetY, 0), window.innerHeight-603);
+            self.x = Math.min(Math.max(e.pageX-self.offsetX, 0), window.innerWidth-self.width-2);
+            self.y = Math.min(Math.max(e.pageY-self.offsetY, 0), window.innerHeight-self.height-3);
             self.renderWindow();
         }
     });
@@ -190,12 +193,21 @@ DraggableWindow = function(id) {
 
     self.hide = function() {
         self.window.style.display = 'none';
+        self.open = false;
     };
     self.show = function() {
         self.window.style.display = 'block';
         resetZIndex();
         self.window.style.zIndex = 6;
+        self.open = true;
     };
+    self.toggle = function() {
+        if (self.open) {
+            self.hide();
+        } else {
+            self.show();
+        }
+    }
     self.changeTab = function(tab) {
         for (var i in self.tabs) {
             document.getElementById(self.tabs[i]).style.display = 'none';
@@ -236,10 +248,15 @@ function toggleDropdown() {
 };
 var inventoryWindow = new DraggableWindow('inventory');
 var settingsWindow = new DraggableWindow('settings');
+settingsWindow.width = 500;
+settingsWindow.height = 300;
 function openInventory() {
     inventoryWindow.show();
     toggleDropdown();
 };
+function toggleInventory() {
+    inventoryWindow.toggle();
+}
 function openSettings() {
     settingsWindow.show();
     toggleDropdown();
@@ -248,14 +265,59 @@ function openSettings() {
 // settings
 function toggle(setting) {
     settings[setting] = !settings[setting];
-    if (setting == 'debug') socket.emit('toggleDebug');
+    updateSetting(setting);
     saveSettings();
 };
 function slider(setting) {
     settings[setting] = parseInt(document.getElementById(setting + 'Slider').value);
-    if (setting == 'renderDistance') updateRenderedChunks();
-    if (setting == 'renderQuality') resetCanvases();
+    updateSetting(setting);
     saveSettings();
+};
+function updateSetting(setting) {
+    var indicatorText = settings[setting];
+    switch (setting) {
+        case 'fps':
+            resetFPS();
+            indicatorText += 'fps';
+            break;
+        case 'renderDistance':
+            if (player) updateRenderedChunks();
+            break;
+        case 'renderQuality':
+            resetCanvases();
+            indicatorText += '%';
+            break;
+        case 'particles':
+            if (settings.particles) {
+                indicatorText = 'on';
+            } else {
+                indicatorText = 'off';
+            }
+            break;
+        case 'chatBackground':
+            if (settings.chatBackground) {
+                document.getElementById('chatText').style.backgroundColor = '#000000AA';
+                indicatorText = 'on';
+            } else {
+                document.getElementById('chatText').style.backgroundColor = '';
+                indicatorText = 'off';
+            }
+            break;
+        case 'chatSize':
+            break;
+        case 'debug':
+            socket.emit('toggleDebug');
+            if (settings.debug) {
+                indicatorText = 'on';
+            } else {
+                indicatorText = 'off';
+            }
+            break;
+        default:
+            console.error('Invalid setting ' + setting);
+            break;
+    }
+    document.getElementById(setting + 'Indicator').innerText = indicatorText;
 };
 function saveSettings() {
     var cookiestring = JSON.stringify(settings);
@@ -263,3 +325,23 @@ function saveSettings() {
     date.setUTCFullYear(date.getUTCFullYear()+10, date.getUTCMonth(), date.getUTCDate())
     document.cookie = 'settings=' + cookiestring + '; expires=' + date + ';';
 };
+try {
+    cookiesettings = JSON.parse(document.cookie.replace('settings=', ''));
+    for (var i in cookiesettings) {
+        if (settings[i] != null) settings[i] = cookiesettings[i];
+    }
+    document.getElementById('fpsSlider').value = settings.fps;
+    document.getElementById('renderDistanceSlider').value = settings.renderDistance;
+    document.getElementById('renderQualitySlider').value = settings.renderQuality;
+    document.getElementById('particlesToggle').checked = settings.particles;
+    document.getElementById('chatBackgroundToggle').checked = settings.chatBackground;
+    document.getElementById('chatSizeSlider').value = settings.chatSize;
+    document.getElementById('debugToggle').checked = settings.debug;
+    updateSetting('fps');
+    updateSetting('renderDistance');
+    updateSetting('renderQuality');
+    updateSetting('particles');
+    updateSetting('chatBackground');
+    updateSetting('chatSize');
+    updateSetting('debug');
+} catch {}

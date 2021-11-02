@@ -1,0 +1,32 @@
+{
+    "simplewoodensword": {
+        "damage": 1,
+        "damageType": "melee",
+        "critChance": 0.02,
+        "knockback": 0.2,
+        "useTime":15,
+        "manaCost": 0,
+        "rarity": 0
+    },
+    "simplewoodenbow": {
+        "damage": 0.5,
+        "damageType": "ranged",
+        "critChance": 0.02,
+        "knockback": 0.2,
+        "useTime": 10,
+        "manaCost": 0,
+        "rarity": 0
+    },
+    "simplewoodenstaff": {
+        "damage": 0.5,
+        "damageType": "magic",
+        "critChance": 0.05,
+        "knockback": 0.2,
+        "useTime": 20,
+        "manaCost": 5,
+        "rarity": 0
+    },
+    "leatherhood": {
+        "rarity": 0
+    }
+}
