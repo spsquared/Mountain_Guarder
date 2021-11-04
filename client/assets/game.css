@@ -346,6 +346,7 @@
     left: 0px;
     opacity: 0;
     transition: opacity 0.2s ease;
+    pointer-events: none;
     z-index: 6;
 }
 #invDragImg {
@@ -354,6 +355,7 @@
     top: 0px;
     left: 0px;
     cursor: grabbing;
+    pointer-events: none;
     z-index: 6;
 }
 
@@ -367,6 +369,7 @@
     position: absolute;
     top: 123px;
     left: 191px;
+    transform: scaleX(-1);
 }
 #invSlotEquiphelmet {
     position: absolute;

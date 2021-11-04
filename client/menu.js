@@ -133,6 +133,9 @@ socket.on('signInState', function(state) {
             changePasswordActive = false;
             window.alert('Please enter a password.');
             break;
+        case 'invalidSignIn':
+            window.alert('You did NOT just try to exploit that! You thought you could bypass the sign in??? EVERYTHING for the database is password protected! You can\'t even load progress if you don\'t have the password!')
+            break;
         case 'databaseError':
             document.getElementById('deleteAccount').innerText = 'Delete Account';
             deleteaccountconfirmed = false;

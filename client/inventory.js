@@ -46,6 +46,7 @@ Inventory.Slot = function() {
     var self = {
         slotId: Inventory.items.length,
         item: null,
+        slot: slot,
         mousedOver: false
     };
 
@@ -79,6 +80,7 @@ Inventory.EquipSlot = function(equip) {
     var self = {
         slotId: equip,
         item: null,
+        slot: slot,
         mousedOver: false
     };
 
@@ -138,11 +140,15 @@ Inventory.startDrag = function(slot) {
     document.getElementById('invDragImg').style.display = 'block';
     if (isFinite(slot)) {
         document.getElementById('invDragImg').src = './client/img/item/' + Inventory.items[slot].item.id + '.png';
+        Inventory.items[slot].slot.innerHTML = '<img src="./client/img/item/empty.png" class="invSlotImgNoGrab"></img>'
     } else {
         document.getElementById('invDragImg').src = './client/img/item/' + Inventory.equips[slot].item.id + '.png';
+        Inventory.equips[slot].slot.innerHTML = '<img src="./client/img/item/emptySlot' + Inventory.equips[slot].slotId + '.png" class="invSlotImgNoGrab"></img>';
     }
 };
 Inventory.endDrag = function(slot) {
+    document.getElementById('invDragImg').style.display = '';
+    document.getElementById('invDragImg').src = './client/img/item/empty.png';
     socket.emit('item', {
         action: 'drag',
         data: {
@@ -158,6 +164,7 @@ document.addEventListener('mousedown', function(e) {
             document.getElementById('invDragImg').style.left = e.clientX-32 + 'px';
             document.getElementById('invDragImg').style.top = e.clientY-32 + 'px';
             if (Inventory.items[i].item) Inventory.startDrag(Inventory.items[i].slotId);
+            return;
         }
     }
     for (var i in Inventory.equips) {
@@ -165,28 +172,25 @@ document.addEventListener('mousedown', function(e) {
             document.getElementById('invDragImg').style.left = e.clientX-32 + 'px';
             document.getElementById('invDragImg').style.top = e.clientY-32 + 'px';
             if (Inventory.equips[i].item) Inventory.startDrag(Inventory.equips[i].slotId);
+            return;
         }
     }
 });
 document.addEventListener('mouseup', function(e) {
     if (Inventory.currentDrag != null) {
-        document.getElementById('invDragImg').style.display = '';
-        document.getElementById('invDragImg').src = './client/img/item/empty.png';
-        setTimeout(function() {
-            for (var i in Inventory.items) {
-                if (Inventory.items[i].mousedOver) {
-                    Inventory.endDrag(Inventory.items[i].slotId);
-                    return;
-                }
+        for (var i in Inventory.items) {
+            if (Inventory.items[i].mousedOver) {
+                Inventory.endDrag(Inventory.items[i].slotId);
+                return;
             }
-            for (var i in Inventory.equips) {
-                if (Inventory.equips[i].mousedOver) {
-                    Inventory.endDrag(Inventory.equips[i].slotId);
-                    return;
-                }
+        }
+        for (var i in Inventory.equips) {
+            if (Inventory.equips[i].mousedOver) {
+                Inventory.endDrag(Inventory.equips[i].slotId);
+                return;
             }
-            Inventory.endDrag(Inventory.currentDrag);
-        }, 5);
+        }
+        Inventory.endDrag(Inventory.currentDrag);
     }
 });
 document.addEventListener('mousemove', function(e) {
@@ -196,8 +200,8 @@ document.addEventListener('mousemove', function(e) {
     }
     if (Inventory.currentHover != null && Inventory.currentDrag == null) {
         document.getElementById('invHoverTooltip').style.opacity = 1;
-        // document.getElementById('invHoverTooltip').style.left = e.clientX + 'px';
-        // document.getElementById('invHoverTooltip').style.top = e.clientY + 'px';
+        document.getElementById('invHoverTooltip').style.left = e.clientX + 'px';
+        document.getElementById('invHoverTooltip').style.top = e.clientY + 'px';
     } else {
         document.getElementById('invHoverTooltip').style.opacity = 0;
     }

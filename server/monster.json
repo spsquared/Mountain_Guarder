@@ -12,6 +12,7 @@
         "hp": 35,
         "moveSpeed": 5,
         "stats": {
+            "damageType": "ranged",
             "attack": 1,
             "defense": 0,
             "damageReduction": 0,
@@ -40,6 +41,7 @@
         "hp": 40,
         "moveSpeed": 5,
         "stats": {
+            "damageType": "ranged",
             "attack": 1,
             "defense": 0,
             "damageReduction": 0,
@@ -68,6 +70,7 @@
         "hp": 60,
         "moveSpeed": 5,
         "stats": {
+            "damageType": "ranged",
             "attack": 1,
             "defense": 0,
             "damageReduction": 5,
@@ -97,6 +100,7 @@
         "hp": 50,
         "moveSpeed": 10,
         "stats": {
+            "damageType": "magic",
             "attack": 1000000000000,
             "defense": 0,
             "damageReduction": 0,
@@ -108,7 +112,8 @@
         "animationLength": 1,
         "xpDrop": 20,
         "drops": [
-            "leatherhood"
+            "leatherhood",
+            "leatherhat"
         ]
     },
     "snowball": {
@@ -124,6 +129,7 @@
         "hp": 100,
         "moveSpeed": 10,
         "stats": {
+            "damageType": "ranged",
             "attack": 1.5,
             "defense": 0,
             "damageReduction": 1,
@@ -135,6 +141,8 @@
         "animationLength": 0,
         "xpDrop": 10,
         "drops": [
+            "leatherhat",
+            "woodenhelmet"
         ]
     }
 }

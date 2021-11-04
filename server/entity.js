@@ -488,7 +488,7 @@ Rig = function() {
         var oldhp = self.hp;
         switch (type) {
             case 'projectile':
-                self.hp -= entity.damage;
+                self.hp -= (entity.damage*=(1-self.stats.defense))-self.stats.damageReduction;
                 if (self.hp < 0) self.hp = 0;
                 break;
             default:
@@ -600,6 +600,10 @@ Player = function(socket) {
     self.canMove = false;
     self.alive = false;
     self.debugEnabled = false;
+    self.creds = {
+        username: null,
+        password: null
+    };
 
     var maps = [];
     for (var i in Collision.list) {
@@ -621,12 +625,10 @@ Player = function(socket) {
                                     }
                                 }
                                 if (!signedIn) {
-                                    self.name = cred.username;
-                                    socket.emit('signInState', 'signedIn');
-                                    insertChat(self.name + ' joined the game.', 'server');
+                                    self.creds.username = cred.username;
+                                    self.creds.password = cred.password;
+                                    self.name= cred.username;
                                     socket.emit('mapData', maps);
-                                    self.canMove = true;
-                                    self.alive = true;
                                 } else {
                                     socket.emit('signInState', 'alreadySignedIn');
                                 }
@@ -637,6 +639,17 @@ Player = function(socket) {
                             case 2:
                                 socket.emit('signInState', 'noAccount');
                                 break;
+                        }
+                        break;
+                    case 'loaded':
+                        if (cred.username == self.creds.username && cred.password == self.creds.password) {
+                            await self.loadData();
+                            socket.emit('signInState', 'signedIn');
+                            insertChat(self.name + ' joined the game.', 'server');
+                            self.canMove = true;
+                            self.alive = true;
+                        } else {
+                            socket.emit('signInState', 'invalidSignIn');
                         }
                         break;
                     case 'signUp':
@@ -832,6 +845,12 @@ Player = function(socket) {
     self.respawn = function() {
         self.hp = self.maxHP;
         self.alive = true;
+    };
+    self.saveData = async function() {
+        ACCOUNTS.saveProgress(self.creds.username, self.creds.password, self.inventory.getSaveData());
+    };
+    self.loadData = async function() {
+        self.inventory.loadSaveData(await ACCOUNTS.loadProgress(self.creds.username, self.creds.password));
     };
 
     Player.list[self.id] = self;
@@ -1149,7 +1168,7 @@ Monster = function(type, x, y, map) {
         var oldhp = self.hp;
         switch (type) {
             case 'projectile':
-                self.hp -= entity.damage;
+                self.hp -= (entity.damage*=(1-self.stats.defense))-self.stats.damageReduction;
                 if (self.hp < 0) self.hp = 0;
                 if (entity.parentID) {
                     if (entity.parentIsPlayer) {
@@ -1190,7 +1209,6 @@ Monster = function(type, x, y, map) {
                         }
                         min += Inventory.items[self.drops[i]].dropChance;
                     }
-                    console.log(self.drops, item)
                     entity.inventory.addItem(item);
                 } catch (err) {
                     error(err);
@@ -1296,6 +1314,11 @@ Projectile = function(type, x, y, map, mousex, mousey, parentID) {
     self.parentID = parentID;
     self.parentIsPlayer = true;
     if (Monster.list[self.parentID]) self.parentIsPlayer = false;
+    if (self.parentIsPlayer) {
+        self.damage *= Player.list[self.parentID].stats.attack;
+    } else {
+        self.damage *= Monster.list[self.parentID].stats.attack;
+    }
     self.traveltime = 0;
 
     self.update = function() {

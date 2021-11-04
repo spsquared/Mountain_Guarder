@@ -1,0 +1,110 @@
+<!-- Copyright (C) 2021 Radioactive64 -->
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>MG Item Creator Tool</title>
+        <meta content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=2.0, minimum-scale=1.0, user-scalable=no">
+        <meta id="viewport" name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=2.0, minimum-scale=1.0, user-scalable=no">
+        <meta charset="utf-8">
+        <link rel="icon" href="./../assets/favicon.ico" type="image/x-icon">
+        <script src="./index.js" defer></script>
+        <link rel="stylesheet" href="./main.css">
+    </head>
+    <body>
+        <span id="header">
+            NAME:&nbsp;<input type="text" id="name" class="text" maxlength="100">
+            ID:&nbsp;<input type="text" id="id" class="text" maxlength="100"> 
+            IMAGE:&nbsp;<input type="file" id="imageUpload" onchange="updateItemPreviewImage(event);">
+        </span>
+        <div id="stackLeft">
+            <b>Description:</b><br>
+            <input type="text" id="description" class="text"><br><br>
+            <b>Base stats:</b><br>
+            &emsp;Slot Type:<select id="slotType" class="select" oninput="updateItemBaseStats();">
+                <option value="none">Unequippable</option>
+                <option value="weapon">Weapon</option>
+                <option value="helmet">Helmet</option>
+                <option value="armor">Armor</option>
+                <option value="boots">Boots</option>
+                <option value="offhand">Offhand</option>
+                <option value="key">Key</option>
+                <option value="crystal">Crystal</option>
+            </select><br>
+            <div id="statsWeapon">
+                &emsp;Projectile:&nbsp;<input type="text" id="projectile" class="text" maxlength="100"><br>
+                &emsp;Projectile Pattern:<select id="projectilePattern" class="select">
+                    <option value="single">Single</option>
+                    <option value="double">Double (V)</option>
+                    <option value="triple">Triple (V)</option>
+                    <option value="spray">Spray</option>
+                    <option value="line">Double (|)</option>
+                    <option value="triangle">Triple (△)</option>
+                    <option value="ring">Decagon</option>
+                </select><br>
+                &emsp;Projectile Speed:&nbsp;<input type="number" id="projectileSpeed" class="text-small" min="0" max="999999999" step="0.1"><br>
+                &emsp;Damage:&nbsp;<input type="number" id="damage" class="text-small" min="0" max="999999999"><br>
+                &emsp;Damage Type:&nbsp;<input type="text" id="damageType" class="text-small" maxlength="100"><br>
+                &emsp;Crit Chance:&nbsp;<input type="number" id="critChance" class="text-small" min="0" max="1" step="0.01"><br>
+                &emsp;Knockback:&nbsp;<input type="number" id="knockback" class="text-small" min="0" max="999999999"><br>
+                &emsp;Usetime (ticks):&nbsp;<input type="number" id="useTime" class="text-small" min="0" max="999999999"><br>
+                &emsp;Manacost:&nbsp;<input type="number" id="manaCost" class="text-small" min="0" max="999999999"><br>
+            </div>
+            <div id="statsKey">
+                &emsp;Color:&nbsp;<input type="color" id="color" class="color">
+            </div>
+            <div id="statsOffhand">
+                &emsp;Custom Effect:<br>
+                <textarea id="offhandEffect">self.updateOffhand = function() {
+    
+};
+                </textarea>
+            </div>
+            &emsp;Rarity:&nbsp;<input type="number" id="rarity" class="text-small" min="0" max="999999999"><br>
+            &emsp;Drop Chance:&nbsp;<input type="number" id="dropChance" class="text-small" min="0" max="1" step="0.01"><br><br>
+            <b>Effects:</b><br>
+            &emsp;Health Boost:&nbsp;<input type="number" id="health" class="text-small" min="0" max="10" step="0.01"><br>
+            &emsp;All Damage Boost:&nbsp;<input type="number" id="damage" class="text-small" min="0" max="10" step="0.01"><br>
+            &emsp;Ranged Damage Boost:&nbsp;<input type="number" id="rangedDamage" class="text-small" min="0" max="10" step="0.01"><br>
+            &emsp;Melee Damage Boost:&nbsp;<input type="number" id="meleeDamage" class="text-small" min="0" max="10" step="0.01"><br>
+            &emsp;Magic Damage Boost:&nbsp;<input type="number" id="magicDamage" class="text-small" min="0" max="10" step="0.01"><br>
+            &emsp;Range Boost:&nbsp;<input type="number" id="range" class="text-small" min="0" max="10" step="0.01"><br>
+            &emsp;Crit Chance Increase:&nbsp;<input type="number" id="critChance" class="text-small" min="0" max="10" step="0.01"><br>
+            &emsp;Damage Reduction:&nbsp;<input type="number" id="damageReduction" class="text-small" min="0" max="10" step="0.01"><br>
+            &emsp;Defense:&nbsp;<input type="number" id="defense" class="text-small" min="0" max="10" step="0.01"><br>
+        </div>
+        <div id="itemPreview">
+            <div id="itemPreviewItem">
+                <div id="itemPreviewSlot">
+                    <img id="itemPreviewImg" width="128" height="128">
+                </div>
+            </div>
+        </div>
+        <div id="stackRight">
+            <b>Enchantments:</b><br>
+            <div id="enchantments">
+                <b>All</b><br>
+                &emsp;<input type="checkbox" id="burst" class="checkBox">Burst (movespeed)<br>
+                <b>Weapons</b><br>
+                &emsp;<input type="checkbox" id="speed" class="checkBox">Speed (attackspeed)<br>
+                &emsp;<b>Ranged</b><br>
+                &emsp;&emsp;<input type="checkbox" id="range" class="checkBox">Range (range)<br>
+                &emsp;&emsp;<input type="checkbox" id="accuracy" class="checkBox">Accuracy (crit chance)<br>
+                &emsp;&emsp;<input type="checkbox" id="power" class="checkBox">Power (damage)<br>
+                &emsp;<b>Melee</b><br>
+                &emsp;&emsp;<input type="checkbox" id="sharpness" class="checkBox">Sharpness (damage)<br>
+                &emsp;<b>Magic</b><br>
+                &emsp;&emsp;<input type="checkbox" id="efficiency" class="checkBox">Efficiency (manacost)<br>
+                &emsp;&emsp;<input type="checkbox" id="sorcery" class="checkBox">Sorcery (damage)<br>
+                &emsp;&emsp;<input type="checkbox" id="focus" class="checkBox">Focus (crit chance)<br>
+                <b>Armor</b><br>
+                &emsp;<input type="checkbox" id="protection" class="checkBox">Protection (defense)<br>
+                &emsp;<input type="checkbox" id="smashing" class="checkBox">Smashing (touch knockback)<br>
+                &emsp;<b>Keys</b><br>
+                &emsp;<input type="checkbox" id="unlocking" class="checkBox">Unlocking (health)<br>
+            </div>
+            <input type="button" id="generateServerItem" class="button" value="GENERATE SERVER ITEM" onclick="generateServerItem();">
+            <input type="button" id="generateClientItem" class="button" value="GENERATE CLIENT ITEM" onclick="generateClientItem();">
+        </div>
+    </body>
+</html>

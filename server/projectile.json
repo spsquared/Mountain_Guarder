@@ -4,34 +4,47 @@
         "height": 10,
         "speed": 40,
         "pattern": "none",
-        "damage": 10
+        "damage": 10,
+        "knockback": 2
     },
     "magicball": {
         "width": 20,
         "height": 20,
         "speed": 20,
         "pattern": "homing",
-        "damage": 10
+        "damage": 10,
+        "knockback": 0
+    },
+    "meleeDamage": {
+        "width": 40,
+        "height": 40,
+        "speed": 0,
+        "pattern": "none",
+        "damage": 1,
+        "knockback": 1
     },
     "ninjastar": {
         "width": 18,
         "height": 18,
         "speed": 40,
         "pattern": "spin",
-        "damage": 5
+        "damage": 5,
+        "knockback": 2
     },
     "snowball": {
         "width": 18,
         "height": 18,
         "speed": 30,
         "pattern": "spin",
-        "damage": 5
+        "damage": 5,
+        "knockback": 1
     },
     "fastsnowball": {
         "width": 18,
         "height": 18,
         "speed": 40,
         "pattern": "spin",
-        "damage": 10
+        "damage": 10,
+        "knockback": 2
     }
 }

@@ -40,6 +40,11 @@ function load(data) {
     var updateLoadBar = setInterval(function() {
         if (loadedassets >= totalassets) {
             clearInterval(updateLoadBar);
+            socket.emit('signIn', {
+                state: 'loaded',
+                username: document.getElementById('username').value,
+                password: document.getElementById('password').value
+            });
             loaded = true;
         }
     });

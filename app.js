@@ -1,7 +1,7 @@
 // Copyright (C) 2021 Radioactive64
 // Go to README.md for more information
 
-const version = 'v0.5.0';
+const version = 'v0.5.1';
 console.info('\x1b[33m%s\x1b[0m', 'Mountain Guarder ' + version + ' copyright (C) Radioactive64 2021');
 const express = require('express');
 const app = express();
@@ -60,6 +60,7 @@ io.on('connection', function(socket) {
     socket.emit('self', player.id);
     // connection
     socket.on('disconnect', function() {
+        player.saveData();
         if (player.name) insertChat(player.name + ' left the game.', 'server');
         delete Player.list[player.id];
         delete SOCKET_LIST[socket.id];
@@ -98,6 +99,9 @@ prompt.on('close', function() {
         clearInterval(tickrate);
         appendLog('----------------------------------------');
         io.emit('disconnected');
+        for (var i in Player.list) {
+            Player.list[i].saveData();
+        }
         ACCOUNTS.disconnect();
         process.exit(0);
     }

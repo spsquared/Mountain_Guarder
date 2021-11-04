@@ -113,10 +113,10 @@ ACCOUNTS = {
         return 2;
     },
     validateCredentials: function(username, password) {
-        if (username != '') {
+        if (username != '' && username != null) {
             if (username.length > 3) {
                 if (!username.includes(' ') && !username.includes('\\') && !username.includes('"')) {
-                    if (password != '') {
+                    if (password != '' && password != null) {
                         if (!password.includes(' ') && !password.includes('\\') && !password.includes('"')) {
                             return 0;
                         } else {
@@ -138,7 +138,7 @@ ACCOUNTS = {
     loadProgress: async function(username, password) {
         if (ENV.offlineMode) return {};
         var progress = await getProgress(username, password);
-        if (progress) {
+        if (progress != false) {
             return progress;
         }
         warn('Failed to load progress!');
@@ -225,7 +225,7 @@ async function updateProgress(username, password, data) {
     if (cred) {
         if (bcrypt.compareSync(password, cred.password)) {
             try {
-                database.query('UPDATE users SET progress=$2 WHERE username=$1', [username, data]);
+                database.query('UPDATE users SET data=$2 WHERE username=$1', [username, data]);
                 return true;
             } catch (err) {
                 forceQuit(err, 2);

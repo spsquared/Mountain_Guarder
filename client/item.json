@@ -1,32 +1,165 @@
 {
-    "simplewoodensword": {
-        "damage": 1,
-        "damageType": "melee",
-        "critChance": 0.02,
-        "knockback": 0.2,
-        "useTime":15,
-        "manaCost": 0,
-        "rarity": 0
+    "leatherarmor": {
+        "name": "Leather Armor",
+        "description": "Simple armor made from leather",
+        "rarity": 0,
+        "effects": [
+            {
+                "id": "damageReduction",
+                "value": 2
+            },
+            {
+                "id": "defense",
+                "value": 0.05
+            }
+        ]
     },
     "simplewoodenbow": {
-        "damage": 0.5,
+        "name": "Simple Wooden Bow",
+        "description": "A cheap, simple bow of standard wood",
+        "rarity": 0,
+        "damage": 1,
         "damageType": "ranged",
         "critChance": 0.02,
-        "knockback": 0.2,
-        "useTime": 10,
-        "manaCost": 0,
-        "rarity": 0
+        "knockback": 0.1,
+        "useTime": "10",
+        "manaCost": "0",
+        "effects": [
+            {
+                "id": "damage",
+                "value": 1
+            },
+            {
+                "id": "critChance",
+                "value": 0.02
+            }
+        ]
     },
     "simplewoodenstaff": {
-        "damage": 0.5,
+        "name": "Simple Wooden Staff",
+        "description": "A trusty wooden staff",
+        "rarity": 0,
+        "damage": 1,
         "damageType": "magic",
         "critChance": 0.05,
         "knockback": 0.2,
-        "useTime": 20,
-        "manaCost": 5,
-        "rarity": 0
+        "useTime": 10,
+        "manaCost": 10,
+        "effects": [
+            {
+                "id": "damage",
+                "value": 1
+            },
+            {
+                "id": "critChance",
+                "value": 0.05
+            }
+        ]
+    },
+    "simplewoodensword": {
+        "name": "Simple Wooden Sword",
+        "description": "A trusty sword made of wood. Not much, but it'll do",
+        "rarity": 0,
+        "damage": 10,
+        "damageType": "melee",
+        "critChance": 0.1,
+        "knockback": 4,
+        "useTime": 15,
+        "manaCost": 0,
+        "effects": [
+            {
+                "id": "damage",
+                "value": 10
+            },
+            {
+                "id": "critChance",
+                "value": 0.1
+            }
+        ]
+    },
+    "leatherhat": {
+        "name": "Leather Hat",
+        "description": "A nice hat made of leather",
+        "rarity": 0,
+        "effects": [
+            {
+                "id": "damage",
+                "value": 10
+            },
+            {
+                "id": "rangedDamage",
+                "value": 0.8
+            },
+            {
+                "id": "meleeDamage",
+                "value": 0.9
+            },
+            {
+                "id": "magicDamage",
+                "value": 1.1
+            },
+            {
+                "id": "critChance",
+                "value": 0.1
+            }
+        ]
     },
     "leatherhood": {
-        "rarity": 0
+        "name": "Leather Hood",
+        "description": "A hood. Attached to nothing. Made of leather",
+        "rarity": 0,
+        "effects": [
+            {
+                "id": "damage",
+                "value": 10
+            },
+            {
+                "id": "rangedDamage",
+                "value": 1.1
+            },
+            {
+                "id": "meleeDamage",
+                "value": 0.9
+            },
+            {
+                "id": "magicDamage",
+                "value": 0.7
+            },
+            {
+                "id": "critChance",
+                "value": 0.1
+            }
+        ]
+    },
+    "woodenhelmet": {
+        "name": "Wooden Helmet",
+        "description": "A helmet made of wood?",
+        "rarity": 0,
+        "effects": [
+            {
+                "id": "damage",
+                "value": 10
+            },
+            {
+                "id": "rangedDamage",
+                "value": 0.8
+            },
+            {
+                "id": "meleeDamage",
+                "value": 11
+            },
+            {
+                "id": "magicDamage",
+                "value": 0.8
+            },
+            {
+                "id": "critChance",
+                "value": 0.1
+            },
+            {
+                "id": "damageReduction",
+                "value": 5
+            }
+        ]
     }
 }

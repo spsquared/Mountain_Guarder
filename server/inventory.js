@@ -42,6 +42,14 @@ Inventory = function(socket) {
             }
         });
     };
+    self.refresh = function() {
+        for (var i in self.items) {
+            self.refreshItem(i);
+        }
+        for (var i in self.equips) {
+            self.refreshItem(i);
+        }
+    };
     self.refreshItem = function(slot) {
         if (isFinite(slot)) {
             if (self.items[slot]) {
@@ -89,23 +97,94 @@ Inventory = function(socket) {
         } else {
             item2 = self.equips[newslot];
         }
-        if (item1) item1.slot = newslot;
-        if (item2) item2.slot = slot;
-        if (slot1) {
-            self.items[slot] = item2;
-        } else {
-            self.equips[slot] = item2;
+        var valid = true;
+        if (slot1 == false && item2) {
+            var dragslot = slot;
+            if (slot == 'weapon2') dragslot = 'weapon';
+            if (item2.slotType != dragslot) valid = false;
         }
-        if (slot2) {
-            self.items[newslot] = item1;
-        } else {
-            self.equips[newslot] = item1;
+        if (slot2 == false && item1) {
+            var dragslot = newslot;
+            if (newslot == 'weapon2') dragslot = 'weapon';
+            if (item1.slotType != dragslot) valid = false;
+        }
+        if (valid) {
+            if (item1) item1.slot = newslot;
+            if (item2) item2.slot = slot;
+            if (slot1) {
+                self.items[slot] = item2;
+            } else {
+                self.equips[slot] = item2;
+            }
+            if (slot2) {
+                self.items[newslot] = item1;
+            } else {
+                self.equips[newslot] = item1;
+            }
         }
         self.refreshItem(slot);
         self.refreshItem(newslot);
     };
     self.equipItem = function(slot, item) {
 
+    };
+    self.getSaveData = function() {
+        try {
+            var pack = {
+                items: [],
+                equips: []
+            };
+            for (var i in self.items) {
+                var localitem = self.items[i];
+                pack.items.push({
+                    id: localitem.id,
+                    slot: localitem.slot,
+                    enchantments: localitem.enchantments
+                });
+            }
+            for (var i in self.equips) {
+                var localitem = self.equips[i];
+                if (localitem != null) {
+                    pack.equips.push({
+                        id: localitem.id,
+                        slot: localitem.slot,
+                        enchantments: localitem.enchantments
+                    });
+                }
+            }
+    
+            return JSON.stringify(pack);
+        } catch (err) {
+            error(err);
+        }
+    };
+    self.loadSaveData = function(data) {
+        if (data) {
+            try {
+            var items = JSON.parse(data);
+                for (var i in items.items) {
+                    var localitem = items.items[i];
+                    var newitem = new Inventory.Item(localitem.id, []);
+                    newitem.slot = localitem.slot;
+                    for (var j in localitem.enchantments) {
+                        newitem.enchant(localitem.enchantments[j]);
+                    }
+                    self.items[localitem.slot] = newitem;
+                }
+                for (var i in items.equips) {
+                    var localitem = items.equips[i];
+                    var newitem = new Inventory.Item(localitem.id, []);
+                    newitem.slot = localitem.slot;
+                    for (var j in localitem.enchantments) {
+                        newitem.enchant(localitem.enchantments[j]);
+                    }
+                    self.equips[localitem.slot] = newitem;
+                }
+                self.refresh();
+            } catch(err) {
+                error(err);
+            }
+        }
     };
 
     return self;
