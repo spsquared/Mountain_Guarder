@@ -3,7 +3,7 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "C:/Users/jacki/Documents/JS_2021_Jie/rpg thing/maps/The River.tmx",
+    "activeFile": "World.tmx",
     "expandedProjectPaths": [
     ],
     "exportAsImage.useCurrentScale": false,
@@ -14,8 +14,8 @@
             "scale": 1,
             "selectedLayer": 4,
             "viewCenter": {
-                "x": 457.5,
-                "y": 641.5
+                "x": 400.5,
+                "y": 399.5
             }
         },
         "C:/Users/jacki/Google Drive/BattleBoxes Files/Game/BlackWhite.tsx": {
@@ -153,15 +153,15 @@
             "scale": 3,
             "selectedLayer": 9,
             "viewCenter": {
-                "x": 55.49999999999997,
-                "y": 135.83333333333331
+                "x": 112.16666666666664,
+                "y": 131.83333333333334
             }
         },
         "Outpost Cottage 2.tmx": {
             "scale": 3,
             "selectedLayer": 10,
             "viewCenter": {
-                "x": 152.16666666666666,
+                "x": 152.16666666666663,
                 "y": 100.16666666666666
             }
         },
@@ -177,24 +177,24 @@
             "scale": 1.5,
             "selectedLayer": 5,
             "viewCenter": {
-                "x": 322.66666666666663,
-                "y": 353
+                "x": 323,
+                "y": 689
             }
         },
         "The Void.tmx": {
             "scale": 1.6068359374999999,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 188.25817430412062,
-                "y": 256.09335116081195
+                "x": 256.093351160812,
+                "y": 255.47101008873224
             }
         },
         "World.tmx": {
             "scale": 4,
-            "selectedLayer": 0,
+            "selectedLayer": 17,
             "viewCenter": {
-                "x": 208.25,
-                "y": 32.375
+                "x": 150.75,
+                "y": 70.125
             }
         },
         "roguelikeSheet.tsx": {
@@ -223,11 +223,11 @@
     "recentFiles": [
         "roguelikeSheet.tsx",
         "The Void.tmx",
-        "World.tmx",
-        "Outpost Cottage 1.tmx",
-        "Outpost Cottage 2.tmx",
-        "Preview.tmx",
         "C:/Users/jacki/Documents/JS_2021_Jie/rpg thing/maps/The River.tmx",
+        "Preview.tmx",
+        "Outpost Cottage 2.tmx",
+        "Outpost Cottage 1.tmx",
+        "World.tmx",
         "C:/Users/jacki/Google Drive/Meadow-Guarder/client/maps/The Village.tmx",
         "Outpost Cottage.tmx",
         "C:/Users/jacki/Google Drive/Meadow-Guarder/client/maps/Secret Tunnel Part 2.tmx",

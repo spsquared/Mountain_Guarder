@@ -88,6 +88,11 @@ Rig = function(id, map, x, y) {
     self.maxHP = 0;
     self.xp = 0;
     self.manaFull = false;
+    self.heldItem = {
+        id: null,
+        angle: 0,
+        image: new Image()
+    };
     
     self.update = function(param) {
         self.map = param.map;
@@ -98,6 +103,8 @@ Rig = function(id, map, x, y) {
         self.hp = param.hp;
         self.maxHP = param.maxHP;
         self.updated = true;
+        self.heldItem = param.heldItem;
+        if (self.heldItem) self.heldItem.image = Inventory.itemImages[self.heldItem.id];
     };
     self.draw = function() {
         if (inRenderDistance(self)) {
@@ -137,6 +144,15 @@ Player = function(id, map, x, y, isNPC, name) {
 
     self.draw = function () {
         if (inRenderDistance(self)) {
+            if (self.heldItem.image) {
+                LAYERS.elower.save();
+                LAYERS.elower.translate(self.x+OFFSETX, self.y+OFFSETY);
+                LAYERS.elower.rotate(self.heldItem.angle);
+                LAYERS.elower.translate(32, 0);
+                LAYERS.elower.rotate(-(135*(Math.PI/180)));
+                LAYERS.elower.drawImage(self.heldItem.image, -32, -32, 64, 64);
+                LAYERS.elower.restore();
+            }
             LAYERS.elower.drawImage(self.animationsCanvas, (self.animationStage % 6)*8, (~~(self.animationStage / 6))*16, 8, 16, self.x-16+OFFSETX, self.y-52+OFFSETY, 32, 64);
             if (self.drawHealthBar) {
                 LAYERS.eupper.drawImage(Rig.healthBarG, 0, 0, 42, 5, self.x-63+OFFSETX, self.y-72+OFFSETY, 126, 15);
@@ -186,9 +202,13 @@ Player.update = function(data) {
         if (Player.list[data[i].id]) {
             Player.list[data[i].id].update(data[i]);
         } else {
-            new Player(data[i].id, data[i].map, data[i].x, data[i].y, data[i].isNPC, data[i].name);
-            Player.list[data[i].id].updateAnimationCanvas();
-            Player.list[data[i].id].update(data[i]);
+            try {
+                new Player(data[i].id, data[i].map, data[i].x, data[i].y, data[i].isNPC, data[i].name);
+                Player.list[data[i].id].updateAnimationCanvas();
+                Player.list[data[i].id].update(data[i]);
+            } catch (err) {
+                console.error(err);
+            }
         }
     }
     for (var i in Player.list) {
@@ -251,8 +271,12 @@ Monster.update = function(data) {
             if (Monster.list[data[i].id]) {
                 Monster.list[data[i].id].update(data[i]);
             } else {
-                new Monster(data[i].id, data[i].map, data[i].x, data[i].y, data[i].type);
-                Monster.list[data[i].id].update(data[i])
+                try {
+                    new Monster(data[i].id, data[i].map, data[i].x, data[i].y, data[i].type);
+                    Monster.list[data[i].id].update(data[i]);
+                } catch (err) {
+                    console.error(err);
+                }
             }
         }
     }
@@ -318,8 +342,12 @@ Projectile.update = function(data) {
             if (Projectile.list[data[i].id]) {
                 Projectile.list[data[i].id].update(data[i]);
             } else {
-                new Projectile(data[i].id, data[i].map, data[i].x, data[i].y, data[i].angle, data[i].type);
-                Projectile.list[data[i].id].update(data[i]);
+                try {
+                    new Projectile(data[i].id, data[i].map, data[i].x, data[i].y, data[i].angle, data[i].type);
+                    Projectile.list[data[i].id].update(data[i]);
+                } catch (err) {
+                    console.error(err);
+                }
             }
         }
     }
@@ -528,7 +556,7 @@ function loadEntityData() {
                 totalassets++;
                 Monster.images[i] = new Image();
                 Monster.images[i].src = './client/img/monster/' + i + '.png';
-                Monster.images[i].onload = function() {loadedassets++;}
+                Monster.images[i].onload = function() {loadedassets++;};
             }
         } else {
             console.error('Error: Server returned status ' + this.status);
@@ -553,7 +581,7 @@ function loadEntityData() {
                 totalassets++;
                 Projectile.images[i] = new Image();
                 Projectile.images[i].src = './client/img/projectile/' + i + '.png';
-                Projectile.images[i].onload = function() {loadedassets++;}
+                Projectile.images[i].onload = function() {loadedassets++;};
             }
         } else {
             console.error('Error: Server returned status ' + this.status);

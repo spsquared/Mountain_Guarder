@@ -333,18 +333,17 @@ try {
     for (var i in cookiesettings) {
         if (settings[i] != null) settings[i] = cookiesettings[i];
     }
+    settings.debug = false;
     document.getElementById('fpsSlider').value = settings.fps;
     document.getElementById('renderDistanceSlider').value = settings.renderDistance;
     document.getElementById('renderQualitySlider').value = settings.renderQuality;
     document.getElementById('particlesToggle').checked = settings.particles;
     document.getElementById('chatBackgroundToggle').checked = settings.chatBackground;
     document.getElementById('chatSizeSlider').value = settings.chatSize;
-    document.getElementById('debugToggle').checked = settings.debug;
     updateSetting('fps');
     updateSetting('renderDistance');
     updateSetting('renderQuality');
     updateSetting('particles');
     updateSetting('chatBackground');
     updateSetting('chatSize');
-    updateSetting('debug');
 } catch {}

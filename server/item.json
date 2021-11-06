@@ -110,10 +110,6 @@
         "dropChance": 0.5,
         "effects": [
             {
-                "id": "damage",
-                "value": 10
-            },
-            {
                 "id": "rangedDamage",
                 "value": 0.8
             },
@@ -156,6 +152,10 @@
             {
                 "id": "magicDamage",
                 "value": 0.7
+            },
+            {
+                "id": "range",
+                "value": 1.1
             },
             {
                 "id": "critChance",

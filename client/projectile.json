@@ -5,6 +5,12 @@
         "rawWidth": 48,
         "rawHeight": 5
     },
+    "magicball": {
+        "width": 36,
+        "height": 36,
+        "rawWidth": 9,
+        "rawHeight": 9
+    },
     "ninjastar": {
         "width": 22,
         "height": 22,

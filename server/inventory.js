@@ -1,6 +1,6 @@
 // Copyright (C) 2021 Radioactive64
 
-Inventory = function(socket) {
+Inventory = function(socket, id) {
     var self = {
         items: [],
         equips: {
@@ -63,7 +63,6 @@ Inventory = function(socket) {
             }
         } else {
             if (self.equips[slot]) {
-                self.equipItem(slot, self.equips[slot]);
                 self.equips[slot].refresh();
                 socket.emit('item', {
                     action: 'add',
@@ -115,18 +114,17 @@ Inventory = function(socket) {
                 self.items[slot] = item2;
             } else {
                 self.equips[slot] = item2;
+                Player.list[id].updateStats();
             }
             if (slot2) {
                 self.items[newslot] = item1;
             } else {
                 self.equips[newslot] = item1;
+                Player.list[id].updateStats();
             }
         }
         self.refreshItem(slot);
         self.refreshItem(newslot);
-    };
-    self.equipItem = function(slot, item) {
-
     };
     self.getSaveData = function() {
         try {

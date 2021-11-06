@@ -5,15 +5,19 @@
         "speed": 40,
         "pattern": "none",
         "damage": 10,
-        "knockback": 2
+        "range": 5,
+        "knockback": 2,
+        "noCollision": false
     },
     "magicball": {
-        "width": 20,
-        "height": 20,
+        "width": 40,
+        "height": 40,
         "speed": 20,
         "pattern": "homing",
         "damage": 10,
-        "knockback": 0
+        "range": 10,
+        "knockback": 0,
+        "noCollision": true
     },
     "meleeDamage": {
         "width": 40,
@@ -21,7 +25,9 @@
         "speed": 0,
         "pattern": "none",
         "damage": 1,
-        "knockback": 1
+        "range": 1,
+        "knockback": 1,
+        "noCollision": true
     },
     "ninjastar": {
         "width": 18,
@@ -29,7 +35,9 @@
         "speed": 40,
         "pattern": "spin",
         "damage": 5,
-        "knockback": 2
+        "range": 10,
+        "knockback": 2,
+        "noCollision": false
     },
     "snowball": {
         "width": 18,
@@ -37,7 +45,9 @@
         "speed": 30,
         "pattern": "spin",
         "damage": 5,
-        "knockback": 1
+        "range": 3,
+        "knockback": 1,
+        "noCollision": false
     },
     "fastsnowball": {
         "width": 18,
@@ -45,6 +55,8 @@
         "speed": 40,
         "pattern": "spin",
         "damage": 10,
-        "knockback": 2
+        "range": 5,
+        "knockback": 2,
+        "noCollision": false
     }
 }

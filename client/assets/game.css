@@ -3,7 +3,7 @@
 /* game container */
 #gameContainer {
     display: none;
-    overflow: hidden;
+    overflow: hidden hidden;
 }
 
 /* canvas */

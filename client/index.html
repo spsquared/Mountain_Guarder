@@ -7,7 +7,7 @@
         <meta content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=2.0, minimum-scale=1.0, user-scalable=no">
         <meta id="viewport" name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=2.0, minimum-scale=1.0, user-scalable=no">
         <meta charset="utf-8">
-        <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://meadowguarderold.herokuapp.com/ 'unsafe-eval' 'unsafe-inline'; script-src 'self' https://cdn.socket.io/socket.io-1.4.5.js https://code.jquery.com/jquery-3.5.0.js 'unsafe-eval' 'unsafe-inline'; script-src-elem 'self' https://cdn.socket.io/socket.io-1.4.5.js https://code.jquery.com/jquery-3.5.0.js 'unsafe-eval' 'unsafe-inline'; frame-src 'self' https://www.youtube.com/ https://meadowguarderold.herokuapp.com/ 'unsafe-eval' 'unsafe-inline'">
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://meadowguarderold.herokuapp.com/ https://tscache.com/donation_total.json 'unsafe-eval' 'unsafe-inline'; script-src 'self' https://cdn.socket.io/socket.io-1.4.5.js https://code.jquery.com/jquery-3.5.0.js 'unsafe-eval' 'unsafe-inline'; script-src-elem 'self' https://cdn.socket.io/socket.io-1.4.5.js https://code.jquery.com/jquery-3.5.0.js 'unsafe-eval' 'unsafe-inline'; frame-src 'self' https://www.youtube.com/ https://meadowguarderold.herokuapp.com/ 'unsafe-eval' 'unsafe-inline'">
         <link rel="icon" href="./client/assets/favicon.ico" type="image/x-icon">
         <script src="/socket.io/socket.io.js"></script>
         <script>socket = io();</script>
@@ -68,6 +68,21 @@
                             insert changes here
                         </div>
                     </div> -->
+                    <div class="stack ui-block ui-lighttext">
+                        <div class="ui-lighttext stackHeader">
+                            v0.5.2 - 11/6/21
+                        </div>
+                        <div class="ui-lighttext stackBody">
+                            The inventory is almost complete. Items now actually do something! In the meantime, go support <a href="https://teamseas.org/" target="_blank" class="ui-link">#TeamSeas</a> in their mission to remove 30,000,000 pounds of trash from the oceans! <a href="/client/teamSeas/" target="_blank" class="ui-link">#TeamSeas!</a>
+                            <ul>
+                                <li>Equipped items now have an effect</li>
+                                <li>Item held is now visible (swords and staffs are a bit broken)</li>
+                                <li>Tweaked mana regeneration (0.5s since last use before regen starts)</li>
+                                <li>Added <a href="https://teamseas.org" target="_blank" class="ui-link">#TeamSeas Announcement</a></li>
+                                <li>Players now regen automatically</li>
+                            </ul>
+                        </div>
+                    </div>
                     <div class="stack ui-block ui-lighttext">
                         <div class="ui-lighttext stackHeader">
                             v0.5.1 - 11/4/21
@@ -446,6 +461,12 @@
                         </div>
                         <div class="ui-lighttext stackBody">
                             <div class="stackSub">
+                                11/6/21
+                            </div>
+                            <div class="stackBody">
+                                <a href="/client/teamSeas/" target="_blank" class="ui-link">#TeamSeas</a> Donate today at <a href="https://teamseas.org" target="_blank" class="ui-link">teamseas.org</a>! Help raise $30,000,000 by the end of the year! Every dollar donated removes 1 pound of trash from the ocean!
+                            </div><br>
+                            <div class="stackSub">
                                 9/23/2021
                             </div>
                             <div class="stackBody">
@@ -546,6 +567,7 @@
                 <div id="dropdownMenuItems">
                     <button id="inventoryButton" class="ui-lightbutton" onclick="openInventory();">Inventory</button>
                     <button id="settingsButton" class="ui-lightbutton" onclick="openSettings();">Settings</button>
+                    <button id="teamSeasButton" class="ui-lightbutton" onclick="window.open('/client/teamSeas/');">#TeamSeas</button>
                     <button id="logOutButton" class="ui-lightbutton" onclick="window.location.reload();">Log Out</button>
                 </div>
             </div>
@@ -746,7 +768,7 @@
                 <button id="respawnButton" class="ui-lightbutton" onclick="respawn();">Respawn</button>
             </div>
         </div>
-        <div id="disconnectedContainer">
+        <div id="disconnectedContainer" class="noSelect">
             <button id="disconnected" class="noselect" onclick="window.location.reload()">DISCONNECTED</button>
         </div>
         <div style="display: none;">

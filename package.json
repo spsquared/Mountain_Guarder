@@ -1,6 +1,6 @@
 {
   "name": "mountain_guarder",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "Meadow Guarder's sister game!",
   "main": "app.js",
   "scripts": {

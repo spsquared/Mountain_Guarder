@@ -207,6 +207,7 @@ document.addEventListener('mousemove', function(e) {
     }
 });
 Inventory.itemTypes = [];
+Inventory.itemImages = [];
 function loadInventoryData() {
     totalassets++;
     var request = new XMLHttpRequest();
@@ -216,6 +217,18 @@ function loadInventoryData() {
             var json = JSON.parse(this.response);
             Inventory.itemTypes = json;
             loadedassets++;
+            for (var i in Inventory.itemTypes) {
+                totalassets++;
+                Inventory.itemImages[i] = new Image();
+                Inventory.itemImages[i].src = './client/img/item/' + i + '.png';
+                Inventory.itemImages[i].className = 'invSlotImg';
+                Inventory.itemImages[i].onload = function() {loadedassets++;};
+            }
+            totalassets++;
+            Inventory.itemImages['empty'] = new Image();
+            Inventory.itemImages['empty'].className = 'invSlotImgNoGrab';
+            Inventory.itemImages['empty'].src = './client/img/item/empty.png';
+            Inventory.itemImages['empty'].onload = function() {loadedassets++;};
         } else {
             console.error('Error: Server returned status ' + this.status);
             await sleep(1000);
