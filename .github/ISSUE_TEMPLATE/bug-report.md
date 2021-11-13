@@ -28,4 +28,4 @@ If applicable, add screenshots to help explain your problem.
  - Version [e.g. v0.4.3]
 
 **Additional context**
-Add any other context about the problem here.
+If applicable, place as many event logs as possible. Logs include log.txt, the server console, and client console(s).
