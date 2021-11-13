@@ -30,6 +30,7 @@ function generateServerItem() {
         item.projectile = null;
         item.projectilePattern = null;
         item.projectileSpeed = null;
+        item.projectileRange = null;
         item.damage = null;
         item.damageType = null;
         item.critChance = null;
@@ -57,7 +58,7 @@ function generateServerItem() {
     var effects = ["health", "damage", "rangedDamage", "meleeDamage", "magicDamage", "critChance", "damageReduction", "defense"];
     item.effects = [];
     for (var i in effects) {
-        var value = document.getElementById(effects[i]).value;
+        var value = document.getElementById('effect' + effects[i]).value;
         if (value != '') {
             if (isNaN(value*2) == false) value = parseFloat(value);
             item.effects.push({
@@ -66,7 +67,7 @@ function generateServerItem() {
             });
         }
     }
-    var enchantments = ["burst", "speed", "range", "accuracy", "power", "sharpness", "efficiency", "sorcery", "focus", "protection", "smashing", "unlocking"];
+    var enchantments = ["swiftness", "speed", "range", "accuracy", "power", "sharpness", "efficiency", "sorcery", "focus", "protection", "smashing", "unlocking"];
     item.enchantments = [];
     for (var i in enchantments) {
         var checked = document.getElementById(enchantments[i]).checked;
@@ -93,6 +94,8 @@ function generateClientItem() {
         item.knockback = null;
         item.useTime = null;
         item.manaCost = null;
+        item.heldAngle = null;
+        item.heldDistance = null;
     }
     for (var i in item) {
         var value = document.getElementById(i).value;
@@ -110,7 +113,7 @@ function generateClientItem() {
     var effects = ["health", "damage", "rangedDamage", "meleeDamage", "magicDamage", "critChance", "damageReduction", "defense"];
     item.effects = [];
     for (var i in effects) {
-        var value = document.getElementById(effects[i]).value;
+        var value = document.getElementById('effect' + effects[i]).value;
         if (value != '') {
             if (isNaN(value*2) == false) value = parseFloat(value);
             item.effects.push({

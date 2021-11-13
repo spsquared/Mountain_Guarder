@@ -20,106 +20,126 @@ var tilesetloaded = false;
 var tileset = new Image();
 tileset.onload = function() {
     tilesetloaded = true;
+    loadedassets++;
 };
 function load(data) {
-    tileset.src = './client/maps/roguelikeSheet.png';
-    totalassets = 0;
+    document.getElementById('loadingContainer').style.animationName = 'fadeIn';
+    document.getElementById('loadingContainer').style.display = 'block';
+    totalassets = 1;
     for (var i in data) {
         totalassets++;
     }
-    var wait = setInterval(async function() {
-        if (tilesetloaded) {
-            clearInterval(wait);
-            loadEntityData();
-            for (var i in data) {
-                await loadMap(data[i]);
+    setTimeout(async function() {
+        await getEntityData();
+        await getInventoryData();
+        document.getElementById('loadingBar').style.display = 'block';
+        tileset.src = './client/maps/roguelikeSheet.png';
+        var updateLoadBar = setInterval(function() {
+            var percent = Math.round(loadedassets/totalassets*100) + '%';
+            document.getElementById('loadingBarText').innerText = loadedassets + '/' + totalassets + ' (' + percent + ')';
+            document.getElementById('loadingBarInner').style.width = percent;
+            if (loadedassets >= totalassets) {
+                clearInterval(updateLoadBar);
+                document.getElementById('loadingIcon').style.opacity = 0;
+                setTimeout(function() {
+                    socket.emit('signIn', {
+                        state: 'loaded',
+                        username: document.getElementById('username').value,
+                        password: document.getElementById('password').value
+                    });
+                    loaded = true;
+                }, 500);
             }
-            loadInventoryData();
-        }
-    }, 100);
-    var updateLoadBar = setInterval(function() {
-        if (loadedassets >= totalassets) {
-            clearInterval(updateLoadBar);
-            socket.emit('signIn', {
-                state: 'loaded',
-                username: document.getElementById('username').value,
-                password: document.getElementById('password').value
-            });
-            loaded = true;
-        }
-    });
+        }, 5);
+        await loadEntityData();
+        await sleep(Math.random()*50);
+        await loadInventoryData();
+        var wait = setInterval(async function() {
+            if (tilesetloaded) {
+                clearInterval(wait);
+                for (var i in data) {
+                    await sleep(Math.random()*50);
+                    await loadMap(data[i]);
+                }
+            }
+        }, 5);
+    }, 500);
 };
-async function loadMap(name) {
-    if (tilesetloaded) {
-        var request = new XMLHttpRequest();
-        request.open('GET', './client/maps/' + name + '.json', true);
-        request.onload = function() {
-            if (this.status >= 200 && this.status < 400) {
-                var json = JSON.parse(this.response);
-                MAPS[name] = {
-                    width: 0,
-                    height: 0,
-                    offsetX: 0,
-                    offsetY: 0,
-                    chunkwidth: 0,
-                    chunkheight: 0,
-                    chunks: [],
-                    chunkJSON: []
-                };
-                for (var i in json.layers) {
-                    if (json.layers[i].visible) {
-                        if (json.layers[i].name == 'Ground Terrain') {
-                            MAPS[name].width = json.layers[i].width;
-                            MAPS[name].height = json.layers[i].height;
-                        }
-                        if (json.layers[i].chunks) {
-                            for (var j in json.layers[i].chunks) {
-                                var rawchunk = json.layers[i].chunks[j];
-                                MAPS[name].chunkwidth = rawchunk.width;
-                                MAPS[name].chunkheight = rawchunk.height;
-                                MAPS[name].offsetX = Math.min(rawchunk.x*64, MAPS[name].offsetX);
-                                MAPS[name].offsetY = Math.min(rawchunk.y*64, MAPS[name].offsetY);
-                                if (MAPS[name].chunkJSON[rawchunk.y/rawchunk.width] == null) {
-                                    MAPS[name].chunkJSON[rawchunk.y/rawchunk.width] = [];
-                                }
-                                if (MAPS[name].chunkJSON[rawchunk.y/rawchunk.width][rawchunk.x/rawchunk.height] == null) {
-                                    MAPS[name].chunkJSON[rawchunk.y/rawchunk.width][rawchunk.x/rawchunk.height] = [];
-                                }
-                                MAPS[name].chunkJSON[rawchunk.y/rawchunk.width][rawchunk.x/rawchunk.width][json.layers[i].name] = rawchunk.data;
-                                MAPS[name].chunkJSON[rawchunk.y/rawchunk.width][rawchunk.x/rawchunk.width][json.layers[i].name].offsetX = 0;
-                                MAPS[name].chunkJSON[rawchunk.y/rawchunk.width][rawchunk.x/rawchunk.width][json.layers[i].name].offsetY = 0;
-                                if (json.layers[i].offsetx) MAPS[name].chunkJSON[rawchunk.y/rawchunk.width][rawchunk.x/rawchunk.width][json.layers[i].name].offsetX = json.layers[i].offsetx;
-                                if (json.layers[i].offsety) MAPS[name].chunkJSON[rawchunk.y/rawchunk.width][rawchunk.x/rawchunk.width][json.layers[i].name].offsetY = json.layers[i].offsety;
-                            }
-                        } else {
+function loadMap(name) {
+    return new Promise(async function(resolve, reject) {
+        if (tilesetloaded) {
+            var request = new XMLHttpRequest();
+            request.open('GET', './client/maps/' + name + '.json', true);
+            request.onload = async function() {
+                if (this.status >= 200 && this.status < 400) {
+                    var json = JSON.parse(this.response);
+                    MAPS[name] = {
+                        width: 0,
+                        height: 0,
+                        offsetX: 0,
+                        offsetY: 0,
+                        chunkwidth: 0,
+                        chunkheight: 0,
+                        chunks: [],
+                        chunkJSON: []
+                    };
+                    for (var i in json.layers) {
+                        if (json.layers[i].visible) {
                             if (json.layers[i].name == 'Ground Terrain') {
-                                MAPS[name].chunkwidth = json.layers[i].width;
-                                MAPS[name].chunkheight = json.layers[i].height;
+                                MAPS[name].width = json.layers[i].width;
+                                MAPS[name].height = json.layers[i].height;
                             }
-                            if (MAPS[name].chunkJSON[0] == null) {
-                                MAPS[name].chunkJSON[0] = [[]];
+                            if (json.layers[i].chunks) {
+                                for (var j in json.layers[i].chunks) {
+                                    var rawchunk = json.layers[i].chunks[j];
+                                    MAPS[name].chunkwidth = rawchunk.width;
+                                    MAPS[name].chunkheight = rawchunk.height;
+                                    MAPS[name].offsetX = Math.min(rawchunk.x*64, MAPS[name].offsetX);
+                                    MAPS[name].offsetY = Math.min(rawchunk.y*64, MAPS[name].offsetY);
+                                    if (MAPS[name].chunkJSON[rawchunk.y/rawchunk.width] == null) {
+                                        MAPS[name].chunkJSON[rawchunk.y/rawchunk.width] = [];
+                                    }
+                                    if (MAPS[name].chunkJSON[rawchunk.y/rawchunk.width][rawchunk.x/rawchunk.height] == null) {
+                                        MAPS[name].chunkJSON[rawchunk.y/rawchunk.width][rawchunk.x/rawchunk.height] = [];
+                                    }
+                                    MAPS[name].chunkJSON[rawchunk.y/rawchunk.width][rawchunk.x/rawchunk.width][json.layers[i].name] = rawchunk.data;
+                                    MAPS[name].chunkJSON[rawchunk.y/rawchunk.width][rawchunk.x/rawchunk.width][json.layers[i].name].offsetX = 0;
+                                    MAPS[name].chunkJSON[rawchunk.y/rawchunk.width][rawchunk.x/rawchunk.width][json.layers[i].name].offsetY = 0;
+                                    if (json.layers[i].offsetx) MAPS[name].chunkJSON[rawchunk.y/rawchunk.width][rawchunk.x/rawchunk.width][json.layers[i].name].offsetX = json.layers[i].offsetx;
+                                    if (json.layers[i].offsety) MAPS[name].chunkJSON[rawchunk.y/rawchunk.width][rawchunk.x/rawchunk.width][json.layers[i].name].offsetY = json.layers[i].offsety;
+                                }
+                            } else {
+                                if (json.layers[i].name == 'Ground Terrain') {
+                                    MAPS[name].chunkwidth = json.layers[i].width;
+                                    MAPS[name].chunkheight = json.layers[i].height;
+                                }
+                                if (MAPS[name].chunkJSON[0] == null) {
+                                    MAPS[name].chunkJSON[0] = [[]];
+                                }
+                                MAPS[name].chunkJSON[0][0][json.layers[i].name] = json.layers[i].data;
+                                MAPS[name].chunkJSON[0][0][json.layers[i].name].offsetX = 0;
+                                MAPS[name].chunkJSON[0][0][json.layers[i].name].offsetY = 0;
+                                if (json.layers[i].offsetx) MAPS[name].chunkJSON[0][0][json.layers[i].name].offsetX = json.layers[i].offsetx;
+                                if (json.layers[i].offsety) MAPS[name].chunkJSON[0][0][json.layers[i].name].offsetY = json.layers[i].offsety;
                             }
-                            MAPS[name].chunkJSON[0][0][json.layers[i].name] = json.layers[i].data;
-                            MAPS[name].chunkJSON[0][0][json.layers[i].name].offsetX = 0;
-                            MAPS[name].chunkJSON[0][0][json.layers[i].name].offsetY = 0;
-                            if (json.layers[i].offsetx) MAPS[name].chunkJSON[0][0][json.layers[i].name].offsetX = json.layers[i].offsetx;
-                            if (json.layers[i].offsety) MAPS[name].chunkJSON[0][0][json.layers[i].name].offsetY = json.layers[i].offsety;
                         }
                     }
+                    loadedassets++;
+                    await sleep(Math.random()*100);
+                    resolve();
+                } else {
+                    console.error('Error: Server returned status ' + this.status);
                 }
-                loadedassets++;
-            } else {
-                console.error('Error: Server returned status ' + this.status);
-            }
-        };
-        request.onerror = function(){
-            console.error('There was a connection error. Please retry');
-        };
-        request.send();
-    } else {
-        await sleep(100);
-        await loadMap(name);
-    }
+            };
+            request.onerror = function(){
+                console.error('There was a connection error. Please retry');
+            };
+            request.send();
+        } else {
+            await sleep(100);
+            await loadMap(name);
+        }
+    });
 };
 function MGHC() {};
 
@@ -422,12 +442,16 @@ document.onkeyup = function(e) {
         socket.emit('keyPress', {key:'right', state:false});
     } else if (e.key == ' ') {
         socket.emit('keyPress', {key:'heal', state:false});
-    } else if (e.key == '\\') {
-        settings.debug = !settings.debug;
-        document.getElementById('debugToggle').checked = settings.debug;
-        socket.emit('toggleDebug');
-    } else if (e.key == 'i' || e.key == 'W' || e.key == 'e' || e.key == 'E') {
-        toggleInventory();
+    } else {
+        if (!inchat) {
+            if (e.key == '\\') {
+                settings.debug = !settings.debug;
+                document.getElementById('debugToggle').checked = settings.debug;
+                socket.emit('toggleDebug');
+            } else if (e.key == 'i' || e.key == 'W' || e.key == 'e' || e.key == 'E') {
+                toggleInventory();
+            }
+        }
     }
 };
 document.onmousedown = function(e) {
@@ -482,56 +506,30 @@ socket.on('region', function(name) {
     clearTimeout(mapnameWait);
     document.getElementById('regionName').innerText = name;
     document.getElementById('regionName').style.display = 'block';
-    var opacity = 0;
-    mapnameFade = setInterval(function() {
-        opacity += 0.04;
-        document.getElementById('regionName').style.opacity = opacity;
-        if (opacity >= 1) {
-            clearInterval(mapnameFade);
-            fade = null;
-        }
-    }, 20);
+    document.getElementById('regionName').style.animationName = 'fadeIn';
     mapnameWait = setTimeout(function() {
-        opacity = 1;
-        mapnameFade = setInterval(function() {
-            opacity -= 0.02;
-            document.getElementById('regionName').style.opacity = opacity;
-            if (opacity <= 0) {
-                clearInterval(mapnameFade);
-                fade = null;
-                document.getElementById('regionName').style.display = 'none';
-            }
-        }, 20);
+        document.getElementById('regionName').style.animationName = 'fadeOut';
+        mapnameWait = setTimeout(function() {
+            document.getElementById('regionName').style.display = '';
+        }, 2000);
     }, 6000);
 });
 socket.on('teleport1', function() {
     document.getElementById('fade').style.display = 'block';
-    document.getElementById('fade').style.opacity = 0;
-    var opacity = 0;
-    var fade = setInterval(function() {
-        document.getElementById('fade').style.opacity = opacity;
-        opacity += 0.04;
-        if (opacity >= 1) {
-            clearInterval(fade);
-            document.getElementById('fade').style.opacity = 1;
-            socket.emit('teleport1');
-        }
-    }, 20);
+    document.getElementById('fade').style.animationName = 'fadeIn';
+    setTimeout(function() {
+        socket.emit('teleport1');
+    }, 500);
 });
 socket.on('teleport2', function(pos) {
     player.map = pos.map;
     player.x = pos.x;
     player.y = pos.y;
-    var opacity = 1;
-    var fade = setInterval(function() {
-        document.getElementById('fade').style.opacity = opacity;
-        opacity -= 0.04;
-        if (opacity <= 0) {
-            clearInterval(fade);
-            document.getElementById('fade').style.display = 'none';
-            socket.emit('teleport2');
-        }
-    }, 20);
+    document.getElementById('fade').style.animationName = 'fadeOut';
+    setTimeout(function() {
+        document.getElementById('fade').style.display = 'none';
+        socket.emit('teleport2');
+    }, 500);
 });
 socket.on('playerDied', function() {
     document.getElementById('respawnButton').style.display = 'none';

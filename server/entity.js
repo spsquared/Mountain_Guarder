@@ -968,7 +968,7 @@ Player = function(socket) {
         }
     };
     self.saveData = async function() {
-        ACCOUNTS.saveProgress(self.creds.username, self.creds.password, self.inventory.getSaveData());
+        await ACCOUNTS.saveProgress(self.creds.username, self.creds.password, self.inventory.getSaveData());
     };
     self.loadData = async function() {
         self.inventory.loadSaveData(await ACCOUNTS.loadProgress(self.creds.username, self.creds.password));
@@ -1476,20 +1476,20 @@ Projectile = function(type, x, y, map, mousex, mousey, parentID) {
 
     self.update = function() {
         self.updatePos();
-        if (self.parentIsPlayer) {
-            for (var i in Monster.list) {
-                if (self.collideWith(Monster.list[i]) && Monster.list[i].map == self.map && Monster.list[i].alive) {
-                    Monster.list[i].onHit(self, 'projectile');
-                    if (Monster.list[i].hp <= 0) Monster.list[i].onDeath(Player.list[self.parentID]);
+        if (!self.parentIsPlayer || ENV.pvp) {
+            for (var i in Player.list) {
+                if (self.collideWith(Player.list[i]) && Player.list[i].map == self.map && Player.list[i].alive && i != self.parentID) {
+                    Player.list[i].onHit(self, 'projectile');
+                    if (Player.list[i].hp <= 0) Player.list[i].onDeath();
                     delete Projectile.list[self.id];
                     break;
                 }
             }
         } else {
-            for (var i in Player.list) {
-                if (self.collideWith(Player.list[i]) && Player.list[i].map == self.map && Player.list[i].alive) {
-                    Player.list[i].onHit(self, 'projectile');
-                    if (Player.list[i].hp <= 0) Player.list[i].onDeath();
+            for (var i in Monster.list) {
+                if (self.collideWith(Monster.list[i]) && Monster.list[i].map == self.map && Monster.list[i].alive && i != self.parentID) {
+                    Monster.list[i].onHit(self, 'projectile');
+                    if (Monster.list[i].hp <= 0) Monster.list[i].onDeath(Player.list[self.parentID]);
                     delete Projectile.list[self.id];
                     break;
                 }

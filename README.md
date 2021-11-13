@@ -8,10 +8,8 @@ Meadow Guarder's sister game!
 ### Installation
 ##### Manual Installation
 I cannot distribute node.js as I do not own any rights to it, but visiting [their website](https://nodejs.org/) you can download the latest (not LTS) and install it, **checking the box "Automatically install necessary tools"**. Wait for the installation to finish, then [download the code](https://github.com/definitely-nobody-is-here/Mountain_Guarder/archive/refs/heads/master.zip) and unzip it into any folder. Run Config.bat or Config.sh (depending on system). Then simply double-click on Start.bat or Start.sh and the server is running! (those last two sentences don't apply)
-
 To stop the server, type "stop" into the server console.
 For help, type "help" into server console. (also doesn't apply)
-
 ##### Heroku Installation
 [![Deploy](https://www.Herokucdn.com/deploy/button.svg)](https://Heroku.com/deploy?template=https://github.com/definitely-nobody-is-here/Mountain_Guarder)
 
@@ -37,7 +35,7 @@ If you have verified all four of the above, try restarting the server. If your s
 #### The Server is Slow
 There is nothing we can do about this. It could be your connection speed or a slow server unable to run the game at full speed. Press "backslash" ("\\") ingame and in the top-right corner it should list TPS and Ping. If your Ping is high then that is likely the source of your lag. If you TPS is low then the server is lagging. Check that there is nothing eating your computer's resources by opening Task Manager (Windows) by pressing Ctrl+Shift+Esc.
 
-If you can't resolve your problem after trying these solutions or your problem is not on this page, go to the [Issues](https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues) page and [submit a bug report](https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/new?assignees=&labels=bug&template=bug-report.md&title=BUG+-+%5BSummary+here%5D).
+If you can't resolve your problem after trying these solutions or your problem is not on this page, go to the [Issues](https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues) page and [submit a bug report](https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/new?assignees=&labels=bug&template=bug-report.md&title=BUG+-+%5BSummary+here%5D) and fill out as much information as possible.
 
 ***
 
@@ -69,6 +67,7 @@ If you can't resolve your problem after trying these solutions or your problem i
 | 0.5.0   | <ul><li>Added and implemented inventory</li><li>Added equipping items (no effect yet)</li><li>Added a few item drops</li><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/75" target="_blank">Fixed settings not loading (Issue #75)</a></li><li>Added Offline Mode for testing without corrupting database</li><li>Patched some discrepancies</li><li>Added some s commands</li></ul> |
 | 0.5.1   | <ul><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/85" target="_blank">Added the Mountain Guarder Item Creator Tool!</a></li><li>Modified item stats and added more items</li><li>Player and monster stats now apply</li><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/83" target="_blank">Items can only be equipped in their respective slot types now (Issue #83)</a></li><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/77" target="_blank">Items no longer get visually duplicated when dragging (Issue #77)</a></li><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/81" target="_blank">Added the rest of item images (Issue #81)</a></li><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/84" target="_blank">Patched crash exploit through socket.io (Issue #84)</a></li></ul> |
 | 0.5.2   | <ul><li>Equipped items now have an effect</li><li>Item held is now visible (swords and staffs are a bit broken)</li><li>Tweaked mana regeneration (0.5s since last use before regen starts)</li><li>Added <a href="https://teamseas.org" target="_blank">#TeamSeas Announcement</a></li><li>Players now regen automatically</li></ul> |
+| 0.5.3   | <ul><li>Added a loading screen</li><li>Added some more items</li><li>Pressing "E" and "I" in chat no longer trigger the inventory</li><li>Moved the chat so it isn't off-center by 1 pixel</li><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/86" target="_blank">Patched items not saving on server stops (Issue #86)</a></li><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/89" target="_blank">Fixed inventory overfill (Issue #89)</a></li><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/88" target="_blank">Fixed maps staying black after loading (Issue #88)</a></li><li>Renamed "burst" enchantment to "swiftness"</li><li>Added JavaScript disabled page</li><li>Changed all fade effects to css transitions</li><li>Added SECURITY.md</li></ul> |
 
 ***
 
@@ -95,7 +94,7 @@ Full license can be found in the LICENSE file.
 
 ## Want to Contribute?
 
-To report a bug, you can submit a [submit a bug report](https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/new?assignees=&labels=bug&template=bug-report.md&title=BUG+-+%5BSummary+here%5D) by filling out the template. Please provide as much information to the template as possible. If you would like to contribute code to this game, visit the [Github](https://github.com/definitely-nobody-is-here/Mountain_Guarder) where you can send a pull request with an application request stating your reason to create a pull request in the "comments" section along with it. If you would like to submit a suggestion you can also visit the [Github](https://github.com/definitely-nobody-is-here/Mountain_Guarder) and create a [suggestion](https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/new?assignees=&labels=suggestion&template=feature_request.md&title=SUGGESTION+-+%5BSummary+here%5D). The database is NOT publicly accessible for this game. You will have to make your own if you want to host your own server.
+To report a bug, you can submit a [submit a bug report](https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/new?assignees=&labels=bug&template=bug-report.md&title=BUG+-+%5BSummary+here%5D) by filling out the template. Please provide as much information to the template as possible. If you would like to contribute code to this game, visit the [Github](https://github.com/definitely-nobody-is-here/Mountain_Guarder) where you can send a pull request with an application request stating your reason to create a pull request in the "comments" section along with it. If you would like to submit a suggestion you can also visit the [Github](https://github.com/definitely-nobody-is-here/Mountain_Guarder) and create a [suggestion](https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/new?assignees=&labels=suggestion&template=feature_request.md&title=SUGGESTION+-+%5BSummary+here%5D). The database is NOT publicly accessible for this game. You will have to make your own if you want to host your own server. See SECURITY.md for more information.
 
 ***
 

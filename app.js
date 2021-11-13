@@ -1,13 +1,17 @@
 // Copyright (C) 2021 Radioactive64
 // Go to README.md for more information
 
-const version = 'v0.5.2';
+const version = 'v0.5.3';
+require('./server/log.js');
 console.info('\x1b[33m%s\x1b[0m', 'Mountain Guarder ' + version + ' copyright (C) Radioactive64 2021');
+appendLog('Mountain Guarder ' + version + ' copyright (C) Radioactive64 2021', 'log');
+logColor('Starting server...', '\x1b[32m', 'log');
 const express = require('express');
 const app = express();
 const server = require('http').Server(app);
 const readline = require('readline');
 const prompt = readline.createInterface({input: process.stdin, output: process.stdout});
+
 
 app.get('/', function(req, res) {res.sendFile(__dirname + '/client/index.html');});
 app.use('/client/',express.static(__dirname + '/client/'));
@@ -22,7 +26,6 @@ ENV = {
     },
     pvp: false,
 };
-require('./server/log.js');
 require('./server/collision.js');
 require('./server/inventory.js');
 require('./server/entity.js');
@@ -47,6 +50,8 @@ function start() {
         }, 100);
     }
 };
+logColor('Connecting to database...', '\x1b[32m', 'log');
+ACCOUNTS.connect();
 start();
 
 // connections
@@ -59,9 +64,9 @@ io.on('connection', function(socket) {
     socket.emit('checkReconnect');
     socket.emit('self', player.id);
     // connection
-    socket.on('disconnect', function() {
+    socket.on('disconnect', async function() {
         if (player.name) {
-            player.saveData();
+            await player.saveData();
             insertChat(player.name + ' left the game.', 'server');
         }
         delete Player.list[player.id];
@@ -85,7 +90,7 @@ prompt.on('line', async function(input) {
     if (active && input != '') {
         try {
             appendLog(input, 'log');
-            var msg = eval(input)
+            var msg = await eval(input)
             if (msg == undefined) {
                 msg = 'Successfully executed command';
             }
@@ -96,15 +101,18 @@ prompt.on('line', async function(input) {
         }
     }
 });
-prompt.on('close', function() {
+prompt.on('close', async function() {
     if (active && process.env.PORT == null) {
+        logColor('Stopping Server...', '\x1b[32m', 'log');
         clearInterval(tickrate);
         appendLog('----------------------------------------');
         io.emit('disconnected');
         for (var i in Player.list) {
-            Player.list[i].saveData();
+            if (Player.list[i].name) {
+                await Player.list[i].saveData();
+            }
         }
-        ACCOUNTS.disconnect();
+        await ACCOUNTS.disconnect();
         process.exit(0);
     }
 });
@@ -150,11 +158,11 @@ setInterval(async function() {
 
 // critical errors
 forceQuit = function(err, code) {
-    console.error('\n');
     error('SERVER ENCOUNTERED A FATAL ERROR. STOP CODE:');
     console.error(err);
-    appendLog(code, 'error');
-    error('STOP.\n');
+    appendLog(err, 'error');
+    appendLog('Error code ' + code, 'error');
+    error('STOP.');
     io.emit('disconnected');
     ACCOUNTS.disconnect();
     active = false;

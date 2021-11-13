@@ -19,7 +19,8 @@ Inventory = {
     currentDrag: null,
     dragOffsetX: 0,
     dragOffsetY: 0,
-    currentHover: null
+    currentHover: null,
+    maxItems: 0
 };
 Inventory.Item = function(id, slot) {
     var self = Inventory.itemTypes[id];
@@ -159,20 +160,22 @@ Inventory.endDrag = function(slot) {
     Inventory.currentDrag = null;
 };
 document.addEventListener('mousedown', function(e) {
-    for (var i in Inventory.items) {
-        if (Inventory.items[i].mousedOver) {
-            document.getElementById('invDragImg').style.left = e.clientX-32 + 'px';
-            document.getElementById('invDragImg').style.top = e.clientY-32 + 'px';
-            if (Inventory.items[i].item) Inventory.startDrag(Inventory.items[i].slotId);
-            return;
+    if (loaded) {
+        for (var i in Inventory.items) {
+            if (Inventory.items[i].mousedOver) {
+                document.getElementById('invDragImg').style.left = e.clientX-32 + 'px';
+                document.getElementById('invDragImg').style.top = e.clientY-32 + 'px';
+                if (Inventory.items[i].item) Inventory.startDrag(Inventory.items[i].slotId);
+                return;
+            }
         }
-    }
-    for (var i in Inventory.equips) {
-        if (Inventory.equips[i].mousedOver) {
-            document.getElementById('invDragImg').style.left = e.clientX-32 + 'px';
-            document.getElementById('invDragImg').style.top = e.clientY-32 + 'px';
-            if (Inventory.equips[i].item) Inventory.startDrag(Inventory.equips[i].slotId);
-            return;
+        for (var i in Inventory.equips) {
+            if (Inventory.equips[i].mousedOver) {
+                document.getElementById('invDragImg').style.left = e.clientX-32 + 'px';
+                document.getElementById('invDragImg').style.top = e.clientY-32 + 'px';
+                if (Inventory.equips[i].item) Inventory.startDrag(Inventory.equips[i].slotId);
+                return;
+            }
         }
     }
 });
@@ -208,42 +211,71 @@ document.addEventListener('mousemove', function(e) {
 });
 Inventory.itemTypes = [];
 Inventory.itemImages = [];
-function loadInventoryData() {
+async function getInventoryData() {
     totalassets++;
-    var request = new XMLHttpRequest();
-    request.open('GET', './client/item.json', true);
-    request.onload = async function() {
-        if (this.status >= 200 && this.status < 400) {
-            var json = JSON.parse(this.response);
-            Inventory.itemTypes = json;
-            loadedassets++;
-            for (var i in Inventory.itemTypes) {
+    await new Promise(async function(resolve, reject) {
+        var request = new XMLHttpRequest();
+        request.open('GET', './client/item.json', true);
+        request.onload = async function() {
+            if (this.status >= 200 && this.status < 400) {
+                var json = JSON.parse(this.response);
+                Inventory.itemTypes = json;
+                loadedassets++;
+                for (var i in Inventory.itemTypes) {
+                    totalassets++;
+                    Inventory.itemImages[i] = new Image();
+                }
                 totalassets++;
-                Inventory.itemImages[i] = new Image();
-                Inventory.itemImages[i].src = './client/img/item/' + i + '.png';
-                Inventory.itemImages[i].className = 'invSlotImg';
-                Inventory.itemImages[i].onload = function() {loadedassets++;};
+                Inventory.itemImages['empty'] = new Image();
+                await sleep(Math.random()*10);
+                resolve();
+            } else {
+                console.error('Error: Server returned status ' + this.status);
+                await sleep(1000);
+                request.send();
             }
-            totalassets++;
-            Inventory.itemImages['empty'] = new Image();
-            Inventory.itemImages['empty'].className = 'invSlotImgNoGrab';
-            Inventory.itemImages['empty'].src = './client/img/item/empty.png';
-            Inventory.itemImages['empty'].onload = function() {loadedassets++;};
-        } else {
-            console.error('Error: Server returned status ' + this.status);
-            await sleep(1000);
-            request.send();
-        }
-    };
-    request.onerror = function(){
-        console.error('There was a connection error. Please retry');
-    };
-    request.send();
+        };
+        request.onerror = function(){
+            console.error('There was a connection error. Please retry');
+        };
+        request.send();
+    });
+};
+async function loadInventoryData() {
+    for (var i in Inventory.itemTypes) {
+        await sleep(Math.random()*5);
+        await new Promise(function(resolve, reject) {
+            Inventory.itemImages[i].onload = function() {
+                loadedassets++;
+                resolve();
+            };
+            Inventory.itemImages[i].src = './client/img/item/' + i + '.png';
+            Inventory.itemImages[i].className = 'invSlotImg';
+        });
+    }
+    await sleep(Math.random()*5);
+    await new Promise(function(resolve, reject) {
+        Inventory.itemImages['empty'].onload = function() {
+            loadedassets++;
+            resolve();
+        };
+        Inventory.itemImages['empty'].src = './client/img/item/empty.png';
+        Inventory.itemImages['empty'].className = 'invSlotImgNoGrab';
+    });
+    for (var i in Inventory.equips) {
+        new Inventory.EquipSlot(i);
+    }
 };
 
 // io
 socket.on('item', function(data) {
     switch (data.action) {
+        case 'maxItems':
+            Inventory.maxItems = data.slots;
+            for (var i = 0; i < Inventory.maxItems; i++) {
+                new Inventory.Slot();
+            }
+            break;
         case 'add':
             Inventory.addItem(data.data.id, data.data.slot, data.data.enchantments);
             break;
@@ -255,10 +287,3 @@ socket.on('item', function(data) {
             break;
     }
 });
-
-for (var i in Inventory.equips) {
-    new Inventory.EquipSlot(i);
-}
-for (var i = 0; i < 30; i++) {
-    new Inventory.Slot();
-}

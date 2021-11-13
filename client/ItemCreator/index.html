@@ -43,12 +43,25 @@
                     <option value="ring">Decagon</option>
                 </select><br>
                 &emsp;Projectile Speed:&nbsp;<input type="number" id="projectileSpeed" class="text-small" min="0" max="999999999" step="0.1"><br>
+                &emsp;Projectile Range:&nbsp;<input type="number" id="projectileRange" class="text-small" min="0" max="999999999" step="0.1"><br>
                 &emsp;Damage:&nbsp;<input type="number" id="damage" class="text-small" min="0" max="999999999"><br>
                 &emsp;Damage Type:&nbsp;<input type="text" id="damageType" class="text-small" maxlength="100"><br>
                 &emsp;Crit Chance:&nbsp;<input type="number" id="critChance" class="text-small" min="0" max="1" step="0.01"><br>
                 &emsp;Knockback:&nbsp;<input type="number" id="knockback" class="text-small" min="0" max="999999999"><br>
                 &emsp;Usetime (ticks):&nbsp;<input type="number" id="useTime" class="text-small" min="0" max="999999999"><br>
                 &emsp;Manacost:&nbsp;<input type="number" id="manaCost" class="text-small" min="0" max="999999999"><br>
+                &emsp;Held Angle:&nbsp;<select id="heldAngle" class="select">
+                    <option value="-45">-45</option>
+                    <option value="45">45</option>
+                    <option value="90">90</option>
+                </select><br>
+                &emsp;Held Distance:&nbsp;<select id="heldDistance" class="select">
+                    <option value="0">0</option>
+                    <option value="16">16</option>
+                    <option value="32" selected>32</option>
+                    <option value="48">48</option>
+                    <option value="64">64</option>
+                </select><br>
             </div>
             <div id="statsKey">
                 &emsp;Color:&nbsp;<input type="color" id="color" class="color">
@@ -63,15 +76,15 @@
             &emsp;Rarity:&nbsp;<input type="number" id="rarity" class="text-small" min="0" max="999999999"><br>
             &emsp;Drop Chance:&nbsp;<input type="number" id="dropChance" class="text-small" min="0" max="1" step="0.01"><br><br>
             <b>Effects:</b><br>
-            &emsp;Health Boost:&nbsp;<input type="number" id="health" class="text-small" min="0" max="10" step="0.01"><br>
-            &emsp;All Damage Boost:&nbsp;<input type="number" id="damage" class="text-small" min="0" max="10" step="0.01"><br>
-            &emsp;Ranged Damage Boost:&nbsp;<input type="number" id="rangedDamage" class="text-small" min="0" max="10" step="0.01"><br>
-            &emsp;Melee Damage Boost:&nbsp;<input type="number" id="meleeDamage" class="text-small" min="0" max="10" step="0.01"><br>
-            &emsp;Magic Damage Boost:&nbsp;<input type="number" id="magicDamage" class="text-small" min="0" max="10" step="0.01"><br>
+            &emsp;Health Boost:&nbsp;<input type="number" id="effecthealth" class="text-small" min="0" max="10" step="0.01"><br>
+            &emsp;All Damage Boost:&nbsp;<input type="number" id="effectdamage" class="text-small" min="0" max="10" step="0.01"><br>
+            &emsp;Ranged Damage Boost:&nbsp;<input type="number" id="effectrangedDamage" class="text-small" min="0" max="10" step="0.01"><br>
+            &emsp;Melee Damage Boost:&nbsp;<input type="number" id="effectmeleeDamage" class="text-small" min="0" max="10" step="0.01"><br>
+            &emsp;Magic Damage Boost:&nbsp;<input type="number" id="effectmagicDamage" class="text-small" min="0" max="10" step="0.01"><br>
             &emsp;Range Boost:&nbsp;<input type="number" id="range" class="text-small" min="0" max="10" step="0.01"><br>
-            &emsp;Crit Chance Increase:&nbsp;<input type="number" id="critChance" class="text-small" min="0" max="10" step="0.01"><br>
-            &emsp;Damage Reduction:&nbsp;<input type="number" id="damageReduction" class="text-small" min="0" max="10" step="0.01"><br>
-            &emsp;Defense:&nbsp;<input type="number" id="defense" class="text-small" min="0" max="10" step="0.01"><br>
+            &emsp;Crit Chance Increase:&nbsp;<input type="number" id="effectcritChance" class="text-small" min="0" max="10" step="0.01"><br>
+            &emsp;Damage Reduction:&nbsp;<input type="number" id="effectdamageReduction" class="text-small" min="0" max="10" step="0.01"><br>
+            &emsp;Defense:&nbsp;<input type="number" id="effectdefense" class="text-small" min="0" max="10" step="0.01"><br>
         </div>
         <div id="itemPreview">
             <div id="itemPreviewItem">
@@ -84,7 +97,7 @@
             <b>Enchantments:</b><br>
             <div id="enchantments">
                 <b>All</b><br>
-                &emsp;<input type="checkbox" id="burst" class="checkBox">Burst (movespeed)<br>
+                &emsp;<input type="checkbox" id="swiftness" class="checkBox">Swiftness (movespeed)<br>
                 <b>Weapons</b><br>
                 &emsp;<input type="checkbox" id="speed" class="checkBox">Speed (attackspeed)<br>
                 &emsp;<b>Ranged</b><br>

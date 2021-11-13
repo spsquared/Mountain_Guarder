@@ -1,6 +1,6 @@
 // Copyright (C) 2021 Radioactive64
 
-const version = 'v0.5.2';
+const version = 'v0.5.3';
 var firstload = false;
 // canvas
 CTXRAW = document.getElementById('ctx')
@@ -94,6 +94,7 @@ document.getElementById('stats').addEventListener('contextmenu', function(e) {e.
 document.getElementById('chatText').addEventListener('contextmenu', function(e) {e.preventDefault()});
 document.getElementById('dropdownMenu').addEventListener('contextmenu', function(e) {e.preventDefault()});
 document.getElementById('windows').addEventListener('contextmenu', function(e) {e.preventDefault()});
+document.getElementById('loadingContainer').addEventListener('contextmenu', function(e) {e.preventDefault()});
 document.getElementById('ctx').addEventListener('dblclick', function(e) {e.preventDefault()});
 document.getElementById('fade').addEventListener('dblclick', function(e) {e.preventDefault()});
 document.getElementById('deathScreen').addEventListener('dblclick', function(e) {e.preventDefault()});
@@ -102,6 +103,7 @@ document.getElementById('stats').addEventListener('dblclick', function(e) {e.pre
 document.getElementById('chatText').addEventListener('dblclick', function(e) {e.preventDefault()});
 document.getElementById('dropdownMenu').addEventListener('dblclick', function(e) {e.preventDefault()});
 document.getElementById('windows').addEventListener('dblclick', function(e) {e.preventDefault()});
+document.getElementById('loadingContainer').addEventListener('dblclick', function(e) {e.preventDefault()});
 
 // version
 document.getElementById('version').innerText = version;

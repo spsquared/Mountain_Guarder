@@ -148,11 +148,12 @@ Player = function(id, map, x, y, isNPC, name) {
                 LAYERS.elower.save();
                 LAYERS.elower.translate(self.x+OFFSETX, self.y+OFFSETY);
                 LAYERS.elower.rotate(self.heldItem.angle);
-                LAYERS.elower.translate(32, 0);
-                LAYERS.elower.rotate(-(135*(Math.PI/180)));
+                LAYERS.elower.translate(Inventory.itemTypes[self.heldItem.id].heldDistance, 0);
+                LAYERS.elower.rotate(Inventory.itemTypes[self.heldItem.id].heldAngle*(Math.PI/180));
                 LAYERS.elower.drawImage(self.heldItem.image, -32, -32, 64, 64);
                 LAYERS.elower.restore();
             }
+            document.createElement('div');
             LAYERS.elower.drawImage(self.animationsCanvas, (self.animationStage % 6)*8, (~~(self.animationStage / 6))*16, 8, 16, self.x-16+OFFSETX, self.y-52+OFFSETY, 32, 64);
             if (self.drawHealthBar) {
                 LAYERS.eupper.drawImage(Rig.healthBarG, 0, 0, 42, 5, self.x-63+OFFSETX, self.y-72+OFFSETY, 126, 15);
@@ -301,6 +302,7 @@ Projectile = function(id, map, x, y, angle, type) {
     self.height = tempprojectile.height;
     self.rawWidth = tempprojectile.rawWidth;
     self.rawHeight = tempprojectile.rawHeight;
+    self.above = tempprojectile.above;
     self.animationImage = Projectile.images[type];
     self.animationStage = 0;
 
@@ -314,11 +316,19 @@ Projectile = function(id, map, x, y, angle, type) {
     };
     self.draw = function() {
         if (inRenderDistance(self)) {
-            LAYERS.elower.save();
-            LAYERS.elower.translate(self.x+OFFSETX, self.y+OFFSETY);
-            LAYERS.elower.rotate(self.angle);
-            LAYERS.elower.drawImage(self.animationImage, self.animationStage*self.rawWidth, 0, self.rawWidth, self.rawHeight, -self.width/2, -self.height/2, self.width, self.height);
-            LAYERS.elower.restore();
+            if (self.above) {
+                LAYERS.eupper.save();
+                LAYERS.eupper.translate(self.x+OFFSETX, self.y+OFFSETY);
+                LAYERS.eupper.rotate(self.angle);
+                LAYERS.eupper.drawImage(self.animationImage, self.animationStage*self.rawWidth, 0, self.rawWidth, self.rawHeight, -self.width/2, -self.height/2, self.width, self.height);
+                LAYERS.eupper.restore();
+            } else {
+                LAYERS.elower.save();
+                LAYERS.elower.translate(self.x+OFFSETX, self.y+OFFSETY);
+                LAYERS.elower.rotate(self.angle);
+                LAYERS.elower.drawImage(self.animationImage, self.animationStage*self.rawWidth, 0, self.rawWidth, self.rawHeight, -self.width/2, -self.height/2, self.width, self.height);
+                LAYERS.elower.restore();
+            }
         }
         if (self.interpolationStage < (settings.fps/20)) {
             self.x += self.xspeed;
@@ -522,77 +532,128 @@ Particle.update = function(data) {
 Particle.list = [];
 
 // load data
-function loadEntityData() {
+async function getEntityData() {
     // health bars
     totalassets += 2;
-    Rig.healthBarG.src = './client/img/player/healthbar_green.png';
     Rig.healthBarG.onload = function() {loadedassets++;};
-    Rig.healthBarR.src = './client/img/monster/healthbar_red.png';
     Rig.healthBarR.onload = function() {loadedassets++;};
     // players
     for (var i in Player.animations) {
         if (i == 'hair') {
             for (var j in Player.animations[i]) {
-                // totalassets++;
-                Player.animations[i][j].src = './client/img/player/playermap_' + i + j + '.png';
-                Player.animations[i][j].onload = function() {loadedassets++;};
+                totalassets++;
             }
         } else {
             totalassets++;
-            Player.animations[i].src = './client/img/player/playermap_' + i + '.png';
-            Player.animations[i].onload = function() {loadedassets++;};
         }
     }
     // monsters
     totalassets++;
-    var request = new XMLHttpRequest();
-    request.open('GET', './client/monster.json', true);
-    request.onload = async function() {
-        if (this.status >= 200 && this.status < 400) {
-            var json = JSON.parse(this.response);
-            Monster.types = json;
-            loadedassets++;
-            for (var i in Monster.types) {
-                totalassets++;
-                Monster.images[i] = new Image();
-                Monster.images[i].src = './client/img/monster/' + i + '.png';
-                Monster.images[i].onload = function() {loadedassets++;};
+    await new Promise(async function(resolve, reject) {
+        var request = new XMLHttpRequest();
+        request.open('GET', './client/monster.json', true);
+        request.onload = async function() {
+            if (this.status >= 200 && this.status < 400) {
+                var json = JSON.parse(this.response);
+                Monster.types = json;
+                loadedassets++;
+                for (var i in Monster.types) {
+                    totalassets++;
+                    Monster.images[i] = new Image();
+                }
+                await sleep(Math.random()*10);
+                resolve();
+            } else {
+                console.error('Error: Server returned status ' + this.status);
+                await sleep(1000);
+                request.send();
             }
-        } else {
-            console.error('Error: Server returned status ' + this.status);
-            await sleep(1000);
-            request.send();
-        }
-    };
-    request.onerror = function(){
-        console.error('There was a connection error. Please retry');
-    };
-    request.send();
+        };
+        request.onerror = function(){
+            console.error('There was a connection error. Please retry');
+        };
+        request.send();
+    });
     // projectiles
     totalassets++;
-    var request = new XMLHttpRequest();
-    request.open('GET', './client/projectile.json', true);
-    request.onload = async function() {
-        if (this.status >= 200 && this.status < 400) {
-            var json = JSON.parse(this.response);
-            Projectile.types = json;
-            loadedassets++;
-            for (var i in Projectile.types) {
-                totalassets++;
-                Projectile.images[i] = new Image();
-                Projectile.images[i].src = './client/img/projectile/' + i + '.png';
-                Projectile.images[i].onload = function() {loadedassets++;};
+    await new Promise(async function(resolve, reject) {
+        var request = new XMLHttpRequest();
+        request.open('GET', './client/projectile.json', true);
+        request.onload = async function() {
+            if (this.status >= 200 && this.status < 400) {
+                var json = JSON.parse(this.response);
+                Projectile.types = json;
+                loadedassets++;
+                for (var i in Projectile.types) {
+                    totalassets++;
+                    Projectile.images[i] = new Image();
+                }
+                await sleep(Math.random()*10);
+                resolve();
+            } else {
+                console.error('Error: Server returned status ' + this.status);
+                await sleep(1000);
+                request.send();
+            }
+        };
+        request.onerror = function(){
+            console.error('There was a connection error. Please retry');
+        };
+        request.send();
+    });
+};
+async function loadEntityData() {
+    // health bars
+    await sleep(Math.random()*5);
+    Rig.healthBarG.src = './client/img/player/healthbar_green.png';
+    await sleep(Math.random()*5);
+    Rig.healthBarR.src = './client/img/monster/healthbar_red.png';
+    // players
+    for (var i in Player.animations) {
+        if (i == 'hair') {
+            for (var j in Player.animations[i]) {
+                await sleep(Math.random()*5);
+                await new Promise(function(resolve, reject) {
+                    Player.animations[i][j].onload = function() {
+                        loadedassets++;
+                        resolve();
+                    };
+                    Player.animations[i][j].src = './client/img/player/playermap_' + i + j + '.png';
+                });
             }
         } else {
-            console.error('Error: Server returned status ' + this.status);
-            await sleep(1000);
-            request.send();
+            await sleep(Math.random()*5);
+            await new Promise(function(resolve, reject) {
+                Player.animations[i].onload = function() {
+                    loadedassets++;
+                    resolve();
+                };
+                Player.animations[i].src = './client/img/player/playermap_' + i + '.png';
+            });
         }
-    };
-    request.onerror = function(){
-        console.error('There was a connection error. Please retry');
-    };
-    request.send();
+    }
+    // monsters
+    for (var i in Monster.types) {
+        await sleep(Math.random()*5);
+        await new Promise(function(resolve, reject) {
+            Monster.images[i].onload = function() {
+                loadedassets++;
+                resolve();
+            };
+            Monster.images[i].src = './client/img/monster/' + i + '.png';
+        });
+    }
+    // projectiles
+    for (var i in Projectile.types) {
+        await sleep(Math.random()*5);
+        await new Promise(function(resolve, reject) {
+            Projectile.images[i].onload = function() {
+                loadedassets++;
+                resolve();
+            };
+            Projectile.images[i].src = './client/img/projectile/' + i + '.png';
+        });
+    }
 };
 
 // animated tiles

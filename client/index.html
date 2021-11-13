@@ -7,8 +7,9 @@
         <meta content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=2.0, minimum-scale=1.0, user-scalable=no">
         <meta id="viewport" name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=2.0, minimum-scale=1.0, user-scalable=no">
         <meta charset="utf-8">
-        <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://meadowguarderold.herokuapp.com/ https://tscache.com/donation_total.json 'unsafe-eval' 'unsafe-inline'; script-src 'self' https://cdn.socket.io/socket.io-1.4.5.js https://code.jquery.com/jquery-3.5.0.js 'unsafe-eval' 'unsafe-inline'; script-src-elem 'self' https://cdn.socket.io/socket.io-1.4.5.js https://code.jquery.com/jquery-3.5.0.js 'unsafe-eval' 'unsafe-inline'; frame-src 'self' https://www.youtube.com/ https://meadowguarderold.herokuapp.com/ 'unsafe-eval' 'unsafe-inline'">
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://meadowguarderold.herokuapp.com/ 'unsafe-eval' 'unsafe-inline'; script-src 'self' https://cdn.socket.io/socket.io-1.4.5.js https://code.jquery.com/jquery-3.5.0.js 'unsafe-eval' 'unsafe-inline'; script-src-elem 'self' https://cdn.socket.io/socket.io-1.4.5.js https://code.jquery.com/jquery-3.5.0.js 'unsafe-eval' 'unsafe-inline'; frame-src 'self' https://www.youtube.com/ https://meadowguarderold.herokuapp.com/ 'unsafe-eval' 'unsafe-inline'">
         <link rel="icon" href="./client/assets/favicon.ico" type="image/x-icon">
+        <noscript><meta http-equiv="refresh" content="0; url=./client/nojs.html"/></noscript>
         <script src="/socket.io/socket.io.js"></script>
         <script>socket = io();</script>
         <script src="./client/index.js" defer></script>
@@ -68,6 +69,27 @@
                             insert changes here
                         </div>
                     </div> -->
+                    <div class="stack ui-block ui-lighttext">
+                        <div class="ui-lighttext stackHeader">
+                            v0.5.3 - 11/13/21
+                        </div>
+                        <div class="ui-lighttext stackBody">
+                            The loading screen is here! Featuring a css-animated icon and new css-animated fade, the loading screen is better than Meadow Guarders!
+                            <ul>
+                                <li>Added a loading screen</li>
+                                <li>Added some more items</li>
+                                <li>Pressing "E" and "I" in chat no longer trigger the inventory</li>
+                                <li>Moved the chat so it isn't off-center by 1 pixel</li>
+                                <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/86" target="_blank" class="ui-link">Patched items not saving on server stops (Issue #86)</a></li>
+                                <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/89" target="_blank" class="ui-link">Fixed inventory overfill (Issue #89)</a></li>
+                                <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/88" target="_blank" class="ui-link">Fixed maps staying black after loading (Issue #88)</a></li>
+                                <li>Renamed "burst" enchantment to "swiftness"</li>
+                                <li>Added JavaScript disabled page</li>
+                                <li>Changed all fade effects to css transitions</li>
+                                <li>Added SECURITY.md</li>
+                            </ul>
+                        </div>
+                    </div>
                     <div class="stack ui-block ui-lighttext">
                         <div class="ui-lighttext stackHeader">
                             v0.5.2 - 11/6/21
@@ -533,6 +555,13 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+        <div id="loadingContainer" class="noSelect">
+            <img id="loadingIcon" src="./client/img/loading.png">
+            <div id="loadingBar">
+                <div id="loadingBarInner"></div>
+                <div id="loadingBarText" class="ui-lighttext">0/0 (0%)</div>
             </div>
         </div>
         <div id="gameContainer">

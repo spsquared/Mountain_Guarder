@@ -4,9 +4,9 @@
         "height": 10,
         "speed": 40,
         "pattern": "none",
-        "damage": 10,
+        "damage": 1,
         "range": 5,
-        "knockback": 2,
+        "knockback": 1,
         "noCollision": false
     },
     "magicball": {
@@ -14,7 +14,7 @@
         "height": 40,
         "speed": 20,
         "pattern": "homing",
-        "damage": 10,
+        "damage": 1,
         "range": 10,
         "knockback": 0,
         "noCollision": true

@@ -12,7 +12,8 @@ Inventory = function(socket, id) {
             offhand: null,
             key: null,
             crystal: null
-        }
+        },
+        maxItems: 30
     };
 
     socket.on('item', function(data) {
@@ -26,8 +27,12 @@ Inventory = function(socket, id) {
         }
     });
     self.addItem = function(id) {
-        var slot = new Inventory.Item(id, self.items).slot;
-        self.refreshItem(slot);
+        if (self.items.length < self.maxItems) {
+            var slot = new Inventory.Item(id, self.items).slot;
+            self.refreshItem(slot);
+        } else {
+            // if directly injected drop the items
+        }
     };
     self.removeItem = function(slot) {
         if (isFinite(slot)) {
@@ -45,6 +50,9 @@ Inventory = function(socket, id) {
     self.refresh = function() {
         for (var i in self.items) {
             self.refreshItem(i);
+            if (i > self.maxItems) {
+                // drop the item
+            }
         }
         for (var i in self.equips) {
             self.refreshItem(i);
@@ -160,6 +168,10 @@ Inventory = function(socket, id) {
         if (data) {
             try {
             var items = JSON.parse(data);
+                socket.emit('item', {
+                    action: 'maxItems',
+                    slots: self.maxItems
+                });
                 for (var i in items.items) {
                     var localitem = items.items[i];
                     var newitem = new Inventory.Item(localitem.id, []);

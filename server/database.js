@@ -31,17 +31,21 @@ ACCOUNTS = {
                     await database.connect();
                     ACCOUNTS.connected = true;
                 } catch (err) {
-                    forceQuit(err);
+                    forceQuit(err, 2);
                 }
             }
         } else {
             warn('Already connected!');
         }
     },
-    disconnect: function() {
+    disconnect: async function() {
         if (ACCOUNTS.connected) {
-            if (!ENV.offlineMode) database.end();
-            ACCOUNTS.connected = false;
+            try {
+                if (!ENV.offlineMode) await database.end();
+                ACCOUNTS.connected = false;
+            } catch (err) {
+                forceQuit(err, 2);
+            }
         } else {
             warn('Not Connected!');
         }
@@ -154,7 +158,6 @@ ACCOUNTS = {
         return false;
     }
 };
-ACCOUNTS.connect();
 
 // credential read/write
 async function getCredentials(username) {

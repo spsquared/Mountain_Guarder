@@ -47,6 +47,10 @@ function changePassword() {
 socket.on('signInState', function(state) {
     switch (state) {
         case 'signedIn':
+            document.getElementById('loadingContainer').style.animationName = 'fadeOut';
+            setTimeout(function() {
+                document.getElementById('loadingContainer').style.display = 'none';
+            }, 500);
             document.getElementById('signinContainer').style.display = 'none';
             document.getElementById('gameContainer').style.display = 'block';
             insertChat({style:'color: #00FF00; font-weight: bold;', text: 'Mountain Guarder ' + version});
@@ -299,7 +303,7 @@ function updateSetting(setting) {
             break;
         case 'chatBackground':
             if (settings.chatBackground) {
-                document.getElementById('chatText').style.backgroundColor = '#000000AA';
+                document.getElementById('chatText').style.backgroundColor = '#00000055';
                 indicatorText = 'on';
             } else {
                 document.getElementById('chatText').style.backgroundColor = '';

@@ -31,7 +31,7 @@
     border: 2px solid #000000;
     margin-right: -50%;
     padding: 8px 20px;
-    opacity: 0;
+    animation-duration: 2s;
     cursor: crosshair;
     z-index: 1;
 }
@@ -72,6 +72,7 @@
     width: 100vw;
     height: 100vh;
     background-color: black;
+    animation-duration: 0.5s;
     z-index: 2;
 }
 
@@ -183,28 +184,28 @@
 #chat {
     position: absolute;
     bottom: 0px;
-    left: 25vw;
-    width: 50vw;
+    right: 0px;
+    width: 40vw;
     height: 160px;
-    padding: 0px 2px;
     border: 1px solid black;
+    padding: 0px 4px;
     z-index: 4;
 }
 #chatText {
     position: absolute;
     top: 0px;
     left: 0px;
-    width: 50vw;
+    width: 40vw;
     height: 140px;
-    padding: 0px 2px;
+    padding: 0px 4px;
     overflow-y: scroll;
 }
 #chatInput {
     position: absolute;
     bottom: -1px;
     left: -1px;
-    width: 50vw;
-    padding: 0px 2px;
+    width: 40vw;
+    padding: 0px 4px;
     border: 1px solid black;
 }
 
@@ -364,12 +365,12 @@
     position: absolute;
     top: 123px;
     left: 19px;
+    transform: scaleX(-1);
 }
 #invSlotEquipweapon2 {
     position: absolute;
     top: 123px;
     left: 191px;
-    transform: scaleX(-1);
 }
 #invSlotEquiphelmet {
     position: absolute;
@@ -402,7 +403,7 @@
     left: 105px;
 }
 
-/* settings */ 
+/* settings */
 #settings {
     width: 500px;
     height: 300px;

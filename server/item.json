@@ -1,145 +1,74 @@
 {
-    "leatherarmor": {
-        "slotType": "armor",
-        "rarity": 0,
-        "dropChance": 0.4,
-        "effects": [
-            {
-                "id": "damageReduction",
-                "value": 2
-            },
-            {
-                "id": "defense",
-                "value": 0.05
-            }
-        ],
-        "enchantments": [
-            "burst",
-            "protection"
-        ]
-    },
     "simplewoodenbow": {
         "slotType": "weapon",
         "rarity": 0,
-        "dropChance": 0.3,
+        "dropChance": 10,
         "projectile": "arrow",
         "projectilePattern": "single",
         "projectileSpeed": 1,
-        "damage": 1,
+        "projectileRange": 0.8,
+        "damage": 10,
         "damageType": "ranged",
         "critChance": 0.02,
-        "knockback": 0.1,
+        "knockback": 1.5,
         "useTime": 10,
         "manaCost": 0,
-        "effects": [
-            {
-                "id": "damage",
-                "value": 1
-            },
-            {
-                "id": "critChance",
-                "value": 0.02
-            }
-        ],
+        "effects": [],
         "enchantments": [
-            "burst",
+            "swiftness",
             "speed",
             "power"
-        ]
-    },
-    "simplewoodenstaff": {
-        "slotType": "weapon",
-        "rarity": 0,
-        "dropChance": 0.1,
-        "projectile": "magicball",
-        "projectilePattern": "line",
-        "projectileSpeed": 0.8,
-        "damage": 1,
-        "damageType": "magic",
-        "critChance": 0.05,
-        "knockback": 0.2,
-        "useTime": 10,
-        "manaCost": 10,
-        "effects": [
-            {
-                "id": "damage",
-                "value": 1
-            },
-            {
-                "id": "critChance",
-                "value": 0.05
-            }
-        ],
-        "enchantments": [
-            "burst",
-            "speed",
-            "sorcery"
         ]
     },
     "simplewoodensword": {
         "slotType": "weapon",
         "rarity": 0,
-        "dropChance": 0.3,
+        "dropChance": 9,
         "projectile": "meleeDamage",
         "projectilePattern": "single",
         "projectileSpeed": 1,
+        "projectileRange": 1,
         "damage": 10,
         "damageType": "melee",
         "critChance": 0.1,
         "knockback": 4,
         "useTime": 15,
         "manaCost": 0,
-        "effects": [
-            {
-                "id": "damage",
-                "value": 10
-            },
-            {
-                "id": "critChance",
-                "value": 0.1
-            }
-        ],
+        "effects": [],
         "enchantments": [
-            "burst",
+            "swiftness",
             "speed"
         ]
     },
-    "leatherhat": {
-        "slotType": "helmet",
+    "simplewoodenstaff": {
+        "slotType": "weapon",
         "rarity": 0,
-        "dropChance": 0.5,
-        "effects": [
-            {
-                "id": "rangedDamage",
-                "value": 0.8
-            },
-            {
-                "id": "meleeDamage",
-                "value": 0.9
-            },
-            {
-                "id": "magicDamage",
-                "value": 1.1
-            },
-            {
-                "id": "critChance",
-                "value": 0.1
-            }
-        ],
+        "dropChance": 9,
+        "projectile": "magicball",
+        "projectilePattern": "line",
+        "projectileSpeed": 0.8,
+        "projectileRange": 0.6,
+        "damage": 10,
+        "damageType": "magic",
+        "critChance": 0.05,
+        "knockback": 0,
+        "useTime": 10,
+        "manaCost": 10,
+        "effects": [],
         "enchantments": [
-            "burst",
-            "sorcery",
-            "protection"
+            "swiftness",
+            "speed",
+            "sorcery"
         ]
     },
     "leatherhood": {
         "slotType": "helmet",
         "rarity": 0,
-        "dropChance": 0.4,
+        "dropChance": 8,
         "effects": [
             {
                 "id": "damage",
-                "value": 10
+                "value": 1.1
             },
             {
                 "id": "rangedDamage",
@@ -163,19 +92,45 @@
             }
         ],
         "enchantments": [
-            "burst",
-            "power",
+            "swiftness",
+            "protection"
+        ]
+    },
+    "leatherhat": {
+        "slotType": "helmet",
+        "rarity": 0,
+        "dropChance": 7.5,
+        "effects": [
+            {
+                "id": "rangedDamage",
+                "value": 0.8
+            },
+            {
+                "id": "meleeDamage",
+                "value": 0.9
+            },
+            {
+                "id": "magicDamage",
+                "value": 1.1
+            },
+            {
+                "id": "critChance",
+                "value": 0.1
+            }
+        ],
+        "enchantments": [
+            "swiftness",
             "protection"
         ]
     },
     "woodenhelmet": {
         "slotType": "helmet",
         "rarity": 0,
-        "dropChance": 0.4,
+        "dropChance": 7.5,
         "effects": [
             {
                 "id": "damage",
-                "value": 10
+                "value": 1.1
             },
             {
                 "id": "rangedDamage",
@@ -199,8 +154,217 @@
             }
         ],
         "enchantments": [
-            "burst",
+            "swiftness",
             "protection"
+        ]
+    },
+    "leatherarmor": {
+        "slotType": "armor",
+        "rarity": 0,
+        "dropChance": 8,
+        "effects": [
+            {
+                "id": "damageReduction",
+                "value": 2
+            },
+            {
+                "id": "defense",
+                "value": 0.05
+            }
+        ],
+        "enchantments": [
+            "swiftness",
+            "protection"
+        ]
+    },
+    "steelbow": {
+        "slotType": "weapon",
+        "rarity": 1,
+        "dropChance": 5,
+        "projectile": "arrow",
+        "projectilePattern": "double",
+        "projectileSpeed": 1,
+        "projectileRange": 1,
+        "damage": 12,
+        "damageType": "ranged",
+        "critChance": 0.04,
+        "knockback": 2,
+        "useTime": 10,
+        "manaCost": 0,
+        "effects": [],
+        "enchantments": [
+            "swiftness",
+            "speed",
+            "power"
+        ]
+    },
+    "steelbroadsword": {
+        "slotType": "weapon",
+        "rarity": 1,
+        "dropChance": 4.5,
+        "projectile": "meleeDamage",
+        "projectilePattern": "single",
+        "projectileSpeed": 1,
+        "projectileRange": 1,
+        "damage": 12,
+        "damageType": "melee",
+        "critChance": 0.15,
+        "knockback": 3,
+        "useTime": 12,
+        "manaCost": 0,
+        "effects": [],
+        "enchantments": [
+            "swiftness",
+            "speed",
+            "sharpness"
+        ]
+    },
+    "steelcutlass": {
+        "slotType": "weapon",
+        "rarity": 1,
+        "dropChance": 4,
+        "projectile": "meleeDamage",
+        "projectilePattern": "single",
+        "projectileSpeed": 1,
+        "projectileRange": 1,
+        "damage": 14,
+        "damageType": "melee",
+        "critChance": 0.15,
+        "knockback": 2,
+        "useTime": 20,
+        "manaCost": 0,
+        "effects": [],
+        "enchantments": [
+            "swiftness",
+            "speed",
+            "sharpness"
+        ]
+    },
+    "steelstaff": {
+        "slotType": "weapon",
+        "rarity": 1,
+        "dropChance": 4.5,
+        "projectile": "magicBall",
+        "projectilePattern": "line",
+        "projectileSpeed": 1.2,
+        "projectileRange": 0.8,
+        "damage": 12,
+        "damageType": "magic",
+        "critChance": 0.1,
+        "knockback": 0,
+        "useTime": 8,
+        "manaCost": 9,
+        "effects": [],
+        "enchantments": [
+            "swiftness",
+            "speed",
+            "efficiency",
+            "sorcery"
+        ]
+    },
+    "simplewizardhat": {
+        "slotType": "helmet",
+        "rarity": 1,
+        "dropChance": 3,
+        "effects": [
+            {
+                "id": "rangedDamage",
+                "value": 0.9
+            },
+            {
+                "id": "meleeDamage",
+                "value": 0.8
+            },
+            {
+                "id": "magicDamage",
+                "value": 1.2
+            }
+        ],
+        "enchantments": [
+            "swiftness",
+            "focus",
+            "protection",
+            "smashing"
+        ]
+    },
+    "whitefabrichood": {
+        "slotType": "helmet",
+        "rarity": 1,
+        "dropChance": 3,
+        "effects": [
+            {
+                "id": "rangedDamage",
+                "value": 1.2
+            },
+            {
+                "id": "meleeDamage",
+                "value": 0.8
+            },
+            {
+                "id": "magicDamage",
+                "value": 0.9
+            }
+        ],
+        "enchantments": [
+            "swiftness",
+            "protection",
+            "smashing"
+        ]
+    },
+    "steelhelmet": {
+        "slotType": "helmet",
+        "rarity": 1,
+        "dropChance": 3.5,
+        "effects": [
+            {
+                "id": "rangedDamage",
+                "value": 0.9
+            },
+            {
+                "id": "meleeDamage",
+                "value": 1.2
+            },
+            {
+                "id": "magicDamage",
+                "value": 0.9
+            },
+            {
+                "id": "damageReduction",
+                "value": 3
+            },
+            {
+                "id": "defense",
+                "value": 0.1
+            }
+        ],
+        "enchantments": [
+            "swiftness",
+            "protection",
+            "smashing"
+        ]
+    },
+    "steelarmor": {
+        "slotType": "armor",
+        "rarity": 1,
+        "dropChance": 4,
+        "effects": [
+            {
+                "id": "meleeDamage",
+                "value": 1.08
+            },
+            {
+                "id": "damageReduction",
+                "value": 4
+            },
+            {
+                "id": "defense",
+                "value": 0.1
+            }
+        ],
+        "enchantments": [
+            "swiftness",
+            "protection",
+            "smashing"
         ]
     }
 }
