@@ -71,6 +71,26 @@
                     </div> -->
                     <div class="stack ui-block ui-lighttext">
                         <div class="ui-lighttext stackHeader">
+                            v0.5.4 - 11/13/21
+                        </div>
+                        <div class="ui-lighttext stackBody">
+                            Minor patches and additions, such as chat autoscroll, debug console, and players no longer defaulting to facing down.
+                            <ul>
+                                <li>Added chat autoscroll</li>
+                                <li>Added debug console in-game</li>
+                                <li>Added TPS and Ping to debug ui</li>
+                                <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/91" target="_blank" class="ui-link">Players now face in the last direction they moved in while standing (Issue #91)</a></li>
+                                <li>Windows will now move to stay on screen when zooming in</li>
+                                <li>Remapped chat key to "t"</li>
+                                <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/97" target="_blank" class="ui-link">Patched held items not clearing on unequip (Issue #97)</a></li>
+                                <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/100" target="_blank" class="ui-link">Patched floating tooltip (Issue #100)</a></li>
+                                <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/95" target="_blank" class="ui-link">Patched HP regen while dead (Issue #95)</a></li>
+                                <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/98" target="_blank" class="ui-link">Fixed wierd collisions in Outpost Inn (Issue #98)</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="stack ui-block ui-lighttext">
+                        <div class="ui-lighttext stackHeader">
                             v0.5.3 - 11/13/21
                         </div>
                         <div class="ui-lighttext stackBody">
@@ -521,6 +541,8 @@
                             sp: Bug finder
                             <br><br>
                             <a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder" target="_blank" class="ui-link">GitHub repository</a>
+                            <br>
+                            <a href="https://discord.gg/jKwmKkKmGc" target="_blank" class="ui-link">Join our Discord!</a>
                             <br><br>
                             &copy; Radioactive64 2021
                             <br><br>
@@ -586,6 +608,8 @@
             <div class="ui-lighttext noSelect">
                 <div id="version">v0.0.0</div>
                 <div id="fps">FPS: 0</div>
+                <div id="ping">Ping: 0ms</div>
+                <div id="tps">TPS: 0</div>
             </div>
             <div id="chat" class="ui-darktext">
                 <div id="chatText"></div>
@@ -596,6 +620,7 @@
                 <div id="dropdownMenuItems">
                     <button id="inventoryButton" class="ui-lightbutton" onclick="openInventory();">Inventory</button>
                     <button id="settingsButton" class="ui-lightbutton" onclick="openSettings();">Settings</button>
+                    <button id="debugConsoleButton" class="ui-lightbutton" style="display: none;" onclick="openDebugConsole();">Debug&nbsp;Console</button>
                     <button id="teamSeasButton" class="ui-lightbutton" onclick="window.open('/client/teamSeas/');">#TeamSeas</button>
                     <button id="logOutButton" class="ui-lightbutton" onclick="window.location.reload();">Log Out</button>
                 </div>
@@ -787,6 +812,22 @@
                         <button id="settingsGameSelect" class="window-select-button ui-lightbutton">Settings</button>
                         <button id="settingsPlayerSelect" class="window-select-button ui-lightbutton">Customize</button>
                     </div>
+                </div>
+                <div id="debugConsole" class="window ui-block ui-lighttext noSelect">
+                    <div id="debugConsoleBar" class="window-bar ui-block">
+                        <span>Debug Console</span>
+                        <span id="debugConsoleClose" class="window-close">
+                            <svg viewport="0 0 12 12" version="1.1" width="18" height="18" xmlns="http://www.w3.org/2000/svg">
+                                <line x1="2" y1="12" x2="12" y2="2" stroke="black" strokeWidth="5"/>
+                                <line x1="2" y1="2" x2="12" y2="12" stroke="black" strokeWidth="5"/>
+                            </svg>
+                        </span>
+                    </div>
+                    <div class="window-body">
+                        <div id="debugLog" class="ui-lighttext"></div>
+                        <input type="text" id="debugInput" class="ui-textInput"></input>
+                    </div>
+                    <div id="debugConsoleSelect" class="window-select"></div>
                 </div>
             </div>
             <div id="invHoverTooltip" class="ui-block ui-lighttext">Tooltip</div>

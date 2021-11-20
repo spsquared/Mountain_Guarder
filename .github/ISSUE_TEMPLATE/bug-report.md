@@ -27,5 +27,5 @@ If applicable, add screenshots to help explain your problem.
  - Browser [e.g. Chrome 90, Safari, Edge]
  - Version [e.g. v0.4.3]
 
-**Additional context**
+**Logs**
 If applicable, place as many event logs as possible. Logs include log.txt, the server console, and client console(s).

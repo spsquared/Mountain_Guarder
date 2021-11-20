@@ -19,7 +19,7 @@
         "knockback": 0,
         "noCollision": true
     },
-    "meleeDamage": {
+    "meleedamage": {
         "width": 40,
         "height": 40,
         "speed": 0,

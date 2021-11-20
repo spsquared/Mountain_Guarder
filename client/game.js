@@ -386,6 +386,11 @@ function drawDebug() {
             CTX.stroke();
         }
         CTX.restore();
+        document.getElementById('tps').style.display = 'block';
+        document.getElementById('ping').style.display = 'block';
+    } else {
+        document.getElementById('tps').style.display = '';
+        document.getElementById('ping').style.display = '';
     }
 };
 function resetFPS() {
@@ -402,93 +407,111 @@ socket.on('updateTick', function(data) {
         Entity.update(data);
         player = Player.list[playerid];
     }
+    tpsCounter++;
 });
 document.onkeydown = function(e) {
-    if (!e.isTrusted) {
-        socket.emit('timeout');
-    }
-    if (!inchat) {
-        if (e.key == 'w' || e.key == 'W' || e.key == 'ArrowUp') {
-            socket.emit('keyPress', {key:'up', state:true});
-        } else if (e.key == 's' || e.key == 'S' || e.key == 'ArrowDown') {
-            socket.emit('keyPress', {key:'down', state:true});
-        } else if (e.key == 'a' || e.key == 'A' || e.key == 'ArrowLeft') {
-            socket.emit('keyPress', {key:'left', state:true});
-        } else if (e.key == 'd' || e.key == 'D' || e.key == 'ArrowRight') {
-            socket.emit('keyPress', {key:'right', state:true});
-        } else if (e.key == ' ') {
-            socket.emit('keyPress', {key:'heal', state:true});
-        } else if (e.key == 'Enter') {
-            document.getElementById('chatInput').focus();
-        } else if (e.key == 'Meta' || e.key == 'Alt' || e.key == 'Control'){
-            socket.emit('keyPress', {key:'up', state:false});
-            socket.emit('keyPress', {key:'down', state:false});
-            socket.emit('keyPress', {key:'left', state:false});
-            socket.emit('keyPress', {key:'right', state:false});
-            socket.emit('keyPress', {key:'heal', state:false});
+    if (loaded) {
+        if (!e.isTrusted) {
+            socket.emit('timeout');
+        }
+        if (!inchat && !indebug) {
+            if (e.key == 'w' || e.key == 'W' || e.key == 'ArrowUp') {
+                socket.emit('keyPress', {key:'up', state:true});
+            } else if (e.key == 's' || e.key == 'S' || e.key == 'ArrowDown') {
+                socket.emit('keyPress', {key:'down', state:true});
+            } else if (e.key == 'a' || e.key == 'A' || e.key == 'ArrowLeft') {
+                socket.emit('keyPress', {key:'left', state:true});
+            } else if (e.key == 'd' || e.key == 'D' || e.key == 'ArrowRight') {
+                socket.emit('keyPress', {key:'right', state:true});
+            } else if (e.key == ' ') {
+                socket.emit('keyPress', {key:'heal', state:true});
+            } else if (e.key == 't' || e.key == 'T') {
+                document.getElementById('chatInput').focus();
+                e.preventDefault();
+            } else if (e.key == 'i' || e.key == 'I') {
+                if (e.getModifierState('Control') && new URLSearchParams(window.location.search).get('console')) {
+                    toggleDebugConsole();
+                } else {
+                    toggleInventory();
+                }
+            } else if (e.key == 'e' || e.key == 'E') {
+                toggleInventory();
+            } else if (e.key == 'Meta' || e.key == 'Alt' || e.key == 'Control'){
+                socket.emit('keyPress', {key:'up', state:false});
+                socket.emit('keyPress', {key:'down', state:false});
+                socket.emit('keyPress', {key:'left', state:false});
+                socket.emit('keyPress', {key:'right', state:false});
+                socket.emit('keyPress', {key:'heal', state:false});
+            }
         }
     }
 };
 document.onkeyup = function(e) {
-    if (!e.isTrusted) {
-        socket.emit('timeout');
-    } else if (e.key == 'w' || e.key == 'W' || e.key == 'ArrowUp') {
-        socket.emit('keyPress', {key:'up', state:false});
-    } else if (e.key == 's' || e.key == 'S' || e.key == 'ArrowDown') {
-        socket.emit('keyPress', {key:'down', state:false});
-    } else if (e.key == 'a' || e.key == 'A' || e.key == 'ArrowLeft') {
-        socket.emit('keyPress', {key:'left', state:false});
-    } else if (e.key == 'd' || e.key == 'D' || e.key == 'ArrowRight') {
-        socket.emit('keyPress', {key:'right', state:false});
-    } else if (e.key == ' ') {
-        socket.emit('keyPress', {key:'heal', state:false});
-    } else {
-        if (!inchat) {
-            if (e.key == '\\') {
-                settings.debug = !settings.debug;
-                document.getElementById('debugToggle').checked = settings.debug;
-                socket.emit('toggleDebug');
-            } else if (e.key == 'i' || e.key == 'W' || e.key == 'e' || e.key == 'E') {
-                toggleInventory();
+    if (loaded) {
+        if (!e.isTrusted) {
+            socket.emit('timeout');
+        } else if (e.key == 'w' || e.key == 'W' || e.key == 'ArrowUp') {
+            socket.emit('keyPress', {key:'up', state:false});
+        } else if (e.key == 's' || e.key == 'S' || e.key == 'ArrowDown') {
+            socket.emit('keyPress', {key:'down', state:false});
+        } else if (e.key == 'a' || e.key == 'A' || e.key == 'ArrowLeft') {
+            socket.emit('keyPress', {key:'left', state:false});
+        } else if (e.key == 'd' || e.key == 'D' || e.key == 'ArrowRight') {
+            socket.emit('keyPress', {key:'right', state:false});
+        } else if (e.key == ' ') {
+            socket.emit('keyPress', {key:'heal', state:false});
+        } else {
+            if (!inchat) {
+                if (e.key == '\\') {
+                    settings.debug = !settings.debug;
+                    document.getElementById('debugToggle').checked = settings.debug;
+                    socket.emit('toggleDebug');
+                }
             }
         }
     }
 };
 document.onmousedown = function(e) {
-    if (!e.isTrusted) {
-        socket.emit('timeout');
-    }
-    if (!e.target.matches('#signinContainer') && !e.target.matches('#chatInput') && !e.target.matches('#windows') && !e.target.matches('#dropdownMenu') && !e.target.matches('#regionName')) {
-        switch (e.button) {
-            case 0:
-                socket.emit('click', {button: 'left', x: e.clientX-window.innerWidth/2-OFFSETX, y: e.clientY-window.innerHeight/2-OFFSETY, state: true});
-                break;
-            case 2:
-                socket.emit('click', {button: 'right', x: e.clientX-window.innerWidth/2-OFFSETX, y: e.clientY-window.innerHeight-OFFSETY, state: true});
-                break;
+    if (loaded) {
+        if (!e.isTrusted) {
+            socket.emit('timeout');
+        }
+        if (!e.target.matches('#signinContainer') && !e.target.matches('#chatInput') && !e.target.matches('#windows') && !e.target.matches('#dropdownMenu') && !e.target.matches('#regionName')) {
+            switch (e.button) {
+                case 0:
+                    socket.emit('click', {button: 'left', x: e.clientX-window.innerWidth/2-OFFSETX, y: e.clientY-window.innerHeight/2-OFFSETY, state: true});
+                    break;
+                case 2:
+                    socket.emit('click', {button: 'right', x: e.clientX-window.innerWidth/2-OFFSETX, y: e.clientY-window.innerHeight-OFFSETY, state: true});
+                    break;
+            }
         }
     }
 };
 document.onmouseup = function(e) {
-    if (!e.isTrusted) {
-        socket.emit('timeout');
-    }
-    if (!e.target.matches('#signinContainer') && !e.target.matches('#chatInput') && !e.target.matches('#windows') && !e.target.matches('#dropdownMenu') && !e.target.matches('#regionName')) {
-        switch (e.button) {
-            case 0:
-                socket.emit('click', {button: 'left', x: e.clientX-window.innerWidth/2-OFFSETX, y: e.clientY-window.innerHeight/2-OFFSETY, state: false});
-                break;
-            case 2:
-                socket.emit('click', {button: 'right', x: e.clientX-window.innerWidth/2-OFFSETX, y: e.clientY-window.innerHeight-OFFSETY, state: false});
-                break;
+    if (loaded) {
+        if (!e.isTrusted) {
+            socket.emit('timeout');
+        }
+        if (!e.target.matches('#signinContainer') && !e.target.matches('#chatInput') && !e.target.matches('#windows') && !e.target.matches('#dropdownMenu') && !e.target.matches('#regionName')) {
+            switch (e.button) {
+                case 0:
+                    socket.emit('click', {button: 'left', x: e.clientX-window.innerWidth/2-OFFSETX, y: e.clientY-window.innerHeight/2-OFFSETY, state: false});
+                    break;
+                case 2:
+                    socket.emit('click', {button: 'right', x: e.clientX-window.innerWidth/2-OFFSETX, y: e.clientY-window.innerHeight-OFFSETY, state: false});
+                    break;
+            }
         }
     }
 };
 document.onmousemove = function(e) {
-    if (!e.isTrusted) {
-        socket.emit('timeout');
+    if (loaded) {
+        if (!e.isTrusted) {
+            socket.emit('timeout');
+        }
+        socket.emit('mouseMove', {x: e.clientX-window.innerWidth/2-OFFSETX, y: e.clientY-window.innerHeight/2-OFFSETY});
     }
-    socket.emit('mouseMove', {x: e.clientX-window.innerWidth/2-OFFSETX, y: e.clientY-window.innerHeight/2-OFFSETY});
 };
 socket.on('updateSelf', function(data) {
     document.getElementById('statsHPvalue').style.width = (data.hp/data.maxHP)*100 + '%';
@@ -603,20 +626,23 @@ function insertChat(data) {
     var msg = document.createElement('div');
     msg.style = data.style;
     msg.innerText = '[' + time.getHours() + ':' + minute + '] ' + data.text;
+    var scroll = false;
+    if (document.getElementById('chatText').scrollTop + document.getElementById('chatText').clientHeight >= document.getElementById('chatText').scrollHeight - 5) scroll = true;
     document.getElementById('chatText').appendChild(msg);
+    if (scroll) document.getElementById('chatText').scrollTop = document.getElementById('chatText').scrollHeight;
 };
 
 // performance metrics
-var fps = 0;
 var fpsCounter = 0;
-var ping = 0;
+var tpsCounter = 0;
 var pingSend = new Date();
 var pingCounter = 0;
 setInterval(async function() {
-    fps = fpsCounter;
+    document.getElementById('fps').innerText = 'FPS: ' + fpsCounter;
+    document.getElementById('tps').innerText = 'TPS: ' + tpsCounter;
+    document.getElementById('ping').innerText = 'Ping: ' + pingCounter + 'ms';
     fpsCounter = 0;
-    ping = pingCounter;
-    document.getElementById('fps').innerText = 'FPS: ' + fps;
+    tpsCounter = 0;
 }, 1000);
 function fpsLoop() {
     window.requestAnimationFrame(function() {
@@ -632,3 +658,61 @@ socket.on('ping', function() {
     pingSend = new Date();
 });
 socket.emit('ping');
+
+// debug console
+var indebug = false;
+if (new URLSearchParams(window.location.search).get('console')) {
+    var consoleHistory = [];
+    var historyIndex = 0;
+    var consoleInput = document.getElementById('debugInput');
+    var consoleLog = document.getElementById('debugLog');
+    consoleInput.onkeydown = function(event) {
+        if (event.key == 'Enter') {
+            if (consoleInput.value != '') {
+                socket.emit('debugInput', consoleInput.value);
+                if (consoleInput.value != consoleHistory[consoleHistory.length-1]) consoleHistory.push(consoleInput.value);
+                historyIndex = consoleHistory.length;
+                log = document.createElement('div');
+                log.className = 'ui-darkText';
+                log.innerText = '> ' + consoleInput.value;
+                var scroll = false;
+                if (consoleLog.scrollTop + consoleLog.clientHeight >= consoleLog.scrollHeight - 5) scroll = true;
+                consoleLog.appendChild(log);
+                if (scroll) consoleLog.scrollTop = consoleLog.scrollHeight;
+                consoleInput.value = '';
+            }
+        }
+        if (event.key == 'ArrowUp') {
+            historyIndex--;
+            if (historyIndex < 0) {
+                historyIndex = 0;
+            }
+            if (consoleHistory[historyIndex]) consoleInput.value = consoleHistory[historyIndex];
+        }
+        if (event.key == 'ArrowDown') {
+            historyIndex++;
+            if (consoleHistory[historyIndex]) consoleInput.value = consoleHistory[historyIndex];
+            if (historyIndex >= consoleHistory.length) {
+                historyIndex = consoleHistory.length;
+                consoleInput.value = '';
+            }
+        }
+    };
+    socket.on('debugLog', function(msg) {
+        log = document.createElement('div');
+        log.className = 'ui-darkText';
+        log.style.color = msg.color;
+        log.innerText = msg.msg;
+        var scroll = false;
+        if (consoleLog.scrollTop + consoleLog.clientHeight >= consoleLog.scrollHeight - 5) scroll = true;
+        consoleLog.appendChild(log);
+        if (scroll) consoleLog.scrollTop = consoleLog.scrollHeight;
+    });
+    consoleInput.onfocus = function() {
+        indebug = true;
+    };
+    consoleInput.onblur = function() {
+        indebug = false;
+    };
+    document.getElementById('debugConsoleButton').style.display = 'block';
+}

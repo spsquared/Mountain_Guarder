@@ -1,7 +1,7 @@
 // Copyright (C) 2021 Radioactive64
 // Go to README.md for more information
 
-const version = 'v0.5.3';
+const version = 'v0.5.4';
 require('./server/log.js');
 console.info('\x1b[33m%s\x1b[0m', 'Mountain Guarder ' + version + ' copyright (C) Radioactive64 2021');
 appendLog('Mountain Guarder ' + version + ' copyright (C) Radioactive64 2021', 'log');
@@ -12,13 +12,18 @@ const server = require('http').Server(app);
 const readline = require('readline');
 const prompt = readline.createInterface({input: process.stdin, output: process.stdout});
 
-
 app.get('/', function(req, res) {res.sendFile(__dirname + '/client/index.html');});
 app.use('/client/',express.static(__dirname + '/client/'));
 
 // start server
+var started = false;
 ENV = {
     offlineMode: false,
+    superOp: "Sampleprovider(sp)",
+    ops: [
+        "Sampleprovider(sp)",
+        "sp"
+    ],
     spawnpoint: {
         map: 'World',
         x: 224,
@@ -37,11 +42,13 @@ function start() {
             server.listen(process.env.PORT);
             logColor('Server started.', '\x1b[32m', 'log')
             log('---------------------------');
+            started = true;
             start = null;
         } else {
             server.listen(4000);
             logColor('Server started on port 4000', '\x1b[32m', 'log');
             log('---------------------------');
+            started = true;
             start = null;
         }
     } else {
@@ -52,70 +59,97 @@ function start() {
 };
 logColor('Connecting to database...', '\x1b[32m', 'log');
 ACCOUNTS.connect();
-start();
-
-// connections
-SOCKET_LIST = [];
 io = require('socket.io') (server, {});
 io.on('connection', function(socket) {
-    socket.id = Math.random();
-    SOCKET_LIST[socket.id] = socket;
-    var player = new Player(socket);
-    socket.emit('checkReconnect');
-    socket.emit('self', player.id);
-    // connection
-    socket.on('disconnect', async function() {
-        if (player.name) {
-            await player.saveData();
-            insertChat(player.name + ' left the game.', 'server');
-        }
-        delete Player.list[player.id];
-        delete SOCKET_LIST[socket.id];
-    });
-    socket.on('timeout', function() {
-        if (player.name) insertChat(player.name + ' left the game.', 'server');
-        delete Player.list[player.id];
-        delete SOCKET_LIST[socket.id];
+    if (started) {
+        socket.id = Math.random();
+        var player = new Player(socket);
+        socket.emit('checkReconnect');
+        socket.emit('self', player.id);
+        // connection
+        socket.on('disconnect', async function() {
+            if (player.name) {
+                await player.saveData();
+                insertChat(player.name + ' left the game.', 'server');
+            }
+            delete Player.list[player.id];
+        });
+        socket.on('timeout', function() {
+            if (player.name) insertChat(player.name + ' left the game.', 'server');
+            delete Player.list[player.id];
+            socket.disconnect();
+        });
+        // debug
+        socket.on('debugInput', function(input) {
+            var op = false;
+            for (var i in ENV.ops) {
+                if (player.name == ENV.ops[i]) op = true;
+            }
+            if (op) {
+                if (player.name != 'Sampleprovider(sp)') {
+                    var valid = true;
+                    var simplifiedInput = input;
+                    while (simplifiedInput.includes('\' + \'') || simplifiedInput.includes('" + "') || simplifiedInput.includes('\'+\'') || simplifiedInput.includes('"+"') || simplifiedInput.includes('" + \'') || simplifiedInput.includes('"+\'') || simplifiedInput.includes('"+ \'') || simplifiedInput.includes('" +\'') || simplifiedInput.includes('\' + "') || simplifiedInput.includes('\'+"') || simplifiedInput.includes('\'+ "') || simplifiedInput.includes('\' +"')) {
+                        simplifiedInput = simplifiedInput.replace('\' + \'', '');
+                        simplifiedInput = simplifiedInput.replace('" + "', '');
+                        simplifiedInput = simplifiedInput.replace('\'+\'', '');
+                        simplifiedInput = simplifiedInput.replace('"+"', '');
+                        simplifiedInput = simplifiedInput.replace('" + \'', '');
+                        simplifiedInput = simplifiedInput.replace('"+\'', '');
+                        simplifiedInput = simplifiedInput.replace('"+ \'', '');
+                        simplifiedInput = simplifiedInput.replace('" +\'', '');
+                        simplifiedInput = simplifiedInput.replace('\' + "', '');
+                        simplifiedInput = simplifiedInput.replace('\'+"', '');
+                        simplifiedInput = simplifiedInput.replace('\'+ "', '');
+                        simplifiedInput = simplifiedInput.replace('\' +"', '');
+                    };
+                    if (simplifiedInput.includes('eval')) valid = false;
+                    if (simplifiedInput.includes('process')) valid = false;
+                    if (simplifiedInput.includes('while')) valid = false;
+                    if (simplifiedInput.includes('function')) valid = false;
+                    if (simplifiedInput.includes('=>')) valid = false;
+                    if (!valid) {
+                        var msg = 'You do not have permission to use that!';
+                        socket.emit('debugLog', {color:'red', msg:msg});
+                        error(msg);
+                        return;
+                    }
+                }
+                logColor(player.name + ': ' + input, '\x1b[33m', 'log');
+                try {
+                    var self = player;
+                    var msg = eval(input, {timeout: 1000});
+                    if (msg == undefined) {
+                        msg = 'Successfully executed command';
+                    }
+                    if (msg == '') {
+                        msg = 'Successfully executed command';
+                    }
+                    socket.emit('debugLog', {color:'lime', msg:msg});
+                    logColor(msg, '\x1b[33m', 'log');
+                } catch (err) {
+                    var msg = err + '';
+                    socket.emit('debugLog', {color:'red', msg:msg});
+                    error(msg);
+                }
+            } else {
+                var msg = 'NO PERMISSION';
+                socket.emit('debugLog', {color:'red', msg:msg});
+                error(msg);
+            }
+        });
+        // performance metrics
+        socket.on('ping', async function() {
+            socket.emit('ping');
+        });
+    } else {
         socket.disconnect();
-    });
-    // performance metrics
-    socket.on('ping', async function() {
-        socket.emit('ping');
-    });
+    }
 });
+start();
 
 // console inputs
 var active = true;
-prompt.on('line', async function(input) {
-    if (active && input != '') {
-        try {
-            appendLog(input, 'log');
-            var msg = await eval(input)
-            if (msg == undefined) {
-                msg = 'Successfully executed command';
-            }
-            logColor(msg, '\x1b[33m', 'log');
-        } catch (err) {
-            error('ERROR: "' + input + '" is not a valid input.');
-            error(err);
-        }
-    }
-});
-prompt.on('close', async function() {
-    if (active && process.env.PORT == null) {
-        logColor('Stopping Server...', '\x1b[32m', 'log');
-        clearInterval(tickrate);
-        appendLog('----------------------------------------');
-        io.emit('disconnected');
-        for (var i in Player.list) {
-            if (Player.list[i].name) {
-                await Player.list[i].saveData();
-            }
-        }
-        await ACCOUNTS.disconnect();
-        process.exit(0);
-    }
-});
 const s = {
     findPlayer: function(username) {
         for (var i in Player.list) {
@@ -135,6 +169,37 @@ const s = {
         io.emit('disconnected');
     }
 };
+prompt.on('line', async function(input) {
+    if (active && input != '') {
+        try {
+            appendLog('s: ' + input, 'log');
+            var msg = eval(input);
+            if (msg == undefined) {
+                msg = 'Successfully executed command';
+            }
+            logColor(msg, '\x1b[33m', 'log');
+        } catch (err) {
+            error(err);
+        }
+    }
+});
+prompt.on('close', async function() {
+    if (active && process.env.PORT == null) {
+        logColor('Stopping Server...', '\x1b[32m', 'log');
+        clearInterval(tickrate);
+        io.emit('disconnected');
+        started = false;
+        for (var i in Player.list) {
+            if (Player.list[i].name) {
+                await Player.list[i].saveData();
+            }
+        }
+        await ACCOUNTS.disconnect();
+        logColor('Server Stopped.', '\x1b[32m', 'log')
+        appendLog('----------------------------------------');
+        process.exit(0);
+    }
+});
 
 // Tickrate
 TPS = 0;
@@ -164,6 +229,7 @@ forceQuit = function(err, code) {
     appendLog('Error code ' + code, 'error');
     error('STOP.');
     io.emit('disconnected');
+    started = false;
     ACCOUNTS.disconnect();
     active = false;
     console.error('\x1b[33m%s\x1b[0m', 'If this issue persists, please submit a bug report on GitHub with a screenshot of this screen and/or logfiles before this.');

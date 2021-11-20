@@ -174,20 +174,22 @@ DraggableWindow = function(id) {
         tabs: []
     };
     self.renderWindow = function() {
+        self.x = Math.min(Math.max(self.x, 0), window.innerWidth-self.width-2);
+        self.y = Math.min(Math.max(self.y, 0), window.innerHeight-self.height-3);
         self.window.style.left = self.x + 'px';
         self.window.style.top = self.y + 'px';
     };
     self.windowBar.onmousedown = function(e) {
-        self.offsetX = e.pageX - self.x;
-        self.offsetY = e.pageY - self.y;
+        self.offsetX = e.pageX-self.x;
+        self.offsetY = e.pageY-self.y;
         self.dragging = true;
         resetZIndex();
         self.window.style.zIndex = 6;
     };
     document.addEventListener('mousemove', function(e) {
         if (self.dragging) {
-            self.x = Math.min(Math.max(e.pageX-self.offsetX, 0), window.innerWidth-self.width-2);
-            self.y = Math.min(Math.max(e.pageY-self.offsetY, 0), window.innerHeight-self.height-3);
+            self.x = e.pageX-self.offsetX;
+            self.y = e.pageY-self.offsetY;
             self.renderWindow();
         }
     });
@@ -232,14 +234,15 @@ DraggableWindow = function(id) {
                 };
             }
         }
+        self.changeTab(self.tabs[0]);
     };
-    self.changeTab(self.tabs[0]);
 
     return self;
 };
 function resetZIndex() {
     document.getElementById('inventory').style.zIndex = 5;
     document.getElementById('settings').style.zIndex = 5;
+    document.getElementById('debugConsole').style.zIndex = 5;
 };
 
 // menu buttons
@@ -255,8 +258,15 @@ function toggleDropdown() {
 };
 var inventoryWindow = new DraggableWindow('inventory');
 var settingsWindow = new DraggableWindow('settings');
+debugConsoleWindow = new DraggableWindow('debugConsole');
+inventoryWindow.hide = function() {
+    inventoryWindow.window.style.display = 'none';
+    inventoryWindow.open = false;
+    document.getElementById('invHoverTooltip').style.opacity = 0;
+};
 settingsWindow.width = 500;
 settingsWindow.height = 300;
+debugConsoleWindow.width = 400;
 function openInventory() {
     inventoryWindow.show();
     toggleDropdown();
@@ -267,6 +277,18 @@ function toggleInventory() {
 function openSettings() {
     settingsWindow.show();
     toggleDropdown();
+};
+function openDebugConsole() {
+    debugConsoleWindow.show();
+    toggleDropdown();
+};
+function toggleDebugConsole() {
+    debugConsoleWindow.toggle();
+};
+function snapWindows() {
+    inventoryWindow.renderWindow();
+    settingsWindow.renderWindow();
+    debugConsoleWindow.renderWindow();
 };
 
 // settings

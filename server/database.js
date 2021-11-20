@@ -228,7 +228,7 @@ async function updateProgress(username, password, data) {
     if (cred) {
         if (bcrypt.compareSync(password, cred.password)) {
             try {
-                database.query('UPDATE users SET data=$2 WHERE username=$1', [username, data]);
+                await database.query('UPDATE users SET data=$2 WHERE username=$1', [username, data]);
                 return true;
             } catch (err) {
                 forceQuit(err, 2);

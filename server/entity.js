@@ -214,6 +214,7 @@ Rig = function() {
     self.lastFrameUpdate = 0;
     self.animationSpeed = 100;
     self.animationDirection = 'loop';
+    self.facingDirection = 'down';
     self.moveSpeed = 15;
     self.stats = {
         damageType: null,
@@ -237,6 +238,7 @@ Rig = function() {
     self.lastManaUse = 0;
     self.lastManaRegen = 0;
     self.alive = true;
+    self.name = 'Entity.Rig';
     self.lastAttack = 0;
     self.ai = {
         entityTarget: null,
@@ -289,26 +291,42 @@ Rig = function() {
     self.updatePos = function() {
         self.xspeed = 0;
         self.yspeed = 0;
-        self.animationDirection = 'none';
+        self.animationDirection = 'facing';
         if (self.keys.up) {
             self.yspeed = -self.moveSpeed;
             self.animationDirection = 'up';
+            self.facingDirection = 'up';
         }
         if (self.keys.down) {
             self.yspeed = self.moveSpeed;
             self.animationDirection = 'down';
+            self.facingDirection = 'down';
         }
         if (self.keys.left) {
             self.xspeed = -self.moveSpeed;
-            if (self.keys.down) self.animationDirection = 'downleft';
-            else if (self.keys.up) self.animationDirection = 'upleft';
-            else self.animationDirection = 'left';
+            if (self.keys.down) {
+                self.animationDirection = 'downleft';
+                self.facingDirection = 'downleft';
+            } else if (self.keys.up) {
+                self.animationDirection = 'upleft';
+                self.facingDirection = 'upleft';
+            } else {
+                self.animationDirection = 'left';
+                self.facingDirection = 'left';
+            }
         }
         if (self.keys.right) {
             self.xspeed = self.moveSpeed;
-            if (self.keys.down) self.animationDirection = 'downright';
-            else if (self.keys.up) self.animationDirection = 'upright';
-            else self.animationDirection = 'right';
+            if (self.keys.down) {
+                self.animationDirection = 'downright';
+                self.facingDirection = 'downright';
+            } else if (self.keys.up) {
+                self.animationDirection = 'upright';
+                self.facingDirection = 'upright';
+            } else {
+                self.animationDirection = 'right';
+                self.facingDirection = 'right';
+            }
         }
         self.collide();
         var foundregion = false;
@@ -381,12 +399,43 @@ Rig = function() {
         if (self.lastFrameUpdate >= seconds(self.animationSpeed/1000)) {
             self.lastFrameUpdate = 0;
             switch (self.animationDirection) {
+                case 'none':
+                    self.animationStage = 0;
+                    break;
                 case 'loop':
                     self.animationStage++;
                     if (self.animationStage > self.animationLength) self.animationStage = 0;
                     break;
-                case 'none':
-                    self.animationStage = 0;
+                case 'facing':
+                    switch (self.facingDirection) {
+                        case 'up':
+                            self.animationStage = 24;
+                            break;
+                        case 'down':
+                            self.animationStage = 0;
+                            break;
+                        case 'left':
+                            self.animationStage = 36;
+                            break;
+                        case 'right':
+                            self.animationStage = 12;
+                            break;
+                        case 'upleft':
+                            self.animationStage = 30;
+                            break;
+                        case 'downleft':
+                            self.animationStage = 42;
+                            break;
+                        case 'upright':
+                            self.animationStage = 18;
+                            break;
+                        case 'downright':
+                            self.animationStage = 6;
+                            break;
+                        default:
+                            error('Invalid facingDirection ' + self.facingDirection);
+                            break;
+                    }
                     break;
                 case 'up':
                     self.animationStage++;
@@ -554,7 +603,10 @@ Rig = function() {
 Npc = function(param) {
     var self = new Rig();
     self.id = Math.random();
-    self.animationDirection = 'none';
+    self.animationSpeed = 100;
+    self.animationDirection = 'facing';
+    self.facingDirection = 'down';
+    self.name = null;
 
     Npc.list[self.id] = self;
     return self;
@@ -604,8 +656,9 @@ Player = function(socket) {
     self.map = ENV.spawnpoint.map;
     self.x = ENV.spawnpoint.x;
     self.y = ENV.spawnpoint.y;
-    self.animationDirection = 'none';
     self.animationSpeed = 100;
+    self.animationDirection = 'facing';
+    self.facingDirection = 'down';
     self.attacking = false;
     self.lastHeal = 0;
     self.stats.heal = 1;
@@ -687,6 +740,8 @@ Player = function(socket) {
                         var status = await ACCOUNTS.signup(cred.username, cred.password);
                         switch (status) {
                             case 0:
+                                self.creds.username = cred.username;
+                                self.creds.password = cred.password;
                                 self.name = cred.username;
                                 socket.emit('signInState', 'signedUp');
                                 insertChat(self.name + ' joined the game.', 'server');
@@ -809,32 +864,33 @@ Player = function(socket) {
     self.update = function() {
         self.updatePos();
         self.lastAttack++;
-        if (self.attacking && !self.region.noattack && self.lastAttack > self.attack.useTime && self.attack.projectile != null && self.mana >= self.attack.manaCost) {
+        if (self.attacking && !self.region.noattack && self.lastAttack > self.attack.useTime && self.attack.projectile != null && self.mana >= self.attack.manaCost && self.alive) {
             self.lastAttack = 0;
             new Projectile(self.attack.projectile, self.x, self.y, self.map, self.mouseX, self.mouseY, self.id);
             self.mana -= self.attack.manaCost;
         }
         self.lastAutoHeal++;
         self.lastHeal++;
-        if (self.lastAutoHeal >= seconds(0.2) && self.hp < self.maxHP) {
+        if (self.lastAutoHeal >= seconds(0.4) && self.hp < self.maxHP && self.alive) {
             self.hp = Math.min(self.hp+self.stats.heal, self.maxHP);
             self.lastAutoHeal = 0;
         }
-        if (self.keys.heal && self.hp < self.maxHP && self.lastHeal >= seconds(0.5) && self.mana >= 10) {
+        if (self.keys.heal && self.alive && self.hp < self.maxHP && self.lastHeal >= seconds(1) && self.mana >= 20) {
             var oldhp = self.hp;
             self.lastHeal = 0;
             self.hp = Math.min(self.hp+20, self.maxHP);
-            self.mana -= 10;
+            self.mana -= 20;
             self.lastManaUse = 0;
             new Particle(self.map, self.x, self.y, 'heal', '+' + self.hp-oldhp);
         }
         self.lastManaRegen++;
         self.lastManaUse++;
-        if (self.lastManaRegen >= seconds(0.1)) {
-            self.mana = Math.min(self.mana+1, self.maxMana);
-            self.lastManaRegen = 0;
+        if (self.lastManaUse >= seconds(3) && self.alive) {
+            if (self.lastManaRegen >= seconds(0.2)) {
+                self.mana = Math.min(self.mana+1, self.maxMana);
+                self.lastManaRegen = 0;
+            }
         }
-        if (self.lastManaUse >= seconds(0.5)) self.mana = Math.min(self.mana+1, self.maxMana);
         self.heldItem.angle = Math.atan2(self.mouseY, self.mouseX);
         self.updateAnimation();
         self.updateClient();
@@ -910,6 +966,7 @@ Player = function(socket) {
             useTime: 0,
             manaCost: 0,
         };
+        self.heldItem.id = null;
         self.maxHP = 100;
         if (self.inventory.equips.weapon) {
             var item = self.inventory.equips.weapon;
@@ -960,7 +1017,7 @@ Player = function(socket) {
                             self.stats.defense = Math.min(self.stats.defense, 1);
                             break;
                         default:
-                            error('Invalid item effect ' + effect);
+                            error('Invalid item effect ' + effect.id);
                             break;
                     }
                 }
@@ -973,11 +1030,13 @@ Player = function(socket) {
     self.loadData = async function() {
         self.inventory.loadSaveData(await ACCOUNTS.loadProgress(self.creds.username, self.creds.password));
         self.updateStats();
-        var empty = true;
+        var noWeapon = true;
         for (var i in self.inventory.items) {
-            if (self.inventory.items[i] != null) empty = false;
-        } 
-        if (empty) {
+            if (self.inventory.items[i].slotType == 'weapon') noWeapon = false;
+        }
+        if (self.inventory.equips['weapon']) noWeapon = false;
+        if (self.inventory.equips['weapon2']) noWeapon = false;
+        if (noWeapon) {
             self.inventory.addItem('simplewoodenbow');
         }
     };
