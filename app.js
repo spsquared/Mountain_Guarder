@@ -1,7 +1,7 @@
 // Copyright (C) 2021 Radioactive64
 // Go to README.md for more information
 
-const version = 'v0.5.4';
+const version = 'v0.6.0';
 require('./server/log.js');
 console.info('\x1b[33m%s\x1b[0m', 'Mountain Guarder ' + version + ' copyright (C) Radioactive64 2021');
 appendLog('Mountain Guarder ' + version + ' copyright (C) Radioactive64 2021', 'log');
@@ -11,18 +11,26 @@ const app = express();
 const server = require('http').Server(app);
 const readline = require('readline');
 const prompt = readline.createInterface({input: process.stdin, output: process.stdout});
+const rateLimit = require('express-rate-limit');
+const limiter = rateLimit({
+    windowMs: 100,
+    max: 50,
+    handler: function(req, res, options) {}
+});
 
 app.get('/', function(req, res) {res.sendFile(__dirname + '/client/index.html');});
 app.use('/client/',express.static(__dirname + '/client/'));
+app.use(limiter);
 
 // start server
 var started = false;
 ENV = {
     offlineMode: false,
-    superOp: "Sampleprovider(sp)",
+    superOp: 'Sampleprovider(sp)',
     ops: [
-        "Sampleprovider(sp)",
-        "sp"
+        'Sampleprovider(sp)',
+        'spuh',
+        'suvanth'
     ],
     spawnpoint: {
         map: 'World',
@@ -65,7 +73,6 @@ io.on('connection', function(socket) {
         socket.id = Math.random();
         var player = new Player(socket);
         socket.emit('checkReconnect');
-        socket.emit('self', player.id);
         // connection
         socket.on('disconnect', async function() {
             if (player.name) {
@@ -73,10 +80,13 @@ io.on('connection', function(socket) {
                 insertChat(player.name + ' left the game.', 'server');
             }
             delete Player.list[player.id];
+            socket.emit('disconnected');
+            socket.disconnect();
         });
         socket.on('timeout', function() {
             if (player.name) insertChat(player.name + ' left the game.', 'server');
             delete Player.list[player.id];
+            socket.emit('disconnected');
             socket.disconnect();
         });
         // debug
@@ -107,7 +117,9 @@ io.on('connection', function(socket) {
                     if (simplifiedInput.includes('process')) valid = false;
                     if (simplifiedInput.includes('while')) valid = false;
                     if (simplifiedInput.includes('function')) valid = false;
-                    if (simplifiedInput.includes('=>')) valid = false;
+                    if (simplifiedInput.includes('ACCOUNTS')) valid = false;
+                    if (simplifiedInput.includes('creds')) valid = false;
+                    if (simplifiedInput.includes('dbDebug')) valid = false;
                     if (!valid) {
                         var msg = 'You do not have permission to use that!';
                         socket.emit('debugLog', {color:'red', msg:msg});
@@ -142,6 +154,24 @@ io.on('connection', function(socket) {
         socket.on('ping', async function() {
             socket.emit('ping');
         });
+        // ddos spam protection
+        var spamCount = 0;
+        var onevent = socket.onevent;
+        socket.onevent = function (packet) {
+            var args = packet.data || [];
+            onevent.call (this, packet);
+            if (packet.data != 'ping') spamCount++;
+        };
+        setInterval(function() {
+            spamCount = Math.max(spamCount-50, 0);
+            if (spamCount > 0) {
+                insertChat(player.name + ' was kicked for socket.io DDOS', 'anticheat');
+                insertChat(player.name + ' left the game.', 'server');
+                delete Player.list[player.id];
+                socket.emit('disconnected');
+                socket.disconnect();
+            }
+        }, 100);
     } else {
         socket.disconnect();
     }
@@ -165,7 +195,7 @@ const s = {
         var player = s.findPlayer(username);
         if (player) player.socket.emit('disconnected');
     },
-    disconnectAll: function() {
+    kickAll: function() {
         io.emit('disconnected');
     }
 };
@@ -175,6 +205,9 @@ prompt.on('line', async function(input) {
             appendLog('s: ' + input, 'log');
             var msg = eval(input);
             if (msg == undefined) {
+                msg = 'Successfully executed command';
+            }
+            if (msg == '') {
                 msg = 'Successfully executed command';
             }
             logColor(msg, '\x1b[33m', 'log');
@@ -187,12 +220,15 @@ prompt.on('close', async function() {
     if (active && process.env.PORT == null) {
         logColor('Stopping Server...', '\x1b[32m', 'log');
         clearInterval(tickrate);
-        io.emit('disconnected');
         started = false;
         for (var i in Player.list) {
-            if (Player.list[i].name) {
-                await Player.list[i].saveData();
+            var player = Player.list[i];
+            if (player.name) {
+                await player.saveData();
             }
+            delete Player.list[i];
+            player.socket.emit('disconnected');
+            player.socket.onevent = function(packet) {};
         }
         await ACCOUNTS.disconnect();
         logColor('Server Stopped.', '\x1b[32m', 'log')

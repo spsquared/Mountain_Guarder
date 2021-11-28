@@ -44,6 +44,7 @@ Inventory.Item = function(id, slot) {
 Inventory.Slot = function() {
     var slot = document.createElement('div');
     slot.className = 'invSlot';
+    slot.draggable = false;
     var self = {
         slotId: Inventory.items.length,
         item: null,
@@ -53,9 +54,9 @@ Inventory.Slot = function() {
 
     self.refresh = function() {
         if (self.item) {
-            slot.innerHTML = '<img src="./client/img/item/' + self.item.id + '.png" class="invSlotImg"></img>';
+            slot.innerHTML = '<img src="./client/img/item/' + self.item.id + '.png" class="invSlotImg noSelect"></img>';
         } else {
-            slot.innerHTML = '<img src="./client/img/item/empty.png" class="invSlotImgNoGrab"></img>';
+            slot.innerHTML = '<img src="./client/img/item/empty.png" class="invSlotImgNoGrab noSelect"></img>';
         }
     };
     slot.onmouseover = function(e) {
@@ -78,6 +79,7 @@ Inventory.EquipSlot = function(equip) {
     var slot = document.createElement('div');
     slot.id = 'invSlotEquip' + equip;
     slot.className = 'invSlot';
+    slot.draggable = false;
     var self = {
         slotId: equip,
         item: null,
@@ -87,7 +89,7 @@ Inventory.EquipSlot = function(equip) {
 
     self.refresh = function() {
         if (self.item) {
-            slot.innerHTML = '<img src="./client/img/item/' + self.item.id + '.png" class="invSlotImg"></img>';
+            slot.innerHTML = '<img src="./client/img/item/' + self.item.id + '.png" class="invSlotImg noSelect"></img>';
         } else {
             slot.innerHTML = '<img src="./client/img/item/emptySlot' + self.slotId + '.png" class="invSlotImgNoGrab"></img>';
         }

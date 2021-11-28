@@ -22,7 +22,8 @@ img {
 /* scrollbar */
 ::-webkit-scrollbar {
     width: 20px;
-  }
+    height: 20px;
+}
 ::-webkit-scrollbar-track {
     background: rgba(40, 40, 40, 0.5); 
 }
@@ -188,7 +189,7 @@ img {
     top: 15%;
     text-align: center;
     font-family: 'pixel';
-    font-size: 80px;
+    font-size: 100px;
     color: #000000;
 }
 #stackScroll {
@@ -239,6 +240,11 @@ img {
 #signInError {
     color: red;
     font-weight: lighter;
+}
+
+/* announcementsImage */
+.announcementsImage {
+    width: 100%;
 }
 
 /* loading screen */
@@ -312,6 +318,7 @@ img {
     width: 100vw;
     height: 100vh;
     text-align: center;
+    overflow: hidden;
     z-index: 100;
 }
 #disconnected {

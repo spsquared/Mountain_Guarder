@@ -8,6 +8,10 @@
         <meta id="viewport" name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=2.0, minimum-scale=1.0, user-scalable=no">
         <meta charset="utf-8">
         <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://meadowguarderold.herokuapp.com/ 'unsafe-eval' 'unsafe-inline'; script-src 'self' https://cdn.socket.io/socket.io-1.4.5.js https://code.jquery.com/jquery-3.5.0.js 'unsafe-eval' 'unsafe-inline'; script-src-elem 'self' https://cdn.socket.io/socket.io-1.4.5.js https://code.jquery.com/jquery-3.5.0.js 'unsafe-eval' 'unsafe-inline'; frame-src 'self' https://www.youtube.com/ https://meadowguarderold.herokuapp.com/ 'unsafe-eval' 'unsafe-inline'">
+        <meta id="title" content="Mountain Guarder">
+        <meta id="description" content="A free-to-play fantasy RPG">
+        <meta id="url" content="https://mountainguarder.herokuapp.com">
+        <meta id="image" content="https://mountainguarder.herokuapp.com/client/img/loading.png">
         <link rel="icon" href="./client/assets/favicon.ico" type="image/x-icon">
         <noscript><meta http-equiv="refresh" content="0; url=./client/nojs.html"/></noscript>
         <script src="/socket.io/socket.io.js"></script>
@@ -33,7 +37,7 @@
                                     <label for="username">Username:</label><br>
                                 </td>
                                 <td>
-                                    <input type="text" id="username" class="ui-textInput" name="username" autocapitalize="off" autocomplete="off"><br>
+                                    <input type="text" id="username" class="ui-textInput" name="username" autocapitalize="off" autocomplete="off" maxlength="20"><br>
                                 </td>
                             </tr>
                             <tr>
@@ -41,7 +45,7 @@
                                     <label for="password">Password:</label><br>
                                 </td>
                                 <td>
-                                    <input type="password" id="password" class="ui-textInput" name="password" autocapitalize="off" autocomplete="off"><br>
+                                    <input type="password" id="password" class="ui-textInput" name="password" autocapitalize="off" autocomplete="off" maxlength="100"><br>
                                 </td>
                             </tr>
                             <tr>
@@ -69,6 +73,45 @@
                             insert changes here
                         </div>
                     </div> -->
+                    <div class="stack ui-block ui-lighttext">
+                        <div class="ui-lighttext stackHeader">
+                            v0.6.0 - 11/28/21
+                        </div>
+                        <div class="ui-lighttext stackBody">
+                            Added NPCs, the first of which is Bob! Other things in the changelog includes optimizations, security fixes, quality-of-life changes, and multiple bug fixes. Mountain Guarder v0.6.0 feels much more polished than any previous version. Some additions include idle walk, death messages, and chunk border viewing. DDOS/DOS protections are added as well. Random bugs involving CSS and wierd oversights, like player hitbox sizing, has been fixed also. This is a big update!
+                            <ul>
+                                <li>Added NPCs</li>
+                                <li>Added protection against DOS/DDOS attacks</li>
+                                <li>Optimized collision detection</li>
+                                <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/115" target="_blank" class="ui-link">Balanced weapons (Issue #115)</a></li>
+                                <li>Monster idle walk exists now</li>
+                                <li>Monsters will now try and leave no monster regions</li>
+                                <li>Added player death messages</li>
+                                <li>Increased CherryBomb explosion range</li>
+                                <li>Projectiles can now have patterns</li>
+                                <li>Melee damage hitboxes now follow the player and no longer float around</li>
+                                <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/111" target="_blank" class="ui-link">Added socket.emit() anticheat (Issue #111)</a></li>
+                                <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/119" target="_blank" class="ui-link">Prevented autoclicking without autoclicker (Issue #119)</a></li>
+                                <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/117" target="_blank" class="ui-link">Fixed attacking from clicking on windows (Issue #117)</a></li>
+                                <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/106" target="_blank" class="ui-link">Items no longer go into the void (Issue #106)</a></li>
+                                <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/114" target="_blank" class="ui-link">Removed scroll bars on game container (Issue #114)</a></li>
+                                <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/102" target="_blank" class="ui-link">Added chat size setting (Issue #102)</a></li>
+                                <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/118" target="_blank" class="ui-link">Patched highlighting of inventory (Issue #118)</a></li>
+                                <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/108" target="_blank" class="ui-link">Patched client not receiving player id (Issue #108)</a></li>
+                                <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/101" target="_blank" class="ui-link">Patched maps changing before screen fade complete (Issue #101)</a></li>
+                                <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/103" target="_blank" class="ui-link">Fixed player hitbox sizing issue (Issue #103)</a></li>
+                                <li>Increased mana regen speed</li>
+                                <li>Chunk borders are now visible in debug</li>
+                                <li>Debug no longer shows hitboxes of entities on other maps</li>
+                                <li>Patched screen flashing when changing render quality</li>
+                                <li>Added some trees</li>
+                                <li>Updated preview image</li>
+                                <li>Fixed username character limit</li>
+                                <li>Replaced manhattan distance function with square distance function</li>
+                                <li>Fixed other minor bugs</li>
+                            </ul>
+                        </div>
+                    </div>
                     <div class="stack ui-block ui-lighttext">
                         <div class="ui-lighttext stackHeader">
                             v0.5.4 - 11/13/21
@@ -503,6 +546,16 @@
                         </div>
                         <div class="ui-lighttext stackBody">
                             <div class="stackSub">
+                                11/28/21
+                            </div>
+                            <div class="stackBody">
+                                New collision optimizations! Collisions will only be checked if the distance between two hitboxes is small enough for a collision to occur. Projectiles no longer recalculate the sin() and cos() values hundreds of times per tick as well, so the impact is huge.<br>
+                                Before: (reached 800 before crashing)<br>
+                                <img src="./client/img/announcements/11-25-21-a.png" class="announcementsImage"><br>
+                                After:<br>
+                                <img src="./client/img/announcements/11-25-21-b.png" class="announcementsImage"><br>
+                            </div><br>
+                            <div class="stackSub">
                                 11/27/21
                             </div>
                             <div class="stackBody">
@@ -556,14 +609,13 @@
                         </div>
                         <div class="ui-lighttext stackBody">
                             Sampleprovider(sp): Lead Developer<br>
-                            sp: Bug finder
-                            <br><br>
-                            <a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder" target="_blank" class="ui-link">GitHub repository</a>
+                            sp: Bug finder<br>
                             <br>
-                            <a href="https://discord.gg/jKwmKkKmGc" target="_blank" class="ui-link">Join our Discord!</a>
-                            <br><br>
-                            &copy; Radioactive64 2021
-                            <br><br>
+                            <a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder" target="_blank" class="ui-link">GitHub repository</a><br>
+                            <a href="https://discord.gg/jKwmKkKmGc" target="_blank" class="ui-link">Join our Discord!</a><br>
+                            <br>
+                            &copy; Radioactive64 2021<br>
+                            <br>
                             Would you like to contribute? Contributing can range from <a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/new?assignees=&labels=bug&template=bug-report.md&title=BUG+-+%5BSummary+here%5D" target="_blank" class="ui-link">submitting a bug report</a> or <a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/new?assignees=&labels=suggestion&template=feature_request.md&title=SUGGESTION+-+%5BSummary+here%5D" target="_blank" class="ui-link">creating a suggestion</a> to sending a pull request stating the reason the pull request was created and what it changes. For more information visit the <a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder" target="_blank" class="ui-link">GitHub</a> repository.
                         </div>
                     </div>
@@ -694,7 +746,7 @@
                                     Target FPS:
                                 </td>
                                 <td>
-                                    <input type="range" id="fpsSlider" class="ui-slider" min="20" max="120" step="10" value="60" oninput="slider('fps')">
+                                    <input type="range" id="fpsSlider" class="ui-slider" min="20" max="120" step="10" value="60" oninput="slider('fps');">
                                 </td>
                                 <td>
                                     <div id="fpsIndicator" class="ui-lighttext">60fps</div>
@@ -705,7 +757,7 @@
                                     Render Distance:
                                 </td>
                                 <td>
-                                    <input type="range" id="renderDistanceSlider" class="ui-slider" min="1" max="10" value="1" oninput="slider('renderDistance')">
+                                    <input type="range" id="renderDistanceSlider" class="ui-slider" min="1" max="10" value="1" oninput="slider('renderDistance');">
                                 </td>
                                 <td>
                                     <div id="renderDistanceIndicator" class="ui-lighttext">1</div>
@@ -716,7 +768,7 @@
                                     Render Quality:
                                 </td>
                                 <td>
-                                    <input type="range" id="renderQualitySlider" class="ui-slider" min="50" max="150" value="100" step="10" oninput="slider('renderQuality')">
+                                    <input type="range" id="renderQualitySlider" class="ui-slider" min="50" max="150" value="100" step="10" oninput="slider('renderQuality');">
                                 </td>
                                 <td>
                                     <div id="renderQualityIndicator" class="ui-lighttext">100%</div>
@@ -755,7 +807,7 @@
                                     Chat Size:
                                 </td>
                                 <td>
-                                    <input type="range" id="chatSizeSlider" class="ui-slider" min="0" max="3" value="2">
+                                    <input type="range" id="chatSizeSlider" class="ui-slider" min="1" max="4" value="2" oninput="slider('chatSize');">
                                 </td>
                                 <td>
                                     <div id="chatSizeIndicator" class="ui-lighttext">2</div>
@@ -848,8 +900,8 @@
                     <div id="debugConsoleSelect" class="window-select"></div>
                 </div>
             </div>
-            <div id="invHoverTooltip" class="ui-block ui-lighttext">Tooltip</div>
-            <img id="invDragImg" class="invSlotImg">
+            <div id="invHoverTooltip" class="ui-block ui-lighttext noselect">Tooltip</div>
+            <img id="invDragImg" class="invSlotImg noselect">
             <div id="deathScreen" class="noSelect">
                 <p id="youdied" class="ui-lighttext">You Died!</p>
                 <p id="respawnTimer" class="ui-lighttext">0</p>

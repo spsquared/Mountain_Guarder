@@ -91,21 +91,21 @@ Collision = function(map, x, y, type) {
             coltype = 28;
             break;
         default:
-            error('invalid collision at (' + x + ',' + y + ')');
+            error('Invalid collision at (' + x + ',' + y + ')');
             break;
     }
-    if (Collision.list[map][y]) {
-        Collision.list[map][y][x] = coltype;
+    if (Collision.grid[map][y]) {
+        Collision.grid[map][y][x] = coltype;
     } else {
-        Collision.list[map][y] = [];
-        Collision.list[map][y][x] = coltype;
+        Collision.grid[map][y] = [];
+        Collision.grid[map][y][x] = coltype;
     }
 
     return coltype;
 };
 Collision.getColEntity = function(map, x, y) {
     var collision = [];
-    var coltype = Collision.list[map][y][x];
+    var coltype = Collision.grid[map][y][x];
     var noProjectile = false;
     if (coltype > 14) {
         noProjectile = true;
@@ -121,6 +121,7 @@ Collision.getColEntity = function(map, x, y) {
                 y: y*64+32,
                 width: 64,
                 height: 64,
+                collisionBoxSize: 64,
                 noProjectile: noProjectile
             };
             break;
@@ -131,6 +132,7 @@ Collision.getColEntity = function(map, x, y) {
                 y: y*64+48,
                 width: 64,
                 height: 32,
+                collisionBoxSize: 64,
                 noProjectile: noProjectile
             };
             break;
@@ -141,6 +143,7 @@ Collision.getColEntity = function(map, x, y) {
                 y: y*64+16,
                 width: 64,
                 height: 32,
+                collisionBoxSize: 64,
                 noProjectile: noProjectile
             };
             break;
@@ -151,6 +154,7 @@ Collision.getColEntity = function(map, x, y) {
                 y: y*64+32,
                 width: 32,
                 height: 64,
+                collisionBoxSize: 64,
                 noProjectile: noProjectile
             };
             break;
@@ -161,6 +165,7 @@ Collision.getColEntity = function(map, x, y) {
                 y: y*64+32,
                 width: 32,
                 height: 64,
+                collisionBoxSize: 64,
                 noProjectile: noProjectile
             };
             break;
@@ -171,6 +176,7 @@ Collision.getColEntity = function(map, x, y) {
                 y: y*64+48,
                 width: 64,
                 height: 32,
+                collisionBoxSize: 64,
                 noProjectile: noProjectile
             };
             collision[1] = {
@@ -179,6 +185,7 @@ Collision.getColEntity = function(map, x, y) {
                 y: y*64+32,
                 width: 32,
                 height: 64,
+                collisionBoxSize: 64,
                 noProjectile: noProjectile
             };
             break;
@@ -189,6 +196,7 @@ Collision.getColEntity = function(map, x, y) {
                 y: y*64+16,
                 width: 64,
                 height: 32,
+                collisionBoxSize: 64,
                 noProjectile: noProjectile
             };
             collision[1] = {
@@ -197,6 +205,7 @@ Collision.getColEntity = function(map, x, y) {
                 y: y*64+32,
                 width: 32,
                 height: 64,
+                collisionBoxSize: 64,
                 noProjectile: noProjectile
             };
             break;
@@ -207,6 +216,7 @@ Collision.getColEntity = function(map, x, y) {
                 y: y*64+16,
                 width: 64,
                 height: 32,
+                collisionBoxSize: 64,
                 noProjectile: noProjectile
             };
             collision[1] = {
@@ -215,6 +225,7 @@ Collision.getColEntity = function(map, x, y) {
                 y: y*64+32,
                 width: 32,
                 height: 64,
+                collisionBoxSize: 64,
                 noProjectile: noProjectile
             };
             break;
@@ -225,6 +236,7 @@ Collision.getColEntity = function(map, x, y) {
                 y: y*64+48,
                 width: 64,
                 height: 32,
+                collisionBoxSize: 64,
                 noProjectile: noProjectile
             };
             collision[1] = {
@@ -233,6 +245,7 @@ Collision.getColEntity = function(map, x, y) {
                 y: y*64+32,
                 width: 32,
                 height: 64,
+                collisionBoxSize: 64,
                 noProjectile: noProjectile
             };
             break;
@@ -243,6 +256,7 @@ Collision.getColEntity = function(map, x, y) {
                 y: y*64+32,
                 width: 32,
                 height: 32,
+                collisionBoxSize: 32,
                 noProjectile: noProjectile
             };
             break;
@@ -253,6 +267,7 @@ Collision.getColEntity = function(map, x, y) {
                 y: y*64+48,
                 width: 32,
                 height: 32,
+                collisionBoxSize: 32,
                 noProjectile: noProjectile
             };
             break;
@@ -263,6 +278,7 @@ Collision.getColEntity = function(map, x, y) {
                 y: y*64+48,
                 width: 32,
                 height: 32,
+                collisionBoxSize: 32,
                 noProjectile: noProjectile
             };
             break;
@@ -273,6 +289,7 @@ Collision.getColEntity = function(map, x, y) {
                 y: y*64+16,
                 width: 32,
                 height: 32,
+                collisionBoxSize: 32,
                 noProjectile: noProjectile
             };
             break;
@@ -283,17 +300,18 @@ Collision.getColEntity = function(map, x, y) {
                 y: y*64+16,
                 width: 32,
                 height: 32,
+                collisionBoxSize: 32,
                 noProjectile: noProjectile
             };
             break;
         default:
-            console.error('invalid collision');
+            console.error('Invalid collision');
             break;
     }
     
     return collision;
 };
-Collision.list = [];
+Collision.grid = [];
 
 Spawner = function(map, x, y, types) {
     var self = {
@@ -328,7 +346,7 @@ Spawner = function(map, x, y, types) {
             localmonster.oldOnDeath = localmonster.onDeath;
             localmonster.onDeath = function(entity) {
                 try {
-                    Spawner.list[localmonster.spawnerID].onMonsterDeath();
+                    Spawner.grid[localmonster.spawnerID].onMonsterDeath();
                 } catch (err) {
                     error(err);
                 }
@@ -347,10 +365,10 @@ Spawner = function(map, x, y, types) {
     
     self.spawnMonster();
 
-    Spawner.list[self.id] = self;
+    Spawner.grid[self.id] = self;
     return self;
 };
-Spawner.list = [];
+Spawner.grid = [];
 
 Region = function(map, x, y, properties) {
     var data = {
@@ -363,16 +381,16 @@ Region = function(map, x, y, properties) {
         else if (properties[i] == 'nomonster') data.nomonster = true;
         else data.name = properties[i];
     }
-    if (Region.list[map][y]) {
-        Region.list[map][y][x] = data;
+    if (Region.grid[map][y]) {
+        Region.grid[map][y][x] = data;
     } else {
-        Region.list[map][y] = [];
-        Region.list[map][y][x] = data;
+        Region.grid[map][y] = [];
+        Region.grid[map][y][x] = data;
     }
 
     return data;
 };
-Region.list = [];
+Region.grid = [];
 
 Teleporter = function(map, x, y, properties) {
     var data = {
@@ -385,13 +403,13 @@ Teleporter = function(map, x, y, properties) {
     data.x = parseInt(properties[1]);
     data.y = parseInt(properties[2]);
     data.direction = properties[3];
-    if (Teleporter.list[map][y]) {
-        Teleporter.list[map][y][x] = data;
+    if (Teleporter.grid[map][y]) {
+        Teleporter.grid[map][y][x] = data;
     } else {
-        Teleporter.list[map][y] = [];
-        Teleporter.list[map][y][x] = data;
+        Teleporter.grid[map][y] = [];
+        Teleporter.grid[map][y][x] = data;
     }
 
     return data;
 };
-Teleporter.list = [];
+Teleporter.grid = [];

@@ -1,6 +1,6 @@
 // Copyright (C) 2021 Radioactive64
 
-const version = 'v0.5.4';
+const version = 'v0.6.0';
 var firstload = false;
 // canvas
 CTXRAW = document.getElementById('ctx')
@@ -105,6 +105,15 @@ document.getElementById('chatText').addEventListener('dblclick', function(e) {e.
 document.getElementById('dropdownMenu').addEventListener('dblclick', function(e) {e.preventDefault()});
 document.getElementById('windows').addEventListener('dblclick', function(e) {e.preventDefault()});
 document.getElementById('loadingContainer').addEventListener('dblclick', function(e) {e.preventDefault()});
+document.getElementById('ctx').addEventListener('dragstart', function(e) {e.preventDefault()});
+document.getElementById('fade').addEventListener('dragstart', function(e) {e.preventDefault()});
+document.getElementById('deathScreen').addEventListener('dragstart', function(e) {e.preventDefault()});
+document.getElementById('regionName').addEventListener('dragstart', function(e) {e.preventDefault()});
+document.getElementById('stats').addEventListener('dragstart', function(e) {e.preventDefault()});
+document.getElementById('chatText').addEventListener('dragstart', function(e) {e.preventDefault()});
+document.getElementById('dropdownMenu').addEventListener('dragstart', function(e) {e.preventDefault()});
+document.getElementById('windows').addEventListener('dragstart', function(e) {e.preventDefault()});
+document.getElementById('loadingContainer').addEventListener('dragstart', function(e) {e.preventDefault()});
 
 // version
 document.getElementById('version').innerText = version;
@@ -128,6 +137,7 @@ socket.on('checkReconnect', function() {
 });
 socket.on('disconnected', function() {
     document.getElementById('disconnectedContainer').style.display = 'block';
+    socket.emit('disconnected');
 });
 
 // important sleep function

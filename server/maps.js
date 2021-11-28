@@ -1,14 +1,15 @@
 // Copyright (C) 2021 Radioactive64
 
+var npcWaypoints = {};
 function loadMap(name) {
     var raw = require('./../client/maps/' + name + '.json');
-    Collision.list[name] = [];
-    Region.list[name] = [];
-    Teleporter.list[name] = [];
-    Collision.list[name].width = raw.width;
-    Collision.list[name].height = raw.height;
+    Collision.grid[name] = [];
+    Region.grid[name] = [];
+    Teleporter.grid[name] = [];
+    Collision.grid[name].width = raw.width;
+    Collision.grid[name].height = raw.height;
     for (var i in raw.layers) {
-        if (raw.layers[i].name.includes('Collision')) {
+        if (raw.layers[i].name.includes('Collision:')) {
             var rawlayer = raw.layers[i];
             if (rawlayer.chunks) {
                 for (var j in rawlayer.chunks) {
@@ -27,7 +28,85 @@ function loadMap(name) {
                 }
             }
         }
-        if (raw.layers[i].name.includes('Spawner')) {
+        if (raw.layers[i].name.includes('Npc:')) {
+            var rawlayer = raw.layers[i];
+            if (rawlayer.name.includes(':waypoints')) {
+                var npcId = rawlayer.name.replace('Npc:', '');
+                npcId = npcId.replace(':waypoints', '');
+                var waypoints = [];
+                if (rawlayer.chunks) {
+                    for (var j in rawlayer.chunks) {
+                        var rawchunk = rawlayer.chunks[j];
+                        for (var k in rawchunk.data) {
+                            if (rawchunk.data[k] != 0) {
+                                var x = (k % rawchunk.width)+rawchunk.x;
+                                var y = ~~(k / rawchunk.width)+rawchunk.y;
+                                if (rawchunk.data[k]-1 == 1777) {
+                                    waypoints.push({
+                                        map: name,
+                                        x: x,
+                                        y: y
+                                    });
+                                } else {
+                                    error('Invalid npc waypoint at (' + x + ',' + y + ')');
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    for (var j in rawlayer.data) {
+                        if (rawlayer.data[j] != 0) {
+                            var x = (j % rawlayer.width);
+                            var y = ~~(j / rawlayer.width);
+                            if (rawlayer.data[j]-1 == 1777) {
+                                waypoints.push({
+                                    map: name,
+                                    x: x,
+                                    y: y
+                                });
+                            } else {
+                                error('Invalid npc waypoint at (' + x + ',' + y + ')');
+                            }
+                        }
+                    }
+                }
+                if (npcWaypoints[npcId]) {
+                    npcWaypoints[npcId] = npcWaypoints[npcId].concat(waypoints);
+                } else {
+                    npcWaypoints[npcId] = waypoints;
+                }
+            } else {
+                if (rawlayer.chunks) {
+                    for (var j in rawlayer.chunks) {
+                        var rawchunk = rawlayer.chunks[j];
+                        for (var k in rawchunk.data) {
+                            if (rawchunk.data[k] != 0) {
+                                var x = (k % rawchunk.width)+rawchunk.x;
+                                var y = ~~(k / rawchunk.width)+rawchunk.y;
+                                if (rawchunk.data[k]-1 == 1691) {
+                                    new Npc(npcId, x, y);
+                                } else {
+                                    error('Invalid npc spawner at (' + x + ',' + y + ')');
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    for (var j in rawlayer.data) {
+                        if (rawlayer.data[j] != 0) {
+                            var x = (j % rawlayer.width);
+                            var y = ~~(j / rawlayer.width);
+                            if (rawlayer.data[j]-1 == 1691) {
+                                new Npc(npcId, x, y);
+                            } else {
+                                error('Invalid npc spawner at (' + x + ',' + y + ')');
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (raw.layers[i].name.includes('Spawner:')) {
             var rawlayer = raw.layers[i];
             if (rawlayer.chunks) {
                 for (var j in rawlayer.chunks) {
@@ -48,7 +127,7 @@ function loadMap(name) {
                                 }
                                 new Spawner(name, x, y, spawnmonsters);
                             } else {
-                                error('invalid spawner at (' + x + ',' + y + ')');
+                                error('Invalid spawner at (' + x + ',' + y + ')');
                             }
                         }
                     }
@@ -70,13 +149,13 @@ function loadMap(name) {
                             }
                             new Spawner(name, x, y, spawnmonsters);
                         } else {
-                            error('invalid spawner at (' + x + ',' + y + ')');
+                            error('Invalid spawner at (' + x + ',' + y + ')');
                         }
                     }
                 }
             }
         }
-        if (raw.layers[i].name.includes('Region')) {
+        if (raw.layers[i].name.includes('Region:')) {
             var rawlayer = raw.layers[i];
             if (rawlayer.chunks) {
                 for (var j in rawlayer.chunks) {
@@ -97,7 +176,7 @@ function loadMap(name) {
                                 }
                                 new Region(name, x, y, properties);
                             } else {
-                                error('invalid region at (' + x + ',' + y + ')');
+                                error('Invalid region at (' + x + ',' + y + ')');
                             }
                         }
                     }
@@ -119,13 +198,13 @@ function loadMap(name) {
                             }
                             new Region(name, x, y, properties);
                         } else {
-                            error('invalid region at (' + x + ',' + y + ')');
+                            error('Invalid region at (' + x + ',' + y + ')');
                         }
                     }
                 }
             }
         }
-        if (raw.layers[i].name.includes('Teleport')) {
+        if (raw.layers[i].name.includes('Teleporter:')) {
             var rawlayer = raw.layers[i];
             if (rawlayer.chunks) {
                 for (var j in rawlayer.chunks) {
@@ -146,7 +225,7 @@ function loadMap(name) {
                                 }
                                 new Teleporter(name, x, y, properties);
                             } else {
-                                error('invalid teleporter at (' + x + ',' + y + ')');
+                                error('Invalid teleporter at (' + x + ',' + y + ')');
                             }
                         }
                     }
@@ -168,7 +247,7 @@ function loadMap(name) {
                             }
                             new Teleporter(name, x, y, properties);
                         } else {
-                            error('invalid teleporter at (' + x + ',' + y + ')');
+                            error('Invalid teleporter at (' + x + ',' + y + ')');
                         }
                     }
                 }
@@ -176,7 +255,14 @@ function loadMap(name) {
         }
     }
 };
+
 loadMap('World');
 loadMap('The Void')
 loadMap('Outpost Cottage 1');
 loadMap('Outpost Cottage 2');
+
+for (var i in Npc.list) {
+    if (npcWaypoints[Npc.list[i].npcId]) {
+        Npc.list[i].ai.idleWaypoints.waypoints = npcWaypoints[Npc.list[i].npcId];
+    }
+}

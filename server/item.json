@@ -2,7 +2,7 @@
     "simplewoodenbow": {
         "slotType": "weapon",
         "rarity": 0,
-        "dropChance": 10,
+        "dropChance": 15,
         "projectile": "arrow",
         "projectilePattern": "single",
         "projectileSpeed": 1,
@@ -23,7 +23,7 @@
     "simplewoodensword": {
         "slotType": "weapon",
         "rarity": 0,
-        "dropChance": 9,
+        "dropChance": 14,
         "projectile": "meleedamage",
         "projectilePattern": "single",
         "projectileSpeed": 1,
@@ -43,12 +43,12 @@
     "simplewoodenstaff": {
         "slotType": "weapon",
         "rarity": 0,
-        "dropChance": 9,
+        "dropChance": 14,
         "projectile": "magicball",
         "projectilePattern": "line",
         "projectileSpeed": 0.8,
         "projectileRange": 0.6,
-        "damage": 10,
+        "damage": 7,
         "damageType": "magic",
         "critChance": 0.05,
         "knockback": 0,
@@ -64,7 +64,7 @@
     "leatherhood": {
         "slotType": "helmet",
         "rarity": 0,
-        "dropChance": 8,
+        "dropChance": 12,
         "effects": [
             {
                 "id": "damage",
@@ -99,7 +99,7 @@
     "leatherhat": {
         "slotType": "helmet",
         "rarity": 0,
-        "dropChance": 7.5,
+        "dropChance": 11,
         "effects": [
             {
                 "id": "rangedDamage",
@@ -126,7 +126,7 @@
     "woodenhelmet": {
         "slotType": "helmet",
         "rarity": 0,
-        "dropChance": 7.5,
+        "dropChance": 11,
         "effects": [
             {
                 "id": "damage",
@@ -150,7 +150,7 @@
             },
             {
                 "id": "damageReduction",
-                "value": 5
+                "value": 1
             }
         ],
         "enchantments": [
@@ -161,7 +161,7 @@
     "leatherarmor": {
         "slotType": "armor",
         "rarity": 0,
-        "dropChance": 8,
+        "dropChance": 12,
         "effects": [
             {
                 "id": "damageReduction",
@@ -248,11 +248,11 @@
         "projectilePattern": "line",
         "projectileSpeed": 1.2,
         "projectileRange": 0.8,
-        "damage": 12,
+        "damage": 11,
         "damageType": "magic",
         "critChance": 0.1,
         "knockback": 0,
-        "useTime": 8,
+        "useTime": 10,
         "manaCost": 9,
         "effects": [],
         "enchantments": [
@@ -330,7 +330,7 @@
             },
             {
                 "id": "damageReduction",
-                "value": 3
+                "value": 2
             },
             {
                 "id": "defense",
@@ -354,7 +354,7 @@
             },
             {
                 "id": "damageReduction",
-                "value": 4
+                "value": 3
             },
             {
                 "id": "defense",

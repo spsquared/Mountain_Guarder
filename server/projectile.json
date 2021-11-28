@@ -20,10 +20,10 @@
         "noCollision": true
     },
     "meleedamage": {
-        "width": 40,
-        "height": 40,
+        "width": 60,
+        "height": 80,
         "speed": 0,
-        "pattern": "none",
+        "pattern": "follow",
         "damage": 1,
         "range": 1,
         "knockback": 1,

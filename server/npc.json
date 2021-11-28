@@ -1,0 +1,30 @@
+{
+    "template": {
+        "type": "static/waypoint/wander",
+        "rightClickEvent": "open quest or something",
+        "data": {
+            "name": "name",
+            "characterStyle": {
+                "hair": 1,
+                "hairColor": "#000000",
+                "bodyColor": "#FFF0B4",
+                "shirtColor": "#FF3232",
+                "pantsColor": "#6464FF"
+            }
+        }
+    },
+    "bob": {
+        "type": "waypoint",
+        "rightClickEvent": "function(player) {};",
+        "data": {
+            "name": "Bob",
+            "characterStyle": {
+                "hair": 5,
+                "hairColor": "#0000AA",
+                "bodyColor": "#FFF0B4",
+                "shirtColor": "#8040FF",
+                "pantsColor": "#000000"
+            }
+        }
+    }
+}

@@ -119,18 +119,22 @@ ACCOUNTS = {
     validateCredentials: function(username, password) {
         if (username != '' && username != null) {
             if (username.length > 3) {
-                if (!username.includes(' ') && !username.includes('\\') && !username.includes('"')) {
-                    if (password != '' && password != null) {
-                        if (!password.includes(' ') && !password.includes('\\') && !password.includes('"')) {
-                            return 0;
+                if (username.length <= 20) {
+                    if (!username.includes(' ') && !username.includes('\\') && !username.includes('"')) {
+                        if (password != '' && password != null) {
+                            if (!password.includes(' ') && !password.includes('\\') && !password.includes('"')) {
+                                return 0;
+                            } else {
+                                return 5;
+                            }
                         } else {
                             return 4;
                         }
                     } else {
-                        return 3;
+                        return 5;
                     }
                 } else {
-                    return 4;
+                    return 3;
                 }
             } else {
                 return 2;
@@ -156,6 +160,39 @@ ACCOUNTS = {
         }
         warn('Failed to save progress!');
         return false;
+    }
+};
+
+dbDebug = {
+    list: function() {
+        try {
+            database.query('SELECT username FROM users', function(err, res) {
+                if (err) forceQuit(err);
+                console.log(res.rows);
+            });
+        } catch (err) {
+            forceQuit(err, 2);
+        }
+    },
+    remove: function(username) {
+        try {
+            database.query('DELETE FROM users WHERE username=$1;', [username], function(err, res) {
+                if (err) forceQuit(err);
+            });
+            return 'Removed "' + username + '" from accounts.';
+        } catch (err) {
+            forceQuit(err, 2);
+        }
+    },
+    reset: function(username) {
+        try {
+            database.query('UPDATE users SET data=$2 WHERE username=$1;', [username, null], function(err, res) {
+                if (err) forceQuit(err);
+            });
+            return 'Reset "' + username + '"\'s progress.';
+        } catch (err) {
+            forceQuit(err, 2);
+        }
     }
 };
 

@@ -83,16 +83,10 @@ Rig = function(id, map, x, y) {
     var self = new Entity(id, map, x, y);
     self.rawWidth = 0;
     self.rawHeight = 0;
-    self.drawHealthBar = true;
     self.hp = 0;
     self.maxHP = 0;
     self.xp = 0;
     self.manaFull = false;
-    self.heldItem = {
-        id: null,
-        angle: 0,
-        image: new Image()
-    };
     
     self.update = function(param) {
         self.map = param.map;
@@ -103,8 +97,6 @@ Rig = function(id, map, x, y) {
         self.hp = param.hp;
         self.maxHP = param.maxHP;
         self.updated = true;
-        self.heldItem = param.heldItem;
-        if (self.heldItem) self.heldItem.image = Inventory.itemImages[self.heldItem.id];
     };
     self.draw = function() {
         if (inRenderDistance(self)) {
@@ -139,30 +131,57 @@ Player = function(id, map, x, y, isNPC, name) {
         shirtColor: '#FF3232',
         pantsColor: '#6464FF'
     };
-    if (isNPC) self.drawHealthBar = false;
+    self.heldItem = {
+        id: null,
+        angle: 0,
+        image: new Image()
+    };
+    self.isNPC = false;
+    if (isNPC) self.isNPC = true;
     self.name = name;
 
+    self.update = function(param) {
+        self.map = param.map;
+        self.xspeed = (param.x-self.x)/(settings.fps/20);
+        self.yspeed = (param.y-self.y)/(settings.fps/20);
+        self.interpolationStage = 0;
+        self.animationStage = param.animationStage;
+        if (param.characterStyle.hair != self.characterStyle.hair || param.characterStyle.hairColor != self.characterStyle.hairColor || param.characterStyle.bodyColor != self.characterStyle.bodyColor || param.characterStyle.shirtColor != self.characterStyle.shirtColor || param.characterStyle.pantsColor != self.characterStyle.pantsColor) {
+            self.characterStyle = param.characterStyle;
+            self.updateAnimationCanvas();
+        }
+        self.hp = param.hp;
+        self.maxHP = param.maxHP;
+        self.heldItem = param.heldItem;
+        if (self.heldItem) self.heldItem.image = Inventory.itemImages[self.heldItem.id];
+        self.updated = true;
+    };
     self.draw = function () {
         if (inRenderDistance(self)) {
-            if (self.heldItem.image) {
-                LAYERS.elower.save();
-                LAYERS.elower.translate(self.x+OFFSETX, self.y+OFFSETY);
-                LAYERS.elower.rotate(self.heldItem.angle);
-                LAYERS.elower.translate(Inventory.itemTypes[self.heldItem.id].heldDistance, 0);
-                LAYERS.elower.rotate(Inventory.itemTypes[self.heldItem.id].heldAngle*(Math.PI/180));
-                LAYERS.elower.drawImage(self.heldItem.image, -32, -32, 64, 64);
-                LAYERS.elower.restore();
+            if (isNPC == false) {
+                if (self.heldItem.image) {
+                    LAYERS.elower.save();
+                    LAYERS.elower.translate(self.x+OFFSETX, self.y+OFFSETY);
+                    LAYERS.elower.rotate(self.heldItem.angle);
+                    LAYERS.elower.translate(Inventory.itemTypes[self.heldItem.id].heldDistance, 0);
+                    LAYERS.elower.rotate(Inventory.itemTypes[self.heldItem.id].heldAngle*(Math.PI/180));
+                    LAYERS.elower.drawImage(self.heldItem.image, -32, -32, 64, 64);
+                    LAYERS.elower.restore();
+                }
             }
-            document.createElement('div');
             LAYERS.elower.drawImage(self.animationsCanvas, (self.animationStage % 6)*8, (~~(self.animationStage / 6))*16, 8, 16, self.x-16+OFFSETX, self.y-52+OFFSETY, 32, 64);
-            if (self.drawHealthBar) {
+            if (self.isNPC == false) {
                 LAYERS.eupper.drawImage(Rig.healthBarG, 0, 0, 42, 5, self.x-63+OFFSETX, self.y-72+OFFSETY, 126, 15);
                 LAYERS.eupper.drawImage(Rig.healthBarG, 1, 5, (self.hp/self.maxHP)*40, 5, self.x-60+OFFSETX, self.y-72+OFFSETY, (self.hp/self.maxHP)*120, 15);
             }
             LAYERS.eupper.textAlign = 'center';
             LAYERS.eupper.font = '12px Pixel';
             LAYERS.eupper.fillStyle = '#FF9900';
-            LAYERS.eupper.fillText(self.name, self.x+OFFSETX, self.y-80+OFFSETY);
+            if (self.isNPC) {
+                LAYERS.eupper.fillText(self.name, self.x+OFFSETX, self.y-58+OFFSETY);
+            } else {
+                LAYERS.eupper.fillText(self.name, self.x+OFFSETX, self.y-80+OFFSETY);
+            }
         }
         if (self.interpolationStage < (settings.fps/20)) {
             self.x += self.xspeed;
@@ -172,7 +191,8 @@ Player = function(id, map, x, y, isNPC, name) {
             self.interpolationStage++;
         }
     };
-    self.updateAnimationCanvas = function() {
+    self.updateAnimationCanvas = async function() {
+        self.animationsContext.clearRect(0, 0, 48, 128);
         self.animationsContext.drawImage(self.drawTintedCanvas('body'), 0, 0);
         self.animationsContext.drawImage(self.drawTintedCanvas('shirt'), 0, 0);
         self.animationsContext.drawImage(self.drawTintedCanvas('pants'), 0, 0);

@@ -3,13 +3,14 @@
 /* game container */
 #gameContainer {
     display: none;
-    /* position: absolute;
+    position: absolute;
     left: 0px;
     top: 0px;
     padding: 0px;
     margin: 0px;
     width: 100vw;
-    height: 100vh; */
+    height: 100vh;
+    overflow: hidden;
 }
 
 /* canvas */
@@ -227,6 +228,8 @@
     height: 140px;
     padding: 0px 4px;
     overflow-y: scroll;
+    overflow-x: hidden;
+    overflow-wrap: break-word;
 }
 #chatInput {
     position: absolute;
@@ -469,6 +472,8 @@
     height: 524px;
     margin-bottom: 8px;
     overflow-y: scroll;
+    overflow-x: hidden;
+    overflow-wrap: break-word;
 }
 #debugInput {
     width: 376px;

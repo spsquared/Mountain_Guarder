@@ -3,6 +3,7 @@
 // sign in
 var deleteaccountconfirmed = false;
 var changePasswordActive = false;
+var signInError = document.getElementById('signInError');
 function signIn() {
     socket.emit('signIn', {
         state: 'signIn',
@@ -47,25 +48,23 @@ function changePassword() {
 socket.on('signInState', function(state) {
     switch (state) {
         case 'signedIn':
-            document.getElementById('loadingContainer').style.animationName = 'fadeOut';
-            setTimeout(function() {
+            document.getElementById('loadingContainer').onanimationend = function() {
                 document.getElementById('loadingContainer').style.display = 'none';
-            }, 500);
+            };
+            document.getElementById('loadingContainer').style.animationName = 'fadeOut';
             document.getElementById('signinContainer').style.display = 'none';
             document.getElementById('gameContainer').style.display = 'block';
             insertChat({style:'color: #00FF00; font-weight: bold;', text: 'Mountain Guarder ' + version});
             break;
         case 'signedUp':
-            window.alert('Successfully signed up!');
-            socket.emit('signIn', {
-                state: 'signIn',
-                username: document.getElementById('username').value,
-                password: document.getElementById('password').value
-            });
+            signInError.style.color = '#00FF00';
+            signInError.innerText = 'Successfully signed up!';
             break;
         case 'deletedAccount':
             document.getElementById('deleteAccount').innerText = 'Delete Account';
             deleteaccountconfirmed = false;
+            signInError.style.color = '#00FF00';
+            signInError.innerText = 'Account successfully deleted.';
             window.alert('Account successfully deleted.');
             window.location.reload();
             break;
@@ -74,7 +73,9 @@ socket.on('signInState', function(state) {
             document.getElementById('newpasswordLabel').style.display = 'none';
             document.getElementById('newpassword').value = '';
             changePasswordActive = false;
-            window.alert('Password successfully changed');
+            signInError.style.color = '#00FF00';
+            signInError.innerText = 'Password successfully changed.';
+            window.alert('Password successfully changed.');
             window.location.reload();
             break;
         case 'incorrectPassword':
@@ -84,10 +85,12 @@ socket.on('signInState', function(state) {
             document.getElementById('newpasswordLabel').style.display = 'none';
             document.getElementById('newpassword').value = '';
             changePasswordActive = false;
-            window.alert('Incorrect password.');
+            signInError.style.color = '#FF0000';
+            signInError.innerText = 'Incorrect password.';
             break;
         case 'accountExists':
-            window.alert('Account already exists!');
+            signInError.style.color = '#FF0000';
+            signInError.innerText = 'Account already exists, try a different username.';
             break;
         case 'noAccount':
             document.getElementById('deleteAccount').innerText = 'Delete Account';
@@ -96,10 +99,12 @@ socket.on('signInState', function(state) {
             document.getElementById('newpasswordLabel').style.display = 'none';
             document.getElementById('newpassword').value = '';
             changePasswordActive = false;
-            window.alert('Account not found!');
+            signInError.style.color = '#FF0000';
+            signInError.innerText = 'Account not found!';
             break;
         case 'alreadySignedIn':
-            window.alert('Already signed in, you may not sign in again!');
+            signInError.style.color = '#FF0000';
+            signInError.innerText = 'Already signed in, you may not sign in again!';
             break;
         case 'invalidCharacters':
             document.getElementById('deleteAccount').innerText = 'Delete Account';
@@ -108,7 +113,8 @@ socket.on('signInState', function(state) {
             document.getElementById('newpasswordLabel').style.display = 'none';
             document.getElementById('newpassword').value = '';
             changePasswordActive = false;
-            window.alert('Invalid characters!');
+            signInError.style.color = '#FF0000';
+            signInError.innerText = 'Invalid characters.';
             break;
         case 'shortUsername':
             document.getElementById('deleteAccount').innerText = 'Delete Account';
@@ -117,7 +123,18 @@ socket.on('signInState', function(state) {
             document.getElementById('newpasswordLabel').style.display = 'none';
             document.getElementById('newpassword').value = '';
             changePasswordActive = false;
-            window.alert('Your username has to be longer than 3 characters.');
+            signInError.style.color = '#FF0000';
+            signInError.innerText = 'Your username has to be longer than 3 characters.';
+            break;
+        case 'longUsername':
+            document.getElementById('deleteAccount').innerText = 'Delete Account';
+            deleteaccountconfirmed = false;
+            document.getElementById('newpassword').style.display = 'none';
+            document.getElementById('newpasswordLabel').style.display = 'none';
+            document.getElementById('newpassword').value = '';
+            changePasswordActive = false;
+            signInError.style.color = '#FF0000';
+            signInError.innerText = 'Your username has to be 20 characters or less.';
             break;
         case 'noUsername':
             document.getElementById('deleteAccount').innerText = 'Delete Account';
@@ -126,7 +143,8 @@ socket.on('signInState', function(state) {
             document.getElementById('newpasswordLabel').style.display = 'none';
             document.getElementById('newpassword').value = '';
             changePasswordActive = false;
-            window.alert('Please enter a username.');
+            signInError.style.color = '#FF0000';
+            signInError.innerText = 'Please enter a username.';
             break;
         case 'noPassword':
             document.getElementById('deleteAccount').innerText = 'Delete Account';
@@ -135,9 +153,78 @@ socket.on('signInState', function(state) {
             document.getElementById('newpasswordLabel').style.display = 'none';
             document.getElementById('newpassword').value = '';
             changePasswordActive = false;
-            window.alert('Please enter a password.');
+            signInError.style.color = '#FF0000';
+            signInError.innerText = 'Please enter a password.';
             break;
         case 'invalidSignIn':
+            signInError.style.color = '#FF0000';
+            signInError.innerText = 'You did NOT just try to exploit that! You thought you could bypass the sign in??? EVERYTHING for the database is password protected! You can\'t even load progress if you don\'t have the password!';
+            signInError.style.color = '#FF0000';
+            signInError.innerText += 'You did NOT just try to exploit that! You thought you could bypass the sign in??? EVERYTHING for the database is password protected! You can\'t even load progress if you don\'t have the password!';
+            signInError.style.color = '#FF0000';
+            signInError.innerText += 'You did NOT just try to exploit that! You thought you could bypass the sign in??? EVERYTHING for the database is password protected! You can\'t even load progress if you don\'t have the password!';
+            signInError.style.color = '#FF0000';
+            signInError.innerText += 'You did NOT just try to exploit that! You thought you could bypass the sign in??? EVERYTHING for the database is password protected! You can\'t even load progress if you don\'t have the password!';
+            signInError.style.color = '#FF0000';
+            signInError.innerText += 'You did NOT just try to exploit that! You thought you could bypass the sign in??? EVERYTHING for the database is password protected! You can\'t even load progress if you don\'t have the password!';
+            signInError.style.color = '#FF0000';
+            signInError.innerText += 'You did NOT just try to exploit that! You thought you could bypass the sign in??? EVERYTHING for the database is password protected! You can\'t even load progress if you don\'t have the password!';
+            signInError.style.color = '#FF0000';
+            signInError.innerText += 'You did NOT just try to exploit that! You thought you could bypass the sign in??? EVERYTHING for the database is password protected! You can\'t even load progress if you don\'t have the password!';
+            signInError.style.color = '#FF0000';
+            signInError.innerText += 'You did NOT just try to exploit that! You thought you could bypass the sign in??? EVERYTHING for the database is password protected! You can\'t even load progress if you don\'t have the password!';
+            signInError.style.color = '#FF0000';
+            signInError.innerText += 'You did NOT just try to exploit that! You thought you could bypass the sign in??? EVERYTHING for the database is password protected! You can\'t even load progress if you don\'t have the password!';
+            signInError.style.color = '#FF0000';
+            signInError.innerText += 'You did NOT just try to exploit that! You thought you could bypass the sign in??? EVERYTHING for the database is password protected! You can\'t even load progress if you don\'t have the password!';
+            signInError.style.color = '#FF0000';
+            signInError.innerText += 'You did NOT just try to exploit that! You thought you could bypass the sign in??? EVERYTHING for the database is password protected! You can\'t even load progress if you don\'t have the password!';
+            signInError.style.color = '#FF0000';
+            signInError.innerText += 'You did NOT just try to exploit that! You thought you could bypass the sign in??? EVERYTHING for the database is password protected! You can\'t even load progress if you don\'t have the password!';
+            signInError.style.color = '#FF0000';
+            signInError.innerText += 'You did NOT just try to exploit that! You thought you could bypass the sign in??? EVERYTHING for the database is password protected! You can\'t even load progress if you don\'t have the password!';
+            signInError.style.color = '#FF0000';
+            signInError.innerText += 'You did NOT just try to exploit that! You thought you could bypass the sign in??? EVERYTHING for the database is password protected! You can\'t even load progress if you don\'t have the password!';
+            signInError.style.color = '#FF0000';
+            signInError.innerText += 'You did NOT just try to exploit that! You thought you could bypass the sign in??? EVERYTHING for the database is password protected! You can\'t even load progress if you don\'t have the password!';
+            signInError.style.color = '#FF0000';
+            signInError.innerText += 'You did NOT just try to exploit that! You thought you could bypass the sign in??? EVERYTHING for the database is password protected! You can\'t even load progress if you don\'t have the password!';
+            signInError.style.color = '#FF0000';
+            signInError.innerText += 'You did NOT just try to exploit that! You thought you could bypass the sign in??? EVERYTHING for the database is password protected! You can\'t even load progress if you don\'t have the password!';
+            signInError.style.color = '#FF0000';
+            signInError.innerText += 'You did NOT just try to exploit that! You thought you could bypass the sign in??? EVERYTHING for the database is password protected! You can\'t even load progress if you don\'t have the password!';
+            signInError.style.color = '#FF0000';
+            signInError.innerText += 'You did NOT just try to exploit that! You thought you could bypass the sign in??? EVERYTHING for the database is password protected! You can\'t even load progress if you don\'t have the password!';
+            signInError.style.color = '#FF0000';
+            signInError.innerText += 'You did NOT just try to exploit that! You thought you could bypass the sign in??? EVERYTHING for the database is password protected! You can\'t even load progress if you don\'t have the password!';
+            signInError.style.color = '#FF0000';
+            signInError.innerText += 'You did NOT just try to exploit that! You thought you could bypass the sign in??? EVERYTHING for the database is password protected! You can\'t even load progress if you don\'t have the password!';
+            signInError.style.color = '#FF0000';
+            signInError.innerText += 'You did NOT just try to exploit that! You thought you could bypass the sign in??? EVERYTHING for the database is password protected! You can\'t even load progress if you don\'t have the password!';
+            signInError.style.color = '#FF0000';
+            signInError.innerText += 'You did NOT just try to exploit that! You thought you could bypass the sign in??? EVERYTHING for the database is password protected! You can\'t even load progress if you don\'t have the password!';
+            signInError.style.color = '#FF0000';
+            signInError.innerText += 'You did NOT just try to exploit that! You thought you could bypass the sign in??? EVERYTHING for the database is password protected! You can\'t even load progress if you don\'t have the password!';
+            signInError.style.color = '#FF0000';
+            signInError.innerText += 'You did NOT just try to exploit that! You thought you could bypass the sign in??? EVERYTHING for the database is password protected! You can\'t even load progress if you don\'t have the password!';
+            signInError.style.color = '#FF0000';
+            signInError.innerText += 'You did NOT just try to exploit that! You thought you could bypass the sign in??? EVERYTHING for the database is password protected! You can\'t even load progress if you don\'t have the password!';
+            signInError.style.color = '#FF0000';
+            signInError.innerText += 'You did NOT just try to exploit that! You thought you could bypass the sign in??? EVERYTHING for the database is password protected! You can\'t even load progress if you don\'t have the password!';
+            signInError.style.color = '#FF0000';
+            signInError.innerText += 'You did NOT just try to exploit that! You thought you could bypass the sign in??? EVERYTHING for the database is password protected! You can\'t even load progress if you don\'t have the password!';
+            signInError.style.color = '#FF0000';
+            signInError.innerText += 'You did NOT just try to exploit that! You thought you could bypass the sign in??? EVERYTHING for the database is password protected! You can\'t even load progress if you don\'t have the password!';
+            signInError.style.color = '#FF0000';
+            signInError.innerText += 'You did NOT just try to exploit that! You thought you could bypass the sign in??? EVERYTHING for the database is password protected! You can\'t even load progress if you don\'t have the password!';
+            signInError.style.color = '#FF0000';
+            signInError.innerText += 'You did NOT just try to exploit that! You thought you could bypass the sign in??? EVERYTHING for the database is password protected! You can\'t even load progress if you don\'t have the password!';
+            signInError.style.color = '#FF0000';
+            signInError.innerText += 'You did NOT just try to exploit that! You thought you could bypass the sign in??? EVERYTHING for the database is password protected! You can\'t even load progress if you don\'t have the password!';
+            signInError.style.color = '#FF0000';
+            signInError.innerText += 'You did NOT just try to exploit that! You thought you could bypass the sign in??? EVERYTHING for the database is password protected! You can\'t even load progress if you don\'t have the password!';
+            signInError.style.color = '#FF0000';
+            signInError.innerText += 'You did NOT just try to exploit that! You thought you could bypass the sign in??? EVERYTHING for the database is password protected! You can\'t even load progress if you don\'t have the password!';
             window.alert('You did NOT just try to exploit that! You thought you could bypass the sign in??? EVERYTHING for the database is password protected! You can\'t even load progress if you don\'t have the password!')
             break;
         case 'databaseError':
@@ -147,12 +234,15 @@ socket.on('signInState', function(state) {
             document.getElementById('newpasswordLabel').style.display = 'none';
             document.getElementById('newpassword').value = '';
             changePasswordActive = false;
+            signInError.style.color = '#FF0000';
+            signInError.innerText = 'DATABASE ERROR. SERVER STOP. YOU SHOULD NOT SEE THIS.';
             console.error('DATABASE ERROR. SERVER STOP. YOU SHOULD NOT SEE THIS.');
             window.alert('DATABASE ERROR. SERVER STOP. YOU SHOULD NOT SEE THIS.');
             break;
         default: 
+            signInError.style.color = '#FF0000';
+            signInError.innerText = 'Invalid signInState: ' + state;
             console.error('Invalid signInState: ' + state);
-            document.getElementById('signInError').innerText = 'Invalid signInState: ' + state;
             break;
     }
 });
@@ -314,6 +404,7 @@ function updateSetting(setting) {
             break;
         case 'renderQuality':
             resetCanvases();
+            drawFrame();
             indicatorText += '%';
             break;
         case 'particles':
@@ -333,6 +424,12 @@ function updateSetting(setting) {
             }
             break;
         case 'chatSize':
+            document.getElementById('chat').style.width = 20+settings.chatSize*10 + 'vw';
+            document.getElementById('chat').style.height = 120+settings.chatSize*20 + 'px';
+            document.getElementById('chatText').style.width = 20+settings.chatSize*10 + 'vw';
+            document.getElementById('chatText').style.height = 100+settings.chatSize*20 + 'px';
+            document.getElementById('chatInput').style.width = 20+settings.chatSize*10 + 'vw';
+            indicatorText = settings.chatSize;
             break;
         case 'debug':
             socket.emit('toggleDebug');
