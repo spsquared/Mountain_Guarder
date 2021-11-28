@@ -6,7 +6,7 @@ Meadow Guarder's sister game!
 # How to Play
 
 ### Global Public Server
-Play free today at [mountainguarder.herokuapp.com](https://mountainguarder.herokuapp.com.)! Just go click the link, create an account, and play Mountain Guarder free, anytime, anywhere! (as long as you have WiFi)
+Play free today at [mountainguarder.herokuapp.com](https://mountainguarder.herokuapp.com)! Just go click the link, create an account, and play Mountain Guarder free, anytime, anywhere! (as long as you have WiFi)
 
 ### Installation
 ##### Manual Installation
