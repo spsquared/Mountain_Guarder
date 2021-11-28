@@ -5,6 +5,9 @@ Meadow Guarder's sister game!
 
 # How to Play
 
+### Global Public Server
+Play free today at [mountainguarder.herokuapp.com](https://mountainguarder.herokuapp.com.)! Just go click the link, create an account, and play Mountain Guarder free, anytime, anywhere! (as long as you have WiFi)
+
 ### Installation
 ##### Manual Installation
 I cannot distribute node.js as I do not own any rights to it, but visiting [their website](https://nodejs.org/) you can download the latest (not LTS) and install it, **checking the box "Automatically install necessary tools"**. Wait for the installation to finish, then [download the code](https://github.com/definitely-nobody-is-here/Mountain_Guarder/archive/refs/heads/master.zip) and unzip it into any folder. Run Config.bat or Config.sh (depending on system). Then simply double-click on Start.bat or Start.sh and the server is running! (those last two sentences don't apply)
