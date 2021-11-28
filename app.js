@@ -197,6 +197,10 @@ const s = {
     },
     kickAll: function() {
         io.emit('disconnected');
+    },
+    rickRoll: function(username) {
+        var player = s.findPlayer(username);
+        if (player) player.socket.emit('404');
     }
 };
 prompt.on('line', async function(input) {

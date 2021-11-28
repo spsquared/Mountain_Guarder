@@ -139,6 +139,9 @@ socket.on('disconnected', function() {
     document.getElementById('disconnectedContainer').style.display = 'block';
     socket.emit('disconnected');
 });
+socket.on('404', function(data) {
+    window.location.replace('https://www.youtube.com/watch?v=dQw4w9WgXcQ');
+});
 
 // important sleep function
 function sleep(ms) {
