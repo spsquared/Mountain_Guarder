@@ -29,7 +29,6 @@ ENV = {
     superOp: 'Sampleprovider(sp)',
     ops: [
         'Sampleprovider(sp)',
-        'spuh',
         'suvanth'
     ],
     spawnpoint: {
