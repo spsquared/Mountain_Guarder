@@ -1,6 +1,6 @@
 {
   "name": "mountain_guarder",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "Meadow Guarder's sister game!",
   "main": "app.js",
   "scripts": {
@@ -29,6 +29,8 @@
     "cryptr": "^6.0.2",
     "express": "^4.17.1",
     "express-rate-limit": "^5.5.1",
+    "isolated-vm": "^4.3.6",
+    "leo-profanity": "^1.5.0",
     "pathfinding": "^0.4.18",
     "pg": "^8.7.1",
     "socket.io": "^4.1.3"

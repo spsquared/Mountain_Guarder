@@ -4,12 +4,16 @@
 var deleteaccountconfirmed = false;
 var changePasswordActive = false;
 var signInError = document.getElementById('signInError');
+var signedIn = false;
 function signIn() {
-    socket.emit('signIn', {
-        state: 'signIn',
-        username: document.getElementById('username').value,
-        password: document.getElementById('password').value
-    });
+    if (!signedIn) {
+        socket.emit('signIn', {
+            state: 'signIn',
+            username: document.getElementById('username').value,
+            password: document.getElementById('password').value
+        });
+        signedIn = true;
+    }
 };
 function createAccount() {
     socket.emit('signIn', {

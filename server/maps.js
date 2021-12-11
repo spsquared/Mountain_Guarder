@@ -84,7 +84,7 @@ function loadMap(name) {
                                 var x = (k % rawchunk.width)+rawchunk.x;
                                 var y = ~~(k / rawchunk.width)+rawchunk.y;
                                 if (rawchunk.data[k]-1 == 1691) {
-                                    new Npc(npcId, x, y);
+                                    new Npc(npcId, x, y, name);
                                 } else {
                                     error('Invalid npc spawner at (' + x + ',' + y + ')');
                                 }
@@ -97,7 +97,7 @@ function loadMap(name) {
                             var x = (j % rawlayer.width);
                             var y = ~~(j / rawlayer.width);
                             if (rawlayer.data[j]-1 == 1691) {
-                                new Npc(npcId, x, y);
+                                new Npc(npcId, x, y, name);
                             } else {
                                 error('Invalid npc spawner at (' + x + ',' + y + ')');
                             }

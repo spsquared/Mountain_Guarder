@@ -16,6 +16,7 @@ const database = new Client({
         rejectUnauthorized: false
     }
 });
+url = null;
 
 ACCOUNTS = {
     connected: false,
@@ -72,15 +73,6 @@ ACCOUNTS = {
             return 1;
         }
         return 2;
-    },
-    logout: async function(username, password, data) {
-        if (ENV.offlineMode) return true;
-        var status = await updateProgress(username, password, data);
-        if (status) {
-            return true;
-        }
-        warn('Failed to log out!');
-        return false;
     },
     deleteAccount: async function(username, password) {
         if (ENV.offlineMode) return 0;

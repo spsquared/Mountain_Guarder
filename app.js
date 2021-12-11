@@ -1,7 +1,7 @@
 // Copyright (C) 2021 Radioactive64
 // Go to README.md for more information
 
-const version = 'v0.6.0';
+const version = 'v0.6.1';
 require('./server/log.js');
 console.info('\x1b[33m%s\x1b[0m', 'Mountain Guarder ' + version + ' copyright (C) Radioactive64 2021');
 appendLog('Mountain Guarder ' + version + ' copyright (C) Radioactive64 2021', 'log');
@@ -9,6 +9,7 @@ logColor('Starting server...', '\x1b[32m', 'log');
 const express = require('express');
 const app = express();
 const server = require('http').Server(app);
+const ivm = require('isolated-vm');
 const readline = require('readline');
 const prompt = readline.createInterface({input: process.stdin, output: process.stdout});
 const rateLimit = require('express-rate-limit');
@@ -26,10 +27,8 @@ app.use(limiter);
 var started = false;
 ENV = {
     offlineMode: false,
-    superOp: 'Sampleprovider(sp)',
     ops: [
         'Sampleprovider(sp)',
-        'suvanth'
     ],
     spawnpoint: {
         map: 'World',
@@ -79,6 +78,13 @@ io.on('connection', function(socket) {
                 insertChat(player.name + ' left the game.', 'server');
             }
             delete Player.list[player.id];
+        });
+        socket.on('disconnected', async function() {
+            if (player.name) {
+                await player.saveData();
+                insertChat(player.name + ' left the game.', 'server');
+            }
+            delete Player.list[player.id];
             socket.emit('disconnected');
             socket.disconnect();
         });
@@ -89,36 +95,31 @@ io.on('connection', function(socket) {
             socket.disconnect();
         });
         // debug
-        socket.on('debugInput', function(input) {
+        socket.on('debugInput', async function(input) {
             var op = false;
             for (var i in ENV.ops) {
                 if (player.name == ENV.ops[i]) op = true;
             }
             if (op) {
-                if (player.name != 'Sampleprovider(sp)') {
+                if (player.name != 'lol') {
                     var valid = true;
-                    var simplifiedInput = input;
-                    while (simplifiedInput.includes('\' + \'') || simplifiedInput.includes('" + "') || simplifiedInput.includes('\'+\'') || simplifiedInput.includes('"+"') || simplifiedInput.includes('" + \'') || simplifiedInput.includes('"+\'') || simplifiedInput.includes('"+ \'') || simplifiedInput.includes('" +\'') || simplifiedInput.includes('\' + "') || simplifiedInput.includes('\'+"') || simplifiedInput.includes('\'+ "') || simplifiedInput.includes('\' +"')) {
-                        simplifiedInput = simplifiedInput.replace('\' + \'', '');
-                        simplifiedInput = simplifiedInput.replace('" + "', '');
-                        simplifiedInput = simplifiedInput.replace('\'+\'', '');
-                        simplifiedInput = simplifiedInput.replace('"+"', '');
-                        simplifiedInput = simplifiedInput.replace('" + \'', '');
-                        simplifiedInput = simplifiedInput.replace('"+\'', '');
-                        simplifiedInput = simplifiedInput.replace('"+ \'', '');
-                        simplifiedInput = simplifiedInput.replace('" +\'', '');
-                        simplifiedInput = simplifiedInput.replace('\' + "', '');
-                        simplifiedInput = simplifiedInput.replace('\'+"', '');
-                        simplifiedInput = simplifiedInput.replace('\'+ "', '');
-                        simplifiedInput = simplifiedInput.replace('\' +"', '');
-                    };
-                    if (simplifiedInput.includes('eval')) valid = false;
-                    if (simplifiedInput.includes('process')) valid = false;
-                    if (simplifiedInput.includes('while')) valid = false;
-                    if (simplifiedInput.includes('function')) valid = false;
-                    if (simplifiedInput.includes('ACCOUNTS')) valid = false;
-                    if (simplifiedInput.includes('creds')) valid = false;
-                    if (simplifiedInput.includes('dbDebug')) valid = false;
+                    var isolate = new ivm.Isolate();
+                    var context = isolate.createContextSync();
+                    context.global.setSync('global', context.global.derefInto());
+                    context.evalSync('setInterval = function() {}; setTimeout = function() {}; insertChat = function() {}; insertSingleChat = function() {}; logColor = function() {}; log = function() {}; warn = function() {}; error = function() {}; appendLog = function() {}; Collision = function() {}; Collision.getColEntity = function() {}; Collision.grid = []; Spawner = function() {}; Spawner.grid = []; Region = function() {}; Region.grid = []; Teleporter = function() {}; Teleporter.grid = []; Inventory = function() {}; Inventory.Item = function() {}; Inventory.items = {}; ACCOUNTS = {connected: 0, connect: 0, disconnect: 0, signup: 0, login: 0, deleteAccount: 0, changePassword: 0, validateCredentials: 0, loadProgress: 0, saveProgress: 0}; Entity = function() {}; Entity.update = function() {}; Entity.getDebugData = function() {}; Rig = function() {}; Npc = function() {}; Npc.update = function() {}; Npc.getDebugData = function() {}; Npc.list = []; Player = function() {}; Player.update = function() {}; Player.getDebugData = function() {}; Player.list = []; Monster = function() {}; Monster.update = function() {}; Monster.getDebugData = function() {}; Monster.list = []; Projectile = function() {}; Projectile.update = function() {}; Projectile.getDebugData = function() {}; Projectile.list = []; Particle = function() {}; Particle.update = function() {}; Particle.list = []; DroppedItem = function() {}; DroppedItem.update = function() {}; DroppedItem.list = []; io = {on: 0}; forceQuit = function() {};');
+                    try {
+                        context.evalSync(input, {timeout: 1000});
+                    } catch (err) {
+                        var str = err + '';
+                        if (str.includes('Error: Script execution timed out.')) valid = false;
+                    }
+                    try {
+                        context.evalSync('crash = null; insertChat(); insertSingleChat(); logColor(); log(); warn(); error(); appendLog(); Collision.grid[\'test\'] = []; Collision(); Collision.getColEntity(); Spawner.grid[\'test\'] = []; Spawner(); Region.grid[\'test\'] = []; Region(); Teleporter.grid[\'test\'] = []; Teleporter(); Inventory.items[\'test\'] = {}; Inventory(); Inventory.Item(); if (ACCOUNTS.connected != 0 || ACCOUNTS.connect != 0 || ACCOUNTS.disconnect != 0 || ACCOUNTS.signup != 0 || ACCOUNTS.login != 0 || ACCOUNTS.deleteAccount != 0 || ACCOUNTS.changePassword != 0 || ACCOUNTS.validateCredentials != 0 || ACCOUNTS.loadProgress != 0 || ACCOUNTS.saveProgress != 0) {crash();} Entity(); Entity.update(); Entity.getDebugData(); Rig(); Npc(); Npc.update(); Npc.getDebugData(); Npc.list[0] = \'test\'; Player(); Player.update(); Player.getDebugData(); Player.list[0] = \'test\'; Monster(); Monster.update(); Monster.getDebugData(); Monster.list[0] = \'test\'; Projectile(); Projectile.update(); Projectile.getDebugData(); Projectile.list[0] = \'test\'; Particle(); Particle.update(); Particle.list[0] = \'test\'; DroppedItem(); DroppedItem.update(); DroppedItem.list[0] = \'test\'; if (io.on != 0) {crash();} forceQuit();');
+                    } catch (err) {
+                        valid = false;
+                    }
+                    context.release();
+                    isolate.dispose();
                     if (!valid) {
                         var msg = 'You do not have permission to use that!';
                         socket.emit('debugLog', {color:'red', msg:msg});
@@ -129,11 +130,8 @@ io.on('connection', function(socket) {
                 logColor(player.name + ': ' + input, '\x1b[33m', 'log');
                 try {
                     var self = player;
-                    var msg = eval(input, {timeout: 1000});
+                    var msg = eval(input);
                     if (msg == undefined) {
-                        msg = 'Successfully executed command';
-                    }
-                    if (msg == '') {
                         msg = 'Successfully executed command';
                     }
                     socket.emit('debugLog', {color:'lime', msg:msg});
@@ -157,14 +155,13 @@ io.on('connection', function(socket) {
         var spamCount = 0;
         var onevent = socket.onevent;
         socket.onevent = function (packet) {
-            var args = packet.data || [];
             onevent.call (this, packet);
             if (packet.data != 'ping') spamCount++;
         };
         setInterval(function() {
-            spamCount = Math.max(spamCount-50, 0);
+            spamCount = Math.max(spamCount-100, 0);
             if (spamCount > 0) {
-                insertChat(player.name + ' was kicked for socket.io DDOS', 'anticheat');
+                insertChat(player.name + ' was kicked for socket.io DOS', 'anticheat');
                 insertChat(player.name + ' left the game.', 'server');
                 delete Player.list[player.id];
                 socket.emit('disconnected');
@@ -188,7 +185,7 @@ const s = {
     },
     kill: function(username) {
         var player = s.findPlayer(username);
-        if (player) player.onDeath();
+        if (player) player.onDeath(null, 'debug');
     },
     kick: function(username) {
         var player = s.findPlayer(username);
@@ -200,6 +197,9 @@ const s = {
     rickRoll: function(username) {
         var player = s.findPlayer(username);
         if (player) player.socket.emit('404');
+    },
+    broadCast: function(text) {
+        insertChat('[BC]: ' + text);
     }
 };
 prompt.on('line', async function(input) {
@@ -222,12 +222,13 @@ prompt.on('line', async function(input) {
 prompt.on('close', async function() {
     if (active && process.env.PORT == null) {
         logColor('Stopping Server...', '\x1b[32m', 'log');
-        clearInterval(tickrate);
+        clearInterval(updateTicks);
         started = false;
         for (var i in Player.list) {
             var player = Player.list[i];
             if (player.name) {
                 await player.saveData();
+                insertChat(player.name + ' left the game.', 'server');
             }
             delete Player.list[i];
             player.socket.emit('disconnected');
@@ -243,15 +244,19 @@ prompt.on('close', async function() {
 // Tickrate
 TPS = 0;
 var tpscounter = 0;
-const tickrate = setInterval(function() {
+const updateTicks = setInterval(function() {
     // update tick
-    var pack = Entity.update();
-    io.emit('updateTick', pack);
-    var debugPack = Entity.getDebugData();
-    for (var i in Player.list) {
-        if (Player.list[i].debugEnabled) {
-            Player.list[i].socket.emit('debugTick', debugPack);
+    try {
+        var pack = Entity.update();
+        io.emit('updateTick', pack);
+        var debugPack = Entity.getDebugData();
+        for (var i in Player.list) {
+            if (Player.list[i].debugEnabled) {
+                Player.list[i].socket.emit('debugTick', debugPack);
+            }
         }
+    } catch (err) {
+        forceQuit(err, 1);
     }
     tpscounter++;
 }, 1000/20);
@@ -262,11 +267,12 @@ setInterval(async function() {
 
 // critical errors
 forceQuit = function(err, code) {
-    error('SERVER ENCOUNTERED A FATAL ERROR. STOP CODE:');
+    error('SERVER ENCOUNTERED A CATASTROPHIC ERROR. STOP CODE:');
     console.error(err);
     appendLog(err, 'error');
     appendLog('Error code ' + code, 'error');
     error('STOP.');
+    clearInterval(updateTicks);
     io.emit('disconnected');
     started = false;
     ACCOUNTS.disconnect();
@@ -275,12 +281,10 @@ forceQuit = function(err, code) {
     console.error('\x1b[33m%s\x1b[0m', 'Press ENTER or CTRL+C to exit.');
     const stopprompt = readline.createInterface({input: process.stdin, output: process.stdout});
     stopprompt.on('line', function(input) {
-        clearInterval(tickrate);
         appendLog('----------------------------------------');
         process.exit(code);
     });
     stopprompt.on('close', function() {
-        clearInterval(tickrate);
         appendLog('----------------------------------------');
         process.exit(code);
     });

@@ -11,6 +11,7 @@
         "circleTarget": true,
         "circleDistance": 3,
         "hp": 35,
+        "fleeThreshold": 15,
         "moveSpeed": 5,
         "stats": {
             "damageType": "ranged",
@@ -44,6 +45,7 @@
         "circleTarget": true,
         "circleDistance": 3,
         "hp": 40,
+        "fleeThreshold": 15,
         "moveSpeed": 5,
         "stats": {
             "damageType": "ranged",
@@ -77,6 +79,7 @@
         "circleTarget": true,
         "circleDistance": 4,
         "hp": 60,
+        "fleeThreshold": 20,
         "moveSpeed": 5,
         "stats": {
             "damageType": "ranged",
@@ -113,6 +116,7 @@
         "circleDistance": 0,
         "hp": 50,
         "moveSpeed": 10,
+        "fleeThreshold": 0,
         "stats": {
             "damageType": "magic",
             "projectileSpeed": 1,
@@ -146,6 +150,7 @@
         "circleDistance": 6,
         "hp": 100,
         "moveSpeed": 10,
+        "fleeThreshold": 25,
         "stats": {
             "damageType": "ranged",
             "projectileSpeed": 1,

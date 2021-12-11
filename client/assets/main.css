@@ -3,8 +3,8 @@
 /* font */
 @font-face {
     font-family: "Pixel";
-    src:url(/client/assets/miniset2-webfont.woff),
-        url(/client/assets/miniset2-webfont.woff2) format('woff2');
+    src: url(/client/assets/miniset2-webfont.woff),
+         url(/client/assets/miniset2-webfont.woff2) format('woff2');
     font-weight: normal;
     font-style: normal;
 }
