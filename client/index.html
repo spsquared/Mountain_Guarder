@@ -14,6 +14,10 @@
         <meta id="image" content="https://mountainguarder.herokuapp.com/client/img/loading.png">
         <link rel="icon" href="./client/assets/favicon.ico" type="image/x-icon">
         <noscript><meta http-equiv="refresh" content="0; url=./client/nojs.html"/></noscript>
+        <script>
+            if (new URLSearchParams(window.location.search).get('redirect')) {}
+            else {window.location.replace('./client/termination.html');}
+        </script>
         <script src="/socket.io/socket.io.js"></script>
         <script>socket = io();</script>
         <script src="./client/index.js" defer></script>
