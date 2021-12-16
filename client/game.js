@@ -158,11 +158,11 @@ function drawFrame() {
         if (MAPS[player.map].height*64 > window.innerHeight) OFFSETY = -Math.max((window.innerHeight/2) - (player.y - MAPS[player.map].offsetY), Math.min((MAPS[player.map].offsetY + (MAPS[player.map].height*64)) - player.y - (window.innerHeight/2), 0));
         drawMap();
         Entity.draw();
-        drawDebug();
         CTX.drawImage(LAYERS.map0, 0, 0, window.innerWidth, window.innerHeight);
         CTX.drawImage(LAYERS.entity0, 0, 0, window.innerWidth, window.innerHeight);
         CTX.drawImage(LAYERS.map1, 0, 0, window.innerWidth, window.innerHeight);
         CTX.drawImage(LAYERS.entity1, 0, 0, window.innerWidth, window.innerHeight);
+        drawDebug();
         MGHC();
     }
 };
@@ -257,74 +257,116 @@ function drawDebug() {
         function getManhattanDistance(entity) {
             return Math.abs(player.x-entity.x) + Math.abs(player.y-entity.y);
         };
-        LAYERS.eupper.save();
-        LAYERS.eupper.translate((window.innerWidth/2)-player.x, (window.innerHeight/2)-player.y);
+        CTX.save();
+        CTX.translate((window.innerWidth/2)-player.x, (window.innerHeight/2)-player.y);
         // chunk borders
         var width = MAPS[player.map].chunkwidth*64;
         var height = MAPS[player.map].chunkheight*64;
-        LAYERS.eupper.beginPath();
-        LAYERS.eupper.strokeStyle = '#00FF00';
-        LAYERS.eupper.lineWidth = 4;
+        CTX.beginPath();
+        CTX.strokeStyle = '#00FF00';
+        CTX.lineWidth = 4;
         for (var x = player.chunkx-settings.renderDistance; x <= player.chunkx+settings.renderDistance+1; x++) {
-            LAYERS.eupper.moveTo(x*width+OFFSETX, (player.chunky-settings.renderDistance)*height+OFFSETY);
-            LAYERS.eupper.lineTo(x*width+OFFSETX, (player.chunky+settings.renderDistance+1)*height+OFFSETY);
+            CTX.moveTo(x*width+OFFSETX, (player.chunky-settings.renderDistance)*height+OFFSETY);
+            CTX.lineTo(x*width+OFFSETX, (player.chunky+settings.renderDistance+1)*height+OFFSETY);
         }
         for (var y = player.chunky-settings.renderDistance; y <= player.chunky+settings.renderDistance+1; y++) {
-            LAYERS.eupper.moveTo((player.chunkx-settings.renderDistance)*width+OFFSETX, y*height+OFFSETY);
-            LAYERS.eupper.lineTo((player.chunkx+settings.renderDistance+1)*width+OFFSETX, y*height+OFFSETY);
+            CTX.moveTo((player.chunkx-settings.renderDistance)*width+OFFSETX, y*height+OFFSETY);
+            CTX.lineTo((player.chunkx+settings.renderDistance+1)*width+OFFSETX, y*height+OFFSETY);
         }
-        LAYERS.eupper.stroke();
-        // players
+        CTX.stroke();
+        // players/npcs
         for (var i in debugData.players) {
             var localplayer = debugData.players[i];
             if (localplayer.map == player.map && getManhattanDistance(localplayer) < settings.renderDistance*2*MAPS[player.map].chunkwidth*64) {
                 // keys
-                LAYERS.eupper.beginPath();
-                LAYERS.eupper.strokeStyle = '#000000';
-                LAYERS.eupper.lineWidth = 2;
+                CTX.beginPath();
+                CTX.strokeStyle = '#000000';
+                CTX.lineWidth = 2;
                 if (localplayer.keys.left) {
-                    LAYERS.eupper.moveTo(localplayer.x+OFFSETX, localplayer.y+OFFSETY);
-                    LAYERS.eupper.lineTo(localplayer.x-localplayer.width/2+OFFSETX, localplayer.y+OFFSETY);
+                    CTX.moveTo(localplayer.x+OFFSETX, localplayer.y+OFFSETY);
+                    CTX.lineTo(localplayer.x-localplayer.width/2+OFFSETX, localplayer.y+OFFSETY);
                 }
                 if (localplayer.keys.right) {
-                    LAYERS.eupper.moveTo(localplayer.x+OFFSETX, localplayer.y+OFFSETY);
-                    LAYERS.eupper.lineTo(localplayer.x+localplayer.width/2+OFFSETX, localplayer.y+OFFSETY);
+                    CTX.moveTo(localplayer.x+OFFSETX, localplayer.y+OFFSETY);
+                    CTX.lineTo(localplayer.x+localplayer.width/2+OFFSETX, localplayer.y+OFFSETY);
                 }
                 if (localplayer.keys.up) {
-                    LAYERS.eupper.moveTo(localplayer.x+OFFSETX, localplayer.y+OFFSETY);
-                    LAYERS.eupper.lineTo(localplayer.x+OFFSETX, localplayer.y-localplayer.height/2+OFFSETY);
+                    CTX.moveTo(localplayer.x+OFFSETX, localplayer.y+OFFSETY);
+                    CTX.lineTo(localplayer.x+OFFSETX, localplayer.y-localplayer.height/2+OFFSETY);
                 }
                 if (localplayer.keys.down) {
-                    LAYERS.eupper.moveTo(localplayer.x+OFFSETX, localplayer.y+OFFSETY);
-                    LAYERS.eupper.lineTo(localplayer.x+OFFSETX, localplayer.y+localplayer.height/2+OFFSETY);
+                    CTX.moveTo(localplayer.x+OFFSETX, localplayer.y+OFFSETY);
+                    CTX.lineTo(localplayer.x+OFFSETX, localplayer.y+localplayer.height/2+OFFSETY);
                 }
-                LAYERS.eupper.stroke();
+                CTX.stroke();
                 // hitbox
-                LAYERS.eupper.beginPath();
-                LAYERS.eupper.strokeStyle = '#FF9900';
-                LAYERS.eupper.lineWidth = 4;
-                LAYERS.eupper.moveTo(localplayer.x-localplayer.width/2+OFFSETX, localplayer.y-localplayer.height/2+OFFSETY);
-                LAYERS.eupper.lineTo(localplayer.x-localplayer.width/2+OFFSETX, localplayer.y+localplayer.height/2+OFFSETY);
-                LAYERS.eupper.lineTo(localplayer.x+localplayer.width/2+OFFSETX, localplayer.y+localplayer.height/2+OFFSETY);
-                LAYERS.eupper.lineTo(localplayer.x+localplayer.width/2+OFFSETX, localplayer.y-localplayer.height/2+OFFSETY);
-                LAYERS.eupper.lineTo(localplayer.x-localplayer.width/2+OFFSETX, localplayer.y-localplayer.height/2+OFFSETY);
-                LAYERS.eupper.lineWidth = 2;
-                LAYERS.eupper.moveTo(localplayer.x-localplayer.collisionBoxSize/2+OFFSETX, localplayer.y-localplayer.collisionBoxSize/2+OFFSETY);
-                LAYERS.eupper.lineTo(localplayer.x-localplayer.collisionBoxSize/2+OFFSETX, localplayer.y+localplayer.collisionBoxSize/2+OFFSETY);
-                LAYERS.eupper.lineTo(localplayer.x+localplayer.collisionBoxSize/2+OFFSETX, localplayer.y+localplayer.collisionBoxSize/2+OFFSETY);
-                LAYERS.eupper.lineTo(localplayer.x+localplayer.collisionBoxSize/2+OFFSETX, localplayer.y-localplayer.collisionBoxSize/2+OFFSETY);
-                LAYERS.eupper.lineTo(localplayer.x-localplayer.collisionBoxSize/2+OFFSETX, localplayer.y-localplayer.collisionBoxSize/2+OFFSETY);
-                LAYERS.eupper.stroke();
+                CTX.beginPath();
+                CTX.strokeStyle = '#FF9900';
+                CTX.lineWidth = 4;
+                CTX.moveTo(localplayer.x-localplayer.width/2+OFFSETX, localplayer.y-localplayer.height/2+OFFSETY);
+                CTX.lineTo(localplayer.x-localplayer.width/2+OFFSETX, localplayer.y+localplayer.height/2+OFFSETY);
+                CTX.lineTo(localplayer.x+localplayer.width/2+OFFSETX, localplayer.y+localplayer.height/2+OFFSETY);
+                CTX.lineTo(localplayer.x+localplayer.width/2+OFFSETX, localplayer.y-localplayer.height/2+OFFSETY);
+                CTX.lineTo(localplayer.x-localplayer.width/2+OFFSETX, localplayer.y-localplayer.height/2+OFFSETY);
+                CTX.lineWidth = 2;
+                CTX.moveTo(localplayer.x-localplayer.collisionBoxSize/2+OFFSETX, localplayer.y-localplayer.collisionBoxSize/2+OFFSETY);
+                CTX.lineTo(localplayer.x-localplayer.collisionBoxSize/2+OFFSETX, localplayer.y+localplayer.collisionBoxSize/2+OFFSETY);
+                CTX.lineTo(localplayer.x+localplayer.collisionBoxSize/2+OFFSETX, localplayer.y+localplayer.collisionBoxSize/2+OFFSETY);
+                CTX.lineTo(localplayer.x+localplayer.collisionBoxSize/2+OFFSETX, localplayer.y-localplayer.collisionBoxSize/2+OFFSETY);
+                CTX.lineTo(localplayer.x-localplayer.collisionBoxSize/2+OFFSETX, localplayer.y-localplayer.collisionBoxSize/2+OFFSETY);
+                CTX.stroke();
                 if (localplayer.path) {
                     if (localplayer.path[0]) {
-                        LAYERS.eupper.beginPath();
-                        LAYERS.eupper.strokeStyle = '#0000FF';
-                        LAYERS.eupper.lineWidth = 4;
-                        LAYERS.eupper.moveTo(localplayer.path[0][0]*64+32+OFFSETX, localplayer.path[0][1]*64+32+OFFSETY);
+                        CTX.beginPath();
+                        CTX.strokeStyle = '#0000FF';
+                        CTX.lineWidth = 4;
+                        CTX.moveTo(localplayer.x+OFFSETX, localplayer.y+OFFSETY);
                         for (var j in localplayer.path) {
-                            LAYERS.eupper.lineTo(localplayer.path[j][0]*64+32+OFFSETX, localplayer.path[j][1]*64+32+OFFSETY);
+                            CTX.lineTo(localplayer.path[j][0]*64+32+OFFSETX, localplayer.path[j][1]*64+32+OFFSETY);
                         }
-                        LAYERS.eupper.stroke();
+                        CTX.stroke();
+                    }
+                }
+                if (localplayer.idleWaypoints) {
+                    var waypoints = localplayer.idleWaypoints.waypoints;
+                    var lastWaypoints = localplayer.idleWaypoints.lastWaypoints;
+                    if (waypoints) if (waypoints[0]) {
+                        CTX.beginPath();
+                        CTX.strokeStyle = '#FFFF00';
+                        CTX.lineWidth = 4;
+                        CTX.textAlign = 'center';
+                        CTX.font = '10px Pixel';
+                        CTX.fillStyle = '#FFFF00';
+                        for (var j in waypoints) {
+                            if (waypoints[j].map == player.map) {
+                                CTX.moveTo(waypoints[j].x*64+OFFSETX, waypoints[j].y*64+OFFSETY);
+                                CTX.lineTo(waypoints[j].x*64+64+OFFSETX, waypoints[j].y*64+OFFSETY);
+                                CTX.lineTo(waypoints[j].x*64+64+OFFSETX, waypoints[j].y*64+64+OFFSETY);
+                                CTX.lineTo(waypoints[j].x*64+OFFSETX, waypoints[j].y*64+64+OFFSETY);
+                                CTX.lineTo(waypoints[j].x*64+OFFSETX, waypoints[j].y*64+OFFSETY);
+                                CTX.fillText(localplayer.name, waypoints[j].x+OFFSETX, waypoints[j].y+OFFSETY);
+                            }
+                        }
+                        CTX.stroke();
+                    }
+                    if (lastWaypoints) if (lastWaypoints[0]) {
+                        CTX.beginPath();
+                        CTX.strokeStyle = '#00FFFF';
+                        CTX.lineWidth = 4;
+                        CTX.textAlign = 'center';
+                        CTX.font = '10px Pixel';
+                        CTX.fillStyle = '#FFFF00';
+                        for (var j in lastWaypoints) {
+                            if (lastWaypoints[j].map == player.map) {
+                                CTX.moveTo(lastWaypoints[j].x*64, lastWaypoints[j].y*64+OFFSETY);
+                                CTX.lineTo(lastWaypoints[j].x*64+64+OFFSETX, lastWaypoints[j].y*64+OFFSETY);
+                                CTX.lineTo(lastWaypoints[j].x*64+64+OFFSETX, lastWaypoints[j].y*64+64+OFFSETY);
+                                CTX.lineTo(lastWaypoints[j].x*64+OFFSETX, lastWaypoints[j].y*64+64+OFFSETY);
+                                CTX.lineTo(lastWaypoints[j].x*64+OFFSETX, lastWaypoints[j].y*64+OFFSETY);
+                                CTX.fillText(localplayer.name, waypoints[j].x+OFFSETX, waypoints[j].y+OFFSETY);
+                            }
+                        }
+                        CTX.stroke();
                     }
                 }
             }
@@ -332,111 +374,117 @@ function drawDebug() {
         // monsters
         for (var i in debugData.monsters) {
             var localmonster = debugData.monsters[i];
-            if (localmonster.map == player.map && getManhattanDistance(localmonster) < settings.renderDistance*2*MAPS[player.map].chunkwidth*64) {
+            if (localmonster) if (localmonster.map == player.map && inRenderDistancePixels(localmonster)) {
                 // keys
-                LAYERS.eupper.beginPath();
-                LAYERS.eupper.strokeStyle = '#000000';
-                LAYERS.eupper.lineWidth = 2;
+                CTX.beginPath();
+                CTX.strokeStyle = '#000000';
+                CTX.lineWidth = 2;
                 if (localmonster.keys.left) {
-                    LAYERS.eupper.moveTo(localmonster.x+OFFSETX, localmonster.y+OFFSETY);
-                    LAYERS.eupper.lineTo(localmonster.x-localmonster.width/2+OFFSETX, localmonster.y+OFFSETY);
+                    CTX.moveTo(localmonster.x+OFFSETX, localmonster.y+OFFSETY);
+                    CTX.lineTo(localmonster.x-localmonster.width/2+OFFSETX, localmonster.y+OFFSETY);
                 }
                 if (localmonster.keys.right) {
-                    LAYERS.eupper.moveTo(localmonster.x+OFFSETX, localmonster.y+OFFSETY);
-                    LAYERS.eupper.lineTo(localmonster.x+localmonster.width/2+OFFSETX, localmonster.y+OFFSETY);
+                    CTX.moveTo(localmonster.x+OFFSETX, localmonster.y+OFFSETY);
+                    CTX.lineTo(localmonster.x+localmonster.width/2+OFFSETX, localmonster.y+OFFSETY);
                 }
                 if (localmonster.keys.up) {
-                    LAYERS.eupper.moveTo(localmonster.x+OFFSETX, localmonster.y+OFFSETY);
-                    LAYERS.eupper.lineTo(localmonster.x+OFFSETX, localmonster.y-localmonster.height/2+OFFSETY);
+                    CTX.moveTo(localmonster.x+OFFSETX, localmonster.y+OFFSETY);
+                    CTX.lineTo(localmonster.x+OFFSETX, localmonster.y-localmonster.height/2+OFFSETY);
                 }
                 if (localmonster.keys.down) {
-                    LAYERS.eupper.moveTo(localmonster.x+OFFSETX, localmonster.y+OFFSETY);
-                    LAYERS.eupper.lineTo(localmonster.x+OFFSETX, localmonster.y+localmonster.height/2+OFFSETY);
+                    CTX.moveTo(localmonster.x+OFFSETX, localmonster.y+OFFSETY);
+                    CTX.lineTo(localmonster.x+OFFSETX, localmonster.y+localmonster.height/2+OFFSETY);
                 }
-                LAYERS.eupper.stroke();
+                CTX.stroke();
                 // hitbox
-                LAYERS.eupper.beginPath();
-                LAYERS.eupper.strokeStyle = '#FF9900';
-                LAYERS.eupper.lineWidth = 4;
-                LAYERS.eupper.moveTo(localmonster.x-localmonster.width/2+OFFSETX, localmonster.y-localmonster.height/2+OFFSETY);
-                LAYERS.eupper.lineTo(localmonster.x-localmonster.width/2+OFFSETX, localmonster.y+localmonster.height/2+OFFSETY);
-                LAYERS.eupper.lineTo(localmonster.x+localmonster.width/2+OFFSETX, localmonster.y+localmonster.height/2+OFFSETY);
-                LAYERS.eupper.lineTo(localmonster.x+localmonster.width/2+OFFSETX, localmonster.y-localmonster.height/2+OFFSETY);
-                LAYERS.eupper.lineTo(localmonster.x-localmonster.width/2+OFFSETX, localmonster.y-localmonster.height/2+OFFSETY);
-                LAYERS.eupper.lineWidth = 2;
-                LAYERS.eupper.moveTo(localmonster.x-localmonster.collisionBoxSize/2+OFFSETX, localmonster.y-localmonster.collisionBoxSize/2+OFFSETY);
-                LAYERS.eupper.lineTo(localmonster.x-localmonster.collisionBoxSize/2+OFFSETX, localmonster.y+localmonster.collisionBoxSize/2+OFFSETY);
-                LAYERS.eupper.lineTo(localmonster.x+localmonster.collisionBoxSize/2+OFFSETX, localmonster.y+localmonster.collisionBoxSize/2+OFFSETY);
-                LAYERS.eupper.lineTo(localmonster.x+localmonster.collisionBoxSize/2+OFFSETX, localmonster.y-localmonster.collisionBoxSize/2+OFFSETY);
-                LAYERS.eupper.lineTo(localmonster.x-localmonster.collisionBoxSize/2+OFFSETX, localmonster.y-localmonster.collisionBoxSize/2+OFFSETY);
-                LAYERS.eupper.stroke();
+                CTX.beginPath();
+                CTX.strokeStyle = '#FF9900';
+                CTX.lineWidth = 4;
+                CTX.moveTo(localmonster.x-localmonster.width/2+OFFSETX, localmonster.y-localmonster.height/2+OFFSETY);
+                CTX.lineTo(localmonster.x-localmonster.width/2+OFFSETX, localmonster.y+localmonster.height/2+OFFSETY);
+                CTX.lineTo(localmonster.x+localmonster.width/2+OFFSETX, localmonster.y+localmonster.height/2+OFFSETY);
+                CTX.lineTo(localmonster.x+localmonster.width/2+OFFSETX, localmonster.y-localmonster.height/2+OFFSETY);
+                CTX.lineTo(localmonster.x-localmonster.width/2+OFFSETX, localmonster.y-localmonster.height/2+OFFSETY);
+                CTX.lineWidth = 2;
+                CTX.moveTo(localmonster.x-localmonster.collisionBoxSize/2+OFFSETX, localmonster.y-localmonster.collisionBoxSize/2+OFFSETY);
+                CTX.lineTo(localmonster.x-localmonster.collisionBoxSize/2+OFFSETX, localmonster.y+localmonster.collisionBoxSize/2+OFFSETY);
+                CTX.lineTo(localmonster.x+localmonster.collisionBoxSize/2+OFFSETX, localmonster.y+localmonster.collisionBoxSize/2+OFFSETY);
+                CTX.lineTo(localmonster.x+localmonster.collisionBoxSize/2+OFFSETX, localmonster.y-localmonster.collisionBoxSize/2+OFFSETY);
+                CTX.lineTo(localmonster.x-localmonster.collisionBoxSize/2+OFFSETX, localmonster.y-localmonster.collisionBoxSize/2+OFFSETY);
+                CTX.stroke();
                 // aggro range
-                LAYERS.eupper.beginPath();
-                LAYERS.eupper.strokeStyle = '#FF0000';
-                LAYERS.eupper.fillStyle = '#FF00000F';
-                LAYERS.eupper.lineWidth = 4;
-                LAYERS.eupper.arc(localmonster.x+OFFSETX, localmonster.y+OFFSETY, localmonster.aggroRange*64, 0, 2*Math.PI, false);
-                LAYERS.eupper.fill();
-                LAYERS.eupper.stroke();
+                CTX.beginPath();
+                CTX.strokeStyle = '#FF0000';
+                CTX.fillStyle = '#FF00000A';
+                CTX.lineWidth = 4;
+                CTX.arc(localmonster.x+OFFSETX, localmonster.y+OFFSETY, localmonster.aggroRange*64, 0, 2*Math.PI, false);
+                CTX.fill();
+                CTX.stroke();
                 // aggro target
                 if (Player.list[localmonster.aggroTarget]) {
-                    LAYERS.eupper.beginPath();
-                    LAYERS.eupper.strokeStyle = '#FF0000';
-                    LAYERS.eupper.lineWidth = 2;
-                    LAYERS.eupper.moveTo(localmonster.x+OFFSETX, localmonster.y+OFFSETY);
-                    LAYERS.eupper.lineTo(Player.list[localmonster.aggroTarget].x+OFFSETX, Player.list[localmonster.aggroTarget].y+OFFSETY);
-                    LAYERS.eupper.stroke();
+                    CTX.beginPath();
+                    CTX.strokeStyle = '#FF0000';
+                    CTX.lineWidth = 2;
+                    CTX.moveTo(localmonster.x+OFFSETX, localmonster.y+OFFSETY);
+                    CTX.lineTo(Player.list[localmonster.aggroTarget].x+OFFSETX, Player.list[localmonster.aggroTarget].y+OFFSETY);
+                    CTX.stroke();
                 }
                 // path
                 if (localmonster.path[0]) {
-                    LAYERS.eupper.beginPath();
-                    LAYERS.eupper.strokeStyle = '#0000FF';
-                    LAYERS.eupper.lineWidth = 4;
-                    LAYERS.eupper.moveTo(localmonster.path[0][0]*64+32+OFFSETX, localmonster.path[0][1]*64+32+OFFSETY);
+                    CTX.beginPath();
+                    CTX.strokeStyle = '#0000FF';
+                    CTX.lineWidth = 4;
+                    CTX.moveTo(localmonster.x+OFFSETX, localmonster.y+OFFSETY);
                     for (var j in localmonster.path) {
-                        LAYERS.eupper.lineTo(localmonster.path[j][0]*64+32+OFFSETX, localmonster.path[j][1]*64+32+OFFSETY);
+                        CTX.lineTo(localmonster.path[j][0]*64+32+OFFSETX, localmonster.path[j][1]*64+32+OFFSETY);
                     }
-                    LAYERS.eupper.stroke();
+                    CTX.stroke();
                 }
             }
         }
         // projectiles
         for (var i in debugData.projectiles) {
             var localprojectile = debugData.projectiles[i];
-            if (localprojectile.map == player.map) {
+            if (localprojectile) if (localprojectile.map == player.map && inRenderDistancePixels(localprojectile)) {
                 var sinAngle = Math.sin(localprojectile.angle);
                 var cosAngle = Math.cos(localprojectile.angle);
                 // hitbox
-                LAYERS.eupper.beginPath();
-                LAYERS.eupper.strokeStyle = '#FF9900';
-                LAYERS.eupper.lineWidth = 4;
-                LAYERS.eupper.moveTo(((localprojectile.width/2)*cosAngle)-((localprojectile.height/2)*sinAngle)+localprojectile.x+OFFSETX, ((localprojectile.width/2)*sinAngle)+((localprojectile.height/2)*cosAngle)+localprojectile.y+OFFSETY);
-                LAYERS.eupper.lineTo(((localprojectile.width/2)*cosAngle)-((-localprojectile.height/2)*sinAngle)+localprojectile.x+OFFSETX, ((localprojectile.width/2)*sinAngle)+((-localprojectile.height/2)*cosAngle)+localprojectile.y+OFFSETY);
-                LAYERS.eupper.lineTo(((-localprojectile.width/2)*cosAngle)-((-localprojectile.height/2)*sinAngle)+localprojectile.x+OFFSETX, ((-localprojectile.width/2)*sinAngle)+((-localprojectile.height/2)*cosAngle)+localprojectile.y+OFFSETY);
-                LAYERS.eupper.lineTo(((-localprojectile.width/2)*cosAngle)-((localprojectile.height/2)*sinAngle)+localprojectile.x+OFFSETX, ((-localprojectile.width/2)*sinAngle)+((localprojectile.height/2)*cosAngle)+localprojectile.y+OFFSETY);
-                LAYERS.eupper.lineTo(((localprojectile.width/2)*cosAngle)-((localprojectile.height/2)*sinAngle)+localprojectile.x+OFFSETX, ((localprojectile.width/2)*sinAngle)+((localprojectile.height/2)*cosAngle)+localprojectile.y+OFFSETY);
-                LAYERS.eupper.lineWidth = 2;
-                LAYERS.eupper.moveTo(localprojectile.x-localprojectile.collisionBoxSize/2+OFFSETX, localprojectile.y-localprojectile.collisionBoxSize/2+OFFSETY);
-                LAYERS.eupper.lineTo(localprojectile.x-localprojectile.collisionBoxSize/2+OFFSETX, localprojectile.y+localprojectile.collisionBoxSize/2+OFFSETY);
-                LAYERS.eupper.lineTo(localprojectile.x+localprojectile.collisionBoxSize/2+OFFSETX, localprojectile.y+localprojectile.collisionBoxSize/2+OFFSETY);
-                LAYERS.eupper.lineTo(localprojectile.x+localprojectile.collisionBoxSize/2+OFFSETX, localprojectile.y-localprojectile.collisionBoxSize/2+OFFSETY);
-                LAYERS.eupper.lineTo(localprojectile.x-localprojectile.collisionBoxSize/2+OFFSETX, localprojectile.y-localprojectile.collisionBoxSize/2+OFFSETY);
-                LAYERS.eupper.stroke();
+                CTX.beginPath();
+                CTX.strokeStyle = '#FF9900';
+                CTX.lineWidth = 4;
+                CTX.moveTo(((localprojectile.width/2)*cosAngle)-((localprojectile.height/2)*sinAngle)+localprojectile.x+OFFSETX, ((localprojectile.width/2)*sinAngle)+((localprojectile.height/2)*cosAngle)+localprojectile.y+OFFSETY);
+                CTX.lineTo(((localprojectile.width/2)*cosAngle)-((-localprojectile.height/2)*sinAngle)+localprojectile.x+OFFSETX, ((localprojectile.width/2)*sinAngle)+((-localprojectile.height/2)*cosAngle)+localprojectile.y+OFFSETY);
+                CTX.lineTo(((-localprojectile.width/2)*cosAngle)-((-localprojectile.height/2)*sinAngle)+localprojectile.x+OFFSETX, ((-localprojectile.width/2)*sinAngle)+((-localprojectile.height/2)*cosAngle)+localprojectile.y+OFFSETY);
+                CTX.lineTo(((-localprojectile.width/2)*cosAngle)-((localprojectile.height/2)*sinAngle)+localprojectile.x+OFFSETX, ((-localprojectile.width/2)*sinAngle)+((localprojectile.height/2)*cosAngle)+localprojectile.y+OFFSETY);
+                CTX.lineTo(((localprojectile.width/2)*cosAngle)-((localprojectile.height/2)*sinAngle)+localprojectile.x+OFFSETX, ((localprojectile.width/2)*sinAngle)+((localprojectile.height/2)*cosAngle)+localprojectile.y+OFFSETY);
+                CTX.lineWidth = 2;
+                CTX.moveTo(localprojectile.x-localprojectile.collisionBoxSize/2+OFFSETX, localprojectile.y-localprojectile.collisionBoxSize/2+OFFSETY);
+                CTX.lineTo(localprojectile.x-localprojectile.collisionBoxSize/2+OFFSETX, localprojectile.y+localprojectile.collisionBoxSize/2+OFFSETY);
+                CTX.lineTo(localprojectile.x+localprojectile.collisionBoxSize/2+OFFSETX, localprojectile.y+localprojectile.collisionBoxSize/2+OFFSETY);
+                CTX.lineTo(localprojectile.x+localprojectile.collisionBoxSize/2+OFFSETX, localprojectile.y-localprojectile.collisionBoxSize/2+OFFSETY);
+                CTX.lineTo(localprojectile.x-localprojectile.collisionBoxSize/2+OFFSETX, localprojectile.y-localprojectile.collisionBoxSize/2+OFFSETY);
+                CTX.stroke();
                 // angle
-                LAYERS.eupper.beginPath();
-                LAYERS.eupper.strokeStyle = '#000000';
-                LAYERS.eupper.lineWidth = 2;
-                LAYERS.eupper.moveTo(localprojectile.x+OFFSETX, localprojectile.y+OFFSETY);
-                LAYERS.eupper.lineTo(((localprojectile.width/2)*cosAngle)+localprojectile.x+OFFSETX, ((localprojectile.width/2)*sinAngle)+localprojectile.y+OFFSETY);
-                LAYERS.eupper.stroke();
+                CTX.beginPath();
+                CTX.strokeStyle = '#000000';
+                CTX.lineWidth = 2;
+                CTX.moveTo(localprojectile.x+OFFSETX, localprojectile.y+OFFSETY);
+                CTX.lineTo(((localprojectile.width/2)*cosAngle)+localprojectile.x+OFFSETX, ((localprojectile.width/2)*sinAngle)+localprojectile.y+OFFSETY);
+                CTX.stroke();
             }
         }
-        LAYERS.eupper.restore();
+        CTX.restore();
         document.getElementById('tps').style.display = 'block';
         document.getElementById('ping').style.display = 'block';
+        document.getElementById('position').style.display = 'block';
+        document.getElementById('mousepos').style.display = 'block';
+        document.getElementById('position').innerText = '(' + Math.floor(player.x/64) + ', ' + Math.floor(player.y/64) + ')';
+        document.getElementById('mousepos').innerText = '(' + Math.floor(player.x/64)+Math.floor((player.x+mouseX)/64) + ', ' + Math.floor(player.y/64)+Math.floor((player.y+mouseY)/64) + ')';
     } else {
         document.getElementById('tps').style.display = '';
         document.getElementById('ping').style.display = '';
+        document.getElementById('position').style.display = '';
+        document.getElementById('mousepos').style.display = '';
     }
 };
 function resetFPS() {
@@ -491,8 +539,8 @@ document.onkeydown = function(e) {
                 socket.emit('keyPress', {key:'left', state:false});
                 socket.emit('keyPress', {key:'right', state:false});
                 socket.emit('keyPress', {key:'heal', state:false});
-                socket.emit('click', {button: 'left', x: e.clientX-window.innerWidth/2-OFFSETX, y: e.clientY-window.innerHeight/2-OFFSETY, state: false});
-                socket.emit('click', {button: 'right', x: e.clientX-window.innerWidth/2-OFFSETX, y: e.clientY-window.innerHeight-OFFSETY, state: false});
+                socket.emit('click', {button: 'left', x: mouseX, y: mouseY, state: false});
+                socket.emit('click', {button: 'right', x: mouseX, y: mouseY, state: false});
             }
         }
     }
@@ -536,6 +584,8 @@ document.onmousedown = function(e) {
                     socket.emit('click', {button: 'right', x: e.clientX-window.innerWidth/2-OFFSETX, y: e.clientY-window.innerHeight-OFFSETY, state: true});
                     break;
             }
+            mouseX = e.clientX-window.innerWidth/2-OFFSETX;
+            mouseY = e.clientY-window.innerHeight/2-OFFSETY;
         }
     }
 };
@@ -553,6 +603,8 @@ document.onmouseup = function(e) {
                     socket.emit('click', {button: 'right', x: e.clientX-window.innerWidth/2-OFFSETX, y: e.clientY-window.innerHeight-OFFSETY, state: false});
                     break;
             }
+            mouseX = e.clientX-window.innerWidth/2-OFFSETX;
+            mouseY = e.clientY-window.innerHeight/2-OFFSETY;
         }
     }
 };
@@ -562,6 +614,8 @@ document.onmousemove = function(e) {
             socket.emit('timeout');
         }
         socket.emit('mouseMove', {x: e.clientX-window.innerWidth/2-OFFSETX, y: e.clientY-window.innerHeight/2-OFFSETY});
+        mouseX = e.clientX-window.innerWidth/2-OFFSETX;
+        mouseY = e.clientY-window.innerHeight/2-OFFSETY;
     }
 };
 socket.on('updateSelf', function(data) {

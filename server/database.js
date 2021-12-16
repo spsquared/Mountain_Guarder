@@ -112,9 +112,9 @@ ACCOUNTS = {
         if (username != '' && username != null) {
             if (username.length > 3) {
                 if (username.length <= 20) {
-                    if (!username.includes(' ') && !username.includes('\\') && !username.includes('"')) {
+                    if (!username.includes(' ')) {
                         if (password != '' && password != null) {
-                            if (!password.includes(' ') && !password.includes('\\') && !password.includes('"')) {
+                            if (!password.includes(' ')) {
                                 return 0;
                             } else {
                                 return 5;

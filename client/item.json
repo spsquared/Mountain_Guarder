@@ -1,4 +1,10 @@
 {
+    "missing": {
+        "name": "Missing Item",
+        "description": "Invalid item!",
+        "rarity": -1,
+        "effects": []
+    },
     "simplewoodenbow": {
         "name": "Simple Wooden Bow",
         "description": "A cheap, simple bow of standard wood",

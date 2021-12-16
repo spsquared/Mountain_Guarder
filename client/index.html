@@ -14,10 +14,6 @@
         <meta id="image" content="https://mountainguarder.herokuapp.com/client/img/loading.png">
         <link rel="icon" href="./client/assets/favicon.ico" type="image/x-icon">
         <noscript><meta http-equiv="refresh" content="0; url=./client/nojs.html"/></noscript>
-        <script>
-            if (new URLSearchParams(window.location.search).get('redirect')) {}
-            else {window.location.replace('./client/termination.html');}
-        </script>
         <script src="/socket.io/socket.io.js"></script>
         <script>socket = io();</script>
         <script src="./client/index.js" defer></script>
@@ -77,6 +73,25 @@
                             insert changes here
                         </div>
                     </div> -->
+                    <div class="stack ui-block ui-lighttext">
+                        <div class="ui-lighttext stackHeader">
+                            v0.6.2 - 12/15/21
+                        </div>
+                        <div class="ui-lighttext stackBody">
+                            Patches and some tweaks, including better monster aggro mechanics and pathfinding improvements.
+                            <ul>
+                                <li>Monsters need a line of sight to detect you, and will lose track if they cannot see you for more than 5 seconds</li>
+                                <li>Fixed NPC pathfinding issues</li>
+                                <li>Improved monster pathfinding (less jittery now)</li>
+                                <li>Cherry bombs no longer explode instantly</li>
+                                <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/141" target="_blank" class="ui-link">Fixed double-sign in bug (Issue #141)</a></li>
+                                <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/133" target="_blank" class="ui-link">Fixed profanity filters (Issue #133)</a></li>
+                                <li>Patched more socket.emit-related bugs</li>
+                                <li>Patched crashes caused by "socket.emit('error');" (Thanks @Suvanth-Erranki!)</li>
+                                <li>Added NPC waypoints to debug view and changed path visualization</li>
+                            </ul>
+                        </div>
+                    </div>
                     <div class="stack ui-block ui-lighttext">
                         <div class="ui-lighttext stackHeader">
                             v0.6.1 - 12/1/21
@@ -631,7 +646,8 @@
                         </div>
                         <div class="ui-lighttext stackBody">
                             Sampleprovider(sp): Lead Developer<br>
-                            sp: Bug finder<br>
+                            spuh: Bug finder<br>
+                            Suvanth: Bug finder<br>
                             <br>
                             <a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder" target="_blank" class="ui-link">GitHub repository</a><br>
                             <a href="https://discord.gg/jKwmKkKmGc" target="_blank" class="ui-link">Join our Discord!</a><br>
@@ -702,8 +718,10 @@
                 <div id="fps">FPS: 0</div>
                 <div id="ping">Ping: 0ms</div>
                 <div id="tps">TPS: 0</div>
+                <div id="position">(x:0, y:0)</div>
+                <div id="mousepos">(x:0, y:0)</div>
             </div>
-            <div id="chat" class="ui-darktext">
+            <div id="chat" class="ui-darktext noSelect">
                 <div id="chatText"></div>
                 <input type="text" id="chatInput" class="ui-textInput" maxlength="256" autocomplete="off" spellcheck="false">
             </div>
@@ -922,8 +940,8 @@
                     <div id="debugConsoleSelect" class="window-select"></div>
                 </div>
             </div>
-            <div id="invHoverTooltip" class="ui-block ui-lighttext noselect">Tooltip</div>
-            <img id="invDragImg" class="invSlotImg noselect">
+            <div id="invHoverTooltip" class="ui-block ui-lighttext noSelect">Tooltip</div>
+            <img id="invDragImg" class="invSlotImg noSelect">
             <div id="deathScreen" class="noSelect">
                 <p id="youdied" class="ui-lighttext">You Died!</p>
                 <p id="respawnTimer" class="ui-lighttext">0</p>
@@ -931,7 +949,7 @@
             </div>
         </div>
         <div id="disconnectedContainer" class="noSelect">
-            <button id="disconnected" class="noselect" onclick="window.location.reload()">DISCONNECTED</button>
+            <button id="disconnected" class="noSelect" onclick="window.location.reload()">DISCONNECTED</button>
         </div>
         <div style="display: none;">
             <a href="https://grandcanyonshuttles.com/uploads/5/5/6/7/5567194/custom_themes/136734914403232081/drift_hunter.html" target="_blank" class="ui-link">DRIFT HUNTERS!!!</a>

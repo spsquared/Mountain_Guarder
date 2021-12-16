@@ -17,13 +17,18 @@ Inventory = function(socket, id) {
     };
 
     socket.on('item', function(data) {
-        switch (data.action) {
-            case 'drag':
-                self.dragItem(data.data.slot, data.data.newSlot);
-                break;
-            default:
-                error('Invalid item action ' + data.action);
-                break;
+        if (data) {
+            switch (data.action) {
+                case 'drag':
+                    self.dragItem(data.data.slot, data.data.newSlot);
+                    break;
+                default:
+                    error('Invalid item action ' + data.action);
+                    break;
+            }
+        } else {
+            insertChat(Player.list[i].name + ' was kicked for socket.emit', 'anticheat');
+            socket.emit('disconnected');
         }
     });
     self.addItem = function(id) {
@@ -200,6 +205,9 @@ Inventory = function(socket, id) {
     return self;
 };
 Inventory.Item = function(id, list) {
+    if (Inventory.items[id] == null) {
+        id = 'missing';
+    }
     var self = Inventory.items[id];
     self.id = id;
     self.slot = 0;

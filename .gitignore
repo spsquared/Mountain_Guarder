@@ -1,6 +1,7 @@
 # Dev files
 client/maps/maps.tiled-session
 server/log.txt
+client/maps/maps.tiled-session
 
 # Logs
 logs

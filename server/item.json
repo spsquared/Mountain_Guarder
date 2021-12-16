@@ -1,4 +1,11 @@
 {
+    "missing": {
+        "slotType": "none",
+        "rarity": -1,
+        "dropChance": 0,
+        "effects": [],
+        "enchantments": []
+    },
     "simplewoodenbow": {
         "slotType": "weapon",
         "rarity": 0,

@@ -1,7 +1,7 @@
 // Copyright (C) 2021 Radioactive64
 // Go to README.md for more information
 
-const version = 'v0.6.1';
+const version = 'v0.6.2';
 require('./server/log.js');
 console.info('\x1b[33m%s\x1b[0m', 'Mountain Guarder ' + version + ' copyright (C) Radioactive64 2021');
 appendLog('Mountain Guarder ' + version + ' copyright (C) Radioactive64 2021', 'log');
@@ -86,13 +86,22 @@ io.on('connection', function(socket) {
             }
             delete Player.list[player.id];
             socket.emit('disconnected');
-            socket.disconnect();
         });
-        socket.on('timeout', function() {
-            if (player.name) insertChat(player.name + ' left the game.', 'server');
+        socket.on('timeout', async function() {
+            if (player.name) {
+                await player.saveData();
+                insertChat(player.name + ' left the game.', 'server');
+            }
             delete Player.list[player.id];
             socket.emit('disconnected');
-            socket.disconnect();
+        });
+        socket.on('error', async function() {
+            socket.emit('disconnected');
+            if (player.name) {
+                await player.saveData();
+                insertChat(player.name + ' left the game.', 'server');
+            }
+            delete Player.list[player.id];
         });
         // debug
         socket.on('debugInput', async function(input) {
@@ -155,20 +164,22 @@ io.on('connection', function(socket) {
         var spamCount = 0;
         var onevent = socket.onevent;
         socket.onevent = function (packet) {
-            onevent.call (this, packet);
+            onevent.call(this, packet);
             if (packet.data != 'ping') spamCount++;
         };
         setInterval(function() {
             spamCount = Math.max(spamCount-100, 0);
             if (spamCount > 0) {
-                insertChat(player.name + ' was kicked for socket.io DOS', 'anticheat');
-                insertChat(player.name + ' left the game.', 'server');
+                if (player.name) {
+                    insertChat(player.name + ' was kicked for socket.io DOS', 'anticheat');
+                }
                 delete Player.list[player.id];
                 socket.emit('disconnected');
                 socket.disconnect();
             }
         }, 100);
     } else {
+        socket.emit('disconnected');
         socket.disconnect();
     }
 });
@@ -199,7 +210,11 @@ const s = {
         if (player) player.socket.emit('404');
     },
     broadCast: function(text) {
-        insertChat('[BC]: ' + text);
+        insertChat('[BC]: ' + text, 'server');
+    },
+    spawnMonster: function(type, x, y, map) {
+        var monster = new Monster(type, x, y, map);
+        return monster;
     }
 };
 prompt.on('line', async function(input) {
@@ -210,9 +225,6 @@ prompt.on('line', async function(input) {
             if (msg == undefined) {
                 msg = 'Successfully executed command';
             }
-            if (msg == '') {
-                msg = 'Successfully executed command';
-            }
             logColor(msg, '\x1b[33m', 'log');
         } catch (err) {
             error(err);
@@ -220,7 +232,7 @@ prompt.on('line', async function(input) {
     }
 });
 prompt.on('close', async function() {
-    if (active && process.env.PORT == null) {
+    if (active) {
         logColor('Stopping Server...', '\x1b[32m', 'log');
         clearInterval(updateTicks);
         started = false;
@@ -288,4 +300,31 @@ forceQuit = function(err, code) {
         appendLog('----------------------------------------');
         process.exit(code);
     });
+};
+
+// profanity filter
+Filter = {
+    words: ['fuck', 'bitch', 'shit', 'ass', 'sex', 'fock', 'bich', 'shat', '@ss', 'a$$', 'a$s', 'as$', '@$$', '@$s', '@s$', 'fuk', 'fucc', 'shiit', 'shrex'],
+    clean: function(string) {
+        if (typeof string == 'string') {
+            for (var i in Filter.words) {
+                var replacestr = '';
+                for (var j in Filter.words[i]) {
+                    replacestr = replacestr + '*';
+                }
+                while (string.includes(Filter.words[i])) string = string.replace(Filter.words[i], replacestr);
+            }
+            return string;
+        }
+        return '';
+    },
+    check: function(string) {
+        if (typeof string == 'string') {
+            for (var i in Filter.words) {
+                if (string.includes(Filter.words[i])) return true;
+                return false;
+            }
+        }
+        return true;
+    }
 };

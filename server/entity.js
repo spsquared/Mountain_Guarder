@@ -1,8 +1,6 @@
 // Copyright (C) 2021 Radioactive64
 
 const PF = require('pathfinding');
-const filter = require('leo-profanity');
-filter.loadDictionary();
 
 // entities
 Entity = function() {
@@ -23,6 +21,7 @@ Entity = function() {
         noCollision: false,
         collisionBoxSize: 1
     };
+    self.id = Math.random();
     self.collisionBoxSize = Math.max(self.width, self.height);
 
     self.update = function() {
@@ -169,6 +168,27 @@ Entity = function() {
             return Math.max(Math.abs(self.gridx-entity.x), Math.abs(self.gridy-entity.y));
         }
     };
+    self.rayCast = function(x, y) {
+        var ray = {
+            x: self.x,
+            y: self.y,
+            angle: 0,
+            xspeed: 0,
+            yspeed: 0
+        };
+        ray.angle = Math.atan2(y-ray.y, x-ray.x);
+        ray.xspeed = Math.cos(ray.angle)*20;
+        ray.yspeed = Math.sin(ray.angle)*20;
+        var distance = Math.ceil(self.getDistance({x: x, y: y})/20)
+        for (var i = 0; i < distance; i++) {
+            ray.x += ray.xspeed;
+            ray.y += ray.yspeed;
+            if (Collision.grid[self.map][Math.floor(ray.y/64)]) if (Collision.grid[self.map][Math.floor(ray.y/64)][Math.floor(ray.x/64)] != null && Collision.grid[self.map][Math.floor(ray.y/64)][Math.floor(ray.x/64)] < 15 && Collision.grid[self.map][Math.floor(ray.y/64)][Math.floor(ray.x/64)] != 0) {
+                return false;
+            }
+        }
+        return true;
+    };
     
     return self;
 };
@@ -178,11 +198,13 @@ Entity.update = function() {
     var pack3 = Projectile.update();
     var pack4 = Npc.update();
     var pack5 = Particle.update();
+    var pack6 = DroppedItem.update();
     var pack = {
         players: [],
         monsters: [],
         projectiles: [],
-        particles: []
+        particles: [],
+        droppedItems: []
     };
     for (var i in pack1) {
         pack.players.push(pack1[i]);
@@ -193,6 +215,7 @@ Entity.update = function() {
         pack.players.push(pack4[i]);
     }
     pack.particles = pack5;
+    pack.droppedItems = pack6;
 
     return pack;
 };
@@ -201,10 +224,12 @@ Entity.getDebugData = function() {
     var pack2 = Monster.getDebugData();
     var pack3 = Projectile.getDebugData();
     var pack4 = Npc.getDebugData();
+    var pack5 = DroppedItem.getDebugData();
     var pack = {
         players: [],
         monsters: [],
-        projectiles: []
+        projectiles: [],
+        droppedItems: []
     };
     for (var i in pack1) {
         pack.players.push(pack1[i]);
@@ -214,6 +239,7 @@ Entity.getDebugData = function() {
     for (var i in pack4) {
         pack.players.push(pack4[i]);
     }
+    pack.droppedItems = pack5
 
     return pack;
 };
@@ -278,15 +304,18 @@ Rig = function() {
         idleMove: 'none',
         idleRandom: {
             walking: false,
-            waitTime: 10,
+            waitTime: 4,
             lastPathEnd: 0
         },
         idleWaypoints: {
             walking: false,
+            lastWaypoints: [],
             waypoints: [],
-            xdir: 0,
-            ydir: 0,
-            waitTime: 5,
+            pos: {
+                x: null,
+                y: null
+            },
+            waitTime: 3,
             lastPathEnd: 0
         },
         path: [],
@@ -475,7 +504,7 @@ Rig = function() {
                             if (self.ai.path[0][0]*64+32 > self.x) self.keys.right = true;
                             if (self.ai.path[0][1]*64+32 < self.y) self.keys.up = true;
                             if (self.ai.path[0][1]*64+32 > self.y) self.keys.down = true;
-                            if (self.gridx == self.ai.path[0][0] && self.gridy == self.ai.path[0][1]) {
+                            if (Math.round(self.x) == self.ai.path[0][0]*64+32 && Math.round(self.y) == self.ai.path[0][1]*64+32) {
                                 self.ai.path.shift();
                             }
                             if (self.keys.up) self.yspeed = -self.moveSpeed;
@@ -622,8 +651,8 @@ Rig = function() {
                         }
                     }
                     var path = self.ai.pathfinder.findPath(x1, y1, x2, y2, self.ai.grid);
+                    path.shift();
                     self.ai.path = PF.Util.compressPath(path);
-                    self.ai.path.shift();
                     for (var i in self.ai.path) {
                         self.ai.path[i][0] += offsetx;
                         self.ai.path[i][1] += offsety;
@@ -657,8 +686,8 @@ Rig = function() {
                         }
                     }
                     var path = self.ai.pathfinder.findPath(x1, y1, x2, y2, self.ai.grid);
+                    path.shift();
                     self.ai.path = PF.Util.compressPath(path);
-                    self.ai.path.shift();
                     for (var i in self.ai.path) {
                         self.ai.path[i][0] += offsetx;
                         self.ai.path[i][1] += offsety;
@@ -671,80 +700,86 @@ Rig = function() {
     };
     self.ai.pathIdle = function() {
         if (self.ai.idleMove == 'waypoints') {
-            if (self.ai.idleWaypoints.lastPathEnd >= seconds(self.ai.idleWaypoints.waitTime*Math.random())) {
-                self.ai.idleWaypoints.lastPathEnd = 0;
-                var waypoints = self.ai.idleWaypoints.waypoints;
-                if (waypoints) {
-                    for (var i in waypoints) {
-                        var waypoint = waypoints[i];
-                        waypoint.h = self.getGridDistance(waypoint);
-                        waypoint.g = 1;
-                        if (self.ai.idleWaypoints.xdir == -1) {
-                            if (waypoint.x < self.gridx) waypoint.g++;
-                            else waypoint.g--;
-                        } else if (self.ai.idleWaypoints.xdir == 1) {
-                            if (waypoint.x > self.gridx) waypoint.g++;
-                            else waypoint.g--;
+            try {
+                if (self.ai.idleWaypoints.lastPathEnd >= seconds(self.ai.idleWaypoints.waitTime*Math.random())) {
+                    self.ai.idleWaypoints.lastPathEnd = 0;
+                    var waypoints = Array.from(self.ai.idleWaypoints.waypoints);
+                    var lastWaypoints = self.ai.idleWaypoints.lastWaypoints;
+                    if (waypoints) {
+                        if (lastWaypoints.length > Math.min(4, waypoints.length-1)) lastWaypoints.pop();
+                        for (var i in waypoints) {
+                            var waypoint = waypoints[i];
+                            for (var j in lastWaypoints) {
+                                if (waypoint.x == lastWaypoints[j].x && waypoint.y == lastWaypoints[j].y && waypoint.map == lastWaypoints[j].map) waypoints.splice(i, 1);
+                                if (waypoint.map != self.map) waypoints.splice(i, 1);
+                            }
                         }
-                        if (self.ai.idleWaypoints.ydir == -1) {
-                            if (waypoint.y < self.gridy) waypoint.g++;
-                            else waypoint.g--;
-                        } else if (self.ai.idleWaypoints.ydir == 1) {
-                            if (waypoint.y > self.gridy) waypoint.g++;
-                            else waypoint.g--;
+                        waypoints = waypoints.sort(function(a, b) {b.f-a.f});
+                        if (waypoints[0]) {
+                            self.ai.posTarget.x = waypoints[0].x;
+                            self.ai.posTarget.y = waypoints[0].y;
+                            self.ai.idleWaypoints.pos = waypoints[0];
+                            self.ai.idleWaypoints.lastWaypoints.unshift(self.ai.idleWaypoints.pos);
+                            self.ai.pathtoPos();
+                            self.ai.idleWaypoints.walking = true;
+                            self.ai.posTarget = {
+                                x: null,
+                                y: null
+                            };
                         }
-                        waypoint.f = waypoint.h*0.1 + waypoint.g*5;
-                        if (waypoint.x == self.gridx && waypoint.y == self.gridy) waypoint.f = 1000000000;
-                    }
-                    waypoints = waypoints.sort(function(a, b) {b.f-a.f});
-                    if (waypoints[0]) {
-                        if (waypoints[0].x < self.gridx) self.ai.idleWaypoints.xdir = -1;
-                        if (waypoints[0].x > self.gridx) self.ai.idleWaypoints.xdir = 1;
-                        if (waypoints[0].y < self.gridx) self.ai.idleWaypoints.ydir = -1;
-                        if (waypoints[0].y > self.gridx) self.ai.idleWaypoints.ydir = 1;
-                        self.ai.posTarget = waypoints[0];
-                        self.ai.pathtoPos();
-                        self.ai.idleWaypoints.walking = true;
                     }
                 }
-            }
-            if (self.gridx == self.ai.posTarget.x && self.gridy == self.ai.posTarget.y) self.ai.idleWaypoints.walking = false;
-            if (!self.ai.idleWaypoints.walking) {
-                self.ai.idleWaypoints.lastPathEnd += seconds(0.1);
-                self.ai.path = [];
+                if (self.gridx == self.ai.idleWaypoints.pos.x && self.gridy == self.ai.idleWaypoints.pos.y) self.ai.idleWaypoints.walking = false;
+                if (!self.ai.idleWaypoints.walking) {
+                    self.ai.idleWaypoints.lastPathEnd += seconds(0.1);
+                    self.ai.path = [];
+                }
+            } catch (err) {
+                error(err);
             }
         } else if (self.ai.idleMove == 'random') {
-            if (self.ai.idleRandom.lastPathEnd >= seconds(self.ai.idleRandom.waitTime)*Math.random()) {
-                self.ai.idleRandom.lastPathEnd = 0;
-                var pathAttempts = 0;
-                while (true) {
-                    pathAttempts++;
-                    var attempts = 0;
-                    var pos = {
-                        x: 0,
-                        y: 0
-                    };
+            try {
+                if (self.ai.idleRandom.lastPathEnd >= seconds(self.ai.idleRandom.waitTime)*Math.random()) {
+                    self.ai.idleRandom.lastPathEnd = 0;
+                    var pathAttempts = 0;
                     while (true) {
-                        attempts++;
-                        pos.x = Math.round(self.gridx+Math.random()*2-1);
-                        pos.y = Math.round(self.gridy+Math.random()*2-1);
-                        if (Collision.grid[self.map][pos.y]) if (Collision.grid[self.map][pos.y][pos.x]) {}
-                        else break;
-                        if (attempts >= 10) break;
+                        pathAttempts++;
+                        var attempts = 0;
+                        var pos = {
+                            x: 0,
+                            y: 0
+                        };
+                        while (true) {
+                            attempts++;
+                            pos.x = Math.round(self.gridx+Math.random()*2-1);
+                            pos.y = Math.round(self.gridy+Math.random()*2-1);
+                            if (Collision.grid[self.map][pos.y]) if (Collision.grid[self.map][pos.y][pos.x]) {}
+                            else break;
+                            if (attempts >= 10) break;
+                        }
+                        self.ai.posTarget.x = pos.x;
+                        self.ai.posTarget.y = pos.y;
+                        self.ai.idleWaypoints.pos = self.ai.posTarget;
+                        self.ai.pathtoPos();
+                        self.ai.idleWaypoints.walking = true;
+                        self.ai.posTarget = {
+                            x: null,
+                            y: null
+                        };
+                        if (self.ai.path != []) break;
+                        if (pathAttempts >= 10) break;
                     }
-                    self.ai.posTarget = pos;
-                    self.ai.pathtoPos();
-                    if (self.ai.path != []) break;
-                    if (pathAttempts >= 10) break;
+                    if (self.ai.path[0]) {
+                        self.ai.idleRandom.walking = true;
+                    }
                 }
-                if (self.ai.path[0]) {
-                    self.ai.idleRandom.walking = true;
+                if (self.gridx == self.ai.idleWaypoints.pos.x && self.gridy == self.ai.idleWaypoints.pos.y) self.ai.idleRandom.walking = false;
+                if (!self.ai.idleRandom.walking) {
+                    self.ai.idleRandom.lastPathEnd += seconds(0.1);
+                    self.ai.path = [];
                 }
-            }
-            if (self.gridx == self.ai.posTarget.x && self.gridy == self.ai.posTarget.y) self.ai.idleRandom.walking = false;
-            if (!self.ai.idleRandom.walking) {
-                self.ai.idleRandom.lastPathEnd += seconds(0.1);
-                self.ai.path = [];
+            } catch (err) {
+                error(err);
             }
         }
     };
@@ -803,6 +838,8 @@ Rig = function() {
         self.map = map;
         self.x = x*64+32;
         self.y = y*64+32;
+        self.ai.idleRandom.walking = false;
+        self.ai.idleWaypoints.walking = false;
         for (var i = 0; i < 20; i++) {
             new Particle(self.map, self.x, self.y, 'teleport');
         }
@@ -814,7 +851,6 @@ Rig = function() {
 // npcs
 Npc = function(id, x, y, map) {
     var self = new Rig();
-    self.id = Math.random();
     self.animationSpeed = 100;
     self.animationDirection = 'facing';
     self.facingDirection = 'down';
@@ -895,11 +931,11 @@ Npc.getDebugData = function() {
             y: localnpc.y,
             width: localnpc.width,
             height: localnpc.height,
+            name: localnpc.name,
             collisionBoxSize: localnpc.collisionBoxSize,
-            animationStage: localnpc.animationStage,
             path: localnpc.ai.path,
+            idleWaypoints: localnpc.ai.idleWaypoints,
             keys: localnpc.keys,
-            isNPC: true
         });
     }
 
@@ -911,7 +947,6 @@ Npc.list = [];
 // players
 Player = function(socket) {
     var self = new Rig();
-    self.id = Math.random();
     self.socket = socket;
     self.map = ENV.spawnpoint.map;
     self.x = ENV.spawnpoint.x;
@@ -957,32 +992,76 @@ Player = function(socket) {
         maps.push(i);
     }
     socket.on('signIn', async function(cred) {
-        var valid = ACCOUNTS.validateCredentials(cred.username, cred.password);
-        switch (valid) {
-            case 0:
-                if (filter.check(cred.username)) {
-                    socket.emit('disconnected');
-                    break;
-                }
-                switch (cred.state) {
-                    case 'signIn':
-                        if (!self.signedIn) {
-                            var status = await ACCOUNTS.login(cred.username, cred.password);
+        if (cred) if (typeof cred.username == 'string' && typeof cred.password == 'string') {
+            var valid = ACCOUNTS.validateCredentials(cred.username, cred.password);
+            switch (valid) {
+                case 0:
+                    if (Filter.check(cred.username)) {
+                        socket.emit('disconnected');
+                        break;
+                    }
+                    switch (cred.state) {
+                        case 'signIn':
+                            if (!self.signedIn) {
+                                var status = await ACCOUNTS.login(cred.username, cred.password);
+                                switch (status) {
+                                    case 0:
+                                        var signedIn = false;
+                                        for (var i in Player.list) {
+                                            if (Player.list[i].creds.username == cred.username) {
+                                                signedIn = true;
+                                            }
+                                        }
+                                        if (!signedIn) {
+                                            self.creds.username = cred.username;
+                                            self.creds.password = cred.password;
+                                            socket.emit('mapData', maps);
+                                        } else {
+                                            socket.emit('signInState', 'alreadySignedIn');
+                                        }
+                                        break;
+                                    case 1:
+                                        socket.emit('signInState', 'incorrectPassword');
+                                        break;
+                                    case 2:
+                                        socket.emit('signInState', 'noAccount');
+                                        break;
+                                }
+                                self.signedIn = true;
+                            }
+                            break;
+                        case 'loaded':
+                            if (cred.username == self.creds.username && cred.password == self.creds.password) {
+                                await self.loadData();
+                                self.name= cred.username;
+                                socket.emit('signInState', 'signedIn');
+                                insertChat(self.name + ' joined the game.', 'server');
+                                self.canMove = true;
+                                self.alive = true;
+                            } else {
+                                socket.emit('signInState', 'invalidSignIn');
+                            }
+                            break;
+                        case 'signUp':
+                            var status = await ACCOUNTS.signup(cred.username, cred.password);
                             switch (status) {
                                 case 0:
-                                    var signedIn = false;
-                                    for (var i in Player.list) {
-                                        if (Player.list[i].name == cred.username) {
-                                            signedIn = true;
-                                        }
-                                    }
-                                    if (!signedIn) {
-                                        self.creds.username = cred.username;
-                                        self.creds.password = cred.password;
-                                        socket.emit('mapData', maps);
-                                    } else {
-                                        socket.emit('signInState', 'alreadySignedIn');
-                                    }
+                                    socket.emit('signInState', 'signedUp');
+                                    break;
+                                case 1:
+                                    socket.emit('signInState', 'accountExists');
+                                    break;
+                                case 2:
+                                    socket.emit('signInState', 'databaseError');
+                                    break;
+                            }
+                            break;
+                        case 'deleteAccount':
+                            var status = await ACCOUNTS.deleteAccount(cred.username, cred.password);
+                            switch (status) {
+                                case 0:
+                                    self.name = cred.username;
+                                    socket.emit('signInState', 'deletedAccount');
                                     break;
                                 case 1:
                                     socket.emit('signInState', 'incorrectPassword');
@@ -990,92 +1069,58 @@ Player = function(socket) {
                                 case 2:
                                     socket.emit('signInState', 'noAccount');
                                     break;
+                                case 3:
+                                    socket.emit('signInState', 'databaseError');
+                                    break;
                             }
-                            self.signedIn = true;
-                        }
-                        break;
-                    case 'loaded':
-                        if (cred.username == self.creds.username && cred.password == self.creds.password) {
-                            await self.loadData();
-                            self.name= cred.username;
-                            socket.emit('signInState', 'signedIn');
-                            insertChat(self.name + ' joined the game.', 'server');
-                            self.canMove = true;
-                            self.alive = true;
-                        } else {
-                            socket.emit('signInState', 'invalidSignIn');
-                        }
-                        break;
-                    case 'signUp':
-                        var status = await ACCOUNTS.signup(cred.username, cred.password);
-                        switch (status) {
-                            case 0:
-                                socket.emit('signInState', 'signedUp');
-                                break;
-                            case 1:
-                                socket.emit('signInState', 'accountExists');
-                                break;
-                            case 2:
-                                socket.emit('signInState', 'databaseError');
-                                break;
-                        }
-                        break;
-                    case 'deleteAccount':
-                        var status = await ACCOUNTS.deleteAccount(cred.username, cred.password);
-                        switch (status) {
-                            case 0:
-                                self.name = cred.username;
-                                socket.emit('signInState', 'deletedAccount');
-                                break;
-                            case 1:
-                                socket.emit('signInState', 'incorrectPassword');
-                                break;
-                            case 2:
-                                socket.emit('signInState', 'noAccount');
-                                break;
-                            case 3:
-                                socket.emit('signInState', 'databaseError');
-                                break;
-                        }
-                        break;
-                    case 'changePassword':
-                        var status = await ACCOUNTS.changePassword(cred.username, cred.oldPassword, cred.password);
-                        switch (status) {
-                            case 0:
-                                self.name = cred.username;
-                                socket.emit('signInState', 'changedPassword');
-                                break;
-                            case 1:
-                                socket.emit('signInState', 'incorrectPassword');
-                                break;
-                            case 2:
-                                socket.emit('signInState', 'noAccount');
-                                break;
-                            case 3:
-                                socket.emit('signInState', 'databaseError');
-                                break;
-                        }
-                        break;
-                    default:
-                        error('Invalid sign in state ' + cred.state);
-                        break;
-                }
-            break;
-            case 1:
-                socket.emit('signInState', 'noUsername');
+                            break;
+                        case 'changePassword':
+                            if (cred.oldPassword) {
+                                var status = await ACCOUNTS.changePassword(cred.username, cred.oldPassword, cred.password);
+                                switch (status) {
+                                    case 0:
+                                        self.name = cred.username;
+                                        socket.emit('signInState', 'changedPassword');
+                                        break;
+                                    case 1:
+                                        socket.emit('signInState', 'incorrectPassword');
+                                        break;
+                                    case 2:
+                                        socket.emit('signInState', 'noAccount');
+                                        break;
+                                    case 3:
+                                        socket.emit('signInState', 'databaseError');
+                                        break;
+                                }
+                            } else {
+                                insertChat(self.name + ' was kicked for socket.emit', 'anticheat');
+                                socket.emit('disconnected');
+                            }
+                            break;
+                        default:
+                            error('Invalid sign in state ' + cred.state);
+                            break;
+                    }
                 break;
-            case 2:
-                socket.emit('signInState', 'shortUsername');
-                break;
-            case 3:
-                socket.emit('signInState', 'longUsername');
-                break;
-            case 4:
-                socket.emit('signInState', 'noPassword');
-                break;
-            case 5:
-                socket.emit('signInState', 'invalidCharacters');
-                break;
+                case 1:
+                    socket.emit('signInState', 'noUsername');
+                    break;
+                case 2:
+                    socket.emit('signInState', 'shortUsername');
+                    break;
+                case 3:
+                    socket.emit('signInState', 'longUsername');
+                    break;
+                case 4:
+                    socket.emit('signInState', 'noPassword');
+                    break;
+                case 5:
+                    socket.emit('signInState', 'invalidCharacters');
+                    break;
+            }
+        } else {
+            insertChat(self.name + ' was kicked for socket.emit', 'anticheat');
+            socket.emit('disconnected');
         }
     });
     socket.on('keyPress', function(data) {
@@ -1088,7 +1133,7 @@ Player = function(socket) {
                 if (data.key == 'heal') self.keys.heal = data.state;
             }
         } else {
-            insertChat(self.name + ' cheated using socket.emit()', 'anticheat');
+            insertChat(self.name + ' was kicked for socket.emit', 'anticheat');
             socket.emit('disconnected');
         }
     });
@@ -1102,7 +1147,7 @@ Player = function(socket) {
                 }
             }
         } else {
-            insertChat(self.name + ' cheated using socket.emit()', 'anticheat');
+            insertChat(self.name + ' was kicked for socket.emit', 'anticheat');
             socket.emit('disconnected');
         }
     });
@@ -1111,7 +1156,7 @@ Player = function(socket) {
             self.mouseX = data.x;
             self.mouseY = data.y;
         } else {
-            insertChat(self.name + ' cheated using socket.emit()', 'anticheat');
+            insertChat(self.name + ' was kicked for socket.emit', 'anticheat');
             socket.emit('disconnected');
         }
     });
@@ -1192,8 +1237,8 @@ Player = function(socket) {
                                     return;
                                 }
                                 if (valid) {
-                                    insertSingleChat(self.name + '->' + args[0] + ': ' + filter.clean(args[1], '-'), '', args[0], true);
-                                    insertSingleChat(self.name + '->' + args[0] + ': ' + filter.clean(args[1], '-'), '', self.name, false);
+                                    insertSingleChat(self.name + '->' + args[0] + ': ' + Filter.clean(args[1]), '', args[0], true);
+                                    insertSingleChat(self.name + '->' + args[0] + ': ' + Filter.clean(args[1]), '', self.name, false);
                                 }
                                 break;
                             case 'waypoint':
@@ -1217,7 +1262,7 @@ Player = function(socket) {
                         for (var i in msg) {
                             if (msg[i] != ' ') valid = true;
                         }
-                        if (valid) insertChat(self.name + ': ' + filter.clean(msg, '-'), '');
+                        if (valid) insertChat(self.name + ': ' + Filter.clean(msg), '');
                     }
                 } catch (err) {
                     error(err);
@@ -1511,9 +1556,7 @@ Player.getDebugData = function() {
                 width: localplayer.width,
                 height: localplayer.height,
                 collisionBoxSize: localplayer.collisionBoxSize,
-                animationStage: localplayer.animationStage,
                 keys: localplayer.keys,
-                isNPC: false
             });
         }
     }
@@ -1525,7 +1568,6 @@ Player.list = [];
 // monsters
 Monster = function(type, x, y, map) {
     var self = new Rig();
-    self.id = Math.random();
     self.x = x;
     self.y = y;
     self.map = map;
@@ -1538,6 +1580,7 @@ Monster = function(type, x, y, map) {
     self.ai.fleeing = false;
     self.ai.fleeThreshold = 0;
     self.ai.inNomonsterRegion = false;
+    self.ai.lastTracked = 0;
     self.targetMonsters = false;
     try {
         var tempmonster = Monster.types[type];
@@ -1749,31 +1792,38 @@ Monster = function(type, x, y, map) {
         }
     };
     self.updateAggro = function() {
+        self.ai.lastTracked++;
         if (!self.ai.fleeing) {
             if (self.targetMonsters) {
                 var lowest = null;
                 for (var i in Monster.list) {
                     if (Monster.list[i].map == self.map && self.getGridDistance(Monster.list[i]) < self.ai.maxRange && i != self.id && !Monster.list[i].region.nomonster && Monster.list[i].alive) {
-                        if (lowest == null) lowest = i;
-                        if (self.getGridDistance(Monster.list[i]) < self.getGridDistance(Monster.list[lowest])) {
+                        if (lowest == null && self.rayCast(Monster.list[i].x, Monster.list[i].y)) lowest = i;
+                        if (lowest) if (self.getGridDistance(Monster.list[i]) < self.getGridDistance(Monster.list[lowest]) && self.rayCast(Monster.list[i].x, Monster.list[i].y)) {
                             lowest = i;
                         }
                     }
                 }
-                if (lowest) self.ai.entityTarget = Monster.list[lowest];
-                if (lowest == null && !self.damaged) self.ai.entityTarget = null;
+                if (lowest) {
+                    self.ai.entityTarget = Monster.list[lowest];
+                    self.ai.lastTracked = 0;
+                }
+                if (self.ai.lastTracked > seconds(5) && !self.damaged) self.ai.entityTarget = null;
             } else {
                 var lowest = null;
                 for (var i in Player.list) {
                     if (Player.list[i].map == self.map && self.getGridDistance(Player.list[i]) < self.ai.maxRange && i != self.id && !Player.list[i].region.nomonster && Player.list[i].alive) {
-                        if (lowest == null) lowest = i;
-                        if (self.getGridDistance(Player.list[i]) < self.getGridDistance(Player.list[lowest])) {
+                        if (lowest == null && self.rayCast(Player.list[i].x, Player.list[i].y)) lowest = i;
+                        if (lowest) if (self.getGridDistance(Player.list[i]) < self.getGridDistance(Player.list[lowest]) && self.rayCast(Player.list[i].x, Player.list[i].y)) {
                             lowest = i;
                         }
                     }
                 }
-                if (lowest) self.ai.entityTarget = Player.list[lowest];
-                if (lowest == null && !self.damaged) self.ai.entityTarget = null;
+                if (lowest) {
+                    self.ai.entityTarget = Player.list[lowest];
+                    self.ai.lastTracked = 0;
+                }
+                if (self.ai.lastTracked > seconds(5) && !self.damaged) self.ai.entityTarget = null;
             }
         }
     };
@@ -1781,15 +1831,17 @@ Monster = function(type, x, y, map) {
         self.ai.lastAttack++;
         switch (self.ai.attackType) {
             case 'triggeredcherrybomb':
-                self.ai.attackTime++;
-                if (self.ai.attackTime >= 2) {
-                    self.ai.attackType = 'exploding';
+                if (self.ai.attackTime == 0) {
                     self.moveSpeed = 0;
                     self.invincible = true;
                     self.alive = false;
                     self.animationStage = 0;
                     self.animationLength = 10;
                     self.onDeath = function() {};
+                }
+                self.ai.attackTime++;
+                if (self.ai.attackTime >= seconds(0.4)) {
+                    self.ai.attackType = 'exploding';
                     for (var i = 0; i < 50; i++) {
                         new Particle(self.map, self.x, self.y, 'explosion');
                     }
@@ -1798,21 +1850,18 @@ Monster = function(type, x, y, map) {
                             if (Monster.list[i].ai.attackType == 'cherrybomb') {
                                 Monster.list[i].ai.attackType = 'triggeredcherrybomb';
                                 Monster.list[i].ai.attackTime = 0;
-                            } else if (Monster.list[i].ai.attackType != 'triggeredcherrybomb') {
+                            } else if (Monster.list[i].ai.attackType != 'triggeredcherrybomb' && Monster.list[i].alive) {
                                 Monster.list[i].onDeath(self, 'explosion');
                             }
                         } else if (parseFloat(i) != self.id && self.getDistance(Monster.list[i]) <= 320) {
-                            if (Monster.list[i].ai.attackType == 'cherrybomb') {
-                                Monster.list[i].ai.attackType = 'triggeredcherrybomb';
-                                Monster.list[i].ai.attackTime = 0;
-                            } else if (Monster.list[i].ai.attackType != 'triggeredcherrybomb') {
+                            if (Monster.list[i].ai.attackType != 'cherrybomb' && Monster.list[i].ai.attackType != 'triggeredcherrybomb' && Monster.list[i].alive) {
                                 Monster.list[i].onHit(self, 'cherrybomb');
                             }
                         }
                     }
                     for (var i in Player.list) {
-                        if (self.getDistance(Player.list[i]) <= 192) Player.list[i].onDeath(self, 'explosion');
-                        else if (self.getDistance(Player.list[i]) <= 320) Player.list[i].onHit(self, 'cherrybomb');
+                        if (self.getDistance(Player.list[i]) <= 192 && Player.list[i].alive) Player.list[i].onDeath(self, 'explosion');
+                        else if (self.getDistance(Player.list[i]) <= 320 && Player.list[i].alive) Player.list[i].onHit(self, 'cherrybomb');
                     }
                 }
                 break;
@@ -1862,37 +1911,8 @@ Monster = function(type, x, y, map) {
                     break;
                 case 'cherrybomb':
                     if (self.getDistance(self.ai.entityTarget) < 64) {
-                        self.ai.attackType = 'exploding';
-                        self.moveSpeed = 0;
-                        self.invincible = true;
-                        self.alive = false;
-                        self.animationStage = 0;
-                        self.animationLength = 10;
-                        self.onDeath = function() {};
-                        for (var i = 0; i < 50; i++) {
-                            new Particle(self.map, self.x, self.y, 'explosion');
-                        }
-                        for (var i in Monster.list) {
-                            if (parseFloat(i) != self.id && self.getDistance(Monster.list[i]) <= 192) {
-                                if (Monster.list[i].ai.attackType == 'cherrybomb') {
-                                    Monster.list[i].ai.attackType = 'triggeredcherrybomb';
-                                    Monster.list[i].ai.attackTime = 0;
-                                } else if (Monster.list[i].ai.attackType != 'triggeredcherrybomb') {
-                                    Monster.list[i].onDeath(self, 'explosion');
-                                }
-                            } else if (parseFloat(i) != self.id && self.getDistance(Monster.list[i]) <= 320) {
-                                if (Monster.list[i].ai.attackType == 'cherrybomb') {
-                                    Monster.list[i].ai.attackType = 'triggeredcherrybomb';
-                                    Monster.list[i].ai.attackTime = 0;
-                                } else if (Monster.list[i].ai.attackType != 'triggeredcherrybomb') {
-                                    Monster.list[i].onHit(self, 'cherrybomb');
-                                }
-                            }
-                        }
-                        for (var i in Player.list) {
-                            if (self.getDistance(Player.list[i]) <= 192) Player.list[i].onDeath(self, 'explosion');
-                            else if (self.getDistance(Player.list[i]) <= 320) Player.list[i].onHit(self, 'cherrybomb');
-                        }
+                        self.ai.attackType = 'triggeredcherrybomb';
+                        self.ai.attackTime = 0;
                     }
                     break;
                 case 'triggeredcherrybomb':
@@ -1944,7 +1964,7 @@ Monster = function(type, x, y, map) {
                     break;
                 case 'cherrybomb':
                     self.hp -= Math.max(Math.round((500*(1-self.stats.defense))-self.stats.damageReduction), 0);
-                    if (self.hp < 0) self.onDeath(entity, 'cherrybomb');
+                    if (self.hp < 0) self.onDeath(entity, 'explosion');
                     break;
                 default:
                     error('Invalid Entity type: ' + type);
@@ -2052,7 +2072,6 @@ Monster.getDebugData = function() {
                     width: localmonster.width,
                     height: localmonster.height,
                     collisionBoxSize: localmonster.collisionBoxSize,
-                    animationStage: localmonster.animationStage,
                     path: localmonster.ai.path,
                     keys: localmonster.keys,
                     aggroTarget: null,
@@ -2070,7 +2089,6 @@ Monster.list = [];
 // projectiles
 Projectile = function(type, x, y, map, angle, parentID) {
     var self = new Entity();
-    self.id = Math.random();
     self.type = type;
     self.x = x;
     self.y = y;
@@ -2350,6 +2368,7 @@ Projectile.patterns = {
                 self.angle = Player.list[self.parentID].heldItem.angle;
                 self.sinAngle = Math.sin(self.angle);
                 self.cosAngle = Math.cos(self.angle);
+                self.collisionBoxSize = Math.max(Math.abs(self.sinAngle*self.height)+Math.abs(self.cosAngle*self.width), Math.abs(self.cosAngle*self.height)+Math.abs(self.sinAngle*self.width));
             }
         } else {
             if (Monster.list[self.parentID]) {
@@ -2358,6 +2377,7 @@ Projectile.patterns = {
                 self.angle = Monster.list[self.parentID].heldItem.angle;
                 self.sinAngle = Math.sin(self.angle);
                 self.cosAngle = Math.cos(self.angle);
+                self.collisionBoxSize = Math.max(Math.abs(self.sinAngle*self.height)+Math.abs(self.cosAngle*self.width), Math.abs(self.cosAngle*self.height)+Math.abs(self.sinAngle*self.width));
             }
         }
         self.x += Math.cos(self.angle)*(self.width/2+4);
@@ -2388,17 +2408,20 @@ Particle.list = [];
 
 // dropped items
 DroppedItem = function(map, x, y, data) {
-    var self = new Entity();
-    self.x = x;
-    self.y = y;
-    self.map = map;
+    var self = {
+        id: null,
+        x: x,
+        y: y,
+        map: map,
+        width: 20,
+        height: 20,
+        itemId: 'missing',
+        enchants: []
+    };
+    self.id = Math.random();
     for (var i in data) {
         self[i] = data[i];
     }
-
-    self.update = function() {
-
-    };
 
     DroppedItem.list[self.id] = self;
     return self;
@@ -2407,7 +2430,6 @@ DroppedItem.update = function() {
     var pack = [];
     for (var i in DroppedItem.list) {
         localdroppeditem = DroppedItem.list[i];
-        localdroppeditem.update();
         pack.push({
             id: localdroppeditem.id,
             map: localdroppeditem.map,
@@ -2415,6 +2437,19 @@ DroppedItem.update = function() {
             y: localdroppeditem.y,
             itemId: localdroppeditem.itemId,
             enchants: localdroppeditem.enchants
+        });
+    }
+
+    return pack;
+};
+DroppedItem.getDebugData = function() {
+    var pack = [];
+    for (var i in DroppedItem.list) {
+        localdroppeditem = DroppedItem.list[i];
+        pack.push({
+            map: localdroppeditem.map,
+            x: localdroppeditem.x,
+            y: localdroppeditem.y
         });
     }
 
