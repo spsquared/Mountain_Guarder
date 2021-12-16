@@ -231,27 +231,27 @@ prompt.on('line', async function(input) {
         }
     }
 });
-prompt.on('close', async function() {
-    if (active) {
-        logColor('Stopping Server...', '\x1b[32m', 'log');
-        clearInterval(updateTicks);
-        started = false;
-        for (var i in Player.list) {
-            var player = Player.list[i];
-            if (player.name) {
-                await player.saveData();
-                insertChat(player.name + ' left the game.', 'server');
-            }
-            delete Player.list[i];
-            player.socket.emit('disconnected');
-            player.socket.onevent = function(packet) {};
-        }
-        await ACCOUNTS.disconnect();
-        logColor('Server Stopped.', '\x1b[32m', 'log')
-        appendLog('----------------------------------------');
-        process.exit(0);
-    }
-});
+// prompt.on('close', async function() {
+//     if (active) {
+//         logColor('Stopping Server...', '\x1b[32m', 'log');
+//         clearInterval(updateTicks);
+//         started = false;
+//         for (var i in Player.list) {
+//             var player = Player.list[i];
+//             if (player.name) {
+//                 await player.saveData();
+//                 insertChat(player.name + ' left the game.', 'server');
+//             }
+//             delete Player.list[i];
+//             player.socket.emit('disconnected');
+//             player.socket.onevent = function(packet) {};
+//         }
+//         await ACCOUNTS.disconnect();
+//         logColor('Server Stopped.', '\x1b[32m', 'log')
+//         appendLog('----------------------------------------');
+//         process.exit(0);
+//     }
+// });
 
 // Tickrate
 TPS = 0;
