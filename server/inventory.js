@@ -27,7 +27,7 @@ Inventory = function(socket, id) {
                     break;
             }
         } else {
-            insertChat(Player.list[i].name + ' was kicked for socket.emit', 'anticheat');
+            insertChat(Player.list[id].name + ' was kicked for socket.emit', 'anticheat');
             socket.emit('disconnected');
         }
     });
