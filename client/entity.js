@@ -401,9 +401,10 @@ Particle = function(map, x, y, type, value) {
         xspeed: 0,
         yspeed: 0,
         color: '#000000',
-        opacity: 100,
+        opacity: 120,
         type: type,
         value: value,
+        size: 20,
         chunkx: 0,
         chunky: 0
     };
@@ -421,6 +422,8 @@ Particle = function(map, x, y, type, value) {
             var angle = Math.random()*360*(Math.PI/180);
             self.xspeed = Math.sin(angle)*Math.random()*2;
             self.yspeed = Math.cos(angle)*Math.random()*2;
+            self.opacity = Math.round(Math.random()*50)+100;
+            self.size = Math.random()*10+10;
             break;
         case 'explosion':
             var random = Math.random();
@@ -429,22 +432,37 @@ Particle = function(map, x, y, type, value) {
             } else if (random <= 0.4) {
                 self.color = '#999999';
             } else {
-                self.color = '#333333';
+                self.color = '#222222';
             }
             var angle = Math.random()*360*(Math.PI/180);
-            self.xspeed = Math.sin(angle)*Math.random()*5;
-            self.yspeed = Math.cos(angle)*Math.random()*5;
-            self.opacity = 150;
+            self.xspeed = Math.sin(angle)*Math.random()*10;
+            self.yspeed = Math.cos(angle)*Math.random()*10;
+            self.opacity = Math.round(Math.random()*100)+100;
+            self.size = Math.random()*10+20;
+            break;
+        case 'spawn':
+            self.color = '#0000FF';
+            self.angle = Math.random()*360*(Math.PI/180);
+            self.radius = Math.random()*80;
+            self.rotationspeed = Math.random()*0.1;
+            self.x = x+Math.cos(self.angle)*self.radius;
+            self.y = y+Math.sin(self.angle)*self.radius;
+            self.opacity = Math.round(Math.random()*50)+100;
+            self.size = Math.random()*10+10;
             break;
         case 'death':
             self.color = '#FF0000';
             self.yspeed = -5;
+            self.opacity = Math.round(Math.random()*50)+100;
+            self.size = Math.random()*5+15;
             break;
         case 'playerdeath':
             self.color = '#FF0000';
             var angle = Math.random()*360*(Math.PI/180);
             self.xspeed = Math.sin(angle)*Math.random()*3;
-            self.yspeed = Math.cos(angle)*Math.random()*3-10;
+            self.yspeed = Math.cos(angle)*Math.random()*3-5;
+            self.opacity = Math.round(Math.random()*50)+100;
+            self.size = Math.random()*5+15;
             break;
         default:
             console.error('invalid particle type ' + self.type);
@@ -495,7 +513,7 @@ Particle = function(map, x, y, type, value) {
                     var opstring = self.opacity.toString(16);
                     if (opstring.length == 1) opstring = 0 + opstring;
                     LAYERS.elower.fillStyle = '#9900CC' + opstring;
-                    LAYERS.elower.fillRect(self.x-10+OFFSETX, self.y-10+OFFSETY, 20, 20);
+                    LAYERS.elower.fillRect(self.x-self.size/2+OFFSETX, self.y-self.size/2+OFFSETY, self.size, self.size);
                 }
                 break;
             case 'explosion':
@@ -507,7 +525,23 @@ Particle = function(map, x, y, type, value) {
                     var opstring = opacity.toString(16);
                     if (opstring.length == 1) opstring = 0 + opstring;
                     LAYERS.elower.fillStyle = self.color + opstring;
-                    LAYERS.elower.fillRect(self.x-10+OFFSETX, self.y-10+OFFSETY, 20, 20);
+                    LAYERS.elower.fillRect(self.x-self.size/2+OFFSETX, self.y-self.size/2+OFFSETY, self.size, self.size);
+                }
+                break;
+            case 'spawn':
+                self.angle += self.rotationspeed;
+                self.x = x+Math.cos(self.angle)*self.radius;
+                self.y = y+Math.sin(self.angle)*self.radius;
+                self.rotationspeed += 0.005;
+                self.radius -= self.radius/40;
+                self.size += 0.1
+                self.opacity -= 1;
+                if (inRenderDistance(self)) {
+                    var opacity = Math.min(self.opacity, 100);
+                    var opstring = opacity.toString(16);
+                    if (opstring.length == 1) opstring = 0 + opstring;
+                    LAYERS.elower.fillStyle = self.color + opstring;
+                    LAYERS.elower.fillRect(self.x-self.size/2+OFFSETX, self.y-self.size/2+OFFSETY, self.size, self.size);
                 }
                 break;
             case 'death':
@@ -518,19 +552,19 @@ Particle = function(map, x, y, type, value) {
                     var opstring = opacity.toString(16);
                     if (opstring.length == 1) opstring = 0 + opstring;
                     LAYERS.elower.fillStyle = self.color + opstring;
-                    LAYERS.elower.fillRect(self.x-5+OFFSETX, self.y-5+OFFSETY, 10, 10);
+                    LAYERS.elower.fillRect(self.x-self.size/2+OFFSETX, self.y-self.size/2+OFFSETY, self.size, self.size);
                 }
                 break;
             case 'playerdeath':
                 self.xspeed *= 0.98;
-                self.yspeed += 0.5;
+                self.yspeed += 0.2;
                 self.opacity -= 2;
                 if (inRenderDistance(self)) {
                     var opacity = Math.min(self.opacity, 100);
                     var opstring = opacity.toString(16);
                     if (opstring.length == 1) opstring = 0 + opstring;
                     LAYERS.elower.fillStyle = self.color + opstring;
-                    LAYERS.elower.fillRect(self.x-10+OFFSETX, self.y-10+OFFSETY, 20, 20);
+                    LAYERS.elower.fillRect(self.x-self.size/2+OFFSETX, self.y-self.size/2+OFFSETY, self.size, self.size);
                 }
                 break;
             default:

@@ -305,25 +305,25 @@ forceQuit = function(err, code) {
 // profanity filter
 Filter = {
     words: ['fuck', 'bitch', 'shit', 'ass', 'sex', 'fock', 'bich', 'shat', '@ss', 'a$$', 'a$s', 'as$', '@$$', '@$s', '@s$', 'fuk', 'fucc', 'shiit', 'shrex'],
-    clean: function(string) {
-        if (typeof string == 'string') {
-            for (var i in Filter.words) {
-                var replacestr = '';
-                for (var j in Filter.words[i]) {
-                    replacestr = replacestr + '*';
-                }
-                while (string.includes(Filter.words[i])) string = string.replace(Filter.words[i], replacestr);
-            }
-            return string;
-        }
-        return '';
-    },
     check: function(string) {
         if (typeof string == 'string') {
-            for (var i in Filter.words) {
-                if (string.includes(Filter.words[i])) return true;
-                return false;
+            var checkstring = string;
+            while (checkstring.includes(' ')) {
+                checkstring = checkstring.replace(' ', '');
             }
+            while (checkstring.includes('_')) {
+                checkstring = checkstring.replace('_', '');
+            }
+            while (checkstring.includes('-')) {
+                checkstring = checkstring.replace('-', '');
+            }
+            while (checkstring.includes('⠀')) {
+                checkstring = checkstring.replace('⠀', '');
+            }
+            for (var i in Filter.words) {
+                if (checkstring.includes(Filter.words[i])) return true;
+            }
+            return false;
         }
         return true;
     }

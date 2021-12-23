@@ -286,5 +286,19 @@
                 "value": 0.1
             }
         ]
+    },
+    "titaniumstaff": {
+        "name": "Titanium Staff",
+        "description": "A lightweight version of the steel staff. The higher quality means the Purple can phase through solid matter.",
+        "rarity": 2,
+        "damage": 11,
+        "damageType": "magic",
+        "critChance": 0.1,
+        "knockback": 0,
+        "useTime": 8,
+        "manaCost": 10,
+        "heldAngle": 45,
+        "heldDistance": 64,
+        "effects": []
     }
 }

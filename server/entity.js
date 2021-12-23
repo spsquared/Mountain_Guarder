@@ -293,6 +293,7 @@ Rig = function() {
     self.lastAutoManaRegen = 0;
     self.alive = true;
     self.invincible = false;
+    self.canMove = true;
     self.name = 'empty Rig';
     self.lastAttack = 0;
     self.ai = {
@@ -984,6 +985,14 @@ Player = function(socket) {
         username: null,
         password: null
     };
+    self.signUpAttempts = 0;
+    setInterval(function() {
+        self.signUpAttempts = Math.max(self.signUpAttempts-1, 0);
+        if (self.signUpAttempts >= 10) {
+            insertChat(Player.list[id].name + ' was kicked for sign up spam', 'anticheat');
+            socket.emit('disconnected');
+        }
+    }, 5000);
     self.signedIn = false;
     self.collisionBoxSize = Math.max(self.width, self.height);
 
@@ -998,7 +1007,7 @@ Player = function(socket) {
                 case 0:
                     if (Filter.check(cred.username)) {
                         socket.emit('disconnected');
-                        break;
+                        return;
                     }
                     switch (cred.state) {
                         case 'signIn':
@@ -1043,6 +1052,7 @@ Player = function(socket) {
                             }
                             break;
                         case 'signUp':
+                            self.signUpAttempts++;
                             var status = await ACCOUNTS.signup(cred.username, cred.password);
                             switch (status) {
                                 case 0:
@@ -1262,7 +1272,10 @@ Player = function(socket) {
                         for (var i in msg) {
                             if (msg[i] != ' ') valid = true;
                         }
-                        if (valid) insertChat(self.name + ': ' + Filter.clean(msg), '');
+                        if (valid) {
+                            if (Filter.check(msg)) insertSingleChat('Hey! Don\'t do that!', 'error', self.name, false);
+                            else insertChat(self.name + ': ' + msg, '');
+                        }
                     }
                 } catch (err) {
                     error(err);
@@ -1566,7 +1579,7 @@ Player.getDebugData = function() {
 Player.list = [];
 
 // monsters
-Monster = function(type, x, y, map) {
+Monster = function(type, x, y, map, spawned) {
     var self = new Rig();
     self.x = x;
     self.y = y;
@@ -1607,14 +1620,21 @@ Monster = function(type, x, y, map) {
         error(err);
         return;
     }
+    if (spawned) {
+        self.canMove = false;
+        setTimeout(function() {
+            self.canMove = true;
+        }, 3000);
+    }
     self.collisionBoxSize = Math.max(self.width, self.height);
-    self.active = true;
+    self.active = false;
 
     self.update = function() {
         self.active = false;
         for (var i in Player.list) {
             if (Player.list[i].map == self.map && self.getSquareGridDistance(Player.list[i]) < 48) {
                 self.active = true;
+                break;
             }
         }
         if (self.stats.heal != 0) {
@@ -1626,7 +1646,7 @@ Monster = function(type, x, y, map) {
         }
         if (self.active) {
             self.updateAggro();
-            self.updatePos();
+            if (self.canMove) self.updatePos();
             self.attack();
             self.updateAnimation();
         }
@@ -1711,7 +1731,7 @@ Monster = function(type, x, y, map) {
                         } catch (err) {
                             error(err);
                         }
-                    } else if (self.ai.circleTarget && self.getGridDistance(self.ai.entityTarget) < (self.ai.circleDistance+1)*64) {
+                    } else if (self.ai.circleTarget && self.getGridDistance(self.ai.entityTarget) < (self.ai.circleDistance+1)*64 && self.rayCast(self.ai.entityTarget.x, self.ai.entityTarget.y)) {
                         try {
                             var target = self.ai.entityTarget;
                             var angle = Math.atan2(target.y-self.y, target.x-self.x);
@@ -1723,12 +1743,7 @@ Monster = function(type, x, y, map) {
                             x = target.gridx*64+Math.round((Math.cos(angle)*self.ai.circleDistance)*64);
                             y = target.gridy*64+Math.round((Math.sin(angle)*self.ai.circleDistance)*64);
                             var invalid = false;
-                            if (Collision.grid[self.map][Math.floor(y)]) if (Collision.grid[self.map][Math.floor(y)][Math.floor(x)]) {
-                                invalid = true;
-                            }
-                            if (Region.grid[self.map]) if (Region.grid[self.map][Math.floor(y)]) if (Region.grid[self.map][Math.floor(y)][Math.floor(x)]) if (Region.grid[self.map][Math.floor(y)][Math.floor(x)].nomonster) {
-                                invalid = true;
-                            }
+                            if (self.rayCast(x, y) == false) invalid = true; 
                             if (Math.random() <= 0.02) invalid = true;
                             if (invalid) {
                                 angle = oldangle;
@@ -1797,9 +1812,9 @@ Monster = function(type, x, y, map) {
             if (self.targetMonsters) {
                 var lowest = null;
                 for (var i in Monster.list) {
-                    if (Monster.list[i].map == self.map && self.getGridDistance(Monster.list[i]) < self.ai.maxRange && i != self.id && !Monster.list[i].region.nomonster && Monster.list[i].alive) {
-                        if (lowest == null && self.rayCast(Monster.list[i].x, Monster.list[i].y)) lowest = i;
-                        if (lowest) if (self.getGridDistance(Monster.list[i]) < self.getGridDistance(Monster.list[lowest]) && self.rayCast(Monster.list[i].x, Monster.list[i].y)) {
+                    if (Monster.list[i].map == self.map && self.getGridDistance(Monster.list[i]) < self.ai.maxRange && self.rayCast(Monster.list[i].x, Monster.list[i].y) && i != self.id && !Monster.list[i].region.nomonster && Monster.list[i].alive) {
+                        if (lowest == null) lowest = i;
+                        if (lowest) if (self.getGridDistance(Monster.list[i]) < self.getGridDistance(Monster.list[lowest])) {
                             lowest = i;
                         }
                     }
@@ -1812,9 +1827,9 @@ Monster = function(type, x, y, map) {
             } else {
                 var lowest = null;
                 for (var i in Player.list) {
-                    if (Player.list[i].map == self.map && self.getGridDistance(Player.list[i]) < self.ai.maxRange && i != self.id && !Player.list[i].region.nomonster && Player.list[i].alive) {
-                        if (lowest == null && self.rayCast(Player.list[i].x, Player.list[i].y)) lowest = i;
-                        if (lowest) if (self.getGridDistance(Player.list[i]) < self.getGridDistance(Player.list[lowest]) && self.rayCast(Player.list[i].x, Player.list[i].y)) {
+                    if (Player.list[i].map == self.map && self.getGridDistance(Player.list[i]) < self.ai.maxRange  && self.rayCast(Player.list[i].x, Player.list[i].y)&& i != self.id && !Player.list[i].region.nomonster && Player.list[i].alive) {
+                        if (lowest == null) lowest = i;
+                        if (lowest) if (self.getGridDistance(Player.list[i]) < self.getGridDistance(Player.list[lowest])) {
                             lowest = i;
                         }
                     }
@@ -1840,28 +1855,28 @@ Monster = function(type, x, y, map) {
                     self.onDeath = function() {};
                 }
                 self.ai.attackTime++;
-                if (self.ai.attackTime >= seconds(0.4)) {
+                if (self.ai.attackTime >= seconds(0.2)) {
                     self.ai.attackType = 'exploding';
-                    for (var i = 0; i < 50; i++) {
+                    for (var i = 0; i < 100; i++) {
                         new Particle(self.map, self.x, self.y, 'explosion');
                     }
                     for (var i in Monster.list) {
-                        if (parseFloat(i) != self.id && self.getDistance(Monster.list[i]) <= 192) {
+                        if (parseFloat(i) != self.id && self.getDistance(Monster.list[i]) <= 64) {
                             if (Monster.list[i].ai.attackType == 'cherrybomb') {
                                 Monster.list[i].ai.attackType = 'triggeredcherrybomb';
                                 Monster.list[i].ai.attackTime = 0;
                             } else if (Monster.list[i].ai.attackType != 'triggeredcherrybomb' && Monster.list[i].alive) {
                                 Monster.list[i].onDeath(self, 'explosion');
                             }
-                        } else if (parseFloat(i) != self.id && self.getDistance(Monster.list[i]) <= 320) {
+                        } else if (parseFloat(i) != self.id && self.getDistance(Monster.list[i]) <= 128) {
                             if (Monster.list[i].ai.attackType != 'cherrybomb' && Monster.list[i].ai.attackType != 'triggeredcherrybomb' && Monster.list[i].alive) {
                                 Monster.list[i].onHit(self, 'cherrybomb');
                             }
                         }
                     }
                     for (var i in Player.list) {
-                        if (self.getDistance(Player.list[i]) <= 192 && Player.list[i].alive) Player.list[i].onDeath(self, 'explosion');
-                        else if (self.getDistance(Player.list[i]) <= 320 && Player.list[i].alive) Player.list[i].onHit(self, 'cherrybomb');
+                        if (self.getDistance(Player.list[i]) <= 64 && Player.list[i].alive) Player.list[i].onDeath(self, 'explosion');
+                        else if (self.getDistance(Player.list[i]) <= 128 && Player.list[i].alive) Player.list[i].onHit(self, 'cherrybomb');
                     }
                 }
                 break;
@@ -1869,9 +1884,13 @@ Monster = function(type, x, y, map) {
                 if (self.animationStage >= 10) delete Monster.list[self.id];
                 break;
             case 'snowball':
-                if (self.animationStage == 7) {
-                    self.animationLength = 0;
-                    self.animationSpeed = 100;
+                if (self.ai.lastAttack >= seconds(4)) {
+                    self.ai.attackStage++;
+                    if (self.ai.attackStage == 20) {
+                        self.ai.attackStage = 0;
+                        self.ai.lastAttack = 0;
+                        self.moveSpeed = 10;
+                    }
                 }
                 break;
             default:
@@ -1920,21 +1939,17 @@ Monster = function(type, x, y, map) {
                 case 'exploding':
                     break;
                 case 'snowball':
-                    if (self.ai.lastAttack >= seconds(3)) {
-                        if (self.ai.attackStage == 20) {
-                            self.ai.attackStage = 0;
-                            self.ai.lastAttack = 0;
-                        }
+                    if (self.ai.lastAttack >= seconds(4)) {
                         if (self.ai.attackStage == 1) {
                             self.animationLength = 7;
                             self.animationSpeed = 100;
+                            self.moveSpeed = 16;
                         }
                         var angle = 16*self.ai.attackStage;
                         new Projectile('snowball', self.x, self.y, self.map, degrees(angle), self.id);
                         new Projectile('snowball', self.x, self.y, self.map, degrees(angle-90), self.id);
                         new Projectile('snowball', self.x, self.y, self.map, degrees(angle-180), self.id);
                         new Projectile('snowball', self.x, self.y, self.map, degrees(angle-270), self.id);
-                        self.ai.attackStage++;
                     }
                     break;
                 default:
@@ -2173,7 +2188,7 @@ Projectile = function(type, x, y, map, angle, parentID) {
     self.updatePos = function() {
         self.collide();
         self.pattern(self);
-        if (self.checkCollision()) return true;
+        if (!self.noCollision) if (self.checkCollision()) return true;
         return false;
     };
     self.checkCollision = function() {

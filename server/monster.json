@@ -96,11 +96,10 @@
         "animationLength": 1,
         "xpDrop": 10,
         "drops": [
-            "simplewoodenbow",
-            "simplewoodensword",
             "simplewoodenstaff",
             "leatherarmor",
-            "steelstaff"
+            "steelstaff",
+            "titaniumstaff"
         ]
     },
     "cherrybomb": {

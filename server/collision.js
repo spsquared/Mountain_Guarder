@@ -341,7 +341,10 @@ Spawner = function(map, x, y, types) {
                 }
                 min += Monster.types[self.types[i]].spawnChance;
             }
-            var localmonster = new Monster(monstertype, self.x, self.y, self.map);
+            for (var i = 0; i < 50; i++) {
+                new Particle(self.map, self.x, self.y, 'spawn');
+            }
+            var localmonster = new Monster(monstertype, self.x, self.y, self.map, true);
             localmonster.spawnerID = self.id;
             localmonster.oldOnDeath = localmonster.onDeath;
             localmonster.onDeath = function(entity) {

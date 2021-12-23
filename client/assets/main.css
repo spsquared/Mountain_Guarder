@@ -266,7 +266,7 @@ img {
 #loadingIcon {
     position: relative;
     top: 20%;
-    width: 15%;
+    width: 20%;
     animation: loadingSpin 2s ease-in-out infinite;
     transition: 0.5s linear opacity;
 }
