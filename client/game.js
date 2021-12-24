@@ -562,9 +562,8 @@ document.onkeyup = function(e) {
         } else {
             if (!inchat) {
                 if (e.key == '\\') {
-                    settings.debug = !settings.debug;
+                    toggle('debug');
                     document.getElementById('debugToggle').checked = settings.debug;
-                    socket.emit('toggleDebug');
                 }
             }
         }

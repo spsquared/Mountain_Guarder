@@ -300,5 +300,24 @@
         "heldAngle": 45,
         "heldDistance": 64,
         "effects": []
+    },
+    "christmas2021": {
+        "name": "Season's Yeetings",
+        "description": "Merry Christmas from the Mountain Guarder devs! - Yeetmas 2021",
+        "rarity": -1,
+        "damage": 1,
+        "damageType": "magic",
+        "critChance": 0.01,
+        "knockback": 4,
+        "useTime": 20,
+        "manaCost": 8,
+        "heldAngle": 90,
+        "heldDistance": 48,
+        "effects": [
+            {
+                "id": "damageReduction",
+                "value": -20
+            }
+        ]
     }
 }

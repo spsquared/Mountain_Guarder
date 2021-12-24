@@ -68,5 +68,15 @@
         "range": 5,
         "knockback": 2,
         "noCollision": false
+    },
+    "christmas2021": {
+        "width": 60,
+        "height": 20,
+        "speed": 40,
+        "pattern": "homing2",
+        "damage": 5,
+        "range": 50,
+        "knockback": 10,
+        "noCollision": true
     }
 }

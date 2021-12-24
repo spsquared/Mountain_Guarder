@@ -1,7 +1,7 @@
 // Copyright (C) 2021 Radioactive64
 // Go to README.md for more information
 
-const version = 'v0.6.2';
+const version = 'v0.6.4';
 require('./server/log.js');
 console.info('\x1b[33m%s\x1b[0m', 'Mountain Guarder ' + version + ' copyright (C) Radioactive64 2021');
 appendLog('Mountain Guarder ' + version + ' copyright (C) Radioactive64 2021', 'log');
@@ -197,10 +197,12 @@ const s = {
     kill: function(username) {
         var player = s.findPlayer(username);
         if (player) player.onDeath(null, 'debug');
+        else return ('No player with username ' + username);
     },
     kick: function(username) {
         var player = s.findPlayer(username);
         if (player) player.socket.emit('disconnected');
+        else return ('No player with username ' + username);
     },
     kickAll: function() {
         io.emit('disconnected');
@@ -208,6 +210,7 @@ const s = {
     rickRoll: function(username) {
         var player = s.findPlayer(username);
         if (player) player.socket.emit('404');
+        else return ('No player with username ' + username);
     },
     broadCast: function(text) {
         insertChat('[BC]: ' + text, 'server');
@@ -215,6 +218,11 @@ const s = {
     spawnMonster: function(type, x, y, map) {
         var monster = new Monster(type, x, y, map);
         return monster;
+    },
+    give: function(username, item) {
+        var player = s.findPlayer(username);
+        if (player) player.inventory.addItem(item);
+        else return ('No player with username ' + username);
     }
 };
 prompt.on('line', async function(input) {

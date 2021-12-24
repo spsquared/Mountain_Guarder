@@ -10,9 +10,10 @@ Supported Versions are stable versions that can run without interfering with the
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 0.6.2   | :white_check_mark: |
-| < 0.6.1 | :white_check_mark: |
-| < 0.5.0 | :x:                |
+| 0.6.x   | :white_check_mark: |
+| 0.5.x   | :white_check_mark: |
+| 0.4.x   | :x:                |
+| < 0.4.0 | :x:                |
 
 ## Reporting a Vulnerability
 

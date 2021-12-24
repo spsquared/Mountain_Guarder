@@ -172,7 +172,7 @@ Inventory = function(socket, id) {
     self.loadSaveData = function(data) {
         if (data) {
             try {
-            var items = JSON.parse(data);
+                var items = JSON.parse(data);
                 socket.emit('item', {
                     action: 'maxItems',
                     slots: self.maxItems

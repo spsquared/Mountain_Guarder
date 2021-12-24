@@ -526,3 +526,19 @@
     opacity: 1;
     border: 4px inset grey;
 }
+
+/* christmas2021 */
+@keyframes christmas {
+    0% {
+        color: red;
+    }
+    49% {
+        color: red;
+    }
+    50% {
+        color: green;
+    }
+    100% {
+        color: green;
+    }
+}

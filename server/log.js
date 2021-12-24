@@ -1,7 +1,6 @@
 // Copyright (C) 2021 Radioactive64
 
 const fs = require('fs');
-const readline = require('readline');
 
 // chat
 insertChat = function(text, textcolor) {
@@ -35,6 +34,8 @@ insertSingleChat = function(text, textcolor, username, log) {
             style = 'color: #FF9900;';
         } else if (textcolor == 'anticheat') {
             style = 'color: #FF0000; font-weight: bold;';
+        } else if (textcolor == 'christmas') {
+            style = 'animation: christmas 2s infinite;';
         } else {
             style = 'color: ' + textcolor + ';';
         }

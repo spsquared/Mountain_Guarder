@@ -316,7 +316,7 @@ Rig = function() {
                 x: null,
                 y: null
             },
-            waitTime: 3,
+            waitTime: 5,
             lastPathEnd: 0
         },
         path: [],
@@ -702,24 +702,44 @@ Rig = function() {
     self.ai.pathIdle = function() {
         if (self.ai.idleMove == 'waypoints') {
             try {
-                if (self.ai.idleWaypoints.lastPathEnd >= seconds(self.ai.idleWaypoints.waitTime*Math.random())) {
+                if (self.ai.idleWaypoints.lastPathEnd >= seconds(self.ai.idleWaypoints.waitTime)*Math.random()) {
                     self.ai.idleWaypoints.lastPathEnd = 0;
                     var waypoints = Array.from(self.ai.idleWaypoints.waypoints);
                     var lastWaypoints = self.ai.idleWaypoints.lastWaypoints;
                     if (waypoints) {
-                        if (lastWaypoints.length > Math.min(4, waypoints.length-1)) lastWaypoints.pop();
+                        for (var i in waypoints) {
+                            var waypoint = waypoints[i];
+                            if (waypoint.map != self.map) delete waypoints[i];
+                            if (waypoint.x == self.gridx && waypoint.y == self.gridy && waypoint.map == self.map) {
+                                var alreadyExists = false;
+                                for (var j in lastWaypoints) {
+                                    if (waypoint.x == lastWaypoints[j].x && waypoint.y == lastWaypoints[j].y && waypoint.map == lastWaypoints[j].map) alreadyExists = true;
+                                }
+                                if (!alreadyExists) self.ai.idleWaypoints.lastWaypoints.unshift(waypoint);
+                            }
+                        }
+                        var waypointCount = 0;
+                        for (var i in waypoints) {
+                            if (waypoints[i].map == self.map) waypointCount++;
+                        }
+                        if (lastWaypoints.length > Math.min(4, waypointCount-2)) lastWaypoints.pop();
                         for (var i in waypoints) {
                             var waypoint = waypoints[i];
                             for (var j in lastWaypoints) {
-                                if (waypoint.x == lastWaypoints[j].x && waypoint.y == lastWaypoints[j].y && waypoint.map == lastWaypoints[j].map) waypoints.splice(i, 1);
-                                if (waypoint.map != self.map) waypoints.splice(i, 1);
+                                if (waypoint.x == lastWaypoints[j].x && waypoint.y == lastWaypoints[j].y && waypoint.map == lastWaypoints[j].map) delete waypoints[i];
                             }
                         }
-                        waypoints = waypoints.sort(function(a, b) {b.f-a.f});
-                        if (waypoints[0]) {
-                            self.ai.posTarget.x = waypoints[0].x;
-                            self.ai.posTarget.y = waypoints[0].y;
-                            self.ai.idleWaypoints.pos = waypoints[0];
+                        var lowest;
+                        for (var i in waypoints) {
+                            if (lowest == null) lowest = i;
+                            if (lowest) if (self.getGridDistance(waypoints[i]) < self.getGridDistance(waypoints[lowest])) {
+                                lowest = i;
+                            }
+                        }
+                        if (lowest) {
+                            self.ai.posTarget.x = waypoints[lowest].x;
+                            self.ai.posTarget.y = waypoints[lowest].y;
+                            self.ai.idleWaypoints.pos = waypoints[lowest];
                             self.ai.idleWaypoints.lastWaypoints.unshift(self.ai.idleWaypoints.pos);
                             self.ai.pathtoPos();
                             self.ai.idleWaypoints.walking = true;
@@ -839,8 +859,15 @@ Rig = function() {
         self.map = map;
         self.x = x*64+32;
         self.y = y*64+32;
+        self.ai.path = [];
+        self.ai.entityTarget = null;
+        self.ai.posTarget = {
+            x: null,
+            y: null
+        };
         self.ai.idleRandom.walking = false;
         self.ai.idleWaypoints.walking = false;
+        self.ai.idleWaypoints.lastWaypoints = [];
         for (var i = 0; i < 20; i++) {
             new Particle(self.map, self.x, self.y, 'teleport');
         }
@@ -1041,9 +1068,10 @@ Player = function(socket) {
                             break;
                         case 'loaded':
                             if (cred.username == self.creds.username && cred.password == self.creds.password) {
+                                self.name = self.creds.username;
                                 await self.loadData();
-                                self.name= cred.username;
                                 socket.emit('signInState', 'signedIn');
+                                insertSingleChat('Merry Christmas from the Mountain Guarder devs!', 'christmas', self.name, false);
                                 insertChat(self.name + ' joined the game.', 'server');
                                 self.canMove = true;
                                 self.alive = true;
@@ -1517,7 +1545,15 @@ Player = function(socket) {
         await ACCOUNTS.saveProgress(self.creds.username, self.creds.password, self.inventory.getSaveData());
     };
     self.loadData = async function() {
-        self.inventory.loadSaveData(await ACCOUNTS.loadProgress(self.creds.username, self.creds.password));
+        var data = await ACCOUNTS.loadProgress(self.creds.username, self.creds.password);
+        if (data) self.inventory.loadSaveData(data);
+        else {
+            socket.emit('item', {
+                action: 'maxItems',
+                slots: self.inventory.maxItems
+            });
+            self.inventory.refresh();
+        }
         self.updateStats();
         var noWeapon = true;
         for (var i in self.inventory.items) {
@@ -1527,6 +1563,15 @@ Player = function(socket) {
         if (self.inventory.equips['weapon2']) noWeapon = false;
         if (noWeapon) {
             self.inventory.addItem('simplewoodenbow');
+        }
+        var nochristmas = true;
+        for (var i in self.inventory.items) {
+            if (self.inventory.items[i].id == 'christmas2021') nochristmas = false;
+        }
+        if (self.inventory.equips['weapon'])if (self.inventory.equips['weapon'].id == 'christmas2021') nochristmas = false;
+        if (self.inventory.equips['weapon2'])if (self.inventory.equips['weapon2'].id == 'christmas2021') nochristmas = false;
+        if (nochristmas) {
+            self.inventory.addItem('christmas2021');
         }
     };
 
@@ -1810,7 +1855,7 @@ Monster = function(type, x, y, map, spawned) {
         self.ai.lastTracked++;
         if (!self.ai.fleeing) {
             if (self.targetMonsters) {
-                var lowest = null;
+                var lowest;
                 for (var i in Monster.list) {
                     if (Monster.list[i].map == self.map && self.getGridDistance(Monster.list[i]) < self.ai.maxRange && self.rayCast(Monster.list[i].x, Monster.list[i].y) && i != self.id && !Monster.list[i].region.nomonster && Monster.list[i].alive) {
                         if (lowest == null) lowest = i;
@@ -1825,7 +1870,7 @@ Monster = function(type, x, y, map, spawned) {
                 }
                 if (self.ai.lastTracked > seconds(5) && !self.damaged) self.ai.entityTarget = null;
             } else {
-                var lowest = null;
+                var lowest;
                 for (var i in Player.list) {
                     if (Player.list[i].map == self.map && self.getGridDistance(Player.list[i]) < self.ai.maxRange  && self.rayCast(Player.list[i].x, Player.list[i].y)&& i != self.id && !Player.list[i].region.nomonster && Player.list[i].alive) {
                         if (lowest == null) lowest = i;
@@ -2312,7 +2357,10 @@ Projectile.patterns = {
         self.collisionBoxSize = Math.max(Math.abs(self.sinAngle*self.height)+Math.abs(self.cosAngle*self.width), Math.abs(self.cosAngle*self.height)+Math.abs(self.sinAngle*self.width));
     },
     homing: function(self) {
-        self.angle = 0;
+        self.angle += degrees(25);
+        self.sinAngle = Math.sin(self.angle);
+        self.cosAngle = Math.cos(self.angle);
+        self.collisionBoxSize = Math.max(Math.abs(self.sinAngle*self.height)+Math.abs(self.cosAngle*self.width), Math.abs(self.cosAngle*self.height)+Math.abs(self.sinAngle*self.width));
         var lowest, target;
         if (self.parentIsPlayer) {
             for (var i in Monster.list) {
@@ -2336,38 +2384,40 @@ Projectile.patterns = {
             target = Player.list[lowest];
         }
         if (target) {
-            var angle = Math.atan2(-(self.y-target.y), -(self.x-target.x));
+            var angle = Math.atan2(target.y-self.y, target.x-self.x);
             self.xspeed = Math.cos(angle)*self.moveSpeed;
             self.yspeed = Math.sin(angle)*self.moveSpeed;
-            self.sinAngle = Math.sin(self.angle);
-            self.cosAngle = Math.cos(self.angle);
-            self.collisionBoxSize = Math.max(Math.abs(self.sinAngle*self.height)+Math.abs(self.cosAngle*self.width), Math.abs(self.cosAngle*self.height)+Math.abs(self.sinAngle*self.width));
         }
+        self.sinAngle = Math.sin(self.angle);
+        self.cosAngle = Math.cos(self.angle);
+        self.collisionBoxSize = Math.max(Math.abs(self.sinAngle*self.height)+Math.abs(self.cosAngle*self.width), Math.abs(self.cosAngle*self.height)+Math.abs(self.sinAngle*self.width));
     },
     homing2: function(self) {
-        var target;
+        var lowest, target;
         if (self.parentIsPlayer) {
             for (var i in Monster.list) {
                 if (Monster.list[i].map == self.map && Monster.list[i].alive) {
-                    if (target == null) target = i;
-                    if (self.getGridDistance(Monster.list[i]) < self.getGridDistance(Monster.list[target])) {
-                        target = i;
+                    if (lowest == null) lowest = i;
+                    if (self.getGridDistance(Monster.list[i]) < self.getGridDistance(Monster.list[lowest])) {
+                        lowest = i;
                     }
                 }
             }
+            target = Monster.list[lowest];
         } else {
             for (var i in Player.list) {
                 if (Player.list[i].map == self.map && Player.list[i].alive) {
-                    if (target == null) target = i;
-                    if (self.getGridDistance(Player.list[i]) < self.getGridDistance(Player.list[target])) {
-                        target = i;
+                    if (lowest == null) lowest = i;
+                    if (self.getGridDistance(Player.list[i]) < self.getGridDistance(Player.list[lowest])) {
+                        lowest = i;
                     }
                 }
             }
+            target = Player.list[lowest];
         }
         if (target) {
-            var angle = Math.atan2(-(self.y-target.y), -(self.x-target.x));
-            self.angle += Math.max(-0.1, Math.min(angle, 0.1));
+            var angle = Math.atan2(target.y-self.y, target.x-self.x);
+            self.angle += Math.min(0.2, Math.max(angle-self.angle, -0.2));
             self.xspeed = Math.cos(self.angle)*self.moveSpeed;
             self.yspeed = Math.sin(self.angle)*self.moveSpeed;
             self.sinAngle = Math.sin(self.angle);

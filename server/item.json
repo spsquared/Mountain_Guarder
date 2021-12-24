@@ -395,5 +395,35 @@
             "efficiency",
             "focus"
         ]
+    },
+    "christmas2021": {
+        "slotType": "weapon",
+        "rarity": -1,
+        "dropChance": 0,
+        "projectile": "christmas2021",
+        "projectilePattern": "ring",
+        "projectileSpeed": 1,
+        "projectileRange": 1,
+        "damage": 1,
+        "damageType": "magic",
+        "critChance": 0.01,
+        "knockback": 1,
+        "useTime": 20,
+        "manaCost": 8,
+        "effects": [
+            {
+                "id": "damageReduction",
+                "value": -20
+            }
+        ],
+        "enchantments": [
+            "swiftness",
+            "speed",
+            "accuracy",
+            "power",
+            "efficiency",
+            "sorcery",
+            "focus"
+        ]
     }
 }

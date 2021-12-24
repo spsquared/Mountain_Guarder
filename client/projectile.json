@@ -11,6 +11,13 @@
         "height": 36,
         "rawWidth": 9,
         "rawHeight": 9,
+        "above": false
+    },
+    "magicballnoclip": {
+        "width": 36,
+        "height": 36,
+        "rawWidth": 9,
+        "rawHeight": 9,
         "above": true
     },
     "meleedamage": {
@@ -40,5 +47,12 @@
         "rawWidth": 9,
         "rawHeight": 9,
         "above": false
+    },
+    "christmas2021": {
+        "width": 60,
+        "height": 20,
+        "rawWidth": 15,
+        "rawHeight": 5,
+        "above": true
     }
 }
