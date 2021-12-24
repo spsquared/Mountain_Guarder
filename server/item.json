@@ -409,7 +409,7 @@
         "critChance": 0.01,
         "knockback": 1,
         "useTime": 20,
-        "manaCost": 14,
+        "manaCost": 24,
         "effects": [
             {
                 "id": "damageReduction",
