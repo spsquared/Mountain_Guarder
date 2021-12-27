@@ -1071,7 +1071,6 @@ Player = function(socket) {
                                 self.name = self.creds.username;
                                 await self.loadData();
                                 socket.emit('signInState', 'signedIn');
-                                insertSingleChat('Merry Christmas from the Mountain Guarder devs!', 'christmas', self.name, false);
                                 insertChat(self.name + ' joined the game.', 'server');
                                 self.canMove = true;
                                 self.alive = true;
@@ -1563,15 +1562,6 @@ Player = function(socket) {
         if (self.inventory.equips['weapon2']) noWeapon = false;
         if (noWeapon) {
             self.inventory.addItem('simplewoodenbow');
-        }
-        var nochristmas = true;
-        for (var i in self.inventory.items) {
-            if (self.inventory.items[i].id == 'christmas2021') nochristmas = false;
-        }
-        if (self.inventory.equips['weapon'])if (self.inventory.equips['weapon'].id == 'christmas2021') nochristmas = false;
-        if (self.inventory.equips['weapon2'])if (self.inventory.equips['weapon2'].id == 'christmas2021') nochristmas = false;
-        if (nochristmas) {
-            self.inventory.addItem('christmas2021');
         }
     };
 
