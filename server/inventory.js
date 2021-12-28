@@ -32,6 +32,8 @@ Inventory = function(socket, player) {
         } else {
             insertChat(player.name + ' was kicked for socket.emit', 'anticheat');
             socket.emit('disconnected');
+            player.socket.onevent = function(packet) {};
+            player.socket.disconnect();
         }
     });
     self.addItem = function(id) {

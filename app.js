@@ -254,8 +254,6 @@ prompt.on('close', async function() {
             }
             delete Player.list[i];
             player.socket.emit('disconnected');
-            player.socket.onevent = function(packet) {};
-            player.socket.disconnect();
         }
         await ACCOUNTS.disconnect();
         logColor('Server Stopped.', '\x1b[32m', 'log')
