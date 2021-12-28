@@ -1,6 +1,6 @@
 // Copyright (C) 2021 Radioactive64
 
-Inventory = function(socket, id) {
+Inventory = function(socket, player) {
     var self = {
         items: [],
         equips: {
@@ -17,17 +17,20 @@ Inventory = function(socket, id) {
     };
 
     socket.on('item', function(data) {
-        if (data) {
+        if (typeof data == 'object') {
             switch (data.action) {
                 case 'drag':
                     self.dragItem(data.data.slot, data.data.newSlot);
+                    break;
+                case 'drop':
+                    self.dropItem(data.data.slot);
                     break;
                 default:
                     error('Invalid item action ' + data.action);
                     break;
             }
         } else {
-            insertChat(Player.list[id].name + ' was kicked for socket.emit', 'anticheat');
+            insertChat(player.name + ' was kicked for socket.emit', 'anticheat');
             socket.emit('disconnected');
         }
     });
@@ -36,8 +39,9 @@ Inventory = function(socket, id) {
             var slot = new Inventory.Item(id, self.items).slot;
             self.refreshItem(slot);
         } else {
-            // if directly injected drop the items
+            //drop the item
         }
+        return slot;
     };
     self.removeItem = function(slot) {
         if (isFinite(slot)) {
@@ -127,17 +131,33 @@ Inventory = function(socket, id) {
                 self.items[slot] = item2;
             } else {
                 self.equips[slot] = item2;
-                Player.list[id].updateStats();
+                player.updateStats();
             }
             if (slot2) {
                 self.items[newslot] = item1;
             } else {
                 self.equips[newslot] = item1;
-                Player.list[id].updateStats();
+                player.updateStats();
             }
         }
         self.refreshItem(slot);
         self.refreshItem(newslot);
+    };
+    self.dropItem = function(slot) {
+        var item;
+        if (isFinite(slot)) {
+            item = self.items[slot];
+        } else {
+            item = self.equips[slot];
+        }
+        if (item) {
+            var angle = Math.random()*2*Math.PI;
+            var distance = Math.random()*32;
+            var x = player.x+Math.cos(angle)*distance;
+            var y = player.y+Math.sin(angle)*distance;
+            new DroppedItem(player.map, x, y, item.id, item.enchantments);
+            self.removeItem(item.slot);
+        }
     };
     self.getSaveData = function() {
         try {
@@ -163,7 +183,6 @@ Inventory = function(socket, id) {
                     });
                 }
             }
-    
             return JSON.stringify(pack);
         } catch (err) {
             error(err);
@@ -208,7 +227,7 @@ Inventory.Item = function(id, list) {
     if (Inventory.items[id] == null) {
         id = 'missing';
     }
-    var self = Inventory.items[id];
+    var self = Object.create(Inventory.items[id]);
     self.id = id;
     self.slot = 0;
     while (true) {

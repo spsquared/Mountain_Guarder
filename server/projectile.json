@@ -74,7 +74,7 @@
         "height": 20,
         "speed": 40,
         "pattern": "homing2",
-        "damage": 5,
+        "damage": 8,
         "range": 50,
         "knockback": 10,
         "noCollision": true

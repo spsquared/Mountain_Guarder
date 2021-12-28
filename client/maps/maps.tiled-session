@@ -3,7 +3,7 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "Outpost Cottage 2.tmx",
+    "activeFile": "World.tmx",
     "expandedProjectPaths": [
     ],
     "exportAsImage.useCurrentScale": false,
@@ -190,11 +190,11 @@
             }
         },
         "World.tmx": {
-            "scale": 8,
-            "selectedLayer": 15,
+            "scale": 3,
+            "selectedLayer": 12,
             "viewCenter": {
-                "x": 895.125,
-                "y": 753.875
+                "x": 157.33333333333331,
+                "y": 481
             }
         },
         "roguelikeSheet.tsx": {
@@ -222,10 +222,10 @@
     "recentFiles": [
         "roguelikeSheet.tsx",
         "The Void.tmx",
-        "World.tmx",
-        "Outpost Cottage 1.tmx",
         "Preview.tmx",
         "Outpost Cottage 2.tmx",
+        "Outpost Cottage 1.tmx",
+        "World.tmx",
         "C:/Users/jacki/Documents/JS_2021_Jie/rpg thing/maps/The River.tmx",
         "C:/Users/jacki/Google Drive/Meadow-Guarder/client/maps/The Village.tmx",
         "Outpost Cottage.tmx",

@@ -357,6 +357,15 @@ inventoryWindow.hide = function() {
     inventoryWindow.window.style.display = 'none';
     inventoryWindow.open = false;
     document.getElementById('invHoverTooltip').style.opacity = 0;
+    for (var i in Inventory.items) {
+        Inventory.items[i].mousedOver = false;
+    }
+    for (var i in Inventory.equips) {
+        Inventory.equips[i].mousedOver = false;
+    }
+    if (Inventory.currentDrag) Inventory.endDrag(Inventory.currentDrag);
+    Inventory.currentDrag = null;
+    Inventory.currentHover = null;
 };
 settingsWindow.width = 500;
 settingsWindow.height = 300;

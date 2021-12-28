@@ -169,23 +169,27 @@ Entity = function() {
         }
     };
     self.rayCast = function(x, y) {
-        var ray = {
-            x: self.x,
-            y: self.y,
-            angle: 0,
-            xspeed: 0,
-            yspeed: 0
-        };
-        ray.angle = Math.atan2(y-ray.y, x-ray.x);
-        ray.xspeed = Math.cos(ray.angle)*20;
-        ray.yspeed = Math.sin(ray.angle)*20;
-        var distance = Math.ceil(self.getDistance({x: x, y: y})/20)
-        for (var i = 0; i < distance; i++) {
-            ray.x += ray.xspeed;
-            ray.y += ray.yspeed;
-            if (Collision.grid[self.map][Math.floor(ray.y/64)]) if (Collision.grid[self.map][Math.floor(ray.y/64)][Math.floor(ray.x/64)] != null && Collision.grid[self.map][Math.floor(ray.y/64)][Math.floor(ray.x/64)] < 15 && Collision.grid[self.map][Math.floor(ray.y/64)][Math.floor(ray.x/64)] != 0) {
-                return false;
+        try {
+            var ray = {
+                x: self.x,
+                y: self.y,
+                angle: 0,
+                xspeed: 0,
+                yspeed: 0
+            };
+            ray.angle = Math.atan2(y-ray.y, x-ray.x);
+            ray.xspeed = Math.cos(ray.angle)*15;
+            ray.yspeed = Math.sin(ray.angle)*15;
+            var distance = Math.ceil(self.getDistance({x: x, y: y})/15)
+            for (var i = 0; i < distance; i++) {
+                ray.x += ray.xspeed;
+                ray.y += ray.yspeed;
+                if (Collision.grid[self.map][Math.floor(ray.y/64)]) if (Collision.grid[self.map][Math.floor(ray.y/64)][Math.floor(ray.x/64)] != null && Collision.grid[self.map][Math.floor(ray.y/64)][Math.floor(ray.x/64)] < 15 && Collision.grid[self.map][Math.floor(ray.y/64)][Math.floor(ray.x/64)] != 0) {
+                    return false;
+                }
             }
+        } catch (err) {
+            error(err);
         }
         return true;
     };
@@ -290,7 +294,6 @@ Rig = function() {
     self.maxMana = 200;
     self.lastManaUse = 0;
     self.lastManaRegen = 0;
-    self.lastAutoManaRegen = 0;
     self.alive = true;
     self.invincible = false;
     self.canMove = true;
@@ -354,18 +357,15 @@ Rig = function() {
             self.lastManaUse = 0;
             new Particle(self.map, self.x, self.y, 'heal', '+' + self.hp-oldhp);
         }
-        self.lastAutoManaRegen++;
         self.lastManaRegen++;
         self.lastManaUse++;
-        if (self.lastAutoManaRegen >= seconds(0.5) && self.lastManaUse < seconds(2) && self.alive) {
+        if (self.lastAutoManaRegen >= seconds(0.5) && self.lastManaUse < seconds(1.5) && self.alive) {
             self.mana = Math.min(self.mana+1, self.maxMana);
-            self.lastAutoManaRegen = 0;
+            self.lastManaRegen = 0;
         }
-        if (self.lastManaUse >= seconds(2) && self.alive) {
-            if (self.lastManaRegen >= seconds(0.1)) {
-                self.mana = Math.min(self.mana+1, self.maxMana);
-                self.lastManaRegen = 0;
-            }
+        if (self.lastManaUse >= seconds(1.5) && self.alive) {
+            self.mana = Math.min(self.mana+1, self.maxMana);
+            self.lastManaRegen = 0;
         }
         self.updateAnimation();
     };
@@ -989,7 +989,7 @@ Player = function(socket) {
     self.mouseY = 0;
     self.name = null;
     self.aiControlled = false;
-    self.inventory = new Inventory(socket, self.id);
+    self.inventory = new Inventory(socket, self);
     self.attack = {
         projectile: null,
         projectilePattern: 'single',
@@ -1018,6 +1018,8 @@ Player = function(socket) {
         if (self.signUpAttempts >= 10) {
             insertChat(Player.list[id].name + ' was kicked for sign up spam', 'anticheat');
             socket.emit('disconnected');
+            socket.onevent = function(packet) {};
+            socket.disconnect();
         }
     }, 5000);
     self.signedIn = false;
@@ -1034,6 +1036,8 @@ Player = function(socket) {
                 case 0:
                     if (Filter.check(cred.username)) {
                         socket.emit('disconnected');
+                        socket.onevent = function(packet) {};
+                        socket.disconnect();
                         return;
                     }
                     switch (cred.state) {
@@ -1132,6 +1136,8 @@ Player = function(socket) {
                             } else {
                                 insertChat(self.name + ' was kicked for socket.emit', 'anticheat');
                                 socket.emit('disconnected');
+                                socket.onevent = function(packet) {};
+                                socket.disconnect();
                             }
                             break;
                         default:
@@ -1158,10 +1164,12 @@ Player = function(socket) {
         } else {
             insertChat(self.name + ' was kicked for socket.emit', 'anticheat');
             socket.emit('disconnected');
+            socket.onevent = function(packet) {};
+            socket.disconnect();
         }
     });
-    socket.on('keyPress', function(data) {
-        if (data) {
+    socket.on('keyPress', async function(data) {
+        if (typeof data == 'object') {
             if (self.alive && self.canMove) {
                 if (data.key == 'up') self.keys.up = data.state;
                 if (data.key == 'down') self.keys.down = data.state;
@@ -1172,29 +1180,57 @@ Player = function(socket) {
         } else {
             insertChat(self.name + ' was kicked for socket.emit', 'anticheat');
             socket.emit('disconnected');
+            socket.onevent = function(packet) {};
+            socket.disconnect();
         }
     });
-    socket.on('click', function(data) {
-        if (data) {
+    socket.on('click', async function(data) {
+        if (typeof data == 'object') {
             if (self.alive && self.canMove) {
                 if (data.button == 'left') {
                     self.attacking = data.state;
                     self.mouseX = data.x;
                     self.mouseY = data.y; 
+                } else if (data.button == 'right') {
+                    if (data.state) {
+                        for (var i in DroppedItem.list) {
+                            var localdroppeditem = DroppedItem.list[i];
+                            if (self.getDistance(localdroppeditem) < 2048) {
+                                var x = self.x+data.x;
+                                var y = self.y+data.y;
+                                var left = localdroppeditem.x-localdroppeditem.width/2;
+                                var right = localdroppeditem.x+localdroppeditem.width/2;
+                                var top = localdroppeditem.y-localdroppeditem.height/2;
+                                var bottom = localdroppeditem.y+localdroppeditem.height/2;
+                                if (x >= left && x <= right && y >= top && y <= bottom) {
+                                    var slot = self.inventory.addItem(localdroppeditem.itemId);
+                                    for (var j in localdroppeditem.enchants) {
+                                        self.inventory.enchantItem(slot, localdroppeditem.enchants[j]);
+                                    }
+                                    delete DroppedItem.list[i];
+                                    break;
+                                }
+                            }
+                        }
+                    }
                 }
             }
         } else {
             insertChat(self.name + ' was kicked for socket.emit', 'anticheat');
             socket.emit('disconnected');
+            socket.onevent = function(packet) {};
+            socket.disconnect();
         }
     });
-    socket.on('mouseMove', function(data) {
-        if (data) {
+    socket.on('mouseMove', async function(data) {
+        if (typeof data == 'object') {
             self.mouseX = data.x;
             self.mouseY = data.y;
         } else {
             insertChat(self.name + ' was kicked for socket.emit', 'anticheat');
             socket.emit('disconnected');
+            socket.onevent = function(packet) {};
+            socket.disconnect();
         }
     });
     socket.on('respawn', function() {
@@ -1364,6 +1400,7 @@ Player = function(socket) {
                     break;
             }
             self.mana -= self.attack.manaCost;
+            if (self.attack.manaCost != 0) self.lastManaUse = 0;
         }
         self.lastAutoHeal++;
         self.lastHeal++;
@@ -1379,18 +1416,15 @@ Player = function(socket) {
             self.lastManaUse = 0;
             new Particle(self.map, self.x, self.y, 'heal', '+' + self.hp-oldhp);
         }
-        self.lastAutoManaRegen++;
         self.lastManaRegen++;
         self.lastManaUse++;
-        if (self.lastAutoManaRegen >= seconds(0.5) && self.lastManaUse < seconds(2) && self.alive) {
+        if (self.lastAutoManaRegen >= seconds(0.5) && self.lastManaUse < seconds(1.5) && self.alive) {
             self.mana = Math.min(self.mana+1, self.maxMana);
-            self.lastAutoManaRegen = 0;
+            self.lastManaRegen = 0;
         }
-        if (self.lastManaUse >= seconds(2) && self.alive) {
-            if (self.lastManaRegen >= seconds(0.1)) {
-                self.mana = Math.min(self.mana+1, self.maxMana);
-                self.lastManaRegen = 0;
-            }
+        if (self.lastManaUse >= seconds(1.5) && self.alive) {
+            self.mana = Math.min(self.mana+1, self.maxMana);
+            self.lastManaRegen = 0;
         }
         self.heldItem.angle = Math.atan2(self.mouseY, self.mouseX);
         self.updateAnimation();
@@ -1499,7 +1533,7 @@ Player = function(socket) {
         }
         for (var i in self.inventory.equips) {
             var localitem = self.inventory.equips[i];
-            if (localitem) if (!i.includes('weapon')) {
+            if (localitem) {
                 for (var j in localitem.effects) {
                     var effect = localitem.effects[j];
                     switch (effect.id) {
@@ -1624,7 +1658,6 @@ Monster = function(type, x, y, map, spawned) {
     self.ai.lastAttack = 0;
     self.ai.attackStage = 0;
     self.ai.attackTime = 0;
-    self.ai.damaged = false;
     self.ai.fleeing = false;
     self.ai.fleeThreshold = 0;
     self.ai.inNomonsterRegion = false;
@@ -1858,7 +1891,9 @@ Monster = function(type, x, y, map, spawned) {
                     self.ai.entityTarget = Monster.list[lowest];
                     self.ai.lastTracked = 0;
                 }
-                if (self.ai.lastTracked > seconds(5) && !self.damaged) self.ai.entityTarget = null;
+                if (self.ai.lastTracked > seconds(5)) {
+                    self.ai.entityTarget = null;
+                }
             } else {
                 var lowest;
                 for (var i in Player.list) {
@@ -1873,7 +1908,9 @@ Monster = function(type, x, y, map, spawned) {
                     self.ai.entityTarget = Player.list[lowest];
                     self.ai.lastTracked = 0;
                 }
-                if (self.ai.lastTracked > seconds(5) && !self.damaged) self.ai.entityTarget = null;
+                if (self.ai.lastTracked > seconds(5)) {
+                    self.ai.entityTarget = null;
+                }
             }
         }
     };
@@ -1924,6 +1961,7 @@ Monster = function(type, x, y, map, spawned) {
                     if (self.ai.attackStage == 20) {
                         self.ai.attackStage = 0;
                         self.ai.lastAttack = 0;
+                        self.animationLength = 0;
                         self.moveSpeed = 10;
                     }
                 }
@@ -2005,11 +2043,10 @@ Monster = function(type, x, y, map, spawned) {
                     }
                     if (entity.parentID) {
                         if (entity.parentIsPlayer) {
-                            self.entityTarget = Player.list[entity.parentID];
+                            self.ai.entityTarget = Player.list[entity.parentID];
                         } else {
-                            self.entityTarget = Monster.list[entity.parentID];
+                            self.ai.entityTarget = Monster.list[entity.parentID];
                         }
-                        self.damaged = true;
                     }
                     break;
                 case 'cherrybomb':
@@ -2048,7 +2085,7 @@ Monster = function(type, x, y, map, spawned) {
                         }
                         min += Inventory.items[self.drops[i]].dropChance;
                     }
-                    entity.inventory.addItem(item);
+                    new DroppedItem(self.map, self.x, self.y, item, []);
                 } catch (err) {
                     error(err);
                 }
@@ -2462,21 +2499,20 @@ Particle.update = function() {
 Particle.list = [];
 
 // dropped items
-DroppedItem = function(map, x, y, data) {
+DroppedItem = function(map, x, y, itemId, enchantments) {
     var self = {
         id: null,
         x: x,
         y: y,
         map: map,
-        width: 20,
-        height: 20,
+        width: 48,
+        height: 48,
         itemId: 'missing',
-        enchants: []
+        enchantments: []
     };
     self.id = Math.random();
-    for (var i in data) {
-        self[i] = data[i];
-    }
+    if (itemId) self.itemId = itemId;
+    self.enchantments = enchantments;
 
     DroppedItem.list[self.id] = self;
     return self;
@@ -2490,8 +2526,7 @@ DroppedItem.update = function() {
             map: localdroppeditem.map,
             x: localdroppeditem.x,
             y: localdroppeditem.y,
-            itemId: localdroppeditem.itemId,
-            enchants: localdroppeditem.enchants
+            itemId: localdroppeditem.itemId
         });
     }
 
@@ -2504,7 +2539,9 @@ DroppedItem.getDebugData = function() {
         pack.push({
             map: localdroppeditem.map,
             x: localdroppeditem.x,
-            y: localdroppeditem.y
+            y: localdroppeditem.y,
+            itemId: localdroppeditem.itemId,
+            enchantments: localdroppeditem.enchantments
         });
     }
 

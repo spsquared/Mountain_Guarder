@@ -167,6 +167,15 @@
 }
 
 /* footer/debug */
+#version {
+    position: absolute;
+    bottom: 4px;
+    left: 4px;
+    font-size: 10px;
+    color: black;
+    cursor: crosshair;
+    z-index: 4;
+}
 #fps {
     position: absolute;
     bottom: 20px;
@@ -177,16 +186,40 @@
     cursor: crosshair;
     z-index: 4;
 }
-#version {
+#tps {
+    display: none;
     position: absolute;
-    bottom: 4px;
-    left: 4px;
-    font-size: 10px;
-    color: black;
+    bottom: 46px;
+    left: 16px;
+    background-color: #00000055;
+    padding: 2px 4px;
+    padding-right: 2px;
     cursor: crosshair;
     z-index: 4;
 }
 #ping {
+    display: none;
+    position: absolute;
+    bottom: 72px;
+    left: 16px;
+    background-color: #00000055;
+    padding: 2px 4px;
+    padding-right: 2px;
+    cursor: crosshair;
+    z-index: 4;
+}
+#mousepos {
+    display: none;
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background-color: #00000055;
+    padding: 2px 4px;
+    padding-right: 2px;
+    cursor: crosshair;
+    z-index: 4;
+}
+#position {
     display: none;
     position: absolute;
     top: 42px;
@@ -197,10 +230,43 @@
     cursor: crosshair;
     z-index: 4;
 }
-#tps {
+#enttotal {
     display: none;
     position: absolute;
-    top: 16px;
+    top: 72px;
+    right: 16px;
+    background-color: #00000055;
+    padding: 2px 4px;
+    padding-right: 2px;
+    cursor: crosshair;
+    z-index: 4;
+}
+#entmonst {
+    display: none;
+    position: absolute;
+    top: 98px;
+    right: 16px;
+    background-color: #00000055;
+    padding: 2px 4px;
+    padding-right: 2px;
+    cursor: crosshair;
+    z-index: 4;
+}
+#entproj {
+    display: none;
+    position: absolute;
+    top: 124px;
+    right: 16px;
+    background-color: #00000055;
+    padding: 2px 4px;
+    padding-right: 2px;
+    cursor: crosshair;
+    z-index: 4;
+}
+#entpart {
+    display: none;
+    position: absolute;
+    top: 150px;
     right: 16px;
     background-color: #00000055;
     padding: 2px 4px;
@@ -391,6 +457,8 @@
     top: 0px;
     left: 0px;
     opacity: 0;
+    padding: 0px 4px;
+    max-width: 150px;
     transition: opacity 0.2s ease;
     pointer-events: none;
     z-index: 6;

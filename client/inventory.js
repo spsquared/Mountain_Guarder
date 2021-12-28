@@ -63,6 +63,7 @@ Inventory.Slot = function() {
         self.mousedOver = true;
         if (self.item) {
             Inventory.currentHover = self.slotId;
+            loadTooltip(self.slotId);
         }
     };
     slot.onmouseout = function(e) {
@@ -98,6 +99,7 @@ Inventory.EquipSlot = function(equip) {
         self.mousedOver = true;
         if (self.item) {
             Inventory.currentHover = self.slotId;
+            loadTooltip(self.slotId);
         }
     };
     slot.onmouseout = function(e) {
@@ -161,41 +163,186 @@ Inventory.endDrag = function(slot) {
     });
     Inventory.currentDrag = null;
 };
+Inventory.drop = function() {
+    document.getElementById('invDragImg').style.display = '';
+    document.getElementById('invDragImg').src = './client/img/item/empty.png';
+    socket.emit('item', {
+        action: 'drop',
+        data: {
+            slot: Inventory.currentDrag
+        }
+    });
+    Inventory.currentDrag = null;
+};
+Inventory.getRarityColor = function(rarity) {
+    var str = '';
+    switch (rarity) {
+        case 'missing':
+            str = 'color: red;';
+            break;
+        case -1:
+            str = 'animation: christmas 2s infinite;';
+            break;
+        case 0:
+            str = 'color: white;';
+            break;
+        case 1:
+            str = 'color: yellow;';
+            break;
+        case 2:
+            str = 'color: gold;';
+            break;
+    }
+    return str;
+};
+Inventory.generateEffects = function(effects) {
+    var str = '';
+    if (typeof effects == 'object') {
+        for (var i in effects) {
+            var color = '';
+            var number = '+0';
+            var effect = 'nothing';
+            var localeffect = effects[i];
+            if (localeffect.value < 0) {
+                color = 'red';
+                number = localeffect.value;
+            } else {
+                color = 'lime';
+                number = '+' + localeffect.value;
+            }
+            switch (localeffect.id) {
+                case 'health':
+                    effect = 'HP';
+                    if (localeffect.value < 0) {
+                        color = 'red';
+                        number = localeffect.value;
+                    } else {
+                        color = 'lime';
+                        number = '+' + localeffect.value;
+                    }
+                    break;
+                case 'damage':
+                    effect = 'Damage';
+                    if (localeffect.value-1 < 0) {
+                        color = 'red';
+                        number = Math.round(localeffect.value*100-100) + '%';
+                    } else {
+                        color = 'lime';
+                        number = '+' + Math.round(localeffect.value*100-100) + '%';
+                    }
+                    break;
+                case 'rangedDamage':
+                    effect = 'Ranged damage';
+                    if (localeffect.value-1 < 0) {
+                        color = 'red';
+                        number = Math.round(localeffect.value*100-100) + '%';
+                    } else {
+                        color = 'lime';
+                        number = '+' + Math.round(localeffect.value*100-100) + '%';
+                    }
+                    break;
+                case 'meleeDamage':
+                    effect = 'Melee damage';
+                    if (localeffect.value-1 < 0) {
+                        color = 'red';
+                        number = Math.round(localeffect.value*100-100) + '%';
+                    } else {
+                        color = 'lime';
+                        number = '+' + Math.round(localeffect.value*100-100) + '%';
+                    }
+                    break;
+                case 'magicDamage':
+                    effect = 'Purple damage';
+                    if (localeffect.value-1 < 0) {
+                        color = 'red';
+                        number = Math.round(localeffect.value*100-100) + '%';
+                    } else {
+                        color = 'lime';
+                        number = '+' + Math.round(localeffect.value*100-100) + '%';
+                    }
+                    break;
+                case 'critChance':
+                    effect = 'Critical hit chance';
+                    if (localeffect.value < 0) {
+                        color = 'red';
+                        number = localeffect.value + '%';
+                    } else {
+                        color = 'lime';
+                        number = '+' + localeffect.value + '%';
+                    }
+                    break;
+                case 'damageReduction':
+                    effect = 'Resistance';
+                    if (localeffect.value < 0) {
+                        color = 'red';
+                        number = localeffect.value;
+                    } else {
+                        color = 'lime';
+                        number = '+' + localeffect.value;
+                    }
+                    break;
+                case 'defense':
+                    effect = 'Defense';
+                    if (localeffect.value < 0) {
+                        color = 'red';
+                        number = localeffect.value + '%';
+                    } else {
+                        color = 'lime';
+                        number = '+' + localeffect.value + '%';
+                    }
+                    break;
+                default:
+                    break;
+            }
+            str += '<br><span style="color: ' + color + '; font-size: 14px">' + number + ' ' + effect + '</span>';
+        }
+    }
+    if (str == '') str = '<br><span style="font-size:14px">No Effects</span>';
+    return str;
+};
 document.addEventListener('mousedown', function(e) {
     if (loaded) {
-        for (var i in Inventory.items) {
-            if (Inventory.items[i].mousedOver) {
-                document.getElementById('invDragImg').style.left = e.clientX-32 + 'px';
-                document.getElementById('invDragImg').style.top = e.clientY-32 + 'px';
-                if (Inventory.items[i].item) Inventory.startDrag(Inventory.items[i].slotId);
-                return;
+        if (e.button == 0) {
+            for (var i in Inventory.items) {
+                if (Inventory.items[i].mousedOver) {
+                    document.getElementById('invDragImg').style.left = e.clientX-32 + 'px';
+                    document.getElementById('invDragImg').style.top = e.clientY-32 + 'px';
+                    if (Inventory.items[i].item) Inventory.startDrag(Inventory.items[i].slotId);
+                    return;
+                }
             }
-        }
-        for (var i in Inventory.equips) {
-            if (Inventory.equips[i].mousedOver) {
-                document.getElementById('invDragImg').style.left = e.clientX-32 + 'px';
-                document.getElementById('invDragImg').style.top = e.clientY-32 + 'px';
-                if (Inventory.equips[i].item) Inventory.startDrag(Inventory.equips[i].slotId);
-                return;
+            for (var i in Inventory.equips) {
+                if (Inventory.equips[i].mousedOver) {
+                    document.getElementById('invDragImg').style.left = e.clientX-32 + 'px';
+                    document.getElementById('invDragImg').style.top = e.clientY-32 + 'px';
+                    if (Inventory.equips[i].item) Inventory.startDrag(Inventory.equips[i].slotId);
+                    return;
+                }
             }
         }
     }
 });
 document.addEventListener('mouseup', function(e) {
-    if (Inventory.currentDrag != null) {
-        for (var i in Inventory.items) {
-            if (Inventory.items[i].mousedOver) {
-                Inventory.endDrag(Inventory.items[i].slotId);
-                return;
+    if (e.button == 0) {
+        if (Inventory.currentDrag != null) {
+            if (document.getElementById('inventory').contains(e.target)) {
+                for (var i in Inventory.items) {
+                    if (Inventory.items[i].mousedOver) {
+                        Inventory.endDrag(Inventory.items[i].slotId);
+                        return;
+                    }
+                }
+                for (var i in Inventory.equips) {
+                    if (Inventory.equips[i].mousedOver) {
+                        Inventory.endDrag(Inventory.equips[i].slotId);
+                        return;
+                    }
+                }
+                Inventory.endDrag(Inventory.currentDrag);
+            } else {
+                Inventory.drop();
             }
         }
-        for (var i in Inventory.equips) {
-            if (Inventory.equips[i].mousedOver) {
-                Inventory.endDrag(Inventory.equips[i].slotId);
-                return;
-            }
-        }
-        Inventory.endDrag(Inventory.currentDrag);
     }
 });
 document.addEventListener('mousemove', function(e) {
@@ -211,6 +358,12 @@ document.addEventListener('mousemove', function(e) {
         document.getElementById('invHoverTooltip').style.opacity = 0;
     }
 });
+function loadTooltip(slot) {
+    var item;
+    if (isFinite(slot)) item = Inventory.items[slot].item;
+    else item = Inventory.equips[slot].item;
+    document.getElementById('invHoverTooltip').innerHTML = '<span style="font-size: 16px; ' + Inventory.getRarityColor(item.rarity) + '">' + item.name + '</span><br><span style="font-size: 12px;">' + item.description + '</span><br><span style="font-size: 14px; font-weight: bold;">Effects:</span>' + Inventory.generateEffects(item.effects);
+};
 Inventory.itemTypes = [];
 Inventory.itemImages = [];
 async function getInventoryData() {
@@ -242,6 +395,10 @@ async function getInventoryData() {
         };
         request.send();
     });
+    for (var i in Inventory.equips) {
+        Inventory.itemImages[i] = new Image();
+        totalassets++;
+    }
 };
 async function loadInventoryData() {
     for (var i in Inventory.itemTypes) {
@@ -252,7 +409,7 @@ async function loadInventoryData() {
                 resolve();
             };
             Inventory.itemImages[i].src = './client/img/item/' + i + '.png';
-            Inventory.itemImages[i].className = 'invSlotImg';
+            Inventory.itemImages[i].className = 'invSlotImg noSelect';
         });
     }
     await sleep(Math.random()*5);
@@ -262,8 +419,13 @@ async function loadInventoryData() {
             resolve();
         };
         Inventory.itemImages['empty'].src = './client/img/item/empty.png';
-        Inventory.itemImages['empty'].className = 'invSlotImgNoGrab';
+        Inventory.itemImages['empty'].className = 'invSlotImgNoGrab noSelect';
     });
+    for (var i in Inventory.equips) {
+        Inventory.itemImages[i].src = './client/img/item/emptySlot' + i + '.png';
+        Inventory.itemImages[i].className = 'invSlotImgNoGrab noSelect';
+        loadedassets++;
+    }
     for (var i in Inventory.equips) {
         new Inventory.EquipSlot(i);
     }

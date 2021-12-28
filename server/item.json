@@ -74,10 +74,6 @@
         "dropChance": 14,
         "effects": [
             {
-                "id": "damage",
-                "value": 1.1
-            },
-            {
                 "id": "rangedDamage",
                 "value": 1.1
             },
@@ -135,10 +131,6 @@
         "rarity": 0,
         "dropChance": 14,
         "effects": [
-            {
-                "id": "damage",
-                "value": 1.1
-            },
             {
                 "id": "rangedDamage",
                 "value": 0.8
@@ -408,12 +400,12 @@
         "damageType": "magic",
         "critChance": 0.01,
         "knockback": 1,
-        "useTime": 20,
-        "manaCost": 24,
+        "useTime": 30,
+        "manaCost": 40,
         "effects": [
             {
                 "id": "damageReduction",
-                "value": -20
+                "value": -10
             }
         ],
         "enchantments": [

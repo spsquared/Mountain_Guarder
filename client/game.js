@@ -476,15 +476,23 @@ function drawDebug() {
         CTX.restore();
         document.getElementById('tps').style.display = 'block';
         document.getElementById('ping').style.display = 'block';
-        document.getElementById('position').style.display = 'block';
         document.getElementById('mousepos').style.display = 'block';
-        document.getElementById('position').innerText = '(' + Math.floor(player.x/64) + ', ' + Math.floor(player.y/64) + ')';
-        document.getElementById('mousepos').innerText = '(' + Math.floor(player.x/64)+Math.floor((player.x+mouseX)/64) + ', ' + Math.floor(player.y/64)+Math.floor((player.y+mouseY)/64) + ')';
+        document.getElementById('position').style.display = 'block';
+        document.getElementById('enttotal').style.display = 'block';
+        document.getElementById('entmonst').style.display = 'block';
+        document.getElementById('entproj').style.display = 'block';
+        document.getElementById('entpart').style.display = 'block';
+        document.getElementById('mousepos').innerText = 'Mouse: (' + parseInt(Math.floor(player.x/64)+Math.floor((player.x+mouseX)/64)) + ', ' + Math.floor(player.y/64)+Math.floor((player.y+mouseY)/64) + ')';
+        document.getElementById('position').innerText = 'Player: (' + Math.floor(player.x/64) + ', ' + Math.floor(player.y/64) + ')';
     } else {
         document.getElementById('tps').style.display = '';
         document.getElementById('ping').style.display = '';
-        document.getElementById('position').style.display = '';
         document.getElementById('mousepos').style.display = '';
+        document.getElementById('position').style.display = '';
+        document.getElementById('enttotal').style.display = '';
+        document.getElementById('entmonst').style.display = '';
+        document.getElementById('entproj').style.display = '';
+        document.getElementById('entpart').style.display = '';
     }
 };
 function resetFPS() {
@@ -574,17 +582,17 @@ document.onmousedown = function(e) {
         if (!e.isTrusted) {
             socket.emit('timeout');
         }
+        mouseX = e.clientX-window.innerWidth/2-OFFSETX;
+        mouseY = e.clientY-window.innerHeight/2-OFFSETY;
         if (!document.getElementById('chat').contains(e.target) && !document.getElementById('dropdownMenu').contains(e.target) && !document.getElementById('windows').contains(e.target) && !document.getElementById('deathScreen').contains(e.target)) {
             switch (e.button) {
                 case 0:
-                    socket.emit('click', {button: 'left', x: e.clientX-window.innerWidth/2-OFFSETX, y: e.clientY-window.innerHeight/2-OFFSETY, state: true});
+                    socket.emit('click', {button: 'left', x: mouseX, y: mouseY, state: true});
                     break;
                 case 2:
-                    socket.emit('click', {button: 'right', x: e.clientX-window.innerWidth/2-OFFSETX, y: e.clientY-window.innerHeight-OFFSETY, state: true});
+                    socket.emit('click', {button: 'right', x: mouseX, y: mouseY, state: true});
                     break;
             }
-            mouseX = e.clientX-window.innerWidth/2-OFFSETX;
-            mouseY = e.clientY-window.innerHeight/2-OFFSETY;
         }
     }
 };
@@ -593,17 +601,17 @@ document.onmouseup = function(e) {
         if (!e.isTrusted) {
             socket.emit('timeout');
         }
+        mouseX = e.clientX-window.innerWidth/2-OFFSETX;
+        mouseY = e.clientY-window.innerHeight/2-OFFSETY;
         if (!e.target.matches('#signinContainer') && !e.target.matches('#chatInput') && !e.target.matches('#windows') && !e.target.matches('#dropdownMenu') && !e.target.matches('#regionName')) {
             switch (e.button) {
                 case 0:
-                    socket.emit('click', {button: 'left', x: e.clientX-window.innerWidth/2-OFFSETX, y: e.clientY-window.innerHeight/2-OFFSETY, state: false});
+                    socket.emit('click', {button: 'left', x: mouseX, y: mouseY, state: false});
                     break;
                 case 2:
-                    socket.emit('click', {button: 'right', x: e.clientX-window.innerWidth/2-OFFSETX, y: e.clientY-window.innerHeight-OFFSETY, state: false});
+                    socket.emit('click', {button: 'right', x: mouseX, y: mouseY, state: false});
                     break;
             }
-            mouseX = e.clientX-window.innerWidth/2-OFFSETX;
-            mouseY = e.clientY-window.innerHeight/2-OFFSETY;
         }
     }
 };
@@ -612,9 +620,9 @@ document.onmousemove = function(e) {
         if (!e.isTrusted) {
             socket.emit('timeout');
         }
-        socket.emit('mouseMove', {x: e.clientX-window.innerWidth/2-OFFSETX, y: e.clientY-window.innerHeight/2-OFFSETY});
         mouseX = e.clientX-window.innerWidth/2-OFFSETX;
         mouseY = e.clientY-window.innerHeight/2-OFFSETY;
+        socket.emit('mouseMove', {x: mouseX, y: mouseY});
     }
 };
 socket.on('updateSelf', function(data) {
@@ -745,6 +753,15 @@ setInterval(async function() {
     tpsCounter = 0;
     socket.emit('ping');
     pingSend = new Date();
+    var entities = 0, monsters = 0, projectiles = 0, particles = 0;
+    for (var i in Player.list) {entities++;}
+    for (var i in Monster.list) {entities++; monsters++;}
+    for (var i in Projectile.list) {entities++; projectiles++;}
+    for (var i in Particle.list) {entities++; particles++;}
+    document.getElementById('enttotal').innerText = 'E: ' + entities;
+    document.getElementById('entmonst').innerText = 'M: ' + monsters;
+    document.getElementById('entproj').innerText = 'P: ' + projectiles;
+    document.getElementById('entpart').innerText = 'H: ' + particles;
 }, 1000);
 function fpsLoop() {
     window.requestAnimationFrame(function() {

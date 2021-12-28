@@ -1,7 +1,7 @@
 // Copyright (C) 2021 Radioactive64
 // Go to README.md for more information
 
-const version = 'v0.6.4';
+const version = 'v0.7.0';
 require('./server/log.js');
 console.info('\x1b[33m%s\x1b[0m', 'Mountain Guarder ' + version + ' copyright (C) Radioactive64 2021');
 appendLog('Mountain Guarder ' + version + ' copyright (C) Radioactive64 2021', 'log');
@@ -29,6 +29,7 @@ ENV = {
     offlineMode: false,
     ops: [
         'Sampleprovider(sp)',
+        'Suvanth',
     ],
     spawnpoint: {
         map: 'World',
@@ -163,7 +164,7 @@ io.on('connection', function(socket) {
         // ddos spam protection
         var spamCount = 0;
         var onevent = socket.onevent;
-        socket.onevent = function (packet) {
+        socket.onevent = function(packet) {
             onevent.call(this, packet);
             if (packet.data != 'ping') spamCount++;
         };
@@ -175,12 +176,13 @@ io.on('connection', function(socket) {
                 }
                 delete Player.list[player.id];
                 socket.emit('disconnected');
+                socket.onevent = function(packet) {};
                 socket.disconnect();
             }
         }, 100);
     } else {
         socket.emit('disconnected');
-        socket.disconnect();
+        socket.onevent = function(packet) {};
     }
 });
 start();
@@ -253,6 +255,7 @@ prompt.on('close', async function() {
             delete Player.list[i];
             player.socket.emit('disconnected');
             player.socket.onevent = function(packet) {};
+            player.socket.disconnect();
         }
         await ACCOUNTS.disconnect();
         logColor('Server Stopped.', '\x1b[32m', 'log')
@@ -265,7 +268,6 @@ prompt.on('close', async function() {
 TPS = 0;
 var tpscounter = 0;
 const updateTicks = setInterval(function() {
-    // update tick
     try {
         var pack = Entity.update();
         io.emit('updateTick', pack);
@@ -287,27 +289,35 @@ setInterval(async function() {
 
 // critical errors
 forceQuit = function(err, code) {
-    error('SERVER ENCOUNTERED A CATASTROPHIC ERROR. STOP CODE:');
-    console.error(err);
-    appendLog(err, 'error');
-    appendLog('Error code ' + code, 'error');
-    error('STOP.');
-    clearInterval(updateTicks);
-    io.emit('disconnected');
-    started = false;
-    ACCOUNTS.disconnect();
-    active = false;
-    console.error('\x1b[33m%s\x1b[0m', 'If this issue persists, please submit a bug report on GitHub with a screenshot of this screen and/or logfiles before this.');
-    console.error('\x1b[33m%s\x1b[0m', 'Press ENTER or CTRL+C to exit.');
-    const stopprompt = readline.createInterface({input: process.stdin, output: process.stdout});
-    stopprompt.on('line', function(input) {
-        appendLog('----------------------------------------');
-        process.exit(code);
-    });
-    stopprompt.on('close', function() {
-        appendLog('----------------------------------------');
-        process.exit(code);
-    });
+    try {
+        error('SERVER ENCOUNTERED A CATASTROPHIC ERROR. STOP CODE:');
+        console.error(err);
+        insertChat('SERVER ENCOUNTERED A CATASTROPHIC ERROR.', 'error');
+        insertChat(err, 'error');
+        appendLog(err, 'error');
+        appendLog('Error code ' + code, 'error');
+        error('STOP.');
+        clearInterval(updateTicks);
+        io.emit('disconnected');
+        started = false;
+        ACCOUNTS.disconnect();
+        active = false;
+        console.error('\x1b[33m%s\x1b[0m', 'If this issue persists, please submit a bug report on GitHub with a screenshot of this screen and/or logfiles before this.');
+        console.error('\x1b[33m%s\x1b[0m', 'Press ENTER or CTRL+C to exit.');
+        const stopprompt = readline.createInterface({input: process.stdin, output: process.stdout});
+        stopprompt.on('line', function(input) {
+            appendLog('----------------------------------------');
+            process.exit(code);
+        });
+        stopprompt.on('close', function() {
+            appendLog('----------------------------------------');
+            process.exit(code);
+        });
+    } catch (err) {
+        console.error('There was an error trying to stop the server!');
+        console.error(err);
+        process.exit(1);
+    }
 };
 
 // profanity filter

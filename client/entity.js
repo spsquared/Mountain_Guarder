@@ -48,6 +48,7 @@ Entity.update = function(data) {
     if (settings.particles) {
         Particle.update(data.particles);
     }
+    DroppedItem.update(data.droppedItems);
 };
 Entity.draw = function() {
     var entities = [];
@@ -65,6 +66,9 @@ Entity.draw = function() {
     }
     for (var i in Particle.list) {
         entities.push(Particle.list[i]);
+    }
+    for (var i in DroppedItem.list) {
+        entities.push(DroppedItem.list[i]);
     }
     entities = entities.sort(function(a, b) {return a.y - b.y;});
     LAYERS.elower.save();
@@ -585,6 +589,55 @@ Particle.update = function(data) {
 };
 Particle.list = [];
 
+// dropped items
+DroppedItem = function(id, map, x, y, itemId) {
+    var self = {
+        id: null,
+        x: x,
+        y: y,
+        map: map,
+        width: 48,
+        height: 48,
+        itemId: 'missing',
+        updated: false
+    };
+    self.id = id;
+    if (itemId) self.itemId = itemId;
+    self.animationImage = Inventory.itemImages[itemId];
+
+    self.draw = function() {
+        LAYERS.elower.drawImage(self.animationImage, self.x-self.width/2+OFFSETX, self.y-self.height/2+OFFSETY, self.width, self.height);
+    };
+
+    DroppedItem.list[self.id] = self;
+    return self;
+};
+DroppedItem.update = function(data) {
+    for (var i in DroppedItem.list) {
+        DroppedItem.list[i].updated = false;
+    }
+    for (var i in data) {
+        if (inRenderDistancePixels(data[i])) {
+            if (DroppedItem.list[data[i].id]) {
+                DroppedItem.list[data[i].id].updated = true;
+            } else {
+                try {
+                    new DroppedItem(data[i].id, data[i].map, data[i].x, data[i].y, data[i].itemId);
+                    DroppedItem.list[data[i].id].updated = true;
+                } catch (err) {
+                    console.error(err);
+                }
+            }
+        }
+    }
+    for (var i in DroppedItem.list) {
+        if (DroppedItem.list[i].updated == false) {
+            delete DroppedItem.list[i];
+        }
+    }
+};
+DroppedItem.list = [];
+
 // load data
 async function getEntityData() {
     // health bars
@@ -615,7 +668,6 @@ async function getEntityData() {
                     totalassets++;
                     Monster.images[i] = new Image();
                 }
-                await sleep(Math.random()*10);
                 resolve();
             } else {
                 console.error('Error: Server returned status ' + this.status);
@@ -642,7 +694,6 @@ async function getEntityData() {
                     totalassets++;
                     Projectile.images[i] = new Image();
                 }
-                await sleep(Math.random()*10);
                 resolve();
             } else {
                 console.error('Error: Server returned status ' + this.status);

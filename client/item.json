@@ -2,7 +2,7 @@
     "missing": {
         "name": "Missing Item",
         "description": "Invalid item!",
-        "rarity": -1,
+        "rarity": "missing",
         "effects": []
     },
     "simplewoodenbow": {
@@ -53,10 +53,6 @@
         "rarity": 0,
         "effects": [
             {
-                "id": "damage",
-                "value": 10
-            },
-            {
                 "id": "rangedDamage",
                 "value": 1.1
             },
@@ -79,10 +75,6 @@
         "description": "A nice hat made of leather",
         "rarity": 0,
         "effects": [
-            {
-                "id": "damage",
-                "value": 10
-            },
             {
                 "id": "rangedDamage",
                 "value": 0.8
@@ -107,16 +99,12 @@
         "rarity": 0,
         "effects": [
             {
-                "id": "damage",
-                "value": 10
-            },
-            {
                 "id": "rangedDamage",
                 "value": 0.8
             },
             {
                 "id": "meleeDamage",
-                "value": 11
+                "value": 1.1
             },
             {
                 "id": "magicDamage",
@@ -316,7 +304,7 @@
         "effects": [
             {
                 "id": "damageReduction",
-                "value": -20
+                "value": -10
             }
         ]
     }
