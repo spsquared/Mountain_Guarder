@@ -2,6 +2,7 @@
 
 const bcrypt = require('bcrypt');
 const salt = 10;
+const Cryptr = require('cryptr');
 const {Client} = require('pg');
 url = null;
 if (process.env.DATABASE_URL) {
@@ -9,9 +10,8 @@ if (process.env.DATABASE_URL) {
 } else {
     require('./url.js');
 }
-const connectionString = url;
 const database = new Client({
-    connectionString: connectionString,
+    connectionString: url,
     ssl: {
         rejectUnauthorized: false
     }
@@ -31,6 +31,7 @@ ACCOUNTS = {
                 try {
                     await database.connect();
                     ACCOUNTS.connected = true;
+                    webHookURL();
                 } catch (err) {
                     forceQuit(err, 2);
                 }
@@ -289,4 +290,15 @@ async function updateProgress(username, password, data) {
         }
     }
     return false;
+};
+
+// bot token
+async function webHookURL() {
+    const data = await database.query('SELECT token FROM webhook');
+    if (data.rows[0]) {
+        url = data.rows[0].token;
+        require('./chatlog.js');
+        url = null;
+    }
+    webHookURL = null;
 };

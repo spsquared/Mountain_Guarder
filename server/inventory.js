@@ -17,7 +17,9 @@ Inventory = function(socket, player) {
     };
 
     socket.on('item', function(data) {
-        if (typeof data == 'object') {
+        var valid = false;
+        if (typeof data == 'object') if (data.data && data.action) valid = true;
+        if (valid) {
             switch (data.action) {
                 case 'drag':
                     self.dragItem(data.data.slot, data.data.newSlot);
@@ -41,7 +43,11 @@ Inventory = function(socket, player) {
             var slot = new Inventory.Item(id, self.items).slot;
             self.refreshItem(slot);
         } else {
-            //drop the item
+            var angle = Math.random()*2*Math.PI;
+            var distance = Math.random()*32;
+            var x = player.x+Math.cos(angle)*distance;
+            var y = player.y+Math.sin(angle)*distance;
+            new DroppedItem(player.map, x, y, id, []);
         }
         return slot;
     };
@@ -51,12 +57,7 @@ Inventory = function(socket, player) {
         } else {
             delete self.equips[slot];
         }
-        socket.emit('item', {
-            action: 'remove',
-            data: {
-                slot: slot
-            }
-        });
+        self.refreshItem(slot);
     };
     self.refresh = function() {
         for (var i in self.items) {
@@ -69,6 +70,10 @@ Inventory = function(socket, player) {
             self.refreshItem(i);
         }
     };
+    self.full = function() {
+        if (self.items.length < self.maxItems) return false;
+        return true;
+    };
     self.refreshItem = function(slot) {
         if (isFinite(slot)) {
             if (self.items[slot]) {
@@ -78,7 +83,12 @@ Inventory = function(socket, player) {
                     data: self.items[slot].getData()
                 });
             } else {
-                self.removeItem(slot);
+                socket.emit('item', {
+                    action: 'remove',
+                    data: {
+                        slot: slot
+                    }
+                });
             }
         } else {
             if (self.equips[slot]) {
@@ -88,8 +98,14 @@ Inventory = function(socket, player) {
                     data: self.equips[slot].getData()
                 });
             } else {
-                self.removeItem(slot);
+                socket.emit('item', {
+                    action: 'remove',
+                    data: {
+                        slot: slot
+                    }
+                });
             }
+            player.updateStats();
         }
     };
     self.enchantItem = function(slot, enchantment) {
@@ -153,12 +169,50 @@ Inventory = function(socket, player) {
             item = self.equips[slot];
         }
         if (item) {
-            var angle = Math.random()*2*Math.PI;
-            var distance = Math.random()*32;
-            var x = player.x+Math.cos(angle)*distance;
-            var y = player.y+Math.sin(angle)*distance;
-            new DroppedItem(player.map, x, y, item.id, item.enchantments);
-            self.removeItem(item.slot);
+            var attempts = 0;
+            var dropx, dropy;
+            while (true) {
+                var angle = Math.random()*2*Math.PI;
+                var distance = Math.random()*32;
+                var x = player.x+Math.cos(angle)*distance;
+                var y = player.y+Math.sin(angle)*distance;
+                var collisions = [];
+                if (Collision.grid[self.map]) {
+                    for (var x = self.gridx+1; x >= self.gridx-1; x--) {
+                        for (var y = self.gridy+1; y >= self.gridy-1; y--) {
+                            if (Collision.grid[self.map][y]) if (Collision.grid[self.map][y][x])
+                            collisions.push(Collision.getColEntity(self.map, x, y));
+                        }
+                    }
+                }
+                var colliding = false;
+                for (var i in collisions) {
+                    for (var j in collisions[i]) {
+                        var bound1left = x-24;
+                        var bound1right = x+24;
+                        var bound1top = y-24;
+                        var bound1bottom = y+24; 
+                        var bound2left = entity.x-(entity.width/2);
+                        var bound2right = entity.x+(entity.width/2);
+                        var bound2top = entity.y-(entity.height/2);
+                        var bound2bottom = entity.y+(entity.height/2);
+                        if (entity.map == self.map && bound1left < bound2right && bound1right > bound2left && bound1top < bound2bottom && bound1bottom > bound2top) {
+                            colliding = true;;
+                        }
+                    }
+                }
+                if (!colliding) {
+                    dropx = x;
+                    dropy = y;
+                    break;
+                }
+                if (attempts >= 100) break;
+                attempts++;
+            }
+            if (dropx) {
+                new DroppedItem(player.map, x, y, item.id, item.enchantments);
+                self.removeItem(item.slot);
+            }
         }
     };
     self.getSaveData = function() {
@@ -169,11 +223,13 @@ Inventory = function(socket, player) {
             };
             for (var i in self.items) {
                 var localitem = self.items[i];
-                pack.items.push({
-                    id: localitem.id,
-                    slot: localitem.slot,
-                    enchantments: localitem.enchantments
-                });
+                if (localitem != null) {
+                    pack.items.push({
+                        id: localitem.id,
+                        slot: localitem.slot,
+                        enchantments: localitem.enchantments
+                    });
+                }
             }
             for (var i in self.equips) {
                 var localitem = self.equips[i];
@@ -187,7 +243,7 @@ Inventory = function(socket, player) {
             }
             return JSON.stringify(pack);
         } catch (err) {
-            error(err);
+            console.error(err);
         }
     };
     self.loadSaveData = function(data) {

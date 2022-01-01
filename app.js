@@ -1,7 +1,7 @@
 // Copyright (C) 2021 Radioactive64
 // Go to README.md for more information
 
-const version = 'v0.7.0';
+const version = 'v0.7.1';
 require('./server/log.js');
 console.info('\x1b[33m%s\x1b[0m', 'Mountain Guarder ' + version + ' copyright (C) Radioactive64 2021');
 appendLog('Mountain Guarder ' + version + ' copyright (C) Radioactive64 2021', 'log');
@@ -76,14 +76,14 @@ io.on('connection', function(socket) {
         socket.on('disconnect', async function() {
             if (player.name) {
                 await player.saveData();
-                insertChat(player.name + ' left the game.', 'server');
+                insertChat(player.name + ' left the game', 'server');
             }
             delete Player.list[player.id];
         });
         socket.on('disconnected', async function() {
             if (player.name) {
                 await player.saveData();
-                insertChat(player.name + ' left the game.', 'server');
+                insertChat(player.name + ' left the game', 'server');
             }
             delete Player.list[player.id];
             socket.emit('disconnected');
@@ -91,7 +91,7 @@ io.on('connection', function(socket) {
         socket.on('timeout', async function() {
             if (player.name) {
                 await player.saveData();
-                insertChat(player.name + ' left the game.', 'server');
+                insertChat(player.name + ' left the game', 'server');
             }
             delete Player.list[player.id];
             socket.emit('disconnected');
@@ -100,7 +100,7 @@ io.on('connection', function(socket) {
             socket.emit('disconnected');
             if (player.name) {
                 await player.saveData();
-                insertChat(player.name + ' left the game.', 'server');
+                insertChat(player.name + ' left the game', 'server');
             }
             delete Player.list[player.id];
         });
@@ -162,15 +162,15 @@ io.on('connection', function(socket) {
             socket.emit('ping');
         });
         // ddos spam protection
-        var spamCount = 0;
+        var packetCount = 0;
         var onevent = socket.onevent;
         socket.onevent = function(packet) {
             onevent.call(this, packet);
-            if (packet.data != 'ping') spamCount++;
+            if (packet.data != 'ping') packetCount++;
         };
         setInterval(function() {
-            spamCount = Math.max(spamCount-100, 0);
-            if (spamCount > 0) {
+            packetCount = Math.max(packetCount-200, 0);
+            if (packetCount > 0) {
                 if (player.name) {
                     insertChat(player.name + ' was kicked for socket.io DOS', 'anticheat');
                 }
@@ -250,7 +250,7 @@ prompt.on('close', async function() {
             var player = Player.list[i];
             if (player.name) {
                 await player.saveData();
-                insertChat(player.name + ' left the game.', 'server');
+                insertChat(player.name + ' left the game', 'server');
             }
             delete Player.list[i];
             player.socket.emit('disconnected');

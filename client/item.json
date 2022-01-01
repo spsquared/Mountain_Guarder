@@ -2,12 +2,14 @@
     "missing": {
         "name": "Missing Item",
         "description": "Invalid item!",
+        "slotType": "none",
         "rarity": "missing",
         "effects": []
     },
     "simplewoodenbow": {
         "name": "Simple Wooden Bow",
         "description": "A cheap, simple bow of standard wood",
+        "slotType": "weapon",
         "rarity": 0,
         "damage": 1,
         "damageType": "ranged",
@@ -22,6 +24,7 @@
     "simplewoodensword": {
         "name": "Simple Wooden Sword",
         "description": "A trusty sword made of wood. Not much, but it'll do",
+        "slotType": "weapon",
         "rarity": 0,
         "damage": 10,
         "damageType": "melee",
@@ -36,6 +39,7 @@
     "simplewoodenstaff": {
         "name": "Simple Wooden Staff",
         "description": "A trusty wooden staff. Not the most powerful but will do",
+        "slotType": "weapon",
         "rarity": 0,
         "damage": 1,
         "damageType": "magic",
@@ -50,6 +54,7 @@
     "leatherhood": {
         "name": "Leather Hood",
         "description": "A hood. Attached to nothing. Made of leather",
+        "slotType": "helmet",
         "rarity": 0,
         "effects": [
             {
@@ -73,6 +78,7 @@
     "leatherhat": {
         "name": "Leather Hat",
         "description": "A nice hat made of leather",
+        "slotType": "helmet",
         "rarity": 0,
         "effects": [
             {
@@ -96,6 +102,7 @@
     "woodenhelmet": {
         "name": "Wooden Helmet",
         "description": "A helmet made of wood?",
+        "slotType": "helmet",
         "rarity": 0,
         "effects": [
             {
@@ -123,6 +130,7 @@
     "leatherarmor": {
         "name": "Leather Armor",
         "description": "Simple armor made from leather",
+        "slotType": "armor",
         "rarity": 0,
         "effects": [
             {
@@ -138,6 +146,7 @@
     "steelbow": {
         "name": "Steel Bow",
         "description": "A simple bow forged from steel",
+        "slotType": "weapon",
         "rarity": 1,
         "damage": 1,
         "damageType": "ranged",
@@ -152,6 +161,7 @@
     "steelbroadsword": {
         "name": "Steel Broadsword",
         "description": "A decent broadsword forged from pure steel",
+        "slotType": "weapon",
         "rarity": 1,
         "damage": 12,
         "damageType": "melee",
@@ -166,6 +176,7 @@
     "steelcutlass": {
         "name": "Steel Cutlass",
         "description": "A thick-bladed heavy cutlass of steel",
+        "slotType": "weapon",
         "rarity": 1,
         "damage": 14,
         "damageType": "melee",
@@ -180,6 +191,7 @@
     "steelstaff": {
         "name": "Steel Staff",
         "description": "A nice steel staff that can better harness mana power",
+        "slotType": "weapon",
         "rarity": 1,
         "damage": 12,
         "damageType": "magic",
@@ -194,6 +206,7 @@
     "simplewizardhat": {
         "name": "Simple Wizard's Hat",
         "description": "A simple hat fit for a young wizard",
+        "slotType": "helmet",
         "rarity": 1,
         "effects": [
             {
@@ -213,6 +226,7 @@
     "whitefabrichood": {
         "name": "White Fabric Hood",
         "description": "An archers hood, partly cotton, dyed white",
+        "slotType": "helmet",
         "rarity": 1,
         "effects": [
             {
@@ -232,6 +246,7 @@
     "steelhelmet": {
         "name": "Steel Helmet",
         "description": "A decent, lightweight helmet of steel",
+        "slotType": "helmet",
         "rarity": 1,
         "effects": [
             {
@@ -257,8 +272,9 @@
         ]
     },
     "steelarmor": {
-        "name": "Steel Armor",
+        "name": "Steel Chestplate",
         "description": "Sturdy, \"lightweight\" steel armor great for close-combat fighting",
+        "slotType": "armor",
         "rarity": 1,
         "effects": [
             {
@@ -278,6 +294,7 @@
     "titaniumstaff": {
         "name": "Titanium Staff",
         "description": "A lightweight version of the steel staff. The higher quality means the Purple can phase through solid matter.",
+        "slotType": "weapon",
         "rarity": 2,
         "damage": 11,
         "damageType": "magic",
@@ -292,6 +309,7 @@
     "christmas2021": {
         "name": "Season's Yeetings",
         "description": "Merry Christmas from the Mountain Guarder devs! - Yeetmas 2021",
+        "slotType": "weapon",
         "rarity": -1,
         "damage": 1,
         "damageType": "magic",

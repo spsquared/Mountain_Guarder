@@ -195,14 +195,34 @@ Inventory.getRarityColor = function(rarity) {
     }
     return str;
 };
-Inventory.generateEffects = function(effects) {
+Inventory.generateEffects = function(item) {
     var str = '';
-    if (typeof effects == 'object') {
-        for (var i in effects) {
+    if (typeof item == 'object') {
+        if (item.slotType == 'weapon') {
+            var damageType = 'Damage';
+            switch (item.damageType) {
+                case 'ranged':
+                    damageType = ' Ranged Damage';
+                    break;
+                case 'melee':
+                    damageType = ' Melee Damage';
+                    break;
+                case 'magic':
+                    damageType = ' Purple Damage';
+                    break;
+                default:
+                    break;
+            }
+            str += '<br><span style="color: lime; font-size: 12px;">' + item.damage + damageType + '</span>';
+            if (item.critChance != 0) {
+                str += '<br><span style="color: lime; font-size: 12px;">' + Math.round(item.critChance*100) + '% Critical Strike chance</span>';
+            }
+        }
+        for (var i in item.effects) {
             var color = '';
             var number = '+0';
             var effect = 'nothing';
-            var localeffect = effects[i];
+            var localeffect = item.effects[i];
             if (localeffect.value < 0) {
                 color = 'red';
                 number = localeffect.value;
@@ -294,10 +314,10 @@ Inventory.generateEffects = function(effects) {
                 default:
                     break;
             }
-            str += '<br><span style="color: ' + color + '; font-size: 14px">' + number + ' ' + effect + '</span>';
+            str += '<br><span style="color: ' + color + '; font-size: 12px;">' + number + ' ' + effect + '</span>';
         }
     }
-    if (str == '') str = '<br><span style="font-size:14px">No Effects</span>';
+    if (str == '') str = '<span style="font-size: 12px;">No Effects</span>';
     return str;
 };
 document.addEventListener('mousedown', function(e) {
@@ -362,10 +382,11 @@ function loadTooltip(slot) {
     var item;
     if (isFinite(slot)) item = Inventory.items[slot].item;
     else item = Inventory.equips[slot].item;
-    document.getElementById('invHoverTooltip').innerHTML = '<span style="font-size: 16px; ' + Inventory.getRarityColor(item.rarity) + '">' + item.name + '</span><br><span style="font-size: 12px;">' + item.description + '</span><br><span style="font-size: 14px; font-weight: bold;">Effects:</span>' + Inventory.generateEffects(item.effects);
+    document.getElementById('invHoverTooltip').innerHTML = '<span style="font-size: 16px; ' + Inventory.getRarityColor(item.rarity) + '">' + item.name + '</span><br><span style="font-size: 14px;">' + item.slotType + '</span><br><span style="font-size: 12px;">' + item.description + '</span>' + Inventory.generateEffects(item);
 };
 Inventory.itemTypes = [];
 Inventory.itemImages = [];
+Inventory.itemHighlightImages = [];
 async function getInventoryData() {
     totalassets++;
     await new Promise(async function(resolve, reject) {
@@ -377,8 +398,9 @@ async function getInventoryData() {
                 Inventory.itemTypes = json;
                 loadedassets++;
                 for (var i in Inventory.itemTypes) {
-                    totalassets++;
+                    totalassets += 2;
                     Inventory.itemImages[i] = new Image();
+                    Inventory.itemHighlightImages[i] = new Image();
                 }
                 totalassets++;
                 Inventory.itemImages['empty'] = new Image();
@@ -410,6 +432,12 @@ async function loadInventoryData() {
             };
             Inventory.itemImages[i].src = './client/img/item/' + i + '.png';
             Inventory.itemImages[i].className = 'invSlotImg noSelect';
+            Inventory.itemHighlightImages[i].onload = function() {
+                loadedassets++;
+                resolve();
+            };
+            Inventory.itemHighlightImages[i].src = './client/img/item/highlighted/' + i + '.png';
+            Inventory.itemHighlightImages[i].className = 'invSlotImg noSelect';
         });
     }
     await sleep(Math.random()*5);

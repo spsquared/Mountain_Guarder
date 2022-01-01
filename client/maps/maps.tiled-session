@@ -161,8 +161,8 @@
             "scale": 5.5,
             "selectedLayer": 2,
             "viewCenter": {
-                "x": 68.18181818181819,
-                "y": 98
+                "x": 152,
+                "y": 100
             }
         },
         "Outpost Cottage.tmx": {
@@ -191,10 +191,10 @@
         },
         "World.tmx": {
             "scale": 3,
-            "selectedLayer": 12,
+            "selectedLayer": 15,
             "viewCenter": {
-                "x": 157.33333333333331,
-                "y": 481
+                "x": 91,
+                "y": 194.66666666666666
             }
         },
         "roguelikeSheet.tsx": {

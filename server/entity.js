@@ -125,9 +125,6 @@ Entity = function() {
                             }
                         }
                     }
-                    if (colliding) {
-                        // error('object is still colliding');
-                    }
                 }
             }
         }
@@ -1075,7 +1072,7 @@ Player = function(socket) {
                                 self.name = self.creds.username;
                                 await self.loadData();
                                 socket.emit('signInState', 'signedIn');
-                                insertChat(self.name + ' joined the game.', 'server');
+                                insertChat(self.name + ' joined the game', 'server');
                                 self.canMove = true;
                                 self.alive = true;
                             } else {
@@ -1203,11 +1200,13 @@ Player = function(socket) {
                                 var top = localdroppeditem.y-localdroppeditem.height/2;
                                 var bottom = localdroppeditem.y+localdroppeditem.height/2;
                                 if (x >= left && x <= right && y >= top && y <= bottom) {
-                                    var slot = self.inventory.addItem(localdroppeditem.itemId);
-                                    for (var j in localdroppeditem.enchants) {
-                                        self.inventory.enchantItem(slot, localdroppeditem.enchants[j]);
+                                    if (!self.inventory.full()) {
+                                        var slot = self.inventory.addItem(localdroppeditem.itemId);
+                                        for (var j in localdroppeditem.enchants) {
+                                            self.inventory.enchantItem(slot, localdroppeditem.enchants[j]);
+                                        }
+                                        delete DroppedItem.list[i];
                                     }
-                                    delete DroppedItem.list[i];
                                     break;
                                 }
                             }
@@ -1265,7 +1264,7 @@ Player = function(socket) {
                         var cmd = '';
                         var arg = msg.replace('/', '');
                         while (true) {
-                            cmd = cmd + arg[0];
+                            cmd += arg[0];
                             arg = arg.replace(arg[0], '');
                             if (arg[0] == ' ') {
                                 arg = arg.replace(arg[0], '');
@@ -1276,7 +1275,7 @@ Player = function(socket) {
                         var args = [];
                         var i = 0;
                         while (true) {
-                            if (args[i]) args[i] = args[i] + arg[0];
+                            if (args[i]) args[i] += arg[0];
                             else args[i] = arg[0];
                             arg = arg.replace(arg[0], '');
                             if (arg[0] == ' ') {
@@ -1288,6 +1287,9 @@ Player = function(socket) {
                             if (arg == '') break;
                         }
                         switch (cmd) {
+                            case 'help':
+                                insertSingleChat('COMMAND HELP:\n/help -Returns all commands available\n/msg <username> <message> -Private message a player\n/waypoint <location> -Teleport to a waypoint\n', 'deepskyblue', self.name, false);
+                                break;
                             case 'msg':
                                 if (args[0] == null) {
                                     insertSingleChat('No recipient!', 'error', self.name, false);
@@ -1480,16 +1482,16 @@ Player = function(socket) {
         }
         switch (type) {
             case 'killed':
-                insertChat(self.name + ' was killed by ' + entity.name + '.', 'death');
+                insertChat(self.name + ' was killed by ' + entity.name, 'death');
                 break;
             case 'explosion':
-                insertChat(self.name + ' blew up.', 'death');
+                insertChat(self.name + ' blew up', 'death');
                 break;
             case 'debug':
-                insertChat(self.name + ' was debugged.', 'death');
+                insertChat(self.name + ' was debugged', 'death');
                 break;
             default:
-                insertChat(self.name + ' died.', 'death');
+                insertChat(self.name + ' died', 'death');
                 break;
         }
     };
@@ -1533,7 +1535,7 @@ Player = function(socket) {
         }
         for (var i in self.inventory.equips) {
             var localitem = self.inventory.equips[i];
-            if (localitem) {
+            if (i != 'weapon2') if (localitem) {
                 for (var j in localitem.effects) {
                     var effect = localitem.effects[j];
                     switch (effect.id) {
@@ -1648,11 +1650,13 @@ Player.getDebugData = function() {
 Player.list = [];
 
 // monsters
-Monster = function(type, x, y, map, spawned) {
+Monster = function(type, x, y, map) {
     var self = new Rig();
     self.x = x;
     self.y = y;
     self.map = map;
+    self.gridx = Math.floor(self.x/64);
+    self.gridy = Math.floor(self.y/64);
     self.animationDirection = 'loop'
     self.ai.attackType = 'none';
     self.ai.lastAttack = 0;
@@ -1687,12 +1691,6 @@ Monster = function(type, x, y, map, spawned) {
     } catch (err) {
         error(err);
         return;
-    }
-    if (spawned) {
-        self.canMove = false;
-        setTimeout(function() {
-            self.canMove = true;
-        }, 3000);
     }
     self.collisionBoxSize = Math.max(self.width, self.height);
     self.active = false;
@@ -2067,25 +2065,25 @@ Monster = function(type, x, y, map, spawned) {
         self.alive = false;
         if (entity) {
             entity.xp += self.xpDrop;
-            if (entity.inventory != null && self.drops[0]) {
+            if (entity.inventory != null) {
                 try {
                     var multiplier = 0;
                     for (var i in self.drops) {
-                        multiplier += Inventory.items[self.drops[i]].dropChance;
+                        multiplier += self.drops[i];
                     }
                     var random = Math.random()*multiplier;
                     var min = 0;
                     var max = 0;
                     var item;
                     for (var i in self.drops) {
-                        max += Inventory.items[self.drops[i]].dropChance;
+                        max += self.drops[i];
                         if (random >= min && random <= max) {
-                            item = self.drops[i];
+                            item = i;
                             break;
                         }
-                        min += Inventory.items[self.drops[i]].dropChance;
+                        min += self.drops[i];
                     }
-                    new DroppedItem(self.map, self.x, self.y, item, []);
+                    if (item != 'nothing') new DroppedItem(self.map, self.x, self.y, item, []);
                 } catch (err) {
                     error(err);
                 }

@@ -48,47 +48,50 @@ Collision = function(map, x, y, type) {
         case 2211:
             coltype = 14;
             break;
-        case 2293:
+        case 2212:
             coltype = 15;
             break;
-        case 2294:
+        case 2293:
             coltype = 16;
             break;
-        case 2295:
+        case 2294:
             coltype = 17;
             break;
-        case 2296:
+        case 2295:
             coltype = 18;
             break;
-        case 2297:
+        case 2296:
             coltype = 19;
             break;
-        case 2298:
+        case 2297:
             coltype = 20;
             break;
-        case 2299:
+        case 2298:
             coltype = 21;
             break;
-        case 2230:
+        case 2299:
             coltype = 22;
             break;
-        case 2231:
+        case 2230:
             coltype = 23;
             break;
-        case 2379:
+        case 2231:
             coltype = 24;
             break;
-        case 2380:
+        case 2379:
             coltype = 25;
             break;
-        case 2381:
+        case 2380:
             coltype = 26;
             break;
-        case 2382:
+        case 2381:
             coltype = 27;
             break;
-        case 2383:
+        case 2382:
             coltype = 28;
+            break;
+        case 2383:
+            coltype = 29;
             break;
         default:
             error('Invalid collision at (' + x + ',' + y + ')');
@@ -107,9 +110,9 @@ Collision.getColEntity = function(map, x, y) {
     var collision = [];
     var coltype = Collision.grid[map][y][x];
     var noProjectile = false;
-    if (coltype > 14) {
+    if (coltype > 15) {
         noProjectile = true;
-        coltype -= 14;
+        coltype -= 15;
     }
     switch (coltype) {
         case 0:
@@ -304,6 +307,17 @@ Collision.getColEntity = function(map, x, y) {
                 noProjectile: noProjectile
             };
             break;
+        case 15:
+            collision[0] = {
+                map: map,
+                x: x*64+32,
+                y: y*64+44,
+                width: 48,
+                height: 48,
+                collisionBoxSize: 48,
+                noProjectile: noProjectile
+            };
+            break;
         default:
             console.error('Invalid collision');
             break;
@@ -344,7 +358,7 @@ Spawner = function(map, x, y, types) {
             for (var i = 0; i < 50; i++) {
                 new Particle(self.map, self.x, self.y, 'spawn');
             }
-            var localmonster = new Monster(monstertype, self.x, self.y, self.map, true);
+            var localmonster = new Monster(monstertype, self.x, self.y, self.map);
             localmonster.spawnerID = self.id;
             localmonster.oldOnDeath = localmonster.onDeath;
             localmonster.onDeath = function(entity) {
@@ -355,6 +369,10 @@ Spawner = function(map, x, y, types) {
                 }
                 localmonster.oldOnDeath(entity);
             };
+            localmonster.canMove = false;
+            setTimeout(function() {
+                localmonster.canMove = true;
+            }, 3000);
         } catch (err) {
             error(err);
         }

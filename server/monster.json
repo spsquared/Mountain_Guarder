@@ -27,11 +27,13 @@
         },
         "animationLength": 1,
         "xpDrop": 5,
-        "drops": [
-            "simplewoodenbow",
-            "simplewoodensword",
-            "steelbroadsword"
-        ]
+        "drops": {
+            "nothing": 0.2,
+            "simplewoodenbow": 0.4,
+            "simplewoodensword": 0.4,
+            "steelbroadsword": 0.1,
+            "steelcutlass": 0.1
+        }
     },
     "bluebird": {
         "name": "Blue Bird",
@@ -61,11 +63,12 @@
         },
         "animationLength": 1,
         "xpDrop": 5,
-        "drops": [
-            "simplewoodenbow",
-            "simplewoodensword",
-            "steelcutlass"
-        ]
+        "drops": {
+            "nothing": 0.2,
+            "simplewoodenbow": 0.4,
+            "simplewoodensword": 0.4,
+            "steelbow": 0.2
+        }
     },
     "snowbird": {
         "name": "Snow Bird",
@@ -95,12 +98,13 @@
         },
         "animationLength": 1,
         "xpDrop": 10,
-        "drops": [
-            "simplewoodenstaff",
-            "leatherarmor",
-            "steelstaff",
-            "titaniumstaff"
-        ]
+        "drops": {
+            "nothing": 0.3,
+            "simplewoodenstaff": 0.5,
+            "leatherarmor": 0.5,
+            "steelstaff": 0.2,
+            "titaniumstaff": 0.1
+        }
     },
     "cherrybomb": {
         "name": "Cherry Bomb",
@@ -130,11 +134,12 @@
         },
         "animationLength": 1,
         "xpDrop": 20,
-        "drops": [
-            "woodenhelmet",
-            "steelhelmet",
-            "steelarmor"
-        ]
+        "drops": {
+            "nothing": 0.1,
+            "woodenhelmet": 0.4,
+            "steelhelmet": 0.2,
+            "steelarmor": 0.2
+        }
     },
     "snowball": {
         "name": "Snowball",
@@ -154,8 +159,8 @@
             "damageType": "ranged",
             "projectileSpeed": 1,
             "attack": 1.5,
-            "defense": 0,
-            "damageReduction": 1,
+            "defense": 0.1,
+            "damageReduction": 2,
             "heal": 0,
             "speed": 1,
             "range": 1,
@@ -164,11 +169,11 @@
         },
         "animationLength": 0,
         "xpDrop": 10,
-        "drops": [
-            "leatherhood",
-            "leatherhat",
-            "whitefabrichood",
-            "simplewizardhat"
-        ]
+        "drops": {
+            "nothing": 0.1,
+            "leatherhood": 0.4,
+            "whitefabrichood": 0.1,
+            "simplewizardhat": 0.1
+        }
     }
 }

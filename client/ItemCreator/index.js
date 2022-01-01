@@ -85,9 +85,11 @@ function generateClientItem() {
     var item = {
         name: null,
         description: null,
+        slotType: null,
         rarity: null
     };
-    if (document.getElementById('slotType').value == 'weapon' || document.getElementById('slotType').value == 'crystal') {
+    var slotType = document.getElementById('slotType').value;
+    if (slotType == 'weapon' || slotType == 'crystal') {
         item.damage = null;
         item.damageType = null;
         item.critChance = null;

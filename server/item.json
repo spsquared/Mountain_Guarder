@@ -2,14 +2,12 @@
     "missing": {
         "slotType": "none",
         "rarity": -1,
-        "dropChance": 0,
         "effects": [],
         "enchantments": []
     },
     "simplewoodenbow": {
         "slotType": "weapon",
         "rarity": 0,
-        "dropChance": 15,
         "projectile": "arrow",
         "projectilePattern": "single",
         "projectileSpeed": 1,
@@ -30,7 +28,6 @@
     "simplewoodensword": {
         "slotType": "weapon",
         "rarity": 0,
-        "dropChance": 14,
         "projectile": "meleedamage",
         "projectilePattern": "single",
         "projectileSpeed": 1,
@@ -50,7 +47,6 @@
     "simplewoodenstaff": {
         "slotType": "weapon",
         "rarity": 0,
-        "dropChance": 14,
         "projectile": "magicball",
         "projectilePattern": "single",
         "projectileSpeed": 0.8,
@@ -71,7 +67,6 @@
     "leatherhood": {
         "slotType": "helmet",
         "rarity": 0,
-        "dropChance": 14,
         "effects": [
             {
                 "id": "rangedDamage",
@@ -102,7 +97,6 @@
     "leatherhat": {
         "slotType": "helmet",
         "rarity": 0,
-        "dropChance": 14,
         "effects": [
             {
                 "id": "rangedDamage",
@@ -129,7 +123,6 @@
     "woodenhelmet": {
         "slotType": "helmet",
         "rarity": 0,
-        "dropChance": 14,
         "effects": [
             {
                 "id": "rangedDamage",
@@ -160,7 +153,6 @@
     "leatherarmor": {
         "slotType": "armor",
         "rarity": 0,
-        "dropChance": 14.5,
         "effects": [
             {
                 "id": "damageReduction",
@@ -179,7 +171,6 @@
     "steelbow": {
         "slotType": "weapon",
         "rarity": 2,
-        "dropChance": 12,
         "projectile": "arrow",
         "projectilePattern": "double",
         "projectileSpeed": 1,
@@ -200,7 +191,6 @@
     "steelbroadsword": {
         "slotType": "weapon",
         "rarity": 2,
-        "dropChance": 11,
         "projectile": "meleedamage",
         "projectilePattern": "single",
         "projectileSpeed": 1,
@@ -221,7 +211,6 @@
     "steelcutlass": {
         "slotType": "weapon",
         "rarity": 2,
-        "dropChance": 10,
         "projectile": "meleedamage",
         "projectilePattern": "single",
         "projectileSpeed": 1,
@@ -242,7 +231,6 @@
     "steelstaff": {
         "slotType": "weapon",
         "rarity": 2,
-        "dropChance": 11.5,
         "projectile": "magicball",
         "projectilePattern": "line",
         "projectileSpeed": 1.2,
@@ -264,7 +252,6 @@
     "simplewizardhat": {
         "slotType": "helmet",
         "rarity": 2,
-        "dropChance": 11,
         "effects": [
             {
                 "id": "rangedDamage",
@@ -289,7 +276,6 @@
     "whitefabrichood": {
         "slotType": "helmet",
         "rarity": 2,
-        "dropChance": 11,
         "effects": [
             {
                 "id": "rangedDamage",
@@ -313,7 +299,6 @@
     "steelhelmet": {
         "slotType": "helmet",
         "rarity": 2,
-        "dropChance": 11,
         "effects": [
             {
                 "id": "rangedDamage",
@@ -345,7 +330,6 @@
     "steelarmor": {
         "slotType": "armor",
         "rarity": 2,
-        "dropChance": 11.5,
         "effects": [
             {
                 "id": "meleeDamage",
@@ -369,7 +353,6 @@
     "titaniumstaff": {
         "slotType": "weapon",
         "rarity": 3,
-        "dropChance": 9,
         "projectile": "magicballnoclip",
         "projectilePattern": "line",
         "projectileSpeed": 1.2,
@@ -391,7 +374,6 @@
     "christmas2021": {
         "slotType": "weapon",
         "rarity": -1,
-        "dropChance": 0,
         "projectile": "christmas2021",
         "projectilePattern": "ring",
         "projectileSpeed": 1,

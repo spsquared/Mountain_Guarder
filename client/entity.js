@@ -484,9 +484,6 @@ Particle = function(map, x, y, type, value) {
         }
         switch (self.type) {
             case 'damage':
-                self.xspeed *= 0.98;
-                self.yspeed += 0.5;
-                self.opacity -= 2;
                 if (inRenderDistance(self)) {
                     var opstring = self.opacity.toString(16);
                     if (opstring.length == 1) opstring = 0 + opstring;
@@ -495,11 +492,11 @@ Particle = function(map, x, y, type, value) {
                     LAYERS.elower.font = '24px Pixel';
                     LAYERS.elower.fillText(self.value, self.x+OFFSETX, self.y+OFFSETY);
                 }
-                break;
-            case 'heal':
                 self.xspeed *= 0.98;
                 self.yspeed += 0.5;
                 self.opacity -= 2;
+                break;
+            case 'heal':
                 if (inRenderDistance(self)) {
                     var opstring = self.opacity.toString(16);
                     if (opstring.length == 1) opstring = 0 + opstring;
@@ -508,22 +505,22 @@ Particle = function(map, x, y, type, value) {
                     LAYERS.elower.font = '24px Pixel';
                     LAYERS.elower.fillText(self.value, self.x+OFFSETX, self.y+OFFSETY);
                 }
+                self.xspeed *= 0.98;
+                self.yspeed += 0.5;
+                self.opacity -= 2;
                 break;
             case 'teleport':
-                self.xspeed *= 0.95;
-                self.yspeed *= 0.95;
-                self.opacity -= 1;
                 if (inRenderDistance(self)) {
                     var opstring = self.opacity.toString(16);
                     if (opstring.length == 1) opstring = 0 + opstring;
                     LAYERS.elower.fillStyle = '#9900CC' + opstring;
                     LAYERS.elower.fillRect(self.x-self.size/2+OFFSETX, self.y-self.size/2+OFFSETY, self.size, self.size);
                 }
+                self.xspeed *= 0.95;
+                self.yspeed *= 0.95;
+                self.opacity -= 1;
                 break;
             case 'explosion':
-                self.xspeed *= 0.9;
-                self.yspeed *= 0.9;
-                self.opacity -= 1;
                 if (inRenderDistance(self)) {
                     var opacity = Math.min(self.opacity, 100);
                     var opstring = opacity.toString(16);
@@ -531,8 +528,18 @@ Particle = function(map, x, y, type, value) {
                     LAYERS.elower.fillStyle = self.color + opstring;
                     LAYERS.elower.fillRect(self.x-self.size/2+OFFSETX, self.y-self.size/2+OFFSETY, self.size, self.size);
                 }
+                self.xspeed *= 0.9;
+                self.yspeed *= 0.9;
+                self.opacity -= 1;
                 break;
             case 'spawn':
+                if (inRenderDistance(self)) {
+                    var opacity = Math.min(self.opacity, 100);
+                    var opstring = opacity.toString(16);
+                    if (opstring.length == 1) opstring = 0 + opstring;
+                    LAYERS.elower.fillStyle = self.color + opstring;
+                    LAYERS.elower.fillRect(self.x-self.size/2+OFFSETX, self.y-self.size/2+OFFSETY, self.size, self.size);
+                }
                 self.angle += self.rotationspeed;
                 self.x = x+Math.cos(self.angle)*self.radius;
                 self.y = y+Math.sin(self.angle)*self.radius;
@@ -540,17 +547,8 @@ Particle = function(map, x, y, type, value) {
                 self.radius -= self.radius/40;
                 self.size += 0.1
                 self.opacity -= 1;
-                if (inRenderDistance(self)) {
-                    var opacity = Math.min(self.opacity, 100);
-                    var opstring = opacity.toString(16);
-                    if (opstring.length == 1) opstring = 0 + opstring;
-                    LAYERS.elower.fillStyle = self.color + opstring;
-                    LAYERS.elower.fillRect(self.x-self.size/2+OFFSETX, self.y-self.size/2+OFFSETY, self.size, self.size);
-                }
                 break;
             case 'death':
-                self.yspeed *= 0.95;
-                self.opacity -= 2;
                 if (inRenderDistance(self)) {
                     var opacity = Math.min(self.opacity, 100);
                     var opstring = opacity.toString(16);
@@ -558,22 +556,27 @@ Particle = function(map, x, y, type, value) {
                     LAYERS.elower.fillStyle = self.color + opstring;
                     LAYERS.elower.fillRect(self.x-self.size/2+OFFSETX, self.y-self.size/2+OFFSETY, self.size, self.size);
                 }
+                self.yspeed *= 0.95;
+                self.opacity -= 2;
                 break;
             case 'playerdeath':
+                if (inRenderDistance(self)) {
+                    var opacity = Math.min(self.opacity, 100);
+                    var opstring = opacity.toString(16);
+                    if (opstring.length == 1) opstring = 0 + opstring;
+                    LAYERS.elower.fillStyle = self.color + opstring;
+                    LAYERS.elower.fillRect(self.x-self.size/2+OFFSETX, self.y-self.size/2+OFFSETY, self.size, self.size);
+                }
                 self.xspeed *= 0.98;
                 self.yspeed += 0.2;
                 self.opacity -= 2;
-                if (inRenderDistance(self)) {
-                    var opacity = Math.min(self.opacity, 100);
-                    var opstring = opacity.toString(16);
-                    if (opstring.length == 1) opstring = 0 + opstring;
-                    LAYERS.elower.fillStyle = self.color + opstring;
-                    LAYERS.elower.fillRect(self.x-self.size/2+OFFSETX, self.y-self.size/2+OFFSETY, self.size, self.size);
-                }
                 break;
             default:
                 console.error('invalid particle type ' + self.type);
                 break;
+        }
+        if (self.opacity <= 0) {
+            delete Particle.list[self.id];
         }
     };
 
@@ -636,6 +639,25 @@ DroppedItem.update = function(data) {
         }
     }
 };
+DroppedItem.updateHighlight = function() {
+    for (var i in DroppedItem.list) {
+        DroppedItem.list[i].animationImage = Inventory.itemImages[DroppedItem.list[i].itemId];
+    }
+    for (var i in DroppedItem.list) {
+        var localdroppeditem = DroppedItem.list[i];
+        var x = mouseX+OFFSETX;
+        var y = mouseY+OFFSETY;
+        var left = localdroppeditem.x-player.x-localdroppeditem.width/2;
+        var right = localdroppeditem.x-player.x+localdroppeditem.width/2;
+        var top = localdroppeditem.y-player.y-localdroppeditem.height/2;
+        var bottom = localdroppeditem.y-player.y+localdroppeditem.height/2;
+        console.log(x, y, left, right, top, bottom)
+        if (x >= left && x <= right && y >= top && y <= bottom) {
+            localdroppeditem.animationImage = Inventory.itemHighlightImages[localdroppeditem.itemId];
+            break;
+        }
+    }
+}
 DroppedItem.list = [];
 
 // load data

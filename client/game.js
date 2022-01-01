@@ -582,15 +582,15 @@ document.onmousedown = function(e) {
         if (!e.isTrusted) {
             socket.emit('timeout');
         }
-        mouseX = e.clientX-window.innerWidth/2-OFFSETX;
-        mouseY = e.clientY-window.innerHeight/2-OFFSETY;
+        mouseX = e.clientX-window.innerWidth/2;
+        mouseY = e.clientY-window.innerHeight/2;
         if (!document.getElementById('chat').contains(e.target) && !document.getElementById('dropdownMenu').contains(e.target) && !document.getElementById('windows').contains(e.target) && !document.getElementById('deathScreen').contains(e.target)) {
             switch (e.button) {
                 case 0:
-                    socket.emit('click', {button: 'left', x: mouseX, y: mouseY, state: true});
+                    socket.emit('click', {button: 'left', x: mouseX+OFFSETX, y: mouseY+OFFSETY, state: true});
                     break;
                 case 2:
-                    socket.emit('click', {button: 'right', x: mouseX, y: mouseY, state: true});
+                    socket.emit('click', {button: 'right', x: mouseX+OFFSETX, y: mouseY+OFFSETY, state: true});
                     break;
             }
         }
@@ -601,15 +601,15 @@ document.onmouseup = function(e) {
         if (!e.isTrusted) {
             socket.emit('timeout');
         }
-        mouseX = e.clientX-window.innerWidth/2-OFFSETX;
-        mouseY = e.clientY-window.innerHeight/2-OFFSETY;
+        mouseX = e.clientX-window.innerWidth/2;
+        mouseY = e.clientY-window.innerHeight/2;
         if (!e.target.matches('#signinContainer') && !e.target.matches('#chatInput') && !e.target.matches('#windows') && !e.target.matches('#dropdownMenu') && !e.target.matches('#regionName')) {
             switch (e.button) {
                 case 0:
-                    socket.emit('click', {button: 'left', x: mouseX, y: mouseY, state: false});
+                    socket.emit('click', {button: 'left', x: mouseX+OFFSETX, y: mouseY+OFFSETY, state: false});
                     break;
                 case 2:
-                    socket.emit('click', {button: 'right', x: mouseX, y: mouseY, state: false});
+                    socket.emit('click', {button: 'right', x: mouseX+OFFSETX, y: mouseY+OFFSETY, state: false});
                     break;
             }
         }
@@ -620,11 +620,18 @@ document.onmousemove = function(e) {
         if (!e.isTrusted) {
             socket.emit('timeout');
         }
-        mouseX = e.clientX-window.innerWidth/2-OFFSETX;
-        mouseY = e.clientY-window.innerHeight/2-OFFSETY;
-        socket.emit('mouseMove', {x: mouseX, y: mouseY});
+        mouseX = e.clientX-window.innerWidth/2;
+        mouseY = e.clientY-window.innerHeight/2;
+        socket.emit('mouseMove', {x: mouseX+OFFSETX, y: mouseY+OFFSETY});
+        DroppedItem.updateHighlight();
     }
 };
+setInterval(function() {
+    if (loaded) {
+        socket.emit('mouseMove', {x: mouseX+OFFSETX, y: mouseY+OFFSETY});
+        DroppedItem.updateHighlight();
+    }
+}, 500);
 socket.on('updateSelf', function(data) {
     playerid = data.id;
     document.getElementById('statsHPvalue').style.width = (data.hp/data.maxHP)*100 + '%';
