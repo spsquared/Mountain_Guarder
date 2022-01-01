@@ -587,10 +587,10 @@ document.onmousedown = function(e) {
         if (!document.getElementById('chat').contains(e.target) && !document.getElementById('dropdownMenu').contains(e.target) && !document.getElementById('windows').contains(e.target) && !document.getElementById('deathScreen').contains(e.target)) {
             switch (e.button) {
                 case 0:
-                    socket.emit('click', {button: 'left', x: mouseX+OFFSETX, y: mouseY+OFFSETY, state: true});
+                    socket.emit('click', {button: 'left', x: mouseX-OFFSETX, y: mouseY-OFFSETY, state: true});
                     break;
                 case 2:
-                    socket.emit('click', {button: 'right', x: mouseX+OFFSETX, y: mouseY+OFFSETY, state: true});
+                    socket.emit('click', {button: 'right', x: mouseX-OFFSETX, y: mouseY-OFFSETY, state: true});
                     break;
             }
         }
@@ -606,10 +606,10 @@ document.onmouseup = function(e) {
         if (!e.target.matches('#signinContainer') && !e.target.matches('#chatInput') && !e.target.matches('#windows') && !e.target.matches('#dropdownMenu') && !e.target.matches('#regionName')) {
             switch (e.button) {
                 case 0:
-                    socket.emit('click', {button: 'left', x: mouseX+OFFSETX, y: mouseY+OFFSETY, state: false});
+                    socket.emit('click', {button: 'left', x: mouseX-OFFSETX, y: mouseY-OFFSETY, state: false});
                     break;
                 case 2:
-                    socket.emit('click', {button: 'right', x: mouseX+OFFSETX, y: mouseY+OFFSETY, state: false});
+                    socket.emit('click', {button: 'right', x: mouseX-OFFSETX, y: mouseY-OFFSETY, state: false});
                     break;
             }
         }
@@ -622,13 +622,13 @@ document.onmousemove = function(e) {
         }
         mouseX = e.clientX-window.innerWidth/2;
         mouseY = e.clientY-window.innerHeight/2;
-        socket.emit('mouseMove', {x: mouseX+OFFSETX, y: mouseY+OFFSETY});
+        socket.emit('mouseMove', {x: mouseX-OFFSETX, y: mouseY-OFFSETY});
         DroppedItem.updateHighlight();
     }
 };
 setInterval(function() {
     if (loaded) {
-        socket.emit('mouseMove', {x: mouseX+OFFSETX, y: mouseY+OFFSETY});
+        socket.emit('mouseMove', {x: mouseX-OFFSETX, y: mouseY-OFFSETY});
         DroppedItem.updateHighlight();
     }
 }, 500);

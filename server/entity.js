@@ -1192,7 +1192,7 @@ Player = function(socket) {
                     if (data.state) {
                         for (var i in DroppedItem.list) {
                             var localdroppeditem = DroppedItem.list[i];
-                            if (self.getDistance(localdroppeditem) < 2048) {
+                            if (self.getDistance(localdroppeditem) < 1024) {
                                 var x = self.x+data.x;
                                 var y = self.y+data.y;
                                 var left = localdroppeditem.x-localdroppeditem.width/2;
@@ -1431,6 +1431,7 @@ Player = function(socket) {
         self.heldItem.angle = Math.atan2(self.mouseY, self.mouseX);
         self.updateAnimation();
         self.updateClient();
+        if (self.gridx == 3 && self.gridy == 9 && self.alive) self.onDeath(self, 'fire');
     };
     self.updateClient = function() {
         var pack = {
@@ -1486,6 +1487,9 @@ Player = function(socket) {
                 break;
             case 'explosion':
                 insertChat(self.name + ' blew up', 'death');
+                break;
+            case 'fire':
+                insertChat(self.name + ' went up in flames', 'death');
                 break;
             case 'debug':
                 insertChat(self.name + ' was debugged', 'death');

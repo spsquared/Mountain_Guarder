@@ -645,16 +645,17 @@ DroppedItem.updateHighlight = function() {
     }
     for (var i in DroppedItem.list) {
         var localdroppeditem = DroppedItem.list[i];
-        var x = mouseX+OFFSETX;
-        var y = mouseY+OFFSETY;
-        var left = localdroppeditem.x-player.x-localdroppeditem.width/2;
-        var right = localdroppeditem.x-player.x+localdroppeditem.width/2;
-        var top = localdroppeditem.y-player.y-localdroppeditem.height/2;
-        var bottom = localdroppeditem.y-player.y+localdroppeditem.height/2;
-        console.log(x, y, left, right, top, bottom)
-        if (x >= left && x <= right && y >= top && y <= bottom) {
-            localdroppeditem.animationImage = Inventory.itemHighlightImages[localdroppeditem.itemId];
-            break;
+        if (Math.sqrt(Math.pow(player.x-localdroppeditem.x, 2) + Math.pow(player.y-localdroppeditem.y, 2)) < 1024) {
+            var x = mouseX+OFFSETX;
+            var y = mouseY+OFFSETY;
+            var left = localdroppeditem.x-player.x-localdroppeditem.width/2;
+            var right = localdroppeditem.x-player.x+localdroppeditem.width/2;
+            var top = localdroppeditem.y-player.y-localdroppeditem.height/2;
+            var bottom = localdroppeditem.y-player.y+localdroppeditem.height/2;
+            if (x >= left && x <= right && y >= top && y <= bottom) {
+                localdroppeditem.animationImage = Inventory.itemHighlightImages[localdroppeditem.itemId];
+                break;
+            }
         }
     }
 }

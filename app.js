@@ -140,8 +140,9 @@ io.on('connection', function(socket) {
                 logColor(player.name + ': ' + input, '\x1b[33m', 'log');
                 try {
                     var self = player;
-                    var msg = eval(input);
-                    if (msg == undefined) {
+                    var result = eval(input);
+                    var msg = result.toString();
+                    if (msg == '') {
                         msg = 'Successfully executed command';
                     }
                     socket.emit('debugLog', {color:'lime', msg:msg});
