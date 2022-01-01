@@ -1,7 +1,7 @@
 // Copyright (C) 2021 Radioactive64
 // Go to README.md for more information
 
-const version = 'v0.7.1';
+const version = 'v0.7.2';
 require('./server/log.js');
 console.info('\x1b[33m%s\x1b[0m', 'Mountain Guarder ' + version + ' copyright (C) Radioactive64 2021');
 appendLog('Mountain Guarder ' + version + ' copyright (C) Radioactive64 2021', 'log');
@@ -140,8 +140,7 @@ io.on('connection', function(socket) {
                 logColor(player.name + ': ' + input, '\x1b[33m', 'log');
                 try {
                     var self = player;
-                    var result = eval(input);
-                    var msg = result.toString();
+                    var msg = eval(input);
                     if (msg == '') {
                         msg = 'Successfully executed command';
                     }

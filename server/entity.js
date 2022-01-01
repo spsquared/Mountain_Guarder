@@ -1431,7 +1431,7 @@ Player = function(socket) {
         self.heldItem.angle = Math.atan2(self.mouseY, self.mouseX);
         self.updateAnimation();
         self.updateClient();
-        if (self.gridx == 3 && self.gridy == 9 && self.alive) self.onDeath(self, 'fire');
+        if (self.gridx == 3 && self.gridy == 9 && self.map == 'World' && self.alive) self.onDeath(self, 'fire');
     };
     self.updateClient = function() {
         var pack = {
@@ -1483,7 +1483,8 @@ Player = function(socket) {
         }
         switch (type) {
             case 'killed':
-                insertChat(self.name + ' was killed by ' + entity.name, 'death');
+                if (entity) insertChat(self.name + ' was killed by ' + entity.name, 'death');
+                else insertChat(self.name + ' died', 'death');
                 break;
             case 'explosion':
                 insertChat(self.name + ' blew up', 'death');
