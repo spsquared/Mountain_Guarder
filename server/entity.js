@@ -1013,7 +1013,7 @@ Player = function(socket) {
     setInterval(function() {
         self.signUpAttempts = Math.max(self.signUpAttempts-1, 0);
         if (self.signUpAttempts >= 10) {
-            insertChat(Player.list[id].name + ' was kicked for sign up spam', 'anticheat');
+            insertChat(self.name + ' was kicked for sign up spam', 'anticheat');
             socket.emit('disconnected');
             socket.onevent = function(packet) {};
             socket.disconnect();
