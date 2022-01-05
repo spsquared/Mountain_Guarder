@@ -305,6 +305,17 @@
     padding: 0px 4px;
     border: 1px solid black;
 }
+@keyframes special {
+    0% {
+        color: red
+    }
+    50% {
+        color: #FF9900
+    }
+    100% {
+        color: red;
+    }
+}
 
 /* dropdown menu */
 #dropdownMenu {

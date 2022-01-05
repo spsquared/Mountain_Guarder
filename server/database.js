@@ -2,7 +2,6 @@
 
 const bcrypt = require('bcrypt');
 const salt = 10;
-const Cryptr = require('cryptr');
 const {Client} = require('pg');
 url = null;
 if (process.env.DATABASE_URL) {
@@ -156,60 +155,62 @@ ACCOUNTS = {
     }
 };
 
-// dbDebug = {
-//     list: function() {
-//         try {
-//             database.query('SELECT username FROM users', function(err, res) {
-//                 if (err) forceQuit(err);
-//                 console.log(res.rows);
-//             });
-//         } catch (err) {
-//             forceQuit(err, 2);
-//         }
-//     },
-//     remove: function(username) {
-//         try {
-//             database.query('DELETE FROM users WHERE username=$1;', [username], function(err, res) {
-//                 if (err) forceQuit(err);
-//             });
-//             return 'Removed "' + username + '" from accounts.';
-//         } catch (err) {
-//             forceQuit(err, 2);
-//         }
-//     },
-//     reset: function(username) {
-//         try {
-//             database.query('UPDATE users SET data=$2 WHERE username=$1;', [username, null], function(err, res) {
-//                 if (err) forceQuit(err);
-//             });
-//             return 'Reset "' + username + '"\'s progress.';
-//         } catch (err) {
-//             forceQuit(err, 2);
-//         }
-//     },
-//     clean: function() {
-//         try {
-//             database.query('SELECT username FROM users', function(err, res) {
-//                 if (err) forceQuit(err);
-//                 for (var i in res.rows) {
-//                     var allnumbers = true;
-//                     for (var j in res.rows[i].username) {
-//                         if (res.rows[i].username[j] != '.' && res.rows[i].username[j] != '0' && res.rows[i].username[j] != '0' && res.rows[i].username[j] != '1' && res.rows[i].username[j] != '2' && res.rows[i].username[j] != '3' && res.rows[i].username[j] != '4' && res.rows[i].username[j] != '5' && res.rows[i].username[j] != '6' && res.rows[i].username[j] != '7' && res.rows[i].username[j] != '8' && res.rows[i].username[j] != '9') {
-//                             allnumbers = false;
-//                         }
-//                     }
-//                     if (allnumbers) {
-//                         database.query('DELETE FROM users WHERE username=$1;', [res.rows[i].username], function(err, res) {
-//                             if (err) forceQuit(err);
-//                         });
-//                     }
-//                 }
-//             });
-//         } catch (err) {
-//             forceQuit(err, 2);
-//         }
-//     }
-// };
+/*
+dbDebug = {
+    list: function() {
+        try {
+            database.query('SELECT username FROM users;', function(err, res) {
+                if (err) forceQuit(err);
+                console.log(res.rows);
+            });
+        } catch (err) {
+            forceQuit(err, 2);
+        }
+    },
+    remove: function(username) {
+        try {
+            database.query('DELETE FROM users WHERE username=$1;', [username], function(err, res) {
+                if (err) forceQuit(err);
+            });
+            return 'Removed "' + username + '" from accounts.';
+        } catch (err) {
+            forceQuit(err, 2);
+        }
+    },
+    reset: function(username) {
+        try {
+            database.query('UPDATE users SET data=$2 WHERE username=$1;', [username, null], function(err, res) {
+                if (err) forceQuit(err);
+            });
+            return 'Reset "' + username + '"\'s progress.';
+        } catch (err) {
+            forceQuit(err, 2);
+        }
+    },
+    clean: function() {
+        try {
+            database.query('SELECT username FROM users;', function(err, res) {
+                if (err) forceQuit(err);
+                for (var i in res.rows) {
+                    var allnumbers = true;
+                    for (var j in res.rows[i].username) {
+                        if (res.rows[i].username[j] != '.' && res.rows[i].username[j] != '0' && res.rows[i].username[j] != '0' && res.rows[i].username[j] != '1' && res.rows[i].username[j] != '2' && res.rows[i].username[j] != '3' && res.rows[i].username[j] != '4' && res.rows[i].username[j] != '5' && res.rows[i].username[j] != '6' && res.rows[i].username[j] != '7' && res.rows[i].username[j] != '8' && res.rows[i].username[j] != '9') {
+                            allnumbers = false;
+                        }
+                    }
+                    if (allnumbers) {
+                        database.query('DELETE FROM users WHERE username=$1;', [res.rows[i].username], function(err, res) {
+                            if (err) forceQuit(err);
+                        });
+                    }
+                }
+            });
+        } catch (err) {
+            forceQuit(err, 2);
+        }
+    }
+};
+*/
 
 // credential read/write
 async function getCredentials(username) {
@@ -239,7 +240,7 @@ async function writeCredentials(username, password) {
 };
 async function deleteCredentials(username,) {
     try {
-        await database.query('DELETE FROM users WHERE username=$1', [username]);
+        await database.query('DELETE FROM users WHERE username=$1;', [username]);
         return true;
     } catch (err) {
         forceQuit(err, 2);
@@ -253,7 +254,7 @@ async function updatePassword(username, password) {
         forceQuit(err, 3);
     }
     try {
-        await database.query('UPDATE users SET password=$2 WHERE username=$1', [username, encryptedpassword]);
+        await database.query('UPDATE users SET password=$2 WHERE username=$1;', [username, encryptedpassword]);
         return true;
     } catch (err) {
         forceQuit(err, 2);
@@ -280,7 +281,7 @@ async function updateProgress(username, password, data) {
     if (cred) {
         if (bcrypt.compareSync(password, cred.password)) {
             try {
-                await database.query('UPDATE users SET data=$2 WHERE username=$1', [username, data]);
+                await database.query('UPDATE users SET data=$2 WHERE username=$1;', [username, data]);
                 return true;
             } catch (err) {
                 forceQuit(err, 2);
@@ -294,7 +295,7 @@ async function updateProgress(username, password, data) {
 
 // bot token
 async function webHookURL() {
-    const data = await database.query('SELECT token FROM webhook');
+    const data = await database.query('SELECT token FROM webhook;');
     if (data.rows[0]) {
         url = data.rows[0].token;
         require('./chatlog.js');

@@ -291,16 +291,19 @@ Monster.update = function(data) {
     for (var i in Monster.list) {
         Monster.list[i].updated = false;
     }
-    for (var i in data) {
-        if (inRenderDistancePixels(data[i])) {
-            if (Monster.list[data[i].id]) {
-                Monster.list[data[i].id].update(data[i]);
-            } else {
-                try {
-                    new Monster(data[i].id, data[i].map, data[i].x, data[i].y, data[i].type);
-                    Monster.list[data[i].id].update(data[i]);
-                } catch (err) {
-                    console.error(err);
+    for (var y in data) {
+        for (var x in data[y]) {
+            for (var i in data[y][x]) {
+                var datamonster = data[y][x][i];
+                if (Monster.list[datamonster.id]) {
+                    Monster.list[datamonster.id].update(datamonster);
+                } else {
+                    try {
+                        new Monster(datamonster.id, datamonster.map, datamonster.x, datamonster.y, datamonster.type);
+                        Monster.list[datamonster.id].update(datamonster);
+                    } catch (err) {
+                        console.error(err);
+                    }
                 }
             }
         }
@@ -371,16 +374,19 @@ Projectile.update = function(data) {
     for (var i in Projectile.list) {
         Projectile.list[i].updated = false;
     }
-    for (var i in data) {
-        if (inRenderDistancePixels(data[i])) {
-            if (Projectile.list[data[i].id]) {
-                Projectile.list[data[i].id].update(data[i]);
-            } else {
-                try {
-                    new Projectile(data[i].id, data[i].map, data[i].x, data[i].y, data[i].angle, data[i].type);
-                    Projectile.list[data[i].id].update(data[i]);
-                } catch (err) {
-                    console.error(err);
+    for (var y in data) {
+        for (var x in data[y]) {
+            for (var i in data[y][x]) {
+                var dataprojectile = data[y][x][i];
+                if (Projectile.list[dataprojectile.id]) {
+                    Projectile.list[dataprojectile.id].update(dataprojectile);
+                } else {
+                    try {
+                        new Projectile(dataprojectile.id, dataprojectile.map, dataprojectile.x, dataprojectile.y, dataprojectile.angle, dataprojectile.type);
+                        Projectile.list[dataprojectile.id].update(dataprojectile);
+                    } catch (err) {
+                        console.error(err);
+                    }
                 }
             }
         }
@@ -584,9 +590,12 @@ Particle = function(map, x, y, type, value) {
     return self;
 };
 Particle.update = function(data) {
-    for (var i in data) {
-        if (inRenderDistancePixels(data[i])) {
-            new Particle(data[i].map, data[i].x, data[i].y, data[i].type, data[i].value);
+    for (var y in data) {
+        for (var x in data[y]) {
+            for (var i in data[y][x]) {
+                var dataparticle = data[y][x][i];
+                new Particle(dataparticle.map, dataparticle.x, dataparticle.y, dataparticle.type, dataparticle.value);
+            }
         }
     }
 };
@@ -619,16 +628,21 @@ DroppedItem.update = function(data) {
     for (var i in DroppedItem.list) {
         DroppedItem.list[i].updated = false;
     }
-    for (var i in data) {
-        if (inRenderDistancePixels(data[i])) {
-            if (DroppedItem.list[data[i].id]) {
-                DroppedItem.list[data[i].id].updated = true;
-            } else {
-                try {
-                    new DroppedItem(data[i].id, data[i].map, data[i].x, data[i].y, data[i].itemId);
-                    DroppedItem.list[data[i].id].updated = true;
-                } catch (err) {
-                    console.error(err);
+    for (var y in data) {
+        for (var x in data[y]) {
+            for (var i in data[y][x]) {
+                var datadroppeditem = data[y][x][i];
+                if (datadroppeditem != null) {
+                    if (DroppedItem.list[datadroppeditem.id]) {
+                        DroppedItem.list[datadroppeditem.id].updated = true;
+                    } else {
+                        try {
+                            new DroppedItem(datadroppeditem.id, datadroppeditem.map, datadroppeditem.x, datadroppeditem.y, datadroppeditem.itemId);
+                            DroppedItem.list[datadroppeditem.id].updated = true;
+                        } catch (err) {
+                            console.error(err);
+                        }
+                    }
                 }
             }
         }
@@ -645,7 +659,7 @@ DroppedItem.updateHighlight = function() {
     }
     for (var i in DroppedItem.list) {
         var localdroppeditem = DroppedItem.list[i];
-        if (Math.sqrt(Math.pow(player.x-localdroppeditem.x, 2) + Math.pow(player.y-localdroppeditem.y, 2)) < 1024) {
+        if (Math.sqrt(Math.pow(player.x-localdroppeditem.x, 2) + Math.pow(player.y-localdroppeditem.y, 2)) < 512) {
             var x = mouseX+OFFSETX;
             var y = mouseY+OFFSETY;
             var left = localdroppeditem.x-player.x-localdroppeditem.width/2;

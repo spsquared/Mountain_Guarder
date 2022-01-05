@@ -259,7 +259,6 @@ img {
     height: 100vh;
     background-color: black;
     text-align: center;
-    animation-timing-function: linear;
     animation-duration: 0.5s;
     z-index: 100;
 }

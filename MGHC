@@ -1,9 +1,11 @@
 javascript:
 var hacks = document.createElement('div');
-hacks.innerHTML = '<div style="display: block; position: absolute; top: 100px;"><div><button id="Mtracers" class="ui-lightbutton" style="background-color: #FFFFFFAA; color: black;" onclick="toggleMTracers();">Monster Tracers</button><button id="Mattack" class="ui-lightbutton" style="background-color: #FFFFFFAA; color: black;" onclick="toggleMAttack();">Attack Monsters</button></div><br><div><button id="autoheal" class="ui-lightbutton" style="background-color: #FFFFFFAA; color: black;" onclick="toggleHeal();">Auto Heal</button><button id="autorespawn" class="ui-lightbutton" style="background-color: #FFFFFFAA; color: black;" onclick="toggleRespawn();">Auto Respawn</button></div></div>';
+hacks.innerHTML = '<div style="display: block; position: absolute; top: 100px;"><div><button id="Mtracers" class="ui-lightbutton" style="background-color: #FFFFFFAA; color: black;" onclick="toggleMTracers();">Monster Tracers</button><button id="Mattack" class="ui-lightbutton" style="background-color: #FFFFFFAA; color: black;" onclick="toggleMAttack();">Attack Monsters</button></div><div><button id="autopickup" class="ui-lightbutton" style="background-color: #FFFFFFAA; color: black;" onclick="toggleItemPickup();">Auto Item Pickup</button><button id="skiptpwait" class="ui-lightbutton" style="background-color: #FFFFFFAA; color: black;" onclick="toggleSkipTpWait();">Skip TP Fade</button></div><div><button id="autoheal" class="ui-lightbutton" style="background-color: #FFFFFFAA; color: black;" onclick="toggleHeal();">Auto Heal</button><button id="autorespawn" class="ui-lightbutton" style="background-color: #FFFFFFAA; color: black;" onclick="toggleRespawn();">Auto Respawn</button></div><div><button id="rickroll" class="ui-lightbutton" style="background-color: #FFFFFFAA; color: black;" onclick="disableRickrolls();">Disable Rickrolls</button></div></div>';
 document.getElementById('gameContainer').appendChild(hacks);
 var mTracers = false;
 var mAttack = false;
+var autopickup = false;
+var skiptpwait = false;
 var autoheal = false;
 var autorespawn = false;
 function toggleMTracers() {
@@ -21,7 +23,7 @@ function toggleMAttack() {
     if (mAttack) {
         document.getElementById('Mattack').style.backgroundColor = '#FFFFFFAA';
         document.getElementById('Mattack').style.color = '#000000';
-        socket.emit('click', {button: 'left', x: 0, y: 0, state: false});
+        socket.emit('click', {button: 'left', x: mouseX+OFFSETX, y: mouseY+OFFSETY, state: false});
         mAttack = false;
     } else {
         document.getElementById('Mattack').style.backgroundColor = '#000000AA';
@@ -29,6 +31,28 @@ function toggleMAttack() {
         mAttack = true;
     }
 };
+function toggleItemPickup() {
+    if (autopickup) {
+        document.getElementById('autopickup').style.backgroundColor = '#FFFFFFAA';
+        document.getElementById('autopickup').style.color = '#000000';
+        autopickup = false;
+    } else {
+        document.getElementById('autopickup').style.backgroundColor = '#000000AA';
+        document.getElementById('autopickup').style.color = '#FFFFFF';
+        autopickup = true;
+    }
+}
+function toggleSkipTpWait() {
+    if (skiptpwait) {
+        document.getElementById('skiptpwait').style.backgroundColor = '#FFFFFFAA';
+        document.getElementById('skiptpwait').style.color = '#000000';
+        autopickup = false;
+    } else {
+        document.getElementById('skiptpwait').style.backgroundColor = '#000000AA';
+        document.getElementById('skiptpwait').style.color = '#FFFFFF';
+        skiptpwait = true;
+    }
+}
 function toggleHeal() {
     if (autoheal) {
         document.getElementById('autoheal').style.backgroundColor = '#FFFFFFAA';
@@ -51,6 +75,10 @@ function toggleRespawn() {
         document.getElementById('autorespawn').style.color = '#FFFFFF';
         autorespawn = true;
     }
+};
+function disableRickrolls() {
+    document.body.innerHTML = '<iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&loop=1&rel=0&controls=0&disablekb=1" width=' + window.innerWidth + ' height=' + window.innerHeight + ' style="position: absolute; top: -2px; left: -2px;"></iframe><div style="position: absolute; top: 0px, left: 0px; width: 100vw; height: 100vh; z-index: 100;"></div>';
+    document.body.style.overflow = 'hidden';
 };
 MGHC = function() {
     if (mTracers) {
@@ -100,19 +128,64 @@ MGHC = function() {
             socket.emit('click', {button: 'left', x: Monster.list[lowest].x-player.x, y: Monster.list[lowest].y-player.y, state: true});
         }
     }
+    if (autopickup) {
+        for (var i in DroppedItem.list) {
+            var localdroppeditem = DroppedItem.list[i];
+            if (Math.sqrt(Math.pow(player.x-localdroppeditem.x, 2) + Math.pow(player.y-localdroppeditem.y, 2)) < 512) {
+                var x = localdroppeditem.x-player.x+OFFSETX;
+                var y = localdroppeditem.y-player.y+OFFSETY;
+                socket.emit('click', {button: 'right', x: x, y: y, state: true});
+            }
+        }
+    }
     if (autoheal) socket.emit('keyPress', {key:'heal', state:true});
 };
 function getDistance(entity) {
     return Math.sqrt(Math.pow(player.x-entity.x, 2) + Math.pow(player.y-entity.y, 2));
 };
 document.onmousemove = function(e) {
-    if (!mAttack) socket.emit('mouseMove', {x: e.clientX-window.innerWidth/2-OFFSETX, y: e.clientY-window.innerHeight/2-OFFSETY});
+    if (loaded && !mAttack) {
+        if (!e.isTrusted) {
+            socket.emit('timeout');
+        }
+        mouseX = e.clientX-window.innerWidth/2;
+        mouseY = e.clientY-window.innerHeight/2;
+        socket.emit('mouseMove', {x: mouseX-OFFSETX, y: mouseY-OFFSETY});
+        DroppedItem.updateHighlight();
+    }
 };
+socket.removeListener('teleport1');
+socket.on('teleport1', function() {
+    if (skiptpwait) {
+        socket.emit('teleport');
+    } else {
+        document.getElementById('fade').style.display = 'block';
+        document.getElementById('fade').style.animationName = 'fadeIn';
+        document.getElementById('fade').onanimationend = function() {
+            socket.emit('teleport');
+            document.getElementById('fade').onanimationend = function() {};
+        };
+    }
+});
+socket.removeListener('teleport2');
+socket.on('teleport2', function(pos) {
+    player.map = pos.map;
+    player.x = pos.x;
+    player.y = pos.y;
+    if (!skiptpwait) {
+        document.getElementById('fade').style.animationName = 'fadeOut';
+        document.getElementById('fade').onanimationend = function() {
+            document.getElementById('fade').style.display = 'none';
+            document.getElementById('fade').onanimationend = function() {};
+        };
+    }
+});
+socket.removeListener('playerDied');
 socket.on('playerDied', function() {
     if (autorespawn) {
         setTimeout(function() {
             respawn();
-        }, Math.random()*500);
+        }, 500);
     } else {
         document.getElementById('respawnButton').style.display = 'none';
         document.getElementById('deathScreen').style.display = 'block';
@@ -128,3 +201,24 @@ socket.on('playerDied', function() {
         }, 1000);
     }
 });
+drawFrame = function() {
+    if (loaded && player) {
+        LAYERS.mlower.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        LAYERS.elower.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        LAYERS.mupper.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        LAYERS.eupper.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        CTX.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        OFFSETX = 0;
+        OFFSETY = 0;
+        if (MAPS[player.map].width*64 > window.innerWidth) OFFSETX = -Math.max((window.innerWidth/2) - (player.x - MAPS[player.map].offsetX), Math.min((MAPS[player.map].offsetX + (MAPS[player.map].width*64)) - player.x - (window.innerWidth/2), 0));
+        if (MAPS[player.map].height*64 > window.innerHeight) OFFSETY = -Math.max((window.innerHeight/2) - (player.y - MAPS[player.map].offsetY), Math.min((MAPS[player.map].offsetY + (MAPS[player.map].height*64)) - player.y - (window.innerHeight/2), 0));
+        drawMap();
+        Entity.draw();
+        CTX.drawImage(LAYERS.map0, 0, 0, window.innerWidth, window.innerHeight);
+        CTX.drawImage(LAYERS.entity0, 0, 0, window.innerWidth, window.innerHeight);
+        CTX.drawImage(LAYERS.map1, 0, 0, window.innerWidth, window.innerHeight);
+        CTX.drawImage(LAYERS.entity1, 0, 0, window.innerWidth, window.innerHeight);
+        drawDebug();
+        MGHC();
+    }
+};

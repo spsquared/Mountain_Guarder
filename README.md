@@ -9,15 +9,14 @@ Meadow Guarder's sister game!
 Play free today at [mountainguarder.herokuapp.com](https://mountainguarder.herokuapp.com)! Just go click the link, create an account, and play Mountain Guarder free, anytime, anywhere! (as long as you have WiFi)
 
 ### Installation
-##### Manual Installation
-I cannot distribute node.js as I do not own any rights to it, but visiting [their website](https://nodejs.org/) you can download the latest (not LTS) and install it, **checking the box "Automatically install necessary tools"**. Wait for the installation to finish, then [download the code](https://github.com/definitely-nobody-is-here/Mountain_Guarder/archive/refs/heads/master.zip) and unzip it into any folder. Run Config.bat or Config.sh (depending on system). Then simply double-click on Start.bat or Start.sh and the server is running! (those last two sentences don't apply)
-To stop the server, type "stop" into the server console.
-For help, type "help" into server console. (also doesn't apply)
+##### Local Installation
+I cannot distribute Node.js as I do not own any rights to it, but visiting [their website](https://nodejs.org/) you can download the LTS version and install it, **checking the box "Automatically install necessary tools"**. NPM should install with it. Wait for the installation to finish, then [download the code](https://github.com/definitely-nobody-is-here/Mountain_Guarder/archive/refs/heads/master.zip) and unzip it into a new folder. Then open command prompt, navigate to the folder you placed the server in, and run `npm install` to download the required dependencies. If you want to use a global PostgreSQL database use the following. Install a [PostgreSQL server](https://www.postgresql.org/) or use an alternative PostgreSQL hosting site. Make sure you have the database attached to it by creating `url.js` in the `server` folder. Inside, place `url = '<database uri here>';`, replacing `<database uri here>` with your PostgreSQL uri. Make sure your database is running, and run `node app.js` in your command prompt. The server is started! Alternatively, locate `config.json` (or `config`) and set "offlineMode" to `true` and start the server using `node app.js`.
+To stop the server, press Ctrl+C.
 ##### Heroku Installation
 [![Deploy](https://www.Herokucdn.com/deploy/button.svg)](https://Heroku.com/deploy?template=https://github.com/definitely-nobody-is-here/Mountain_Guarder)
 
 ### Joining the Game
-Once the server is started, you can find your computer's name (available in Windows>System>About as "Device name"), or simply search [what's my ip](http://google.com/search?q=whats+my+ip) or click the link. The server console will tell you what port to visit and you can type either the ip address or computer name on the client side **connected to the same network as the host** and then followed by a ":" and then the port number. Example: 111.22.33.444:2000 or hostcomputer:1100. The port will always be 4000.
+Once the server is started, you can find your computer's name (available in Windows>System>About as "Device name"), or simply search [what's my ip](http://google.com/search?q=whats+my+ip) or click the link. The server console will tell you what port to visit and you can type either the ip address or computer name on the client side **connected to the same network as the host** and then followed by a `:` and then the port number. Example: `111.22.33.444:2000` or `hostcomputer:1100`. The port will always be 4000.
 
 ### Gameplay
 Visit the [wiki](https://github.com/definitely-nobody-is-here/Mountain_Guarder/wiki) for more information.
@@ -26,17 +25,17 @@ Visit the [wiki](https://github.com/definitely-nobody-is-here/Mountain_Guarder/w
 
 # Troubleshooting
 #### There are errors
-If you are getting errors or something seems broken (missing textures or broken UI) you can [submit a bug report](https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/new?assignees=&labels=bug&template=bug-report.md&title=BUG+-+%5BSummary+here%5D) including a screenshot of the most recent logs and any errors.
+If you are getting errors or something seems broken (missing textures, stuff flying around all over your screen, something gets stuck) you can [submit a bug report](https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/new?assignees=&labels=bug&template=bug-report.md&title=BUG+-+%5BSummary+here%5D) including a screenshot of the problem and the most recent logs and any errors.
 #### My Server Crashed
-In the case that your server crashes, [submit a bug report](https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/new?assignees=&labels=bug&template=bug-report.md&title=BUG+-+%5BSummary+here%5D) including a screenshot of the most recent logs and any error messages on the client or server.
+In the case that your server crashes, verify that there is a [PostgreSQL database](https://www.postgresql.org/) connected to your server, all dependencies are installed correctly, and that the server has an internet connection. If you have verified that the server has all necessary addons to run and the server still crashed, [submit a bug report](https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/new?assignees=&labels=bug&template=bug-report.md&title=BUG+-+%5BSummary+here%5D) including a screenshot of the most recent logs and any error messages on the client or server.
 #### I can't Connect to the Server (ERROR_Connection_Refused)
-If you can't connect to the server, verify that:
+If you can't connect to the server and are running it locally without a hosting service, verify that:
  - The server is running
  - You have entered the correct port number and hostname
  - You are connected to the same WiFi network as the server
-If you have verified all four of the above, try restarting the server. If your server is running on a dedicated server (like Heroku) check that your link is correct.
+If you have verified all four of the above, try restarting the server. If your server is running on a hosting service (like Heroku) check that your link is correct.
 #### The Server is Slow
-There is nothing we can do about this. It could be your connection speed or a slow server unable to run the game at full speed. Press "backslash" ("\\") ingame and in the top-right corner it should list TPS and Ping. If your Ping is high then that is likely the source of your lag. If you TPS is low then the server is lagging. Check that there is nothing eating your computer's resources by opening Task Manager (Windows) by pressing Ctrl+Shift+Esc.
+There is nothing we can do about this. It could be your connection speed or a slow server unable to run the game at full speed. Press "backslash" (`\`) ingame and in the top-right corner it should list TPS and Ping. If your Ping is high then that is likely the source of your lag. If you TPS is low then the server is lagging. Check that there is nothing eating your computer's resources by opening Task Manager (Windows) by pressing Ctrl+Shift+Esc.
 
 If you can't resolve your problem after trying these solutions or your problem is not on this page, go to the [Issues](https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues) page and [submit a bug report](https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/new?assignees=&labels=bug&template=bug-report.md&title=BUG+-+%5BSummary+here%5D) and fill out as much information as possible.
 
@@ -80,6 +79,7 @@ If you can't resolve your problem after trying these solutions or your problem i
 | 0.7.0   | <ul><li>Items are now droppable</li><li>Implemented tooltips</li><li>Monsters drop items instead of teleporting them into your inventory</li><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/152" target="_blank">Fixed all items with the same id being linked (Issue #152)</a></li><li>Fixed weapon effects not being calculated</li><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/156" target="_blank">Made aggro raycasting finer (Issue #156)</a></li><li>Fixed permanent item dragging</li><li>Improved preloading times</li><li>Patched infinitely spinning snowballs</li><li>Fixed monster aggro on damage</li><li>Added position values to debug screen</li><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/111" target="_blank">Patched server crashes from double kicks (Issue #111)</a></li></ul> |
 | 0.7.1   | <ul><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/166" target="_blank">Added item highlighting (Issue #166)</a></li><li>Added more information to tooltips</li><li>Monsters now have a chance to not drop anything</li><li>Items in your offhand no longer have any effects</li><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/175" target="_blank">Added new collision type for tree stumps, rocks, trees, etc. (Issue #175)</a></li><li>Added a live chat feed to discord</li><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/160" target="_blank">Added "/help" command (Issue #160)</a></li><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/170" target="_blank">Made the Steel Bow obtainable (Issue #170)</a></li><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/172" target="_blank">Added snow to tree stumps (Issue #172)</a></li><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/162" target="_blank">Fixed death particles flashing black (Issue #162)</a></li><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/163" target="_blank">Patched monsters inactive until player approaches (0, 0) (Issue #163)</a></li><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/161" target="_blank">Dropping an equip will now update your stats (Issue #161)</a></li><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/169" target="_blank">Picking up items with a full inventory is no longer possible (Issue #169)</a></li><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/164" target="_blank">Items no longer drop into collisions (Issue #164)</a></li><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/178" target="_blank">Patched mouse position not updating (Issue #178)</a></li><li>Tweaked chat broadcasts</li><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/177" target="_blank">Added another bush (Issue #177)</a></li></ul> |
 | 0.7.2   | <ul><li>Patched Discord live chat webhook exploit</li><li>Items only highlight when you are close to them</li><li>Changed item pickup distance</li><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/180" target="_blank">Changed collision size for rocks (Issue #180)</a></li></ul> |
+| 0.7.3   | <ul><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/158" target="_blank">Monster drops are now only visible to the player that killed it (Issue #158)</a></li><li>Added the Leather Hat to drop lists</li><li>Removed wait time after teleporting</li><li>Items despawn after 5 minutes instead of 20 now</li><li>Optimized update packets</li><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/142" target="_blank">Fixed monsters going inactive at player gridx=0 (Issue #142)</a></li><li>Added more trolls</li><li>Patched unable to sign in after clicking sign in button</li><li>Patched server crashes from sign up spam</li><li>Improved local installation instructions</li></ul> |
 
 ***
 
@@ -96,12 +96,13 @@ Full license can be found in the LICENSE file.
 ##### Contributors:
 - [Radioactive64](https://github.com/definitely-nobody-is-here)
 - [maitian352](https://github.com/maitian352)
-- [Suvanth-Erranki](https://github.com/Suvanth-Erranki/)
+- [Suvanth-Erranki](https://github.com/Suvanth-Erranki)
 
 ##### Resources:
 - Various articles on the internet
 - [ScriptersWar](https://www.youtube.com/channel/UC8Yp-YagXZ4C5vOduEhcjRw) [tutorial series](https://www.youtube.com/playlist?list=PLcIaPHraYF7k4FbeGIDY-1mZZdjTu9QyL)
 - [Meadow Guarder](https://github.com/maitian352/Meadow-Guarder-old)
+- [Kinney](https://www.kenney.nl/)
 
 ***
 
@@ -112,4 +113,4 @@ To report a bug, you can submit a [submit a bug report](https://github.com/defin
 ***
 
 Games by [Radioactive64](https://github.com/definitely-nobody-is-here/) and [Maitian](https://github.com/maitian352/):
-<ul><li><a href="https://mountainguarder.herokuapp.com/" target="_blank">Mountain Guarder</a></li><li><a href="https://meadowguarder.herokuapp.com/" target="_blank">Meadow Guarder</a></li><li><a href="https://meadowguarderold.herokuapp.com/" target="_blank">Meadow Guarder Old</a></li><li><a href="https://bobguarder.herokuapp.com/" target="_blank">Bob Guarder</a></li><li><a href="https://battleboxes.herokuapp.com/" target="_blank">BattleBoxes</a></li><li><a href="https://cubieworld.herokuapp.com/" target="_blank">CubieWorld</a></li></ul>
+<ul><li><a href="https://mountainguarder.herokuapp.com/" target="_blank">Mountain Guarder</a></li><li><a href="https://meadowguarder.herokuapp.com/" target="_blank">Meadow Guarder</a></li><li><a href="https://meadowguarderold.herokuapp.com/" target="_blank">Meadow Guarder Old</a></li><li><a href="https://bobguarder.herokuapp.com/" target="_blank">Bob Guarder</a></li><li><a href="https://battleboxes.herokuapp.com/" target="_blank">BattleBoxes Multiplayer</a></li><li><a href="https://cubieworld.herokuapp.com/" target="_blank">CubieWorld</a></li><li><a href="https://platformertemplate.herokuapp.com/" target="_blank">Platformer Template</a></li><li><a href="https://still-mesa-50010.herokuapp.com/" target="_blank">Maitian Game</a></li></ul>

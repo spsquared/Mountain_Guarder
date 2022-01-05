@@ -14,6 +14,8 @@ function loadMap(name) {
             if (rawlayer.chunks) {
                 for (var j in rawlayer.chunks) {
                     var rawchunk = rawlayer.chunks[j];
+                    Collision.grid[name].chunkWidth = rawchunk.width;
+                    Collision.grid[name].chunkHeight = rawchunk.height;
                     for (var k in rawchunk.data) {
                         var x = (k % rawchunk.width)+rawchunk.x;
                         var y = ~~(k / rawchunk.width)+rawchunk.y;
@@ -21,6 +23,8 @@ function loadMap(name) {
                     }
                 }
             } else {
+                Collision.grid[name].chunkWidth = rawlayer.width;
+                Collision.grid[name].chunkHeight = rawlayer.height;
                 for (var j in rawlayer.data) {
                     var x = (j % rawlayer.width);
                     var y = ~~(j / rawlayer.width);

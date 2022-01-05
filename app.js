@@ -1,7 +1,7 @@
 // Copyright (C) 2021 Radioactive64
 // Go to README.md for more information
 
-const version = 'v0.7.2';
+const version = 'v0.7.3';
 require('./server/log.js');
 console.info('\x1b[33m%s\x1b[0m', 'Mountain Guarder ' + version + ' copyright (C) Radioactive64 2021');
 appendLog('Mountain Guarder ' + version + ' copyright (C) Radioactive64 2021', 'log');
@@ -38,6 +38,7 @@ ENV = {
     },
     pvp: false,
 };
+ENV.offlineMode = require('./config.json').offlineMode;
 require('./server/collision.js');
 require('./server/inventory.js');
 require('./server/entity.js');
@@ -105,7 +106,7 @@ io.on('connection', function(socket) {
             delete Player.list[player.id];
         });
         // debug
-        socket.on('debugInput', async function(input) {
+        socket.on('debugInput', function(input) {
             var op = false;
             for (var i in ENV.ops) {
                 if (player.name == ENV.ops[i]) op = true;
@@ -158,18 +159,18 @@ io.on('connection', function(socket) {
             }
         });
         // performance metrics
-        socket.on('ping', async function() {
+        socket.on('ping', function() {
             socket.emit('ping');
         });
         // ddos spam protection
         var packetCount = 0;
-        var onevent = socket.onevent;
+        const onevent = socket.onevent;
         socket.onevent = function(packet) {
             onevent.call(this, packet);
-            if (packet.data != 'ping') packetCount++;
+            packetCount++;
         };
         setInterval(function() {
-            packetCount = Math.max(packetCount-200, 0);
+            packetCount = Math.max(packetCount-100, 0);
             if (packetCount > 0) {
                 if (player.name) {
                     insertChat(player.name + ' was kicked for socket.io DOS', 'anticheat');
@@ -209,12 +210,7 @@ const s = {
     kickAll: function() {
         io.emit('disconnected');
     },
-    rickRoll: function(username) {
-        var player = s.findPlayer(username);
-        if (player) player.socket.emit('404');
-        else return ('No player with username ' + username);
-    },
-    broadCast: function(text) {
+    bc: function(text) {
         insertChat('[BC]: ' + text, 'server');
     },
     spawnMonster: function(type, x, y, map) {
@@ -224,6 +220,30 @@ const s = {
     give: function(username, item) {
         var player = s.findPlayer(username);
         if (player) player.inventory.addItem(item);
+        else return ('No player with username ' + username);
+    },
+    rickroll: function(username) {
+        var player = s.findPlayer(username);
+        if (player) {
+            player.socket.emit('rickroll');
+            insertChat(username + ' got rickrolled.', 'fun');
+        }
+        else return ('No player with username ' + username);
+    },
+    audioRickroll: function(username) {
+        var player = s.findPlayer(username);
+        if (player) {
+            player.socket.emit('loudrickroll');
+            insertChat(username + ' got rickrolled.', 'fun');
+        }
+        else return ('No player with username ' + username);
+    },
+    lag: function(username) {
+        var player = s.findPlayer(username);
+        if (player) {
+            player.socket.emit('lag');
+            insertChat(username + ' got laggy.', 'fun');
+        }
         else return ('No player with username ' + username);
     }
 };
@@ -268,11 +288,63 @@ var tpscounter = 0;
 const updateTicks = setInterval(function() {
     try {
         var pack = Entity.update();
-        io.emit('updateTick', pack);
+        for (var i in Player.list) {
+            var localplayer = Player.list[i];
+            var localpack = JSON.parse(JSON.stringify(pack));
+            if (localplayer.name) {
+                for (var j in localpack) {
+                    var grid = localpack[j];
+                    if (j != 'players') {
+                        for (var y in grid) {
+                            if (y < localplayer.chunky-localplayer.renderDistance || y > localplayer.chunky+localplayer.renderDistance) {
+                                delete grid[y];
+                                continue;
+                            }
+                            for (var x in grid[y]) {
+                                if (x < localplayer.chunkx-localplayer.renderDistance || x > localplayer.chunkx+localplayer.renderDistance) {
+                                    delete grid[y][x];
+                                    continue;
+                                }
+                                if (j == 'droppedItems') {
+                                    for (var k in grid[y][x]) {
+                                        var localdroppeditem = grid[y][x][k];
+                                        if (localdroppeditem.playerId) {
+                                            if (localdroppeditem.playerId != localplayer.id) delete grid[y][x][k];
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                localplayer.socket.emit('updateTick', localpack);
+            }
+        }
         var debugPack = Entity.getDebugData();
         for (var i in Player.list) {
-            if (Player.list[i].debugEnabled) {
-                Player.list[i].socket.emit('debugTick', debugPack);
+            var localplayer = Player.list[i];
+            var localpack = JSON.parse(JSON.stringify(debugPack));
+            if (localplayer.name) {
+                if (localplayer.debugEnabled) {
+                    for (var j in localpack) {
+                        var grid = localpack[j];
+                        if (j != 'players' && j != 'monsters') {
+                            for (var y in grid) {
+                                if (y < localplayer.chunky-localplayer.renderDistance || y > localplayer.chunky+localplayer.renderDistance) {
+                                    delete grid[y];
+                                    continue;
+                                }
+                                for (var x in grid[y]) {
+                                    if (x < localplayer.chunkx-localplayer.renderDistance || x > localplayer.chunkx+localplayer.renderDistance) {
+                                        delete grid[y][x];
+                                        continue;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    localplayer.socket.emit('debugTick', localpack);
+                }
             }
         }
     } catch (err) {

@@ -100,8 +100,8 @@
         "xpDrop": 10,
         "drops": {
             "nothing": 0.3,
-            "simplewoodenstaff": 0.5,
-            "leatherarmor": 0.5,
+            "simplewoodenstaff": 0.3,
+            "leatherarmor": 0.4,
             "steelstaff": 0.2,
             "titaniumstaff": 0.1
         }
@@ -171,7 +171,8 @@
         "xpDrop": 10,
         "drops": {
             "nothing": 0.1,
-            "leatherhood": 0.4,
+            "leatherhood": 0.2,
+            "leatherhat": 0.2,
             "whitefabrichood": 0.1,
             "simplewizardhat": 0.1
         }

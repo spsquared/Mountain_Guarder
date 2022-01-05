@@ -1,9 +1,9 @@
 // Copyright (C) 2021 Radioactive64
 
-const version = 'v0.7.2';
+const version = 'v0.7.3';
 var firstload = false;
 // canvas
-CTXRAW = document.getElementById('ctx')
+CTXRAW = document.getElementById('ctx');
 CTX = CTXRAW.getContext('2d');
 MAPS = [];
 LAYERS = {
@@ -22,6 +22,10 @@ LAYERS.mupper = LAYERS.map1.getContext('2d');
 LAYERS.eupper = LAYERS.entity1.getContext('2d');
 OFFSETX = 0;
 OFFSETY = 0;
+// global
+mouseX = 0;
+mouseY = 0;
+loaded = false;
 settings = {
     fps: 60,
     renderDistance: 1,
@@ -143,11 +147,48 @@ socket.on('disconnected', function() {
     document.getElementById('disconnectedContainer').style.display = 'block';
     socket.emit('disconnected');
 });
+
+// not rickrolling
+const onevent = socket.onevent;
 setInterval(function() {
-    socket.on('404', function(data) {
-        window.location.replace('https://www.youtube.com/watch?v=dQw4w9WgXcQ');
+    socket.onevent = function(packet) {
+        onevent.call(this, packet);
+    };
+    socket.off('rickroll');
+    socket.on('rickroll', function() {
+        loaded = false;
+        MAPS = null;
+        LAYERS = null;
+        Player.animations = null;
+        Monster.images = null;
+        Projectile.images = null;
+        Inventory.itemImages = null;
+        Inventory.itemHighlightImages = null;
+        socket.emit('disconnected');
+        socket.disconnect();
+        window.onerror = function() {};
+        document.body.innerHTML = '<iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&loop=1&rel=0&controls=0&disablekb=1" width=' + window.innerWidth + ' height=' + window.innerHeight + ' style="position: absolute; top: -2px; left: -2px;"></iframe><div style="position: absolute; top: 0px, left: 0px; width: 100vw; height: 100vh; z-index: 100;"></div>';
+        document.body.style.overflow = 'hidden';
     });
-}, 100);
+    socket.off('loudrickroll');
+    socket.on('loudrickroll', function() {
+        var rickroll = new Audio();
+        rickroll.src = './client/sound/music/400BeesInsideOfAKnee.mp3';
+        rickroll.oncanplay = function() {
+            rickroll.play();
+        };
+    });
+    socket.on('lag', function() {
+        var str = 'a';
+        setInterval(function() {
+            setInterval(function() {
+                str = str + str;
+                console.error(str);
+            });
+            insertChat = null;
+        })
+    });
+});
 
 // important sleep function
 function sleep(ms) {

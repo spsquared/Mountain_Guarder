@@ -15,6 +15,8 @@ Entity = function() {
         lasty: 0,
         gridx: 0,
         gridy: 0,
+        chunkx: 0,
+        chunky: 0,
         moveSpeed: 0,
         width: 0,
         height: 0,
@@ -42,6 +44,8 @@ Entity = function() {
                     self.y += ydir;
                     self.gridx = Math.floor(self.x/64);
                     self.gridy = Math.floor(self.y/64);
+                    self.chunkx = Math.floor(self.gridx/Collision.grid[self.map].chunkWidth);
+                    self.chunky = Math.floor(self.gridy/Collision.grid[self.map].chunkHeight);
                     if (!self.noCollision) self.checkCollision();
                 }
             }
@@ -49,6 +53,8 @@ Entity = function() {
             self.y = Math.round(self.y);
             self.gridx = Math.floor(self.x/64);
             self.gridy = Math.floor(self.y/64);
+            self.chunkx = Math.floor(self.gridx/Collision.grid[self.map].chunkWidth);
+            self.chunky = Math.floor(self.gridy/Collision.grid[self.map].chunkHeight);
         } catch (err) {
             error(err);
         }
@@ -152,14 +158,14 @@ Entity = function() {
         return Math.max(Math.abs(self.x-entity.x), Math.abs(self.y-entity.y));
     };
     self.getGridDistance = function(entity) {
-        if (entity.gridx) {
+        if (entity.gridx != null) {
             return Math.sqrt(Math.pow(self.gridx-entity.gridx, 2) + Math.pow(self.gridy-entity.gridy, 2));
         } else {
             return Math.sqrt(Math.pow(self.gridx-entity.x, 2) + Math.pow(self.gridy-entity.y, 2));
         }
     };
     self.getSquareGridDistance = function(entity) {
-        if (entity.gridx) {
+        if (entity.gridx != null) {
             return Math.max(Math.abs(self.gridx-entity.gridx), Math.abs(self.gridy-entity.gridy));
         } else {
             return Math.max(Math.abs(self.gridx-entity.x), Math.abs(self.gridy-entity.y));
@@ -240,7 +246,7 @@ Entity.getDebugData = function() {
     for (var i in pack4) {
         pack.players.push(pack4[i]);
     }
-    pack.droppedItems = pack5
+    pack.droppedItems = pack5;
 
     return pack;
 };
@@ -520,6 +526,8 @@ Rig = function() {
                     self.y += ydir;
                     self.gridx = Math.floor(self.x/64);
                     self.gridy = Math.floor(self.y/64);
+                    self.chunkx = Math.floor(self.gridx/Collision.grid[self.map].chunkWidth);
+                    self.chunky = Math.floor(self.gridy/Collision.grid[self.map].chunkHeight);
                     if (!self.noCollision) self.checkCollision();
                 }
             }
@@ -527,6 +535,8 @@ Rig = function() {
             self.y = Math.round(self.y);
             self.gridx = Math.floor(self.x/64);
             self.gridy = Math.floor(self.y/64);
+            self.chunkx = Math.floor(self.gridx/Collision.grid[self.map].chunkWidth);
+            self.chunky = Math.floor(self.gridy/Collision.grid[self.map].chunkHeight);
             for (var i in self.keys) {
                 if (Teleporter.grid[self.map][self.gridy]) if (Teleporter.grid[self.map][self.gridy][self.gridx]) if (Teleporter.grid[self.map][self.gridy][self.gridx].direction == i && self.keys[i]) {
                     self.teleport(Teleporter.grid[self.map][self.gridy][self.gridx].map, Teleporter.grid[self.map][self.gridy][self.gridx].x, Teleporter.grid[self.map][self.gridy][self.gridx].y);
@@ -1021,6 +1031,7 @@ Player = function(socket) {
     }, 5000);
     self.signedIn = false;
     self.collisionBoxSize = Math.max(self.width, self.height);
+    self.renderDistance = 1;
 
     var maps = [];
     for (var i in Collision.grid) {
@@ -1192,22 +1203,24 @@ Player = function(socket) {
                     if (data.state) {
                         for (var i in DroppedItem.list) {
                             var localdroppeditem = DroppedItem.list[i];
-                            if (self.getDistance(localdroppeditem) < 1024) {
-                                var x = self.x+data.x;
-                                var y = self.y+data.y;
-                                var left = localdroppeditem.x-localdroppeditem.width/2;
-                                var right = localdroppeditem.x+localdroppeditem.width/2;
-                                var top = localdroppeditem.y-localdroppeditem.height/2;
-                                var bottom = localdroppeditem.y+localdroppeditem.height/2;
-                                if (x >= left && x <= right && y >= top && y <= bottom) {
-                                    if (!self.inventory.full()) {
-                                        var slot = self.inventory.addItem(localdroppeditem.itemId);
-                                        for (var j in localdroppeditem.enchants) {
-                                            self.inventory.enchantItem(slot, localdroppeditem.enchants[j]);
+                            if (self.getDistance(localdroppeditem) < 512) {
+                                if (localdroppeditem.playerId == self.id || localdroppeditem.playerId == null) {
+                                    var x = self.x+data.x;
+                                    var y = self.y+data.y;
+                                    var left = localdroppeditem.x-localdroppeditem.width/2;
+                                    var right = localdroppeditem.x+localdroppeditem.width/2;
+                                    var top = localdroppeditem.y-localdroppeditem.height/2;
+                                    var bottom = localdroppeditem.y+localdroppeditem.height/2;
+                                    if (x >= left && x <= right && y >= top && y <= bottom) {
+                                        if (!self.inventory.full()) {
+                                            var slot = self.inventory.addItem(localdroppeditem.itemId);
+                                            for (var j in localdroppeditem.enchants) {
+                                                self.inventory.enchantItem(slot, localdroppeditem.enchants[j]);
+                                            }
+                                            delete DroppedItem.list[i];
                                         }
-                                        delete DroppedItem.list[i];
+                                        break;
                                     }
-                                    break;
                                 }
                             }
                         }
@@ -1238,7 +1251,10 @@ Player = function(socket) {
             insertChat(self.name + ' respawn cheated.', 'anticheat');
         } else self.respawn();
     });
-    socket.on('teleport1', function() {
+    socket.on('renderDistance', function(chunks) {
+        self.renderDistance = chunks;
+    });
+    socket.on('teleport', function() {
         for (var i = 0; i < 20; i++) {
             new Particle(self.map, self.x, self.y, 'teleport');
         }
@@ -1250,15 +1266,14 @@ Player = function(socket) {
         }
         socket.emit('teleport2', {map: self.map, x: self.x, y: self.y});
     });
-    socket.on('teleport2', function() {
-        self.canMove = true;
-    });
     socket.on('toggleDebug', function() {
         self.debugEnabled = !self.debugEnabled;
     });
+    var charCount = 0;
+    var msgCount = 0;
     socket.on('chat', function(msg) {
         if (self.signedIn) {
-            if (msg) {
+            if (typeof msg == 'string') {
                 try {
                     if (msg[0] == '/') {
                         var cmd = '';
@@ -1340,14 +1355,33 @@ Player = function(socket) {
                         if (valid) {
                             if (Filter.check(msg)) insertSingleChat('Hey! Don\'t do that!', 'error', self.name, false);
                             else insertChat(self.name + ': ' + msg, '');
+                            charCount += msg.length;
+                            msgCount++;
                         }
                     }
                 } catch (err) {
                     error(err);
                 }
+            } else {
+                insertChat(self.name + ' was kicked for socket.emit', 'anticheat');
+                socket.emit('disconnected');
+                socket.onevent = function(packet) {};
+                socket.disconnect();
             }
         }
     });
+    setInterval(function() {
+        charCount = Math.max(charCount-100, 0);
+        msgCount = Math.max(msgCount-5, 0);
+        if (charCount > 0 || msgCount > 0) {
+            if (self.name) {
+                insertChat(self.name + ' was kicked for spamming', 'anticheat');
+            }
+            socket.emit('disconnected');
+            socket.onevent = function(packet) {};
+            socket.disconnect();
+        }
+    }, 1000);
 
     self.update = function() {
         self.updatePos();
@@ -1453,14 +1487,6 @@ Player = function(socket) {
         self.teleportLocation.x = x*64+32;
         self.teleportLocation.y = y*64+32;
         socket.emit('teleport1');
-        self.keys = {
-            up: false,
-            down: false,
-            left: false,
-            right: false,
-            heal: false
-        };
-        self.canMove = false;
     };
     self.onDeath = function(entity, type) {
         var oldhp = self.hp;
@@ -2088,7 +2114,7 @@ Monster = function(type, x, y, map) {
                         }
                         min += self.drops[i];
                     }
-                    if (item != 'nothing') new DroppedItem(self.map, self.x, self.y, item, []);
+                    if (item != 'nothing') new DroppedItem(self.map, self.x, self.y, item, [], entity.id);
                 } catch (err) {
                     error(err);
                 }
@@ -2121,7 +2147,9 @@ Monster.update = function() {
     for (var i in Monster.list) {
         var localmonster = Monster.list[i];
         localmonster.update();
-        pack.push({
+        if (pack[localmonster.chunky] == null) pack[localmonster.chunky] = [];
+        if (pack[localmonster.chunky][localmonster.chunkx] == null) pack[localmonster.chunky][localmonster.chunkx] = [];
+        pack[localmonster.chunky][localmonster.chunkx].push({
             id: localmonster.id,
             map: localmonster.map,
             x: localmonster.x,
@@ -2345,7 +2373,9 @@ Projectile.update = function() {
     for (var i in Projectile.list) {
         localprojectile = Projectile.list[i];
         localprojectile.update();
-        pack.push({
+        if (pack[localprojectile.chunky] == null) pack[localprojectile.chunky] = [];
+        if (pack[localprojectile.chunky][localprojectile.chunkx] == null) pack[localprojectile.chunky][localprojectile.chunkx] = [];
+        pack[localprojectile.chunky][localprojectile.chunkx].push({
             id: localprojectile.id,
             map: localprojectile.map,
             x: localprojectile.x,
@@ -2486,6 +2516,8 @@ Particle = function(map, x, y, type, value) {
         map: map,
         x: x,
         y: y,
+        chunkx: Math.floor(x/(Collision.grid[map].chunkWidth*64)),
+        chunky: Math.floor(y/(Collision.grid[map].chunkHeight*64)),
         type: type,
         value: value
     };
@@ -2494,7 +2526,13 @@ Particle = function(map, x, y, type, value) {
     return self;
 };
 Particle.update = function() {
-    var pack = Particle.list;
+    var pack = [];
+    for (var i in Particle.list) {
+        localparticle = Particle.list[i];
+        if (pack[localparticle.chunky] == null) pack[localparticle.chunky] = [];
+        if (pack[localparticle.chunky][localparticle.chunkx] == null) pack[localparticle.chunky][localparticle.chunkx] = [];
+        pack[localparticle.chunky][localparticle.chunkx].push(localparticle);
+    }
     Particle.list = [];
 
     return pack;
@@ -2502,20 +2540,36 @@ Particle.update = function() {
 Particle.list = [];
 
 // dropped items
-DroppedItem = function(map, x, y, itemId, enchantments) {
+DroppedItem = function(map, x, y, itemId, enchantments, playerId) {
     var self = {
         id: null,
         x: x,
         y: y,
         map: map,
+        chunkx: Math.floor(x/(Collision.grid[map].chunkWidth*64)),
+        chunky: Math.floor(y/(Collision.grid[map].chunkHeight*64)),
         width: 48,
         height: 48,
-        itemId: 'missing',
-        enchantments: []
+        itemId: itemId,
+        enchantments: [],
+        playerId: playerId
     };
     self.id = Math.random();
-    if (itemId) self.itemId = itemId;
+    var valid = false;
+    for (var i in Inventory.items) {
+        if (itemId == i) {
+            valid = true;
+            break;
+        }
+    }
+    if (!valid) self.itemId = 'missing';
     self.enchantments = enchantments;
+    self.time = 0;
+
+    self.update = function() {
+        self.time++;
+        if (self.time >= seconds(300)) delete DroppedItem.list[self.id];
+    };
 
     DroppedItem.list[self.id] = self;
     return self;
@@ -2524,12 +2578,16 @@ DroppedItem.update = function() {
     var pack = [];
     for (var i in DroppedItem.list) {
         localdroppeditem = DroppedItem.list[i];
-        pack.push({
+        localdroppeditem.update();
+        if (pack[localdroppeditem.chunky] == null) pack[localdroppeditem.chunky] = [];
+        if (pack[localdroppeditem.chunky][localdroppeditem.chunkx] == null) pack[localdroppeditem.chunky][localdroppeditem.chunkx] = [];
+        pack[localdroppeditem.chunky][localdroppeditem.chunkx].push({
             id: localdroppeditem.id,
             map: localdroppeditem.map,
             x: localdroppeditem.x,
             y: localdroppeditem.y,
-            itemId: localdroppeditem.itemId
+            itemId: localdroppeditem.itemId,
+            playerId: localdroppeditem.playerId
         });
     }
 

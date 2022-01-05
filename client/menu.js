@@ -5,48 +5,58 @@ var deleteaccountconfirmed = false;
 var changePasswordActive = false;
 var signInError = document.getElementById('signInError');
 var signedIn = false;
+var awaitingResponse = false;
 function signIn() {
-    if (!signedIn) {
+    if (!signedIn && !awaitingResponse) {
         socket.emit('signIn', {
             state: 'signIn',
             username: document.getElementById('username').value,
             password: document.getElementById('password').value
         });
-        signedIn = true;
+        awaitingResponse = true;
     }
 };
 function createAccount() {
-    socket.emit('signIn', {
-        state: 'signUp',
-        username: document.getElementById('username').value,
-        password: document.getElementById('password').value
-    });
+    if (!signedIn && !awaitingResponse) {
+        socket.emit('signIn', {
+            state: 'signUp',
+            username: document.getElementById('username').value,
+            password: document.getElementById('password').value
+        });
+        awaitingResponse = true;
+    }
 };
 function deleteAccount() {
-    if (deleteaccountconfirmed) {
-        var input = window.prompt('Please enter your password to continue:');
-        socket.emit('signIn', {
-            state: 'deleteAccount',
-            username: document.getElementById('username').value,
-            password: input
-        });
-    } else {
-        document.getElementById('deleteAccount').innerText = 'Are you Sure?';
-        deleteaccountconfirmed = true;
+    if (!signedIn && !awaitingResponse) {
+        if (deleteaccountconfirmed) {
+            var input = window.prompt('Please enter your password to continue:');
+            socket.emit('signIn', {
+                state: 'deleteAccount',
+                username: document.getElementById('username').value,
+                password: input
+            });
+            awaitingResponse = true;
+        } else {
+            document.getElementById('deleteAccount').innerText = 'Are you Sure?';
+            deleteaccountconfirmed = true;
+        }
     }
 };
 function changePassword() {
-    if (changePasswordActive) {
-        socket.emit('signIn', {
-            state: 'changePassword',
-            username: document.getElementById('username').value,
-            oldPassword: document.getElementById('password').value,
-            password: document.getElementById('newpassword').value
-        });
-    } else {
-        document.getElementById('newpassword').style.display = 'block';
-        document.getElementById('newpasswordLabel').style.display = 'block';
-        changePasswordActive = true;
+    if (!signedIn && !awaitingResponse) {
+        if (changePasswordActive) {
+            socket.emit('signIn', {
+                state: 'changePassword',
+                username: document.getElementById('username').value,
+                oldPassword: document.getElementById('password').value,
+                password: document.getElementById('newpassword').value
+            });
+            awaitingResponse = true;
+        } else {
+            document.getElementById('newpassword').style.display = 'block';
+            document.getElementById('newpasswordLabel').style.display = 'block';
+            changePasswordActive = true;
+        }
     }
 };
 socket.on('signInState', function(state) {
@@ -59,6 +69,7 @@ socket.on('signInState', function(state) {
             document.getElementById('signinContainer').style.display = 'none';
             document.getElementById('gameContainer').style.display = 'block';
             insertChat({style:'color: #00FF00; font-weight: bold;', text: 'Mountain Guarder ' + version});
+            signedIn = true;
             break;
         case 'signedUp':
             signInError.style.color = '#00FF00';
@@ -69,7 +80,6 @@ socket.on('signInState', function(state) {
             deleteaccountconfirmed = false;
             signInError.style.color = '#00FF00';
             signInError.innerText = 'Account successfully deleted.';
-            window.alert('Account successfully deleted.');
             window.location.reload();
             break;
         case 'changedPassword':
@@ -79,7 +89,6 @@ socket.on('signInState', function(state) {
             changePasswordActive = false;
             signInError.style.color = '#00FF00';
             signInError.innerText = 'Password successfully changed.';
-            window.alert('Password successfully changed.');
             window.location.reload();
             break;
         case 'incorrectPassword':
@@ -249,6 +258,7 @@ socket.on('signInState', function(state) {
             console.error('Invalid signInState: ' + state);
             break;
     }
+    awaitingResponse = false;
 });
 
 // window creator
@@ -413,7 +423,10 @@ function updateSetting(setting) {
             indicatorText += 'fps';
             break;
         case 'renderDistance':
-            if (player) updateRenderedChunks();
+            if (player) {
+                updateRenderedChunks();
+                socket.emit('renderDistance', settings.renderDistance);
+            }
             break;
         case 'renderQuality':
             resetCanvases();

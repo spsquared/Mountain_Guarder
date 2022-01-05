@@ -13,6 +13,8 @@ insertChat = function(text, textcolor) {
         style = 'color: #FF9900;';
     } else if (textcolor == 'anticheat') {
         style = 'color: #FF0000; font-weight: bold;';
+    } else if (textcolor == 'fun') {
+        style = 'animation: special 2s linear infinite;';
     } else {
         style = 'color: ' + textcolor + ';';
     }
@@ -35,8 +37,8 @@ insertSingleChat = function(text, textcolor, username, log) {
             style = 'color: #FF9900;';
         } else if (textcolor == 'anticheat') {
             style = 'color: #FF0000; font-weight: bold;';
-        } else if (textcolor == 'christmas') {
-            style = 'animation: christmas 2s infinite;';
+        } else if (textcolor == 'fun') {
+            style = 'animation: special 2s linear infinite;';
         } else {
             style = 'color: ' + textcolor + ';';
         }

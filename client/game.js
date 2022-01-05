@@ -2,15 +2,11 @@
 
 var player;
 var playerid = 0;
-mouseX = 0;
-mouseY = 0;
 var mapnameFade, mapnameWait;
 var lastmap;
 var debugData = {};
 
 // loading
-var loaded = false;
-// maploading
 var loadedassets = 0;
 var totalassets = 1;
 socket.on('mapData', function(data) {
@@ -146,7 +142,7 @@ function MGHC() {};
 // draw
 var drawLoop = null;
 function drawFrame() {
-    if (player && loadedassets >= totalassets) {
+    if (loaded && player) {
         LAYERS.mlower.clearRect(0, 0, window.innerWidth, window.innerHeight);
         LAYERS.elower.clearRect(0, 0, window.innerWidth, window.innerHeight);
         LAYERS.mupper.clearRect(0, 0, window.innerWidth, window.innerHeight);
@@ -163,7 +159,6 @@ function drawFrame() {
         CTX.drawImage(LAYERS.map1, 0, 0, window.innerWidth, window.innerHeight);
         CTX.drawImage(LAYERS.entity1, 0, 0, window.innerWidth, window.innerHeight);
         drawDebug();
-        MGHC();
     }
 };
 function drawMap() {
@@ -658,7 +653,7 @@ socket.on('teleport1', function() {
     document.getElementById('fade').style.display = 'block';
     document.getElementById('fade').style.animationName = 'fadeIn';
     document.getElementById('fade').onanimationend = function() {
-        socket.emit('teleport1');
+        socket.emit('teleport');
         document.getElementById('fade').onanimationend = function() {};
     };
 });
@@ -753,22 +748,24 @@ var fpsCounter = 0;
 var tpsCounter = 0;
 var pingCounter = 0;
 setInterval(async function() {
-    document.getElementById('fps').innerText = 'FPS: ' + fpsCounter;
-    document.getElementById('tps').innerText = 'TPS: ' + tpsCounter;
-    document.getElementById('ping').innerText = 'Ping: ' + pingCounter + 'ms';
-    fpsCounter = 0;
-    tpsCounter = 0;
-    socket.emit('ping');
-    pingSend = new Date();
-    var entities = 0, monsters = 0, projectiles = 0, particles = 0;
-    for (var i in Player.list) {entities++;}
-    for (var i in Monster.list) {entities++; monsters++;}
-    for (var i in Projectile.list) {entities++; projectiles++;}
-    for (var i in Particle.list) {entities++; particles++;}
-    document.getElementById('enttotal').innerText = 'E: ' + entities;
-    document.getElementById('entmonst').innerText = 'M: ' + monsters;
-    document.getElementById('entproj').innerText = 'P: ' + projectiles;
-    document.getElementById('entpart').innerText = 'H: ' + particles;
+    if (loaded) {
+        document.getElementById('fps').innerText = 'FPS: ' + fpsCounter;
+        document.getElementById('tps').innerText = 'TPS: ' + tpsCounter;
+        document.getElementById('ping').innerText = 'Ping: ' + pingCounter + 'ms';
+        fpsCounter = 0;
+        tpsCounter = 0;
+        socket.emit('ping');
+        pingSend = new Date();
+        var entities = 0, monsters = 0, projectiles = 0, particles = 0;
+        for (var i in Player.list) {entities++;}
+        for (var i in Monster.list) {entities++; monsters++;}
+        for (var i in Projectile.list) {entities++; projectiles++;}
+        for (var i in Particle.list) {entities++; particles++;}
+        document.getElementById('enttotal').innerText = 'E: ' + entities;
+        document.getElementById('entmonst').innerText = 'M: ' + monsters;
+        document.getElementById('entproj').innerText = 'P: ' + projectiles;
+        document.getElementById('entpart').innerText = 'H: ' + particles;
+    }
 }, 1000);
 function fpsLoop() {
     window.requestAnimationFrame(function() {
