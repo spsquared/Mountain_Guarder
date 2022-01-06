@@ -29,7 +29,7 @@ ENV = {
     offlineMode: false,
     ops: [
         'Sampleprovider(sp)',
-        'Suvanth',
+        'suvanth',
     ],
     spawnpoint: {
         map: 'World',
