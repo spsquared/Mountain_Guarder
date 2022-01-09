@@ -29,8 +29,8 @@ ACCOUNTS = {
             } else {
                 try {
                     await database.connect();
+                    await webHookURL();
                     ACCOUNTS.connected = true;
-                    webHookURL();
                 } catch (err) {
                     forceQuit(err, 2);
                 }

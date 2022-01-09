@@ -48,13 +48,11 @@ function load(data) {
             }
         }, 5);
         await loadEntityData();
-        await sleep(Math.random()*50);
         await loadInventoryData();
         var wait = setInterval(async function() {
             if (tilesetloaded) {
                 clearInterval(wait);
                 for (var i in data) {
-                    await sleep(Math.random()*50);
                     await loadMap(data[i]);
                 }
             }
@@ -84,14 +82,21 @@ function loadMap(name) {
                             if (json.layers[i].name == 'Ground Terrain') {
                                 MAPS[name].width = json.layers[i].width;
                                 MAPS[name].height = json.layers[i].height;
+                                MAPS[name].chunkwidth = json.layers[i].width;
+                                MAPS[name].chunkheight = json.layers[i].height;
+                                if (json.layers[i].chunks) {
+                                    for (var j in json.layers[i].chunks) {
+                                        var rawchunk = json.layers[i].chunks[j];
+                                        MAPS[name].chunkwidth = rawchunk.width;
+                                        MAPS[name].chunkheight = rawchunk.height;
+                                        MAPS[name].offsetX = Math.min(rawchunk.x*64, MAPS[name].offsetX);
+                                        MAPS[name].offsetY = Math.min(rawchunk.y*64, MAPS[name].offsetY);
+                                    }
+                                }
                             }
                             if (json.layers[i].chunks) {
                                 for (var j in json.layers[i].chunks) {
                                     var rawchunk = json.layers[i].chunks[j];
-                                    MAPS[name].chunkwidth = rawchunk.width;
-                                    MAPS[name].chunkheight = rawchunk.height;
-                                    MAPS[name].offsetX = Math.min(rawchunk.x*64, MAPS[name].offsetX);
-                                    MAPS[name].offsetY = Math.min(rawchunk.y*64, MAPS[name].offsetY);
                                     if (MAPS[name].chunkJSON[rawchunk.y/rawchunk.width] == null) {
                                         MAPS[name].chunkJSON[rawchunk.y/rawchunk.width] = [];
                                     }
@@ -105,10 +110,6 @@ function loadMap(name) {
                                     if (json.layers[i].offsety) MAPS[name].chunkJSON[rawchunk.y/rawchunk.width][rawchunk.x/rawchunk.width][json.layers[i].name].offsetY = json.layers[i].offsety;
                                 }
                             } else {
-                                if (json.layers[i].name == 'Ground Terrain') {
-                                    MAPS[name].chunkwidth = json.layers[i].width;
-                                    MAPS[name].chunkheight = json.layers[i].height;
-                                }
                                 if (MAPS[name].chunkJSON[0] == null) {
                                     MAPS[name].chunkJSON[0] = [[]];
                                 }
@@ -121,7 +122,6 @@ function loadMap(name) {
                         }
                     }
                     loadedassets++;
-                    await sleep(Math.random()*100);
                     resolve();
                 } else {
                     console.error('Error: Server returned status ' + this.status);
@@ -186,10 +186,10 @@ function drawMap() {
     var height = MAPS[player.map].height*64;
     var offsetX = MAPS[player.map].offsetX;
     var offsetY = MAPS[player.map].offsetY;
-    LAYERS.mupper.fillRect(-128+offsetX+OFFSETX, -128+offsetY+OFFSETY, width+256, 128);
-    LAYERS.mupper.fillRect(-128+offsetX+OFFSETX, height+offsetY+OFFSETY, width+256, 128);
-    LAYERS.mupper.fillRect(-128+offsetX+OFFSETX, -128+offsetY+OFFSETY, 128, height+256);
-    LAYERS.mupper.fillRect(width+offsetX+OFFSETX, offsetY+OFFSETY, 128, height+256);
+    LAYERS.mupper.fillRect(-1024+offsetX+OFFSETX, -1024+offsetY+OFFSETY, width+2048, 1024);
+    LAYERS.mupper.fillRect(-1024+offsetX+OFFSETX, height+offsetY+OFFSETY, width+2048, 1024);
+    LAYERS.mupper.fillRect(-1024+offsetX+OFFSETX, -1024+offsetY+OFFSETY, 1024, height+2048);
+    LAYERS.mupper.fillRect(width+offsetX+OFFSETX, offsetY+OFFSETY, 1024, height+2048);
     LAYERS.mlower.restore();
     LAYERS.mupper.restore();
 };
@@ -369,7 +369,7 @@ function drawDebug() {
         // monsters
         for (var i in debugData.monsters) {
             var localmonster = debugData.monsters[i];
-            if (localmonster) if (localmonster.map == player.map && inRenderDistancePixels(localmonster)) {
+            if (localmonster) if (localmonster.map == player.map) {
                 // keys
                 CTX.beginPath();
                 CTX.strokeStyle = '#000000';
@@ -440,7 +440,7 @@ function drawDebug() {
         // projectiles
         for (var i in debugData.projectiles) {
             var localprojectile = debugData.projectiles[i];
-            if (localprojectile) if (localprojectile.map == player.map && inRenderDistancePixels(localprojectile)) {
+            if (localprojectile) if (localprojectile.map == player.map) {
                 var sinAngle = Math.sin(localprojectile.angle);
                 var cosAngle = Math.cos(localprojectile.angle);
                 // hitbox
@@ -477,7 +477,7 @@ function drawDebug() {
         document.getElementById('entmonst').style.display = 'block';
         document.getElementById('entproj').style.display = 'block';
         document.getElementById('entpart').style.display = 'block';
-        document.getElementById('mousepos').innerText = 'Mouse: (' + parseInt(Math.floor(player.x/64)+Math.floor((player.x+mouseX)/64)) + ', ' + Math.floor(player.y/64)+Math.floor((player.y+mouseY)/64) + ')';
+        document.getElementById('mousepos').innerText = 'Mouse: (' + Math.floor((player.x+mouseX-OFFSETX)/64) + ', ' + Math.floor((player.y+mouseY-OFFSETY)/64) + ')';
         document.getElementById('position').innerText = 'Player: (' + Math.floor(player.x/64) + ', ' + Math.floor(player.y/64) + ')';
     } else {
         document.getElementById('tps').style.display = '';

@@ -150,16 +150,16 @@
             "scaleInDock": 1
         },
         "Outpost Cottage 1.tmx": {
-            "scale": 5.0589,
+            "scale": 5.5,
             "selectedLayer": 3,
             "viewCenter": {
-                "x": 111.88202969024886,
-                "y": 131.8468441756113
+                "x": 112,
+                "y": 132
             }
         },
         "Outpost Cottage 2.tmx": {
             "scale": 5.5,
-            "selectedLayer": 2,
+            "selectedLayer": 3,
             "viewCenter": {
                 "x": 152,
                 "y": 100
@@ -185,16 +185,16 @@
             "scale": 1.6068359374999999,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 255.7821806247721,
+                "x": 255.78218062477214,
                 "y": 255.7821806247721
             }
         },
         "World.tmx": {
-            "scale": 8,
-            "selectedLayer": 12,
+            "scale": 4,
+            "selectedLayer": 5,
             "viewCenter": {
-                "x": 69.25,
-                "y": 160.875
+                "x": 80,
+                "y": 203.625
             }
         },
         "roguelikeSheet.tsx": {

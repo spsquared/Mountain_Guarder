@@ -4,31 +4,51 @@ var npcWaypoints = {};
 function loadMap(name) {
     var raw = require('./../client/maps/' + name + '.json');
     Collision.grid[name] = [];
+    Layer.grid[name] = [];
     Region.grid[name] = [];
     Teleporter.grid[name] = [];
-    Collision.grid[name].width = raw.width;
-    Collision.grid[name].height = raw.height;
+    Collision.grid[name].width = 0;
+    Collision.grid[name].height = 0;
+    Collision.grid[name].offsetX = 0;
+    Collision.grid[name].offsetY = 0;
+    Collision.grid[name].chunkWidth = 0;
+    Collision.grid[name].chunkHeight = 0;
     for (var i in raw.layers) {
-        if (raw.layers[i].name.includes('Collision:')) {
+        if (raw.layers[i].name == 'Ground Terrain') {
             var rawlayer = raw.layers[i];
+            Collision.grid[name].width = rawlayer.width;
+            Collision.grid[name].height = rawlayer.height;
+            Collision.grid[name].chunkWidth = rawlayer.width;
+            Collision.grid[name].chunkHeight = rawlayer.height;
             if (rawlayer.chunks) {
                 for (var j in rawlayer.chunks) {
                     var rawchunk = rawlayer.chunks[j];
                     Collision.grid[name].chunkWidth = rawchunk.width;
                     Collision.grid[name].chunkHeight = rawchunk.height;
+                    Collision.grid[name].offsetX = Math.min(rawchunk.x, Collision.grid[name].offsetX);
+                    Collision.grid[name].offsetY = Math.min(rawchunk.y, Collision.grid[name].offsetY);
+                }
+            }
+        }
+        if (raw.layers[i].name.includes('Collision:')) {
+            var rawlayer = raw.layers[i];
+            var layer = rawlayer.name.replace('Collision:', '');
+            Collision.grid[name][layer] = [];
+            Layer.grid[name][layer] = [];
+            if (rawlayer.chunks) {
+                for (var j in rawlayer.chunks) {
+                    var rawchunk = rawlayer.chunks[j];
                     for (var k in rawchunk.data) {
                         var x = (k % rawchunk.width)+rawchunk.x;
                         var y = ~~(k / rawchunk.width)+rawchunk.y;
-                        new Collision(name, x, y, rawchunk.data[k]-1);
+                        new Collision(name, x, y, layer, rawchunk.data[k]-1);
                     }
                 }
             } else {
-                Collision.grid[name].chunkWidth = rawlayer.width;
-                Collision.grid[name].chunkHeight = rawlayer.height;
                 for (var j in rawlayer.data) {
                     var x = (j % rawlayer.width);
                     var y = ~~(j / rawlayer.width);
-                    new Collision(name, x, y, rawlayer.data[j]-1);
+                    new Collision(name, x, y, layer, rawlayer.data[j]-1);
                 }
             }
         }
@@ -112,6 +132,17 @@ function loadMap(name) {
         }
         if (raw.layers[i].name.includes('Spawner:')) {
             var rawlayer = raw.layers[i];
+            var monsterstring = rawlayer.name.replace('Spawner:', '');
+            var layer = monsterstring.charAt(0);
+            monsterstring = monsterstring.replace(layer + ':', '');
+            var spawnmonsters = [];
+            var lastl = 0;
+            for (var l in monsterstring) {
+                if (monsterstring[l] == ',') {
+                    spawnmonsters.push(monsterstring.slice(lastl, l));
+                    lastl = parseInt(l)+1;
+                }
+            }
             if (rawlayer.chunks) {
                 for (var j in rawlayer.chunks) {
                     var rawchunk = rawlayer.chunks[j];
@@ -120,16 +151,7 @@ function loadMap(name) {
                             var x = (k % rawchunk.width)+rawchunk.x;
                             var y = ~~(k / rawchunk.width)+rawchunk.y;
                             if (rawchunk.data[k]-1 == 1692) {
-                                var monsterstring = rawlayer.name.replace('Spawner:', '');
-                                var spawnmonsters = [];
-                                var lastl = 0;
-                                for (var l in monsterstring) {
-                                    if (monsterstring[l] == ',') {
-                                        spawnmonsters.push(monsterstring.slice(lastl, l));
-                                        lastl = parseInt(l)+1;
-                                    }
-                                }
-                                new Spawner(name, x, y, spawnmonsters);
+                                new Spawner(name, x, y, layer, spawnmonsters);
                             } else {
                                 error('Invalid spawner at (' + x + ',' + y + ')');
                             }
@@ -142,15 +164,6 @@ function loadMap(name) {
                         var x = (j % rawlayer.width);
                         var y = ~~(j / rawlayer.width);
                         if (rawlayer.data[j]-1 == 1692) {
-                            var monsterstring = rawlayer.name.replace('Spawner:', '');
-                            var spawnmonsters = [];
-                            var lastl = 0;
-                            for (var l in monsterstring) {
-                                if (monsterstring[l] == ',') {
-                                    spawnmonsters.push(monsterstring.slice(lastl, l));
-                                    lastl = parseInt(l)+1;
-                                }
-                            }
                             new Spawner(name, x, y, spawnmonsters);
                         } else {
                             error('Invalid spawner at (' + x + ',' + y + ')');
@@ -161,6 +174,15 @@ function loadMap(name) {
         }
         if (raw.layers[i].name.includes('Region:')) {
             var rawlayer = raw.layers[i];
+            var propertystring = rawlayer.name.replace('Region:', '');
+            var properties = [];
+            var lastl = 0;
+            for (var l in propertystring) {
+                if (propertystring[l] == ':') {
+                    properties.push(propertystring.slice(lastl, l));
+                    lastl = parseInt(l)+1;
+                }
+            }
             if (rawlayer.chunks) {
                 for (var j in rawlayer.chunks) {
                     var rawchunk = rawlayer.chunks[j];
@@ -169,15 +191,6 @@ function loadMap(name) {
                             var x = (k % rawchunk.width)+rawchunk.x;
                             var y = ~~(k / rawchunk.width)+rawchunk.y;
                             if (rawchunk.data[k]-1 == 1695) {
-                                var propertystring = rawlayer.name.replace('Region:', '');
-                                var properties = [];
-                                var lastl = 0;
-                                for (var l in propertystring) {
-                                    if (propertystring[l] == ':') {
-                                        properties.push(propertystring.slice(lastl, l));
-                                        lastl = parseInt(l)+1;
-                                    }
-                                }
                                 new Region(name, x, y, properties);
                             } else {
                                 error('Invalid region at (' + x + ',' + y + ')');
@@ -191,15 +204,6 @@ function loadMap(name) {
                         var x = (j % rawlayer.width);
                         var y = ~~(j / rawlayer.width);
                         if (rawlayer.data[j]-1 == 1695) {
-                            var propertystring = rawlayer.name.replace('Region:', '');
-                            var properties = [];
-                            var lastl = 0;
-                            for (var l in propertystring) {
-                                if (propertystring[l] == ':') {
-                                    properties.push(propertystring.slice(lastl, l));
-                                    lastl = parseInt(l)+1;
-                                }
-                            }
                             new Region(name, x, y, properties);
                         } else {
                             error('Invalid region at (' + x + ',' + y + ')');
@@ -210,6 +214,15 @@ function loadMap(name) {
         }
         if (raw.layers[i].name.includes('Teleporter:')) {
             var rawlayer = raw.layers[i];
+            var propertystring = rawlayer.name.replace('Teleporter:', '');
+            var properties = [];
+            var lastl = 0;
+            for (var l in propertystring) {
+                if (propertystring[l] == ',') {
+                    properties.push(propertystring.slice(lastl, l));
+                    lastl = parseInt(l)+1;
+                }
+            }
             if (rawlayer.chunks) {
                 for (var j in rawlayer.chunks) {
                     var rawchunk = rawlayer.chunks[j];
@@ -218,15 +231,6 @@ function loadMap(name) {
                             var x = (k % rawchunk.width)+rawchunk.x;
                             var y = ~~(k / rawchunk.width)+rawchunk.y;
                             if (rawchunk.data[k]-1 == 1694) {
-                                var propertystring = rawlayer.name.replace('Teleporter:', '');
-                                var properties = [];
-                                var lastl = 0;
-                                for (var l in propertystring) {
-                                    if (propertystring[l] == ',') {
-                                        properties.push(propertystring.slice(lastl, l));
-                                        lastl = parseInt(l)+1;
-                                    }
-                                }
                                 new Teleporter(name, x, y, properties);
                             } else {
                                 error('Invalid teleporter at (' + x + ',' + y + ')');
@@ -240,15 +244,6 @@ function loadMap(name) {
                         var x = (j % rawlayer.width);
                         var y = ~~(j / rawlayer.width);
                         if (rawlayer.data[j]-1 == 1694) {
-                            var propertystring = rawlayer.name.replace('Teleporter:', '');
-                            var properties = [];
-                            var lastl = 0;
-                            for (var l in propertystring) {
-                                if (propertystring[l] == ',') {
-                                    properties.push(propertystring.slice(lastl, l));
-                                    lastl = parseInt(l)+1;
-                                }
-                            }
                             new Teleporter(name, x, y, properties);
                         } else {
                             error('Invalid teleporter at (' + x + ',' + y + ')');

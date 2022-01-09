@@ -20,7 +20,7 @@ insertChat = function(text, textcolor) {
     }
     logColor(text, '\x1b[36m', 'chat');
     io.emit('insertChat', {text:text, style:style});
-    postDiscord(text);
+    try {postDiscord(text);} catch (err) {error(err);}
 };
 insertSingleChat = function(text, textcolor, username, log) {
     var socket = null;

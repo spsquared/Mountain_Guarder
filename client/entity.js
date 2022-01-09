@@ -103,11 +103,9 @@ Rig = function(id, map, x, y) {
         self.updated = true;
     };
     self.draw = function() {
-        if (inRenderDistance(self)) {
             LAYERS.elower.fillText('MISSING TEXTURE', self.x+OFFSETX, self.y+OFFSETY);
             LAYERS.eupper.drawImage(Rig.healthBarR, 0, 0, 42, 5, self.x-63+OFFSETX, self.y-52+OFFSETY, 126, 15);
             LAYERS.eupper.drawImage(Rig.healthBarR, 1, 5, (self.hp/self.maxHP)*40, 5, self.x-60+OFFSETX, self.y-52+OFFSETY, (self.hp/self.maxHP)*120, 15);
-        }
         if (self.interpolationStage < (settings.fps/20)) {
             self.x += self.xspeed;
             self.y += self.yspeed;
@@ -161,31 +159,29 @@ Player = function(id, map, x, y, isNPC, name) {
         self.updated = true;
     };
     self.draw = function () {
-        if (inRenderDistance(self)) {
-            if (isNPC == false) {
-                if (self.heldItem.image) {
-                    LAYERS.elower.save();
-                    LAYERS.elower.translate(self.x+OFFSETX, self.y+OFFSETY);
-                    LAYERS.elower.rotate(self.heldItem.angle);
-                    LAYERS.elower.translate(Inventory.itemTypes[self.heldItem.id].heldDistance, 0);
-                    LAYERS.elower.rotate(Inventory.itemTypes[self.heldItem.id].heldAngle*(Math.PI/180));
-                    LAYERS.elower.drawImage(self.heldItem.image, -32, -32, 64, 64);
-                    LAYERS.elower.restore();
-                }
+        if (isNPC == false) {
+            if (self.heldItem.image) {
+                LAYERS.elower.save();
+                LAYERS.elower.translate(self.x+OFFSETX, self.y+OFFSETY);
+                LAYERS.elower.rotate(self.heldItem.angle);
+                LAYERS.elower.translate(Inventory.itemTypes[self.heldItem.id].heldDistance, 0);
+                LAYERS.elower.rotate(Inventory.itemTypes[self.heldItem.id].heldAngle*(Math.PI/180));
+                LAYERS.elower.drawImage(self.heldItem.image, -32, -32, 64, 64);
+                LAYERS.elower.restore();
             }
-            LAYERS.elower.drawImage(self.animationsCanvas, (self.animationStage % 6)*8, (~~(self.animationStage / 6))*16, 8, 16, self.x-16+OFFSETX, self.y-52+OFFSETY, 32, 64);
-            if (self.isNPC == false) {
-                LAYERS.eupper.drawImage(Rig.healthBarG, 0, 0, 42, 5, self.x-63+OFFSETX, self.y-72+OFFSETY, 126, 15);
-                LAYERS.eupper.drawImage(Rig.healthBarG, 1, 5, (self.hp/self.maxHP)*40, 5, self.x-60+OFFSETX, self.y-72+OFFSETY, (self.hp/self.maxHP)*120, 15);
-            }
-            LAYERS.eupper.textAlign = 'center';
-            LAYERS.eupper.font = '12px Pixel';
-            LAYERS.eupper.fillStyle = '#FF9900';
-            if (self.isNPC) {
-                LAYERS.eupper.fillText(self.name, self.x+OFFSETX, self.y-58+OFFSETY);
-            } else {
-                LAYERS.eupper.fillText(self.name, self.x+OFFSETX, self.y-80+OFFSETY);
-            }
+        }
+        LAYERS.elower.drawImage(self.animationsCanvas, (self.animationStage % 6)*8, (~~(self.animationStage / 6))*16, 8, 16, self.x-16+OFFSETX, self.y-52+OFFSETY, 32, 64);
+        if (self.isNPC == false) {
+            LAYERS.eupper.drawImage(Rig.healthBarG, 0, 0, 42, 5, self.x-63+OFFSETX, self.y-72+OFFSETY, 126, 15);
+            LAYERS.eupper.drawImage(Rig.healthBarG, 1, 5, (self.hp/self.maxHP)*40, 5, self.x-60+OFFSETX, self.y-72+OFFSETY, (self.hp/self.maxHP)*120, 15);
+        }
+        LAYERS.eupper.textAlign = 'center';
+        LAYERS.eupper.font = '12px Pixel';
+        LAYERS.eupper.fillStyle = '#FF9900';
+        if (self.isNPC) {
+            LAYERS.eupper.fillText(self.name, self.x+OFFSETX, self.y-58+OFFSETY);
+        } else {
+            LAYERS.eupper.fillText(self.name, self.x+OFFSETX, self.y-80+OFFSETY);
         }
         if (self.interpolationStage < (settings.fps/20)) {
             self.x += self.xspeed;
@@ -270,11 +266,9 @@ Monster = function(id, map, x, y, type) {
     self.animationImage = Monster.images[type];
 
     self.draw = function () {
-        if (inRenderDistance(self)) {
-            LAYERS.elower.drawImage(self.animationImage, self.animationStage*self.rawWidth, 0, self.rawWidth, self.rawHeight, self.x-self.width/2+OFFSETX, self.y-self.height/2+OFFSETY, self.width, self.height);
-            LAYERS.eupper.drawImage(Rig.healthBarR, 0, 0, 42, 5, self.x-63+OFFSETX, self.y-self.height/2-20+OFFSETY, 126, 15);
-            LAYERS.eupper.drawImage(Rig.healthBarR, 1, 5, (self.hp/self.maxHP)*40, 5, self.x-60+OFFSETX, self.y-self.height/2-20+OFFSETY, (self.hp/self.maxHP)*120, 15);
-        }
+        LAYERS.elower.drawImage(self.animationImage, self.animationStage*self.rawWidth, 0, self.rawWidth, self.rawHeight, self.x-self.width/2+OFFSETX, self.y-self.height/2+OFFSETY, self.width, self.height);
+        LAYERS.eupper.drawImage(Rig.healthBarR, 0, 0, 42, 5, self.x-63+OFFSETX, self.y-self.height/2-20+OFFSETY, 126, 15);
+        LAYERS.eupper.drawImage(Rig.healthBarR, 1, 5, (self.hp/self.maxHP)*40, 5, self.x-60+OFFSETX, self.y-self.height/2-20+OFFSETY, (self.hp/self.maxHP)*120, 15);
         if (self.interpolationStage < (settings.fps/20)) {
             self.x += self.xspeed;
             self.y += self.yspeed;
@@ -291,19 +285,17 @@ Monster.update = function(data) {
     for (var i in Monster.list) {
         Monster.list[i].updated = false;
     }
-    for (var y in data) {
-        for (var x in data[y]) {
-            for (var i in data[y][x]) {
-                var datamonster = data[y][x][i];
-                if (Monster.list[datamonster.id]) {
+    for (var i in data) {
+        var datamonster = data[i];
+        if (datamonster) {
+            if (Monster.list[datamonster.id]) {
+                Monster.list[datamonster.id].update(datamonster);
+            } else {
+                try {
+                    new Monster(datamonster.id, datamonster.map, datamonster.x, datamonster.y, datamonster.type);
                     Monster.list[datamonster.id].update(datamonster);
-                } else {
-                    try {
-                        new Monster(datamonster.id, datamonster.map, datamonster.x, datamonster.y, datamonster.type);
-                        Monster.list[datamonster.id].update(datamonster);
-                    } catch (err) {
-                        console.error(err);
-                    }
+                } catch (err) {
+                    console.error(err);
                 }
             }
         }
@@ -342,20 +334,18 @@ Projectile = function(id, map, x, y, angle, type) {
         self.updated = true;
     };
     self.draw = function() {
-        if (inRenderDistance(self)) {
-            if (self.above) {
-                LAYERS.eupper.save();
-                LAYERS.eupper.translate(self.x+OFFSETX, self.y+OFFSETY);
-                LAYERS.eupper.rotate(self.angle);
-                LAYERS.eupper.drawImage(self.animationImage, self.animationStage*self.rawWidth, 0, self.rawWidth, self.rawHeight, -self.width/2, -self.height/2, self.width, self.height);
-                LAYERS.eupper.restore();
-            } else {
-                LAYERS.elower.save();
-                LAYERS.elower.translate(self.x+OFFSETX, self.y+OFFSETY);
-                LAYERS.elower.rotate(self.angle);
-                LAYERS.elower.drawImage(self.animationImage, self.animationStage*self.rawWidth, 0, self.rawWidth, self.rawHeight, -self.width/2, -self.height/2, self.width, self.height);
-                LAYERS.elower.restore();
-            }
+        if (self.above) {
+            LAYERS.eupper.save();
+            LAYERS.eupper.translate(self.x+OFFSETX, self.y+OFFSETY);
+            LAYERS.eupper.rotate(self.angle);
+            LAYERS.eupper.drawImage(self.animationImage, self.animationStage*self.rawWidth, 0, self.rawWidth, self.rawHeight, -self.width/2, -self.height/2, self.width, self.height);
+            LAYERS.eupper.restore();
+        } else {
+            LAYERS.elower.save();
+            LAYERS.elower.translate(self.x+OFFSETX, self.y+OFFSETY);
+            LAYERS.elower.rotate(self.angle);
+            LAYERS.elower.drawImage(self.animationImage, self.animationStage*self.rawWidth, 0, self.rawWidth, self.rawHeight, -self.width/2, -self.height/2, self.width, self.height);
+            LAYERS.elower.restore();
         }
         if (self.interpolationStage < (settings.fps/20)) {
             self.x += self.xspeed;
@@ -374,19 +364,17 @@ Projectile.update = function(data) {
     for (var i in Projectile.list) {
         Projectile.list[i].updated = false;
     }
-    for (var y in data) {
-        for (var x in data[y]) {
-            for (var i in data[y][x]) {
-                var dataprojectile = data[y][x][i];
-                if (Projectile.list[dataprojectile.id]) {
+    for (var i in data) {
+        var dataprojectile = data[i];
+        if (dataprojectile) {
+            if (Projectile.list[dataprojectile.id]) {
+                Projectile.list[dataprojectile.id].update(dataprojectile);
+            } else {
+                try {
+                    new Projectile(dataprojectile.id, dataprojectile.map, dataprojectile.x, dataprojectile.y, dataprojectile.angle, dataprojectile.type);
                     Projectile.list[dataprojectile.id].update(dataprojectile);
-                } else {
-                    try {
-                        new Projectile(dataprojectile.id, dataprojectile.map, dataprojectile.x, dataprojectile.y, dataprojectile.angle, dataprojectile.type);
-                        Projectile.list[dataprojectile.id].update(dataprojectile);
-                    } catch (err) {
-                        console.error(err);
-                    }
+                } catch (err) {
+                    console.error(err);
                 }
             }
         }
@@ -423,6 +411,10 @@ Particle = function(map, x, y, type, value) {
         case 'damage':
             self.xspeed = Math.random()*4-2;
             self.yspeed = -10;
+            break;
+        case 'critdamage':
+            self.xspeed = Math.random()*4-2;
+            self.yspeed = -6;
             break;
         case 'heal':
             self.xspeed = Math.random()*4-2;
@@ -490,62 +482,63 @@ Particle = function(map, x, y, type, value) {
         }
         switch (self.type) {
             case 'damage':
-                if (inRenderDistance(self)) {
-                    var opstring = self.opacity.toString(16);
-                    if (opstring.length == 1) opstring = 0 + opstring;
-                    LAYERS.elower.fillStyle = '#FF0000' + opstring;
-                    LAYERS.elower.textAlign = 'center';
-                    LAYERS.elower.font = '24px Pixel';
-                    LAYERS.elower.fillText(self.value, self.x+OFFSETX, self.y+OFFSETY);
-                }
+                var opstring = self.opacity.toString(16);
+                if (opstring.length == 1) opstring = 0 + opstring;
+                LAYERS.elower.fillStyle = '#FF0000' + opstring;
+                LAYERS.elower.textAlign = 'center';
+                LAYERS.elower.font = '24px Pixel';
+                LAYERS.elower.fillText(self.value, self.x+OFFSETX, self.y+OFFSETY);
                 self.xspeed *= 0.98;
                 self.yspeed += 0.5;
                 self.opacity -= 2;
                 break;
+            case 'critdamage':
+                var opstring = self.opacity.toString(16);
+                if (opstring.length == 1) opstring = 0 + opstring;
+                LAYERS.elower.fillStyle = '#FF0000' + opstring;
+                LAYERS.elower.textAlign = 'center';
+                LAYERS.elower.font = 'bold 36px Pixel';
+                LAYERS.elower.fillText(self.value, self.x+OFFSETX, self.y+OFFSETY);
+                self.xspeed *= 0.98;
+                self.yspeed += 0.3;
+                self.opacity -= 2;
+                break;
             case 'heal':
-                if (inRenderDistance(self)) {
-                    var opstring = self.opacity.toString(16);
-                    if (opstring.length == 1) opstring = 0 + opstring;
-                    LAYERS.elower.fillStyle = '#00FF00' + opstring;
-                    LAYERS.elower.textAlign = 'center';
-                    LAYERS.elower.font = '24px Pixel';
-                    LAYERS.elower.fillText(self.value, self.x+OFFSETX, self.y+OFFSETY);
-                }
+                var opstring = self.opacity.toString(16);
+                if (opstring.length == 1) opstring = 0 + opstring;
+                LAYERS.elower.fillStyle = '#00FF00' + opstring;
+                LAYERS.elower.textAlign = 'center';
+                LAYERS.elower.font = '24px Pixel';
+                LAYERS.elower.fillText(self.value, self.x+OFFSETX, self.y+OFFSETY);
                 self.xspeed *= 0.98;
                 self.yspeed += 0.5;
                 self.opacity -= 2;
                 break;
             case 'teleport':
-                if (inRenderDistance(self)) {
-                    var opstring = self.opacity.toString(16);
-                    if (opstring.length == 1) opstring = 0 + opstring;
-                    LAYERS.elower.fillStyle = '#9900CC' + opstring;
-                    LAYERS.elower.fillRect(self.x-self.size/2+OFFSETX, self.y-self.size/2+OFFSETY, self.size, self.size);
-                }
+                var opstring = self.opacity.toString(16);
+                if (opstring.length == 1) opstring = 0 + opstring;
+                LAYERS.elower.fillStyle = '#9900CC' + opstring;
+                LAYERS.elower.fillRect(self.x-self.size/2+OFFSETX, self.y-self.size/2+OFFSETY, self.size, self.size);
                 self.xspeed *= 0.95;
                 self.yspeed *= 0.95;
                 self.opacity -= 1;
                 break;
             case 'explosion':
-                if (inRenderDistance(self)) {
-                    var opacity = Math.min(self.opacity, 100);
-                    var opstring = opacity.toString(16);
-                    if (opstring.length == 1) opstring = 0 + opstring;
-                    LAYERS.elower.fillStyle = self.color + opstring;
-                    LAYERS.elower.fillRect(self.x-self.size/2+OFFSETX, self.y-self.size/2+OFFSETY, self.size, self.size);
-                }
+                var opacity = Math.min(self.opacity, 100);
+                var opstring = opacity.toString(16);
+                if (opstring.length == 1) opstring = 0 + opstring;
+                LAYERS.elower.fillStyle = self.color + opstring;
+                LAYERS.elower.fillRect(self.x-self.size/2+OFFSETX, self.y-self.size/2+OFFSETY, self.size, self.size);
                 self.xspeed *= 0.9;
                 self.yspeed *= 0.9;
                 self.opacity -= 1;
                 break;
             case 'spawn':
-                if (inRenderDistance(self)) {
-                    var opacity = Math.min(self.opacity, 100);
-                    var opstring = opacity.toString(16);
-                    if (opstring.length == 1) opstring = 0 + opstring;
-                    LAYERS.elower.fillStyle = self.color + opstring;
-                    LAYERS.elower.fillRect(self.x-self.size/2+OFFSETX, self.y-self.size/2+OFFSETY, self.size, self.size);
-                }
+                var opacity = Math.min(self.opacity, 100);
+                var opstring = opacity.toString(16);
+                if (opstring.length == 1) opstring = 0 + opstring;
+                LAYERS.elower.fillStyle = self.color + opstring;
+                LAYERS.elower.fillRect(self.x-self.size/2+OFFSETX, self.y-self.size/2+OFFSETY, self.size, self.size);
                 self.angle += self.rotationspeed;
                 self.x = x+Math.cos(self.angle)*self.radius;
                 self.y = y+Math.sin(self.angle)*self.radius;
@@ -555,24 +548,20 @@ Particle = function(map, x, y, type, value) {
                 self.opacity -= 1;
                 break;
             case 'death':
-                if (inRenderDistance(self)) {
-                    var opacity = Math.min(self.opacity, 100);
-                    var opstring = opacity.toString(16);
-                    if (opstring.length == 1) opstring = 0 + opstring;
-                    LAYERS.elower.fillStyle = self.color + opstring;
-                    LAYERS.elower.fillRect(self.x-self.size/2+OFFSETX, self.y-self.size/2+OFFSETY, self.size, self.size);
-                }
+                var opacity = Math.min(self.opacity, 100);
+                var opstring = opacity.toString(16);
+                if (opstring.length == 1) opstring = 0 + opstring;
+                LAYERS.elower.fillStyle = self.color + opstring;
+                LAYERS.elower.fillRect(self.x-self.size/2+OFFSETX, self.y-self.size/2+OFFSETY, self.size, self.size);
                 self.yspeed *= 0.95;
                 self.opacity -= 2;
                 break;
             case 'playerdeath':
-                if (inRenderDistance(self)) {
-                    var opacity = Math.min(self.opacity, 100);
-                    var opstring = opacity.toString(16);
-                    if (opstring.length == 1) opstring = 0 + opstring;
-                    LAYERS.elower.fillStyle = self.color + opstring;
-                    LAYERS.elower.fillRect(self.x-self.size/2+OFFSETX, self.y-self.size/2+OFFSETY, self.size, self.size);
-                }
+                var opacity = Math.min(self.opacity, 100);
+                var opstring = opacity.toString(16);
+                if (opstring.length == 1) opstring = 0 + opstring;
+                LAYERS.elower.fillStyle = self.color + opstring;
+                LAYERS.elower.fillRect(self.x-self.size/2+OFFSETX, self.y-self.size/2+OFFSETY, self.size, self.size);
                 self.xspeed *= 0.98;
                 self.yspeed += 0.2;
                 self.opacity -= 2;
@@ -590,13 +579,9 @@ Particle = function(map, x, y, type, value) {
     return self;
 };
 Particle.update = function(data) {
-    for (var y in data) {
-        for (var x in data[y]) {
-            for (var i in data[y][x]) {
-                var dataparticle = data[y][x][i];
-                new Particle(dataparticle.map, dataparticle.x, dataparticle.y, dataparticle.type, dataparticle.value);
-            }
-        }
+    for (var i in data) {
+        var dataparticle = data[i];
+        if (dataparticle) new Particle(dataparticle.map, dataparticle.x, dataparticle.y, dataparticle.type, dataparticle.value);
     }
 };
 Particle.list = [];
@@ -628,20 +613,18 @@ DroppedItem.update = function(data) {
     for (var i in DroppedItem.list) {
         DroppedItem.list[i].updated = false;
     }
-    for (var y in data) {
-        for (var x in data[y]) {
-            for (var i in data[y][x]) {
-                var datadroppeditem = data[y][x][i];
-                if (datadroppeditem != null) {
-                    if (DroppedItem.list[datadroppeditem.id]) {
+    for (var i in data) {
+        var datadroppeditem = data[i];
+        if (datadroppeditem) {
+            if (datadroppeditem != null) {
+                if (DroppedItem.list[datadroppeditem.id]) {
+                    DroppedItem.list[datadroppeditem.id].updated = true;
+                } else {
+                    try {
+                        new DroppedItem(datadroppeditem.id, datadroppeditem.map, datadroppeditem.x, datadroppeditem.y, datadroppeditem.itemId);
                         DroppedItem.list[datadroppeditem.id].updated = true;
-                    } else {
-                        try {
-                            new DroppedItem(datadroppeditem.id, datadroppeditem.map, datadroppeditem.x, datadroppeditem.y, datadroppeditem.itemId);
-                            DroppedItem.list[datadroppeditem.id].updated = true;
-                        } catch (err) {
-                            console.error(err);
-                        }
+                    } catch (err) {
+                        console.error(err);
                     }
                 }
             }
@@ -746,15 +729,12 @@ async function getEntityData() {
 };
 async function loadEntityData() {
     // health bars
-    await sleep(Math.random()*5);
     Rig.healthBarG.src = './client/img/player/healthbar_green.png';
-    await sleep(Math.random()*5);
     Rig.healthBarR.src = './client/img/monster/healthbar_red.png';
     // players
     for (var i in Player.animations) {
         if (i == 'hair') {
             for (var j in Player.animations[i]) {
-                await sleep(Math.random()*5);
                 await new Promise(function(resolve, reject) {
                     Player.animations[i][j].onload = function() {
                         loadedassets++;
@@ -764,7 +744,6 @@ async function loadEntityData() {
                 });
             }
         } else {
-            await sleep(Math.random()*5);
             await new Promise(function(resolve, reject) {
                 Player.animations[i].onload = function() {
                     loadedassets++;
@@ -776,7 +755,6 @@ async function loadEntityData() {
     }
     // monsters
     for (var i in Monster.types) {
-        await sleep(Math.random()*5);
         await new Promise(function(resolve, reject) {
             Monster.images[i].onload = function() {
                 loadedassets++;
@@ -787,7 +765,6 @@ async function loadEntityData() {
     }
     // projectiles
     for (var i in Projectile.types) {
-        await sleep(Math.random()*5);
         await new Promise(function(resolve, reject) {
             Projectile.images[i].onload = function() {
                 loadedassets++;
@@ -814,11 +791,3 @@ AnimatedTile = function(map, x, y, id, above) {
     return self;
 };
 AnimatedTile.ids = [570, 619, 656, 702, 705, 742, 828, 914, 3202, 3288];
-
-// general
-function inRenderDistance(entity) {
-    if (player) return entity.map == player.map && entity.chunkx >= player.chunkx-settings.renderDistance && entity.chunkx <= player.chunkx+settings.renderDistance && entity.chunky >= player.chunky-settings.renderDistance && entity.chunky <= player.chunky+settings.renderDistance;
-};
-function inRenderDistancePixels(entity) {
-    if (player) return entity.map == player.map && Math.floor(entity.x/(64*MAPS[entity.map].chunkwidth)) >= player.chunkx-settings.renderDistance && Math.floor(entity.x/(64*MAPS[entity.map].chunkwidth)) <= player.chunkx+settings.renderDistance && Math.floor(entity.y/(64*MAPS[entity.map].chunkheight)) >= player.chunky-settings.renderDistance && Math.floor(entity.y/(64*MAPS[entity.map].chunkheight)) <= player.chunky+settings.renderDistance;
-};

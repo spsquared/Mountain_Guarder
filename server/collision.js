@@ -1,6 +1,6 @@
 // Copyright (C) 2021 Radioactive64
 
-Collision = function(map, x, y, type) {
+Collision = function(map, x, y, layer, type) {
     var coltype = 0;
     switch (type) {
         case -1:
@@ -51,68 +51,171 @@ Collision = function(map, x, y, type) {
         case 2212:
             coltype = 15;
             break;
-        case 2293:
+        case 2213:
             coltype = 16;
             break;
-        case 2294:
+        case 2293:
             coltype = 17;
             break;
-        case 2295:
+        case 2294:
             coltype = 18;
             break;
-        case 2296:
+        case 2295:
             coltype = 19;
             break;
-        case 2297:
+        case 2296:
             coltype = 20;
             break;
-        case 2298:
+        case 2297:
             coltype = 21;
             break;
-        case 2299:
+        case 2298:
             coltype = 22;
             break;
-        case 2230:
+        case 2299:
             coltype = 23;
             break;
-        case 2231:
+        case 2230:
             coltype = 24;
             break;
-        case 2379:
+        case 2231:
             coltype = 25;
             break;
-        case 2380:
+        case 2379:
             coltype = 26;
             break;
-        case 2381:
+        case 2380:
             coltype = 27;
             break;
-        case 2382:
+        case 2381:
             coltype = 28;
             break;
-        case 2383:
+        case 2382:
             coltype = 29;
             break;
+        case 2383:
+            coltype = 30;
+            break;
+        case 2384:
+            coltype = 31;
+            break;
+        case 2385:
+            coltype = 32;
+            break;
+        case 1949:
+            new Layer(map, x, y, layer, 1);
+            return;
+        case 1950:
+            new Layer(map, x, y, layer, 2);
+            return;
+        case 1951:
+            new Layer(map, x, y, layer, 3);
+            return;
+        case 1952:
+            new Layer(map, x, y, layer, 4);
+            return;
+        case 1953:
+            new Layer(map, x, y, layer, 5);
+            return;
+        case 2035:
+            new Layer(map, x, y, layer, 6);
+            return;
+        case 2036:
+            new Layer(map, x, y, layer, 7);
+            return;
+        case 2037:
+            new Layer(map, x, y, layer, 8);
+            return;
+        case 2038:
+            new Layer(map, x, y, layer, 9);
+            return;
+        case 2039:
+            new Layer(map, x, y, layer, 10);
+            return;
+        case 2130:
+            coltype = 3;
+            new Layer(map, x, y, layer, 2);
+            break;
+        case 2131:
+            coltype = 2;
+            new Layer(map, x, y, layer, 3);
+            break;
+        case 2132:
+            coltype = 5;
+            new Layer(map, x, y, layer, 4);
+            break;
+        case 2133:
+            coltype = 4;
+            new Layer(map, x, y, layer, 5);
+            break;
+        case 2216:
+            coltype = 3;
+            new Layer(map, x, y, layer, 7);
+            break;
+        case 2217:
+            coltype = 2;
+            new Layer(map, x, y, layer, 8);
+            break;
+        case 2218:
+            coltype = 5;
+            new Layer(map, x, y, layer, 9);
+            break;
+        case 2219:
+            coltype = 4;
+            new Layer(map, x, y, layer, 10);
+            break;
+        case 2302:
+            coltype = 19;
+            new Layer(map, x, y, layer, 2);
+            break;
+        case 2303:
+            coltype = 18;
+            new Layer(map, x, y, layer, 3);
+            break;
+        case 2304:
+            coltype = 21;
+            new Layer(map, x, y, layer, 4);
+            break;
+        case 2305:
+            coltype = 20;
+            new Layer(map, x, y, layer, 5);
+            break;
+        case 2388:
+            coltype = 19;
+            new Layer(map, x, y, layer, 7);
+            break;
+        case 2389:
+            coltype = 18;
+            new Layer(map, x, y, layer, 8);
+            break;
+        case 2390:
+            coltype = 21;
+            new Layer(map, x, y, layer, 9);
+            break;
+        case 2391:
+            coltype = 20;
+            new Layer(map, x, y, layer, 10);
+            break;
         default:
-            error('Invalid collision at (' + x + ',' + y + ')');
+            error('Invalid collision at (' + map + ',' + layer + ',' + x + ',' + y + ')');
             break;
     }
-    if (Collision.grid[map][y]) {
-        Collision.grid[map][y][x] = coltype;
+    if (Collision.grid[map][layer][parseInt(y)]) {
+        Collision.grid[map][layer][parseInt(y)][parseInt(x)] = coltype;
     } else {
-        Collision.grid[map][y] = [];
-        Collision.grid[map][y][x] = coltype;
+        Collision.grid[map][layer][parseInt(y)] = [];
+        Collision.grid[map][layer][parseInt(y)][parseInt(x)] = coltype;
     }
-
     return coltype;
 };
-Collision.getColEntity = function(map, x, y) {
+Collision.getColEntity = function(map, x, y, layer) {
     var collision = [];
-    var coltype = Collision.grid[map][y][x];
+    var coltype = 0;
+    if (Collision.grid[map]) if (Collision.grid[map][layer]) if (Collision.grid[map][layer][y]) if (Collision.grid[map][layer][y][x]) coltype = Collision.grid[map][layer][y][x];
     var noProjectile = false;
-    if (coltype > 15) {
+    if (coltype > 16) {
         noProjectile = true;
-        coltype -= 15;
+        coltype -= 16;
     }
     switch (coltype) {
         case 0:
@@ -318,8 +421,19 @@ Collision.getColEntity = function(map, x, y) {
                 noProjectile: noProjectile
             };
             break;
+        case 16:
+            collision[0] = {
+                map: map,
+                x: x*64+32,
+                y: y*64+36,
+                width: 48,
+                height: 56,
+                collisionBoxSize: 56,
+                noProjectile: noProjectile
+            };
+            break;
         default:
-            console.error('Invalid collision');
+            error('Invalid collision ' + coltype + ' at (' + map + ',' + layer + ',' + x + ',' + y + ')');
             break;
     }
     
@@ -327,12 +441,196 @@ Collision.getColEntity = function(map, x, y) {
 };
 Collision.grid = [];
 
-Spawner = function(map, x, y, types) {
+Layer = function(map, x, y, layer, type) {
+    if (Layer.grid[map][layer][parseInt(y)]) {
+        Layer.grid[map][layer][parseInt(y)][parseInt(x)] = type;
+    } else {
+        Layer.grid[map][layer][parseInt(y)] = [];
+        Layer.grid[map][layer][parseInt(y)][parseInt(x)] = type;
+    }
+    return type;
+};
+Layer.getColEntity = function(map, x, y, layer) {
+    var collision = [];
+    var coltype = 0;
+    if (Layer.grid[map]) if (Layer.grid[map][layer]) if (Layer.grid[map][layer][y]) if (Layer.grid[map][layer][y][x]) coltype = Layer.grid[map][layer][y][x];
+    var dir = 1;
+    if (coltype > 5) {
+        dir = -1;
+        coltype -= 5;
+    }
+    switch (coltype) {
+        case 0:
+            break;
+        case 1:
+            collision[0] = {
+                map: map,
+                x: x*64+32,
+                y: y*64+32,
+                width: 64,
+                height: 64,
+                collisionBoxSize: 64,
+                dir: dir
+            };
+            break;
+        case 2:
+            collision[0] = {
+                map: map,
+                x: x*64+32,
+                y: y*64+48,
+                width: 64,
+                height: 32,
+                collisionBoxSize: 64,
+                dir: dir
+            };
+            break;
+        case 3:
+            collision[0] = {
+                map: map,
+                x: x*64+32,
+                y: y*64+16,
+                width: 64,
+                height: 32,
+                collisionBoxSize: 64,
+                dir: dir
+            };
+            break;
+        case 4:
+            collision[0] = {
+                map: map,
+                x: x*64+16,
+                y: y*64+32,
+                width: 32,
+                height: 64,
+                collisionBoxSize: 64,
+                dir: dir
+            };
+            break;
+        case 5:
+            collision[0] = {
+                map: map,
+                x: x*64+48,
+                y: y*64+32,
+                width: 32,
+                height: 64,
+                collisionBoxSize: 64,
+                dir: dir
+            };
+            break;
+        default:
+            error('Invalid layer ' + coltype + 'at (' + map + ',' + layer + ',' + x + ',' + y + ')');
+            break;
+    }
+    
+    return collision;
+};
+Layer.grid = [];
+
+Slowdown = function(map, x, y, type) {
+    var coltype = 0;
+    switch (type) {
+        case 0:
+            break;
+        case 2465:
+            coltype = 1;
+            break;
+        case 2466:
+            coltype = 2;
+            break;
+        case 2467:
+            coltype = 3;
+            break;
+        case 2468:
+            coltype = 4;
+            break;
+        case 2469:
+            coltype = 5;
+            break;
+        default:
+            error('Invalid slowdown at (' + map + ',' + layer + ',' + x + ',' + y + ')');
+            break;
+    }
+    if (Slowdown.grid[map][parseInt(y)]) {
+        Slowdown.grid[map][parseInt(y)][parseInt(x)] = type;
+    } else {
+        Slowdown.grid[map][parseInt(y)] = [];
+        Slowdown.grid[map][parseInt(y)][parseInt(x)] = type;
+    }
+    return type;
+}
+Slowdown.getColEntity = function(map, x, y) {
+    var collision = [];
+    var coltype = 0;
+    if (Slowdown.grid[map]) if (Slowdown.grid[map][y]) if (Slowdown.grid[map][y][x]) coltype = Slowdown.grid[map][y][x];
+    switch (coltype) {
+        case 0:
+            break;
+        case 1:
+            collision[0] = {
+                map: map,
+                x: x*64+32,
+                y: y*64+32,
+                width: 64,
+                height: 64,
+                collisionBoxSize: 64,
+            };
+            break;
+        case 2:
+            collision[0] = {
+                map: map,
+                x: x*64+32,
+                y: y*64+48,
+                width: 64,
+                height: 32,
+                collisionBoxSize: 64,
+            };
+            break;
+        case 3:
+            collision[0] = {
+                map: map,
+                x: x*64+32,
+                y: y*64+16,
+                width: 64,
+                height: 32,
+                collisionBoxSize: 64,
+            };
+            break;
+        case 4:
+            collision[0] = {
+                map: map,
+                x: x*64+16,
+                y: y*64+32,
+                width: 32,
+                height: 64,
+                collisionBoxSize: 64,
+            };
+            break;
+        case 5:
+            collision[0] = {
+                map: map,
+                x: x*64+48,
+                y: y*64+32,
+                width: 32,
+                height: 64,
+                collisionBoxSize: 64,
+            };
+            break;
+        default:
+            error('Invalid slowdown ' + coltype + 'at (' + map + ',' + layer + ',' + x + ',' + y + ')');
+            break;
+    }
+    
+    return collision;
+};
+Slowdown.grid = [];
+
+Spawner = function(map, x, y, layer, types) {
     var self = {
         id: null,
         x: x*64+32,
         y: y*64+32,
         map: map,
+        layer: layer,
         types: types
     };
     self.id = Math.random();
@@ -358,12 +656,12 @@ Spawner = function(map, x, y, types) {
             for (var i = 0; i < 50; i++) {
                 new Particle(self.map, self.x, self.y, 'spawn');
             }
-            var localmonster = new Monster(monstertype, self.x, self.y, self.map);
+            var localmonster = new Monster(monstertype, self.x, self.y, self.map, self.layer);
             localmonster.spawnerID = self.id;
             localmonster.oldOnDeath = localmonster.onDeath;
             localmonster.onDeath = function(entity) {
                 try {
-                    Spawner.grid[localmonster.spawnerID].onMonsterDeath();
+                    Spawner.list[localmonster.spawnerID].onMonsterDeath();
                 } catch (err) {
                     error(err);
                 }
@@ -386,10 +684,10 @@ Spawner = function(map, x, y, types) {
     
     self.spawnMonster();
 
-    Spawner.grid[self.id] = self;
+    Spawner.list[self.id] = self;
     return self;
 };
-Spawner.grid = [];
+Spawner.list = [];
 
 Region = function(map, x, y, properties) {
     var data = {
@@ -402,11 +700,11 @@ Region = function(map, x, y, properties) {
         else if (properties[i] == 'nomonster') data.nomonster = true;
         else data.name = properties[i];
     }
-    if (Region.grid[map][y]) {
-        Region.grid[map][y][x] = data;
+    if (Region.grid[map][parseInt(y)]) {
+        Region.grid[map][parseInt(y)][parseInt(x)] = data;
     } else {
-        Region.grid[map][y] = [];
-        Region.grid[map][y][x] = data;
+        Region.grid[map][parseInt(y)] = [];
+        Region.grid[map][parseInt(y)][parseInt(x)] = data;
     }
 
     return data;
@@ -418,17 +716,19 @@ Teleporter = function(map, x, y, properties) {
         x: 0,
         y: 0,
         map: 'World',
+        layer: 0,
         direction: null
     };
     data.map = properties[0];
     data.x = parseInt(properties[1]);
     data.y = parseInt(properties[2]);
-    data.direction = properties[3];
-    if (Teleporter.grid[map][y]) {
-        Teleporter.grid[map][y][x] = data;
+    data.layer = properties[3];
+    data.direction = properties[4];
+    if (Teleporter.grid[map][parseInt(y)]) {
+        Teleporter.grid[map][parseInt(y)][parseInt(x)] = data;
     } else {
-        Teleporter.grid[map][y] = [];
-        Teleporter.grid[map][y][x] = data;
+        Teleporter.grid[map][parseInt(y)] = [];
+        Teleporter.grid[map][parseInt(y)][parseInt(x)] = data;
     }
 
     return data;

@@ -34,6 +34,7 @@ function generateServerItem() {
         item.damage = null;
         item.damageType = null;
         item.critChance = null;
+        item.critDamage = null;
         item.knockback = null;
         item.useTime = null;
         item.manaCost = null;
@@ -55,7 +56,7 @@ function generateServerItem() {
         if (isNaN(value*2) == false) value = parseFloat(value);
         item[i] = value;
     }
-    var effects = ["health", "damage", "rangedDamage", "meleeDamage", "magicDamage", "critChance", "damageReduction", "defense"];
+    var effects = ['health', 'damage', 'rangedDamage', 'meleeDamage', 'magicDamage', 'critChance', 'critDamage', 'damageReduction', 'defense'];
     item.effects = [];
     for (var i in effects) {
         var value = document.getElementById('effect' + effects[i]).value;
@@ -67,7 +68,7 @@ function generateServerItem() {
             });
         }
     }
-    var enchantments = ["swiftness", "speed", "range", "accuracy", "power", "sharpness", "efficiency", "sorcery", "focus", "protection", "smashing", "unlocking"];
+    var enchantments = ['swiftness', 'speed', 'range', 'accuracy', 'power', 'sharpness', 'sweepingedge', 'efficiency', 'sorcery', 'focus', 'witchcraft', 'protection', 'smashing', 'unlocking'];
     item.enchantments = [];
     for (var i in enchantments) {
         var checked = document.getElementById(enchantments[i]).checked;
@@ -93,6 +94,7 @@ function generateClientItem() {
         item.damage = null;
         item.damageType = null;
         item.critChance = null;
+        item.critDamage = null;
         item.knockback = null;
         item.useTime = null;
         item.manaCost = null;
@@ -112,7 +114,7 @@ function generateClientItem() {
         if (isNaN(value*2) == false) value = parseFloat(value);
         item[i] = value;
     }
-    var effects = ["health", "damage", "rangedDamage", "meleeDamage", "magicDamage", "critChance", "damageReduction", "defense"];
+    var effects = ['health', 'damage', 'rangedDamage', 'meleeDamage', 'magicDamage', 'critChance', 'critDamage', 'damageReduction', 'defense'];
     item.effects = [];
     for (var i in effects) {
         var value = document.getElementById('effect' + effects[i]).value;

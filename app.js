@@ -1,7 +1,7 @@
 // Copyright (C) 2021 Radioactive64
 // Go to README.md for more information
 
-const version = 'v0.7.3';
+const version = 'v0.8.0';
 require('./server/log.js');
 console.info('\x1b[33m%s\x1b[0m', 'Mountain Guarder ' + version + ' copyright (C) Radioactive64 2021');
 appendLog('Mountain Guarder ' + version + ' copyright (C) Radioactive64 2021', 'log');
@@ -112,7 +112,7 @@ io.on('connection', function(socket) {
                 if (player.name == ENV.ops[i]) op = true;
             }
             if (op) {
-                if (player.name != 'lol') {
+                if (player.name != 'Sampleprovider(sp)') {
                     var valid = true;
                     var isolate = new ivm.Isolate();
                     var context = isolate.createContextSync();
@@ -142,9 +142,6 @@ io.on('connection', function(socket) {
                 try {
                     var self = player;
                     var msg = eval(input);
-                    if (msg == '') {
-                        msg = 'Successfully executed command';
-                    }
                     socket.emit('debugLog', {color:'lime', msg:msg});
                     logColor(msg, '\x1b[33m', 'log');
                 } catch (err) {
@@ -263,6 +260,7 @@ prompt.on('line', async function(input) {
 });
 prompt.on('close', async function() {
     if (active && process.env.PORT == null) {
+        insertChat('[!] SERVER IS CLOSING [!]', 'server');
         logColor('Stopping Server...', '\x1b[32m', 'log');
         clearInterval(updateTicks);
         started = false;
@@ -290,29 +288,20 @@ const updateTicks = setInterval(function() {
         var pack = Entity.update();
         for (var i in Player.list) {
             var localplayer = Player.list[i];
-            var localpack = JSON.parse(JSON.stringify(pack));
+            var localpack = Object.assign({}, pack);
             if (localplayer.name) {
                 for (var j in localpack) {
-                    var grid = localpack[j];
+                    var entities = localpack[j];
                     if (j != 'players') {
-                        for (var y in grid) {
-                            if (y < localplayer.chunky-localplayer.renderDistance || y > localplayer.chunky+localplayer.renderDistance) {
-                                delete grid[y];
-                                continue;
-                            }
-                            for (var x in grid[y]) {
-                                if (x < localplayer.chunkx-localplayer.renderDistance || x > localplayer.chunkx+localplayer.renderDistance) {
-                                    delete grid[y][x];
+                        for (var k in entities) {
+                            if (j == 'droppedItems') {
+                                if (entities[k].parentId != localplayer.id) {
+                                    delete entities[k];
                                     continue;
                                 }
-                                if (j == 'droppedItems') {
-                                    for (var k in grid[y][x]) {
-                                        var localdroppeditem = grid[y][x][k];
-                                        if (localdroppeditem.playerId) {
-                                            if (localdroppeditem.playerId != localplayer.id) delete grid[y][x][k];
-                                        }
-                                    }
-                                }
+                            }
+                            if (entities[k].chunkx < localplayer.chunkx-localplayer.renderDistance || entities[k].chunkx > localplayer.chunkx+localplayer.renderDistance || entities[k].chunky < localplayer.chunky-localplayer.renderDistance || entities[k].chunky > localplayer.chunky+localplayer.renderDistance) {
+                                delete entities[k];
                             }
                         }
                     }
@@ -323,22 +312,21 @@ const updateTicks = setInterval(function() {
         var debugPack = Entity.getDebugData();
         for (var i in Player.list) {
             var localplayer = Player.list[i];
-            var localpack = JSON.parse(JSON.stringify(debugPack));
+            var localpack = Object.assign({}, debugPack);
             if (localplayer.name) {
                 if (localplayer.debugEnabled) {
                     for (var j in localpack) {
-                        var grid = localpack[j];
-                        if (j != 'players' && j != 'monsters') {
-                            for (var y in grid) {
-                                if (y < localplayer.chunky-localplayer.renderDistance || y > localplayer.chunky+localplayer.renderDistance) {
-                                    delete grid[y];
-                                    continue;
-                                }
-                                for (var x in grid[y]) {
-                                    if (x < localplayer.chunkx-localplayer.renderDistance || x > localplayer.chunkx+localplayer.renderDistance) {
-                                        delete grid[y][x];
+                        var entities = localpack[j];
+                        if (j != 'players') {
+                            for (var k in entities) {
+                                if (j == 'droppedItems') {
+                                    if (entities[k].parentId != localplayer.id) {
+                                        delete entities[k];
                                         continue;
                                     }
+                                }
+                                if (entities[k].chunkx < localplayer.chunkx-localplayer.renderDistance || entities[k].chunkx > localplayer.chunkx+localplayer.renderDistance || entities[k].chunky < localplayer.chunky-localplayer.renderDistance || entities[k].chunky > localplayer.chunky+localplayer.renderDistance) {
+                                    delete entities[k];
                                 }
                             }
                         }
@@ -358,35 +346,41 @@ setInterval(async function() {
 }, 1000);
 
 // critical errors
+var quitting = false;
 forceQuit = function(err, code) {
-    try {
-        error('SERVER ENCOUNTERED A CATASTROPHIC ERROR. STOP CODE:');
+    if (!quitting) {
+        try {
+            quitting = true;
+            error('SERVER ENCOUNTERED A CATASTROPHIC ERROR. STOP CODE:');
+            console.error(err);
+            insertChat('[!] SERVER ENCOUNTERED A CATASTROPHIC ERROR. [!]', 'error');
+            insertChat(err, 'error');
+            appendLog(err, 'error');
+            appendLog('Error code ' + code, 'error');
+            error('STOP.');
+            clearInterval(updateTicks);
+            io.emit('disconnected');
+            started = false;
+            ACCOUNTS.disconnect();
+            active = false;
+            console.error('\x1b[33m%s\x1b[0m', 'If this issue persists, please submit a bug report on GitHub with a screenshot of this screen and/or logfiles before this.');
+            console.error('\x1b[33m%s\x1b[0m', 'Press ENTER or CTRL+C to exit.');
+            const stopprompt = readline.createInterface({input: process.stdin, output: process.stdout});
+            stopprompt.on('line', function(input) {
+                appendLog('----------------------------------------');
+                process.exit(code);
+            });
+            stopprompt.on('close', function() {
+                appendLog('----------------------------------------');
+                process.exit(code);
+            });
+        } catch (err) {
+            forceQuit(err, 1);
+        }
+    } else {
+        console.error('\x1b[31mThere was an error trying to stop the server!\x1b[0m');
         console.error(err);
-        insertChat('SERVER ENCOUNTERED A CATASTROPHIC ERROR.', 'error');
-        insertChat(err, 'error');
-        appendLog(err, 'error');
-        appendLog('Error code ' + code, 'error');
-        error('STOP.');
-        clearInterval(updateTicks);
-        io.emit('disconnected');
-        started = false;
-        ACCOUNTS.disconnect();
-        active = false;
-        console.error('\x1b[33m%s\x1b[0m', 'If this issue persists, please submit a bug report on GitHub with a screenshot of this screen and/or logfiles before this.');
-        console.error('\x1b[33m%s\x1b[0m', 'Press ENTER or CTRL+C to exit.');
-        const stopprompt = readline.createInterface({input: process.stdin, output: process.stdout});
-        stopprompt.on('line', function(input) {
-            appendLog('----------------------------------------');
-            process.exit(code);
-        });
-        stopprompt.on('close', function() {
-            appendLog('----------------------------------------');
-            process.exit(code);
-        });
-    } catch (err) {
-        console.error('There was an error trying to stop the server!');
-        console.error(err);
-        process.exit(1);
+        process.exit(code);
     }
 };
 

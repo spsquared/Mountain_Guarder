@@ -15,6 +15,7 @@
         "damage": 10,
         "damageType": "ranged",
         "critChance": 0.02,
+        "critPower": 0.02,
         "knockback": 1.5,
         "useTime": 10,
         "manaCost": 0,
@@ -35,6 +36,7 @@
         "damage": 10,
         "damageType": "melee",
         "critChance": 0.1,
+        "critPower": 0.15,
         "knockback": 4,
         "useTime": 15,
         "manaCost": 0,
@@ -54,6 +56,7 @@
         "damage": 7,
         "damageType": "magic",
         "critChance": 0.05,
+        "critPower": 0.1,
         "knockback": 0,
         "useTime": 10,
         "manaCost": 10,
@@ -113,6 +116,10 @@
             {
                 "id": "critChance",
                 "value": 0.1
+            },
+            {
+                "id": "critPower",
+                "value": 0.03
             }
         ],
         "enchantments": [
@@ -178,6 +185,7 @@
         "damage": 12,
         "damageType": "ranged",
         "critChance": 0.04,
+        "critPower": 0.05,
         "knockback": 2,
         "useTime": 10,
         "manaCost": 0,
@@ -198,6 +206,7 @@
         "damage": 12,
         "damageType": "melee",
         "critChance": 0.15,
+        "critPower": 0.2,
         "knockback": 3,
         "useTime": 12,
         "manaCost": 0,
@@ -218,6 +227,7 @@
         "damage": 16,
         "damageType": "melee",
         "critChance": 0.15,
+        "critPower": 0.18,
         "knockback": 2,
         "useTime": 30,
         "manaCost": 0,
@@ -238,6 +248,7 @@
         "damage": 11,
         "damageType": "magic",
         "critChance": 0.1,
+        "critPower": 0.08,
         "knockback": 0,
         "useTime": 10,
         "manaCost": 9,
@@ -264,6 +275,10 @@
             {
                 "id": "magicDamage",
                 "value": 1.2
+            },
+            {
+                "id": "critPower",
+                "value": 0.1
             }
         ],
         "enchantments": [
@@ -360,6 +375,7 @@
         "damage": 11,
         "damageType": "magic",
         "critChance": 0.1,
+        "critPower": 0.3,
         "knockback": 0,
         "useTime": 8,
         "manaCost": 10,
@@ -381,6 +397,7 @@
         "damage": 1,
         "damageType": "magic",
         "critChance": 0.01,
+        "critPower": 0.5,
         "knockback": 1,
         "useTime": 30,
         "manaCost": 40,

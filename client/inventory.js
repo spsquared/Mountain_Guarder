@@ -235,10 +235,10 @@ Inventory.generateEffects = function(item) {
                     effect = 'HP';
                     if (localeffect.value < 0) {
                         color = 'red';
-                        number = localeffect.value;
+                        number = Math.round(localeffect.value*100-100) + '%';
                     } else {
                         color = 'lime';
-                        number = '+' + localeffect.value;
+                        number = '+' + Math.round(localeffect.value*100-100) + '%';
                     }
                     break;
                 case 'damage':
@@ -285,10 +285,20 @@ Inventory.generateEffects = function(item) {
                     effect = 'Critical hit chance';
                     if (localeffect.value < 0) {
                         color = 'red';
-                        number = localeffect.value + '%';
+                        number = localeffect.value*100 + '%';
                     } else {
                         color = 'lime';
-                        number = '+' + localeffect.value + '%';
+                        number = '+' + localeffect.value*100 + '%';
+                    }
+                    break;
+                case 'critPower':
+                    effect = 'Critical hit power';
+                    if (localeffect.value < 0) {
+                        color = 'red';
+                        number = localeffect.value*100 + '%';
+                    } else {
+                        color = 'lime';
+                        number = '+' + localeffect.value*100 + '%';
                     }
                     break;
                 case 'damageReduction':
@@ -305,13 +315,14 @@ Inventory.generateEffects = function(item) {
                     effect = 'Defense';
                     if (localeffect.value < 0) {
                         color = 'red';
-                        number = localeffect.value + '%';
+                        number = localeffect.value*100 + '%';
                     } else {
                         color = 'lime';
-                        number = '+' + localeffect.value + '%';
+                        number = '+' + localeffect.value*100 + '%';
                     }
                     break;
                 default:
+                    console.error('Invalid effect id ' + localeffect.id);
                     break;
             }
             str += '<br><span style="color: ' + color + '; font-size: 12px;">' + number + ' ' + effect + '</span>';
@@ -428,7 +439,6 @@ async function getInventoryData() {
 };
 async function loadInventoryData() {
     for (var i in Inventory.itemTypes) {
-        await sleep(Math.random()*5);
         await new Promise(function(resolve, reject) {
             Inventory.itemImages[i].onload = function() {
                 loadedassets++;
@@ -444,7 +454,6 @@ async function loadInventoryData() {
             Inventory.itemHighlightImages[i].className = 'invSlotImg noSelect';
         });
     }
-    await sleep(Math.random()*5);
     await new Promise(function(resolve, reject) {
         Inventory.itemImages['empty'].onload = function() {
             loadedassets++;
