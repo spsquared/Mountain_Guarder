@@ -170,7 +170,6 @@ function drawMap() {
         }
         lastmap = player.map;
     }
-    updateRenderedChunks();
     LAYERS.mlower.save();
     LAYERS.mlower.translate((window.innerWidth/2)-player.x,(window.innerHeight/2)-player.y);
     LAYERS.mupper.save();
@@ -192,6 +191,12 @@ function drawMap() {
     LAYERS.mupper.fillRect(width+offsetX+OFFSETX, offsetY+OFFSETY, 1024, height+2048);
     LAYERS.mlower.restore();
     LAYERS.mupper.restore();
+};
+function resetRenderedChunks() {
+    if (player) {
+        MAPS[player.map].chunks = [];
+        updateRenderedChunks();
+    }
 };
 function updateRenderedChunks() {
     for (var y in MAPS[player.map].chunks) {
@@ -223,6 +228,9 @@ function renderChunk(data, x, y, map) {
     resetCanvas(tempupper);
     resetCanvas(templower);
     for (var i in data) {
+        var above = false;
+        if (i.includes('Above')) above = true;
+        if (i.includes('Variable')) if (parseInt(i.replace('Variable', '')) >= player.layer) above = true;
         for (var j in data[i]) {
             var tileid = data[i][j];
             if (tileid != 0) {
@@ -231,7 +239,7 @@ function renderChunk(data, x, y, map) {
                 var imgy = ~~(tileid / 86)*17;
                 var dx = (j % MAPS[map].chunkwidth)*16+data[i].offsetX;
                 var dy = ~~(j / MAPS[map].chunkwidth)*16+data[i].offsetY;
-                if (i.includes('Above')) {
+                if (above) {
                     tupper.drawImage(tileset, Math.round(imgx), Math.round(imgy), 16, 16, Math.round(dx*4), Math.round(dy*4), 64, 64);
                 } else {
                     tlower.drawImage(tileset, Math.round(imgx), Math.round(imgy), 16, 16, Math.round(dx*4), Math.round(dy*4), 64, 64);
@@ -503,6 +511,7 @@ socket.on('updateTick', function(data) {
     if (loaded) {
         Entity.update(data);
         player = Player.list[playerid];
+        updateRenderedChunks();
     }
     tpsCounter++;
 });
@@ -536,7 +545,7 @@ document.onkeydown = function(e) {
                 }
             } else if (e.key == 'e' || e.key == 'E') {
                 toggleInventory();
-            } else if (e.key == 'Meta' || e.key == 'Alt' || e.key == 'Control' || e.key == 'Shift'){
+            } else if (e.key == 'Meta' || e.key == 'Alt' || e.key == 'Control'){
                 socket.emit('keyPress', {key:'up', state:false});
                 socket.emit('keyPress', {key:'down', state:false});
                 socket.emit('keyPress', {key:'left', state:false});

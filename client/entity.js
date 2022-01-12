@@ -19,10 +19,10 @@ Entity = function(id, map, x, y) {
         updated: true
     };
 
-    self.update = function(param) {
-        self.map = param.map;
-        self.xspeed = (param.x-self.x)/(settings.fps/20);
-        self.yspeed = (param.y-self.y)/(settings.fps/20);
+    self.update = function(data) {
+        self.map = data.map;
+        self.xspeed = (data.x-self.x)/(settings.fps/20);
+        self.yspeed = (data.y-self.y)/(settings.fps/20);
         self.interpolationStage = 0;
         self.updated = true;
     };
@@ -92,14 +92,14 @@ Rig = function(id, map, x, y) {
     self.xp = 0;
     self.manaFull = false;
     
-    self.update = function(param) {
-        self.map = param.map;
-        self.xspeed = (param.x-self.x)/(settings.fps/20);
-        self.yspeed = (param.y-self.y)/(settings.fps/20);
+    self.update = function(data) {
+        self.map = data.map;
+        self.xspeed = (data.x-self.x)/(settings.fps/20);
+        self.yspeed = (data.y-self.y)/(settings.fps/20);
         self.interpolationStage = 0;
-        self.animationStage = param.animationStage;
-        self.hp = param.hp;
-        self.maxHP = param.maxHP;
+        self.animationStage = data.animationStage;
+        self.hp = data.hp;
+        self.maxHP = data.maxHP;
         self.updated = true;
     };
     self.draw = function() {
@@ -123,6 +123,7 @@ Rig.healthBarR = new Image();
 // players
 Player = function(id, map, x, y, isNPC, name) {
     var self = new Rig(id, map, x, y);
+    self.layer = 0;
     self.animationImage = null;
     self.animationsCanvas = new OffscreenCanvas(48, 128);
     self.animationsContext = self.animationsCanvas.getContext('2d');
@@ -142,19 +143,22 @@ Player = function(id, map, x, y, isNPC, name) {
     if (isNPC) self.isNPC = true;
     self.name = name;
 
-    self.update = function(param) {
-        self.map = param.map;
-        self.xspeed = (param.x-self.x)/(settings.fps/20);
-        self.yspeed = (param.y-self.y)/(settings.fps/20);
+    self.update = function(data) {
+        self.map = data.map;
+        self.xspeed = (data.x-self.x)/(settings.fps/20);
+        self.yspeed = (data.y-self.y)/(settings.fps/20);
+        var layer = self.layer;
+        self.layer = data.layer;
+        if (layer != data.layer) resetRenderedChunks();
         self.interpolationStage = 0;
-        self.animationStage = param.animationStage;
-        if (param.characterStyle.hair != self.characterStyle.hair || param.characterStyle.hairColor != self.characterStyle.hairColor || param.characterStyle.bodyColor != self.characterStyle.bodyColor || param.characterStyle.shirtColor != self.characterStyle.shirtColor || param.characterStyle.pantsColor != self.characterStyle.pantsColor) {
-            self.characterStyle = param.characterStyle;
+        self.animationStage = data.animationStage;
+        if (data.characterStyle.hair != self.characterStyle.hair || data.characterStyle.hairColor != self.characterStyle.hairColor || data.characterStyle.bodyColor != self.characterStyle.bodyColor || data.characterStyle.shirtColor != self.characterStyle.shirtColor || data.characterStyle.pantsColor != self.characterStyle.pantsColor) {
+            self.characterStyle = data.characterStyle;
             self.updateAnimationCanvas();
         }
-        self.hp = param.hp;
-        self.maxHP = param.maxHP;
-        self.heldItem = param.heldItem;
+        self.hp = data.hp;
+        self.maxHP = data.maxHP;
+        self.heldItem = data.heldItem;
         if (self.heldItem) self.heldItem.image = Inventory.itemImages[self.heldItem.id];
         self.updated = true;
     };
@@ -325,12 +329,12 @@ Projectile = function(id, map, x, y, angle, type) {
     self.animationImage = Projectile.images[type];
     self.animationStage = 0;
 
-    self.update = function(param) {
-        self.map = param.map;
-        self.xspeed = (param.x-self.x)/(settings.fps/20);
-        self.yspeed = (param.y-self.y)/(settings.fps/20);
+    self.update = function(data) {
+        self.map = data.map;
+        self.xspeed = (data.x-self.x)/(settings.fps/20);
+        self.yspeed = (data.y-self.y)/(settings.fps/20);
         self.interpolationStage = 0;
-        self.rotationspeed = (param.angle-self.angle)/(settings.fps/20);
+        self.rotationspeed = (data.angle-self.angle)/(settings.fps/20);
         self.updated = true;
     };
     self.draw = function() {

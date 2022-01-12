@@ -1,7 +1,7 @@
 // Copyright (C) 2021 Radioactive64
 // Go to README.md for more information
 
-const version = 'v0.8.0';
+const version = 'v0.8.1';
 require('./server/log.js');
 console.info('\x1b[33m%s\x1b[0m', 'Mountain Guarder ' + version + ' copyright (C) Radioactive64 2021');
 appendLog('Mountain Guarder ' + version + ' copyright (C) Radioactive64 2021', 'log');
@@ -207,6 +207,9 @@ const s = {
     kickAll: function() {
         io.emit('disconnected');
     },
+    tp: function(name1, name2) {
+        var player1 = s.findPlayer(name1)
+    },
     bc: function(text) {
         insertChat('[BC]: ' + text, 'server');
     },
@@ -295,7 +298,7 @@ const updateTicks = setInterval(function() {
                     if (j != 'players') {
                         for (var k in entities) {
                             if (j == 'droppedItems') {
-                                if (entities[k].parentId != localplayer.id) {
+                                if (entities[k].playerId) if (entities[k].playerId != localplayer.id) {
                                     delete entities[k];
                                     continue;
                                 }

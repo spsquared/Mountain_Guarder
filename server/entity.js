@@ -412,36 +412,29 @@ Rig = function() {
         self.animationDirection = 'facing';
         if (self.keys.up) {
             self.animationDirection = 'up';
-            self.facingDirection = 'up';
         }
         if (self.keys.down) {
             self.animationDirection = 'down';
-            self.facingDirection = 'down';
         }
         if (self.keys.left) {
             if (self.keys.down) {
                 self.animationDirection = 'downleft';
-                self.facingDirection = 'downleft';
             } else if (self.keys.up) {
                 self.animationDirection = 'upleft';
-                self.facingDirection = 'upleft';
             } else {
                 self.animationDirection = 'left';
-                self.facingDirection = 'left';
             }
         }
         if (self.keys.right) {
             if (self.keys.down) {
                 self.animationDirection = 'downright';
-                self.facingDirection = 'downright';
             } else if (self.keys.up) {
                 self.animationDirection = 'upright';
-                self.facingDirection = 'upright';
             } else {
                 self.animationDirection = 'right';
-                self.facingDirection = 'right';
             }
         }
+        if (self.animationDirection != 'facing') self.facingDirection = self.animationDirection;
         if (self.aiControlled) {
             self.ai.lastPath++;
             if (self.ai.lastPath >= seconds(0.1)) {
@@ -480,36 +473,29 @@ Rig = function() {
         self.animationDirection = 'facing';
         if (self.keys.up) {
             self.animationDirection = 'up';
-            self.facingDirection = 'up';
         }
         if (self.keys.down) {
             self.animationDirection = 'down';
-            self.facingDirection = 'down';
         }
         if (self.keys.left) {
             if (self.keys.down) {
                 self.animationDirection = 'downleft';
-                self.facingDirection = 'downleft';
             } else if (self.keys.up) {
                 self.animationDirection = 'upleft';
-                self.facingDirection = 'upleft';
             } else {
                 self.animationDirection = 'left';
-                self.facingDirection = 'left';
             }
         }
         if (self.keys.right) {
             if (self.keys.down) {
                 self.animationDirection = 'downright';
-                self.facingDirection = 'downright';
             } else if (self.keys.up) {
                 self.animationDirection = 'upright';
-                self.facingDirection = 'upright';
             } else {
                 self.animationDirection = 'right';
-                self.facingDirection = 'right';
             }
         }
+        if (self.animationDirection != 'facing') self.facingDirection = self.animationDirection;
         var foundregion = false;
         if (Region.grid[self.map][self.gridy]) if (Region.grid[self.map][self.gridy][self.gridx]) if (Region.grid[self.map][self.gridy][self.gridx].name != self.region.name) {
             self.region = Region.grid[self.map][self.gridy][self.gridx];
@@ -1529,8 +1515,40 @@ Player = function(socket) {
             self.mana = Math.min(self.mana+1, self.maxMana);
             self.lastManaRegen = 0;
         }
-        self.heldItem.angle = Math.atan2(self.mouseY, self.mouseX);
+        var mouseangle = Math.atan2(self.mouseY, self.mouseX);
+        self.heldItem.angle = mouseangle;
         self.updateAnimation();
+        var mouseddir = Math.round(radians(mouseangle)/45);
+        if (mouseddir <= 0) mouseddir = 8-Math.abs(mouseddir);
+        if (mouseddir == 8) mouseddir = 0;
+        var dir = 'up';
+        switch (mouseddir) {
+            case 0:
+                dir = 'right';
+                break;
+            case 1:
+                dir = 'downright';
+                break;
+            case 2:
+                dir = 'down';
+                break;
+            case 3:
+                dir = 'downleft';
+                break;
+            case 4:
+                dir = 'left';
+                break;
+            case 5:
+                dir = 'upleft';
+                break;
+            case 6:
+                dir = 'up';
+                break;
+            case 7:
+                dir = 'upright';
+                break;
+        }
+        self.facingDirection = dir;
         self.updateClient();
         if (self.gridx == 3 && self.gridy == 9 && self.map == 'World' && self.alive) self.onDeath(self, 'fire');
     };
@@ -1722,6 +1740,7 @@ Player.update = function() {
                 map: localplayer.map,
                 x: localplayer.x,
                 y: localplayer.y,
+                layer: localplayer.layer,
                 name: localplayer.name,
                 animationStage: localplayer.animationStage,
                 characterStyle: localplayer.characterStyle,
@@ -2172,31 +2191,29 @@ Monster = function(type, x, y, map, layer) {
         var oldhp = self.hp;
         self.hp = 0;
         self.alive = false;
-        if (entity) {
-            entity.xp += self.xpDrop;
-            if (entity.inventory != null) {
-                try {
-                    var multiplier = 0;
-                    for (var i in self.drops) {
-                        multiplier += self.drops[i];
-                    }
-                    var random = Math.random()*multiplier;
-                    var min = 0;
-                    var max = 0;
-                    var item;
-                    for (var i in self.drops) {
-                        max += self.drops[i];
-                        if (random >= min && random <= max) {
-                            item = i;
-                            break;
-                        }
-                        min += self.drops[i];
-                    }
-                    if (item != 'nothing') new DroppedItem(self.map, self.x, self.y, item, [], entity.id);
-                } catch (err) {
-                    error(err);
-                }
+        if (entity) entity.xp += self.xpDrop;
+        try {
+            var multiplier = 0;
+            for (var i in self.drops) {
+                multiplier += self.drops[i];
             }
+            var random = Math.random()*multiplier;
+            var min = 0;
+            var max = 0;
+            var item;
+            for (var i in self.drops) {
+                max += self.drops[i];
+                if (random >= min && random <= max) {
+                    item = i;
+                    break;
+                }
+                min += self.drops[i];
+            }
+            var id;
+            if (entity) id = entity.id;
+            if (item != 'nothing') new DroppedItem(self.map, self.x, self.y, item, [], id);
+        } catch (err) {
+            error(err);
         }
         if (self.hp != oldhp) {
             new Particle(self.map, self.x, self.y, 'damage', self.hp-oldhp);
@@ -2413,7 +2430,6 @@ Projectile = function(type, angle, parentID) {
             }
         }
         return false;
-    self.checkLayer = function() {};
     };
     self.checkLayer = function() {};
     self.checkSlowdown = function() {};
@@ -2708,6 +2724,9 @@ DroppedItem.list = [];
 function seconds(s) {
     return s*20;
 };
-function degrees(degrees) {
-    return degrees*Math.PI/180;
+function degrees(d) {
+    return d*Math.PI/180;
+};
+function radians(r) {
+    return r*180/Math.PI;
 };

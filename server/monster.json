@@ -29,7 +29,7 @@
         "animationLength": 1,
         "xpDrop": 5,
         "drops": {
-            "nothing": 0.2,
+            "nothing": 0.4,
             "simplewoodenbow": 0.4,
             "simplewoodensword": 0.4,
             "steelbroadsword": 0.1,
@@ -66,7 +66,7 @@
         "animationLength": 1,
         "xpDrop": 5,
         "drops": {
-            "nothing": 0.2,
+            "nothing": 0.3,
             "simplewoodenbow": 0.4,
             "simplewoodensword": 0.4,
             "steelbow": 0.2
@@ -103,9 +103,9 @@
         "xpDrop": 10,
         "drops": {
             "nothing": 0.3,
-            "simplewoodenstaff": 0.3,
+            "simplewoodenstaff": 0.5,
             "leatherarmor": 0.4,
-            "steelstaff": 0.2,
+            "steelstaff": 0.3,
             "titaniumstaff": 0.1
         }
     },

@@ -414,7 +414,7 @@ Collision.getColEntity = function(map, x, y, layer) {
             collision[0] = {
                 map: map,
                 x: x*64+32,
-                y: y*64+44,
+                y: y*64+40,
                 width: 48,
                 height: 48,
                 collisionBoxSize: 48,
@@ -722,7 +722,7 @@ Teleporter = function(map, x, y, properties) {
     data.map = properties[0];
     data.x = parseInt(properties[1]);
     data.y = parseInt(properties[2]);
-    data.layer = properties[3];
+    data.layer = parseInt(properties[3]);
     data.direction = properties[4];
     if (Teleporter.grid[map][parseInt(y)]) {
         Teleporter.grid[map][parseInt(y)][parseInt(x)] = data;

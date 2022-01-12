@@ -193,8 +193,8 @@
             "scale": 4,
             "selectedLayer": 5,
             "viewCenter": {
-                "x": 80,
-                "y": 203.625
+                "x": 640,
+                "y": 384
             }
         },
         "roguelikeSheet.tsx": {

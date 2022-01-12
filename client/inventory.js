@@ -393,6 +393,26 @@ document.addEventListener('mousemove', function(e) {
         }
     }
 });
+document.addEventListener('keydown', function(e) {
+    if (loaded) {
+        if (!inchat && !indebug) {
+            if (e.key == 'q' || e.key == 'Q') {
+                for (var i in Inventory.items) {
+                    if (Inventory.items[i].mousedOver) {
+                        Inventory.currentDrag = Inventory.items[i].slotId;
+                        Inventory.drop();
+                    }
+                }
+                for (var i in Inventory.equips) {
+                    if (Inventory.equips[i].mousedOver) {
+                        Inventory.currentDrag = Inventory.equips[i].slotId;
+                        Inventory.drop();
+                    }
+                }
+            }
+        }
+    }
+})
 function loadTooltip(slot) {
     var item;
     if (isFinite(slot)) item = Inventory.items[slot].item;
