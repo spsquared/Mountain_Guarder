@@ -30,7 +30,6 @@ ENV = {
     ops: [
         'Sampleprovider(sp)',
         'suvanth',
-        'Suvanth'
     ],
     spawnpoint: {
         map: 'World',
