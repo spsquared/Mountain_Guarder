@@ -72,7 +72,8 @@ io.on('connection', function(socket) {
     if (started) {
         socket.id = Math.random();
         console.log(socket.handshake.headers['x-forwarded-for'])
-        console.log(socket.handshake.address)
+        console.log(socket.handshake.headers['x-real-ip'])
+        console.log(socket.request.connection.remoteAddress)
         var player = new Player(socket);
         socket.emit('checkReconnect');
         // connection
