@@ -71,6 +71,7 @@ io = require('socket.io') (server, {});
 io.on('connection', function(socket) {
     if (started) {
         socket.id = Math.random();
+        console.log(socket.handshake.headers['x-forwarded-for'])
         var player = new Player(socket);
         socket.emit('checkReconnect');
         // connection
