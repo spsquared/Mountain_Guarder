@@ -190,16 +190,16 @@
             }
         },
         "World.tmx": {
-            "scale": 4,
-            "selectedLayer": 5,
+            "scale": 5.5,
+            "selectedLayer": 16,
             "viewCenter": {
-                "x": 640,
-                "y": 384
+                "x": 48.000000000000014,
+                "y": 145.9090909090909
             }
         },
         "roguelikeSheet.tsx": {
             "scaleInDock": 3,
-            "scaleInEditor": 3
+            "scaleInEditor": 4
         }
     },
     "frame.defaultDuration": 200,

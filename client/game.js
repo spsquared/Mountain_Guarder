@@ -1,4 +1,4 @@
-// Copyright (C) 2021 Radioactive64
+// Copyright (C) 2022 Radioactive64
 
 var player;
 var playerid = 0;
@@ -21,7 +21,7 @@ tileset.onload = function() {
 function load(data) {
     document.getElementById('loadingContainer').style.animationName = 'fadeIn';
     document.getElementById('loadingContainer').style.display = 'block';
-    totalassets = 1;
+    totalassets = 2;
     for (var i in data) {
         totalassets++;
     }
@@ -49,14 +49,11 @@ function load(data) {
         }, 5);
         await loadEntityData();
         await loadInventoryData();
-        var wait = setInterval(async function() {
-            if (tilesetloaded) {
-                clearInterval(wait);
-                for (var i in data) {
-                    await loadMap(data[i]);
-                }
-            }
-        }, 5);
+        for (var i in data) {
+            await loadMap(data[i]);
+        }
+        await resetRenderedChunks();
+        loadedassets++;
     }, 500);
 };
 function loadMap(name) {
@@ -192,13 +189,13 @@ function drawMap() {
     LAYERS.mlower.restore();
     LAYERS.mupper.restore();
 };
-function resetRenderedChunks() {
+async function resetRenderedChunks() {
     if (player) {
         MAPS[player.map].chunks = [];
-        updateRenderedChunks();
+        await updateRenderedChunks();
     }
 };
-function updateRenderedChunks() {
+async function updateRenderedChunks() {
     for (var y in MAPS[player.map].chunks) {
         for (var x in MAPS[player.map].chunks[y]) {
             if (Math.abs(player.chunkx-x) > settings.renderDistance || Math.abs(player.chunky-y) > settings.renderDistance) {
@@ -347,7 +344,7 @@ function drawDebug() {
                                 CTX.lineTo(waypoints[j].x*64+64+OFFSETX, waypoints[j].y*64+64+OFFSETY);
                                 CTX.lineTo(waypoints[j].x*64+OFFSETX, waypoints[j].y*64+64+OFFSETY);
                                 CTX.lineTo(waypoints[j].x*64+OFFSETX, waypoints[j].y*64+OFFSETY);
-                                CTX.fillText(localplayer.name, waypoints[j].x+OFFSETX, waypoints[j].y+OFFSETY);
+                                CTX.fillText(localplayer.name, waypoints[j].x*64+OFFSETX, waypoints[j].y*64+OFFSETY);
                             }
                         }
                         CTX.stroke();
@@ -361,7 +358,7 @@ function drawDebug() {
                         CTX.fillStyle = '#FFFF00';
                         for (var j in lastWaypoints) {
                             if (lastWaypoints[j].map == player.map) {
-                                CTX.moveTo(lastWaypoints[j].x*64, lastWaypoints[j].y*64+OFFSETY);
+                                CTX.moveTo(lastWaypoints[j].x*64+OFFSETX, lastWaypoints[j].y*64+OFFSETY);
                                 CTX.lineTo(lastWaypoints[j].x*64+64+OFFSETX, lastWaypoints[j].y*64+OFFSETY);
                                 CTX.lineTo(lastWaypoints[j].x*64+64+OFFSETX, lastWaypoints[j].y*64+64+OFFSETY);
                                 CTX.lineTo(lastWaypoints[j].x*64+OFFSETX, lastWaypoints[j].y*64+64+OFFSETY);
@@ -501,7 +498,10 @@ function drawDebug() {
 function resetFPS() {
     clearInterval(drawLoop);
     drawLoop = setInterval(function() {
-        drawFrame();
+        window.requestAnimationFrame(function() {
+            drawFrame();
+            fpsCounter++;
+        });
     }, 1000/settings.fps);
 };
 resetFPS();
@@ -607,7 +607,7 @@ document.onmouseup = function(e) {
         }
         mouseX = e.clientX-window.innerWidth/2;
         mouseY = e.clientY-window.innerHeight/2;
-        if (!e.target.matches('#signinContainer') && !e.target.matches('#chatInput') && !e.target.matches('#windows') && !e.target.matches('#dropdownMenu') && !e.target.matches('#regionName')) {
+        if (!e.target.matches('#menuContainer') && !e.target.matches('#chatInput') && !e.target.matches('#windows') && !e.target.matches('#dropdownMenu') && !e.target.matches('#regionName')) {
             switch (e.button) {
                 case 0:
                     socket.emit('click', {button: 'left', x: mouseX-OFFSETX, y: mouseY-OFFSETY, state: false});
@@ -776,13 +776,6 @@ setInterval(async function() {
         document.getElementById('entpart').innerText = 'H: ' + particles;
     }
 }, 1000);
-function fpsLoop() {
-    window.requestAnimationFrame(function() {
-        fpsCounter++;
-        fpsLoop();
-    });
-};
-fpsLoop();
 socket.on('ping', function() {
     var current = new Date();
     pingCounter = current-pingSend;

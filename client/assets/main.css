@@ -1,4 +1,4 @@
-/* Copyright (C) 2021 Radioactive64 */
+/* Copyright (C) 2022 Radioactive64 */
 
 /* font */
 @font-face {
@@ -162,7 +162,7 @@ img {
 }
 
 /* menu */
-#signinContainer {
+#menuContainer {
     position: absolute;
     left: 0px;
     top: 0px;

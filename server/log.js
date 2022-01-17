@@ -1,4 +1,4 @@
-// Copyright (C) 2021 Radioactive64
+// Copyright (C) 2022 Radioactive64
 
 const fs = require('fs');
 
@@ -20,7 +20,7 @@ insertChat = function(text, textcolor) {
     }
     logColor(text, '\x1b[36m', 'chat');
     io.emit('insertChat', {text:text, style:style});
-    try {postDiscord(text);} catch (err) {error(err);}
+    if (!ENV.offlineMode) try {postDiscord(text);} catch (err) {error(err);}
 };
 insertSingleChat = function(text, textcolor, username, log) {
     var socket = null;

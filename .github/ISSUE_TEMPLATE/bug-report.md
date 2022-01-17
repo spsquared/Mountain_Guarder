@@ -1,6 +1,6 @@
 ---
 name: Bug Report
-about: Create a report to help us improve the game
+about: Create a report to help us improve Mountain Guarder!
 title: BUG - [Summary here]
 labels: bug
 assignees: ''
@@ -17,14 +17,10 @@ Steps to reproduce the behavior:
 3. Go here: '...'
 4. See this: '...'
 
-**Expected behavior**
-A clear and concise description of what you expected to happen.
-
 **Screenshots**
 If applicable, add screenshots to help explain your problem.
 
 **Environment**
- - Browser [e.g. Chrome 90, Safari, Edge]
  - Version [e.g. v0.4.3]
 
 **Logs**

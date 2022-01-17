@@ -1,4 +1,4 @@
-// Copyright (C) 2021 Radioactive64
+// Copyright (C) 2022 Radioactive64
 
 var npcWaypoints = {};
 function loadMap(name) {

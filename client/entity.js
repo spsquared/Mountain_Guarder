@@ -1,4 +1,4 @@
-// Copyright (C) 2021 Radioactive64
+// Copyright (C) 2022 Radioactive64
 
 // entities
 Entity = function(id, map, x, y) {
@@ -20,6 +20,10 @@ Entity = function(id, map, x, y) {
     };
 
     self.update = function(data) {
+        if (self.map != data.map) {
+            self.x = data.x;
+            self.y = data.y;
+        }
         self.map = data.map;
         self.xspeed = (data.x-self.x)/(settings.fps/20);
         self.yspeed = (data.y-self.y)/(settings.fps/20);
@@ -93,6 +97,10 @@ Rig = function(id, map, x, y) {
     self.manaFull = false;
     
     self.update = function(data) {
+        if (self.map != data.map) {
+            self.x = data.x;
+            self.y = data.y;
+        }
         self.map = data.map;
         self.xspeed = (data.x-self.x)/(settings.fps/20);
         self.yspeed = (data.y-self.y)/(settings.fps/20);
@@ -144,6 +152,10 @@ Player = function(id, map, x, y, isNPC, name) {
     self.name = name;
 
     self.update = function(data) {
+        if (self.map != data.map) {
+            self.x = data.x;
+            self.y = data.y;
+        }
         self.map = data.map;
         self.xspeed = (data.x-self.x)/(settings.fps/20);
         self.yspeed = (data.y-self.y)/(settings.fps/20);
@@ -330,6 +342,10 @@ Projectile = function(id, map, x, y, angle, type) {
     self.animationStage = 0;
 
     self.update = function(data) {
+        if (self.map != data.map) {
+            self.x = data.x;
+            self.y = data.y;
+        }
         self.map = data.map;
         self.xspeed = (data.x-self.x)/(settings.fps/20);
         self.yspeed = (data.y-self.y)/(settings.fps/20);

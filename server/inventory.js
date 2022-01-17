@@ -1,4 +1,4 @@
-// Copyright (C) 2021 Radioactive64
+// Copyright (C) 2022 Radioactive64
 
 Inventory = function(socket, player) {
     var self = {
@@ -192,11 +192,11 @@ Inventory = function(socket, player) {
                         var bound1right = x+24;
                         var bound1top = y-24;
                         var bound1bottom = y+24; 
-                        var bound2left = entity.x-(entity.width/2);
-                        var bound2right = entity.x+(entity.width/2);
-                        var bound2top = entity.y-(entity.height/2);
-                        var bound2bottom = entity.y+(entity.height/2);
-                        if (entity.map == self.map && bound1left < bound2right && bound1right > bound2left && bound1top < bound2bottom && bound1bottom > bound2top) {
+                        var bound2left = collisions[i].x-(collisions[i].width/2);
+                        var bound2right = collisions[i].x+(collisions[i].width/2);
+                        var bound2top = collisions[i].y-(collisions[i].height/2);
+                        var bound2bottom = collisions[i].y+(collisions[i].height/2);
+                        if (bound1left < bound2right && bound1right > bound2left && bound1top < bound2bottom && bound1bottom > bound2top) {
                             colliding = true;;
                         }
                     }
@@ -210,7 +210,7 @@ Inventory = function(socket, player) {
                 attempts++;
             }
             if (dropx) {
-                new DroppedItem(player.map, x, y, item.id, item.enchantments);
+                new DroppedItem(player.map, dropx, dropy, item.id, item.enchantments);
                 self.removeItem(item.slot);
             }
         }

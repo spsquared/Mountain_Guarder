@@ -1,10 +1,10 @@
-// Copyright (C) 2021 Radioactive64
+// Copyright (C) 2022 Radioactive64
 // Go to README.md for more information
 
-const version = 'v0.8.1';
+const version = 'v0.8.2';
 require('./server/log.js');
-console.info('\x1b[33m%s\x1b[0m', 'Mountain Guarder ' + version + ' copyright (C) Radioactive64 2021');
-appendLog('Mountain Guarder ' + version + ' copyright (C) Radioactive64 2021', 'log');
+console.info('\x1b[33m%s\x1b[0m', 'Mountain Guarder ' + version + ' copyright (C) Radioactive64 2022');
+appendLog('Mountain Guarder ' + version + ' copyright (C) Radioactive64 2022', 'log');
 logColor('Starting server...', '\x1b[32m', 'log');
 const express = require('express');
 const app = express();
@@ -117,7 +117,7 @@ io.on('connection', function(socket) {
                     var isolate = new ivm.Isolate();
                     var context = isolate.createContextSync();
                     context.global.setSync('global', context.global.derefInto());
-                    context.evalSync('setInterval = function() {}; setTimeout = function() {}; insertChat = function() {}; insertSingleChat = function() {}; logColor = function() {}; log = function() {}; warn = function() {}; error = function() {}; appendLog = function() {}; Collision = function() {}; Collision.getColEntity = function() {}; Collision.grid = []; Spawner = function() {}; Spawner.grid = []; Region = function() {}; Region.grid = []; Teleporter = function() {}; Teleporter.grid = []; Inventory = function() {}; Inventory.Item = function() {}; Inventory.items = {}; ACCOUNTS = {connected: 0, connect: 0, disconnect: 0, signup: 0, login: 0, deleteAccount: 0, changePassword: 0, validateCredentials: 0, loadProgress: 0, saveProgress: 0}; Entity = function() {}; Entity.update = function() {}; Entity.getDebugData = function() {}; Rig = function() {}; Npc = function() {}; Npc.update = function() {}; Npc.getDebugData = function() {}; Npc.list = []; Player = function() {}; Player.update = function() {}; Player.getDebugData = function() {}; Player.list = []; Monster = function() {}; Monster.update = function() {}; Monster.getDebugData = function() {}; Monster.list = []; Projectile = function() {}; Projectile.update = function() {}; Projectile.getDebugData = function() {}; Projectile.list = []; Particle = function() {}; Particle.update = function() {}; Particle.list = []; DroppedItem = function() {}; DroppedItem.update = function() {}; DroppedItem.list = []; io = {on: 0}; forceQuit = function() {};');
+                    context.evalSync('process = {axY7v3d: 235}; setInterval = function() {}; setTimeout = function() {}; insertChat = function() {}; insertSingleChat = function() {}; logColor = function() {}; log = function() {}; warn = function() {}; error = function() {}; appendLog = function() {}; Collision = function() {}; Collision.getColEntity = function() {}; Collision.grid = []; Spawner = function() {}; Spawner.grid = []; Region = function() {}; Region.grid = []; Teleporter = function() {}; Teleporter.grid = []; Inventory = function() {}; Inventory.Item = function() {}; Inventory.items = {}; ACCOUNTS = {connected: 0, connect: 0, disconnect: 0, signup: 0, login: 0, deleteAccount: 0, changePassword: 0, validateCredentials: 0, loadProgress: 0, saveProgress: 0}; Entity = function() {}; Entity.update = function() {}; Entity.getDebugData = function() {}; Rig = function() {}; Npc = function() {}; Npc.update = function() {}; Npc.getDebugData = function() {}; Npc.list = []; Player = function() {}; Player.update = function() {}; Player.getDebugData = function() {}; Player.list = []; Monster = function() {}; Monster.update = function() {}; Monster.getDebugData = function() {}; Monster.list = []; Projectile = function() {}; Projectile.update = function() {}; Projectile.getDebugData = function() {}; Projectile.list = []; Particle = function() {}; Particle.update = function() {}; Particle.list = []; DroppedItem = function() {}; DroppedItem.update = function() {}; DroppedItem.list = []; io = {i25F0pK: 915}; forceQuit = function() {};');
                     try {
                         context.evalSync(input, {timeout: 1000});
                     } catch (err) {
@@ -125,7 +125,7 @@ io.on('connection', function(socket) {
                         if (str.includes('Error: Script execution timed out.')) valid = false;
                     }
                     try {
-                        context.evalSync('crash = null; insertChat(); insertSingleChat(); logColor(); log(); warn(); error(); appendLog(); Collision.grid[\'test\'] = []; Collision(); Collision.getColEntity(); Spawner.grid[\'test\'] = []; Spawner(); Region.grid[\'test\'] = []; Region(); Teleporter.grid[\'test\'] = []; Teleporter(); Inventory.items[\'test\'] = {}; Inventory(); Inventory.Item(); if (ACCOUNTS.connected != 0 || ACCOUNTS.connect != 0 || ACCOUNTS.disconnect != 0 || ACCOUNTS.signup != 0 || ACCOUNTS.login != 0 || ACCOUNTS.deleteAccount != 0 || ACCOUNTS.changePassword != 0 || ACCOUNTS.validateCredentials != 0 || ACCOUNTS.loadProgress != 0 || ACCOUNTS.saveProgress != 0) {crash();} Entity(); Entity.update(); Entity.getDebugData(); Rig(); Npc(); Npc.update(); Npc.getDebugData(); Npc.list[0] = \'test\'; Player(); Player.update(); Player.getDebugData(); Player.list[0] = \'test\'; Monster(); Monster.update(); Monster.getDebugData(); Monster.list[0] = \'test\'; Projectile(); Projectile.update(); Projectile.getDebugData(); Projectile.list[0] = \'test\'; Particle(); Particle.update(); Particle.list[0] = \'test\'; DroppedItem(); DroppedItem.update(); DroppedItem.list[0] = \'test\'; if (io.on != 0) {crash();} forceQuit();');
+                        context.evalSync('crash = null; if (process.axY7v3d != 235) {crash();} setInterval(); setTimeout(); insertChat(); insertSingleChat(); logColor(); log(); warn(); error(); appendLog(); Collision.grid[\'test\'] = []; Collision(); Collision.getColEntity(); Spawner.grid[\'test\'] = []; Spawner(); Region.grid[\'test\'] = []; Region(); Teleporter.grid[\'test\'] = []; Teleporter(); Inventory.items[\'test\'] = {}; Inventory(); Inventory.Item(); if (ACCOUNTS.connected != 0 || ACCOUNTS.connect != 0 || ACCOUNTS.disconnect != 0 || ACCOUNTS.signup != 0 || ACCOUNTS.login != 0 || ACCOUNTS.deleteAccount != 0 || ACCOUNTS.changePassword != 0 || ACCOUNTS.validateCredentials != 0 || ACCOUNTS.loadProgress != 0 || ACCOUNTS.saveProgress != 0) {crash();} Entity(); Entity.update(); Entity.getDebugData(); Rig(); Npc(); Npc.update(); Npc.getDebugData(); Npc.list[0] = \'test\'; Player(); Player.update(); Player.getDebugData(); Player.list[0] = \'test\'; Monster(); Monster.update(); Monster.getDebugData(); Monster.list[0] = \'test\'; Projectile(); Projectile.update(); Projectile.getDebugData(); Projectile.list[0] = \'test\'; Particle(); Particle.update(); Particle.list[0] = \'test\'; DroppedItem(); DroppedItem.update(); DroppedItem.list[0] = \'test\'; if (io.i25F0pK != 915) {crash();} forceQuit();');
                     } catch (err) {
                         valid = false;
                     }
@@ -208,7 +208,7 @@ const s = {
         io.emit('disconnected');
     },
     tp: function(name1, name2) {
-        var player1 = s.findPlayer(name1)
+        var player1 = s.findPlayer(name1);
     },
     bc: function(text) {
         insertChat('[BC]: ' + text, 'server');
@@ -281,6 +281,25 @@ prompt.on('close', async function() {
         appendLog('----------------------------------------');
         process.exit(0);
     }
+});
+process.on('SIGTERM', function() {
+    insertChat('[!] SERVER IS CLOSING [!]', 'server');
+    logColor('Stopping Server...', '\x1b[32m', 'log');
+    clearInterval(updateTicks);
+    started = false;
+    for (var i in Player.list) {
+        var player = Player.list[i];
+        if (player.name) {
+            player.saveData();
+            insertChat(player.name + ' left the game', 'server');
+        }
+        delete Player.list[i];
+        player.socket.emit('disconnected');
+    }
+    ACCOUNTS.disconnect();
+    logColor('Server Stopped.', '\x1b[32m', 'log')
+    appendLog('----------------------------------------');
+    process.exit(0);
 });
 
 // Tickrate
@@ -356,9 +375,9 @@ forceQuit = function(err, code) {
             quitting = true;
             error('SERVER ENCOUNTERED A CATASTROPHIC ERROR. STOP CODE:');
             console.error(err);
-            insertChat('[!] SERVER ENCOUNTERED A CATASTROPHIC ERROR. [!]', 'error');
-            insertChat(err, 'error');
             appendLog(err, 'error');
+            insertChat('[!] SERVER ENCOUNTERED A CATASTROPHIC ERROR. [!]', 'error');
+            insertChat(err.message, 'error');
             appendLog('Error code ' + code, 'error');
             error('STOP.');
             clearInterval(updateTicks);
@@ -386,24 +405,72 @@ forceQuit = function(err, code) {
         process.exit(code);
     }
 };
+process.on('uncaughtException', function(err) {
+    forceQuit(err, 1);
+});
 
 // profanity filter
 Filter = {
-    words: ['fuck', 'bitch', 'shit', 'ass', 'sex', 'fock', 'bich', 'shat', '@ss', 'a$$', 'a$s', 'as$', '@$$', '@$s', '@s$', 'fuk', 'fucc', 'shiit', 'shrex'],
+    words: ['shole', 'hhole', 'ass', 'bastard', 'basterd', 'bitch', 'bich', 'beetch', 'blowjob', 'blow job', 'boob', 'butthole', 'butth0le', 'buthole', 'buth0le', 'clit', 'cock', 'cokk', 'cawk', 'cowk', 'cawc', 'cowc', 'clit', 'cnt', 'crap', ' cum', 'cum ', 'dildo', 'dilldo', 'dominatrix', 'dominatric', 'dominatrik', 'enema', 'fuc', 'fuk', 'foc', 'fok', 'phuc', 'phuk', 'fag', 'faig', 'hoor', 'hor', 'hoar', 'haor', 'jackoff', 'jap', 'jerkoff', 'jisim', 'jism', 'jsm', 'jizim', 'jizm', 'jzm', 'gisim', 'gism', 'gsm', 'gizim', 'gizm', 'gzm', 'knob', 'nob', 'cunt', 'kunt', 'masochist', 'masokist', 'masocist', 'masturbat', 'masterbat', 'masturbait', 'masterbait', 'massturbat', 'massterbat', 'massturbait', 'massterbait', 'mastrbat', 'mastrbait', 'nigger', 'niger', 'niggur', 'nigur', 'niggr', 'nigr', 'orgasm', 'orgasim', 'orgasum', 'orifice', 'orafis', 'orifiss', 'orafiss', 'packie', 'packi', 'packy', 'pakie', 'paki', 'paky', 'pecker', 'peker', 'penis', 'penus', 'penas', 'peenis', 'peenus', 'peenas', 'peeenis', 'peeenus', 'peeenas', 'pinis', 'pinus', 'pinas', 'peniis', 'penuus', 'penaas', 'peeniis', 'peenuus', 'peenaas', 'peeeniis', 'peeenuus', 'peeenaas', 'polac', 'polak', 'pric', 'prik', 'puss', 'rectum', 'rektum', 'recktum', 'retard', 'sadist', 'scank', 'schlong', 'sclong', 'shlong', 'screwin', 'skrewin', 'semen', 'seemen', 'sex', 'secks', 'seks', 'shit', 'shat', 'shiit', 'shaat', 'shyt', 'shyyt', 'skanc', 'skank', 'scanc', 'scank', 'slag', 'slut', 'tit', 'turd', 'vagina', 'vagiina', 'vaigina', 'vaigiina', 'vajina', 'vajiina', 'vaijina', 'vaijiina', 'vulva', 'vullva' , 'whor', 'whoar', 'wop', 'xrated', 'xxx'],
     check: function(string) {
         if (typeof string == 'string') {
-            var checkstring = string;
+            var checkstring = string.toLowerCase();
             while (checkstring.includes(' ')) {
                 checkstring = checkstring.replace(' ', '');
             }
+            while (checkstring.includes('.')) {
+                checkstring = checkstring.replace('.', '');
+            }
+            while (checkstring.includes(',')) {
+                checkstring = checkstring.replace(',', '');
+            }
             while (checkstring.includes('_')) {
                 checkstring = checkstring.replace('_', '');
+            }
+            while (checkstring.includes('+')) {
+                checkstring = checkstring.replace('+', '');
             }
             while (checkstring.includes('-')) {
                 checkstring = checkstring.replace('-', '');
             }
             while (checkstring.includes('⠀')) {
                 checkstring = checkstring.replace('⠀', '');
+            }
+            while (checkstring.includes('!')) {
+                checkstring = checkstring.replace('!', 'i');
+            }
+            while (checkstring.includes('@')) {
+                checkstring = checkstring.replace('@', 'a');
+            }
+            while (checkstring.includes('$')) {
+                checkstring = checkstring.replace('$', 's');
+            }
+            while (checkstring.includes('0')) {
+                checkstring = checkstring.replace('0', 'o');
+            }
+            while (checkstring.includes('()')) {
+                checkstring = checkstring.replace('()', 'o');
+            }
+            while (checkstring.includes('[]')) {
+                checkstring = checkstring.replace('()', 'o');
+            }
+            while (checkstring.includes('{}')) {
+                checkstring = checkstring.replace('()', 'o');
+            }
+            while (checkstring.includes('|')) {
+                checkstring = checkstring.replace('|', 'i');
+            }
+            while (checkstring.includes('/')) {
+                checkstring = checkstring.replace('/', 'i');
+            }
+            while (checkstring.includes('\\')) {
+                checkstring = checkstring.replace('\\', 'i');
+            }
+            while (checkstring.includes('hs')) {
+                checkstring = checkstring.replace('hs', 'sh');
+            }
+            while (checkstring.includes('hc')) {
+                checkstring = checkstring.replace('hc', 'sh');
             }
             for (var i in Filter.words) {
                 if (checkstring.includes(Filter.words[i])) return true;

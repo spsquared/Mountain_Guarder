@@ -1,4 +1,4 @@
-// Copyright (C) 2021 Radioactive64
+// Copyright (C) 2022 Radioactive64
 
 const bcrypt = require('bcrypt');
 const salt = 10;
@@ -29,6 +29,7 @@ ACCOUNTS = {
             } else {
                 try {
                     await database.connect();
+                    // database.query('ALTER TABLE users ADD COLLUMN hardwareid varchar(255)')
                     await webHookURL();
                     ACCOUNTS.connected = true;
                 } catch (err) {
@@ -53,6 +54,7 @@ ACCOUNTS = {
     },
     signup: async function(username, password) {
         if (ENV.offlineMode) return 0;
+        if (username == 'unavailable') return 3;
         if (await getCredentials(username) == false) {
             var status = await writeCredentials(username, password);
             if (status) {

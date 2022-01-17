@@ -1,4 +1,4 @@
-// Copyright (C) 2021 Radioactive64
+// Copyright (C) 2022 Radioactive64
 
 var inventoryItems = document.getElementById('inventoryItemsBody');
 var inventoryEquips = document.getElementById('inventoryEquipsBody');
@@ -401,12 +401,14 @@ document.addEventListener('keydown', function(e) {
                     if (Inventory.items[i].mousedOver) {
                         Inventory.currentDrag = Inventory.items[i].slotId;
                         Inventory.drop();
+                        document.getElementById('invHoverTooltip').style.opacity = 0;
                     }
                 }
                 for (var i in Inventory.equips) {
                     if (Inventory.equips[i].mousedOver) {
                         Inventory.currentDrag = Inventory.equips[i].slotId;
                         Inventory.drop();
+                        document.getElementById('invHoverTooltip').style.opacity = 0;
                     }
                 }
             }

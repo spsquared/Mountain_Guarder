@@ -1,4 +1,4 @@
-// Copyright (C) 2021 Radioactive64
+// Copyright (C) 2022 Radioactive64
 
 // sign in
 var deleteaccountconfirmed = false;
@@ -66,7 +66,7 @@ socket.on('signInState', function(state) {
                 document.getElementById('loadingContainer').style.display = 'none';
             };
             document.getElementById('loadingContainer').style.animationName = 'fadeOut';
-            document.getElementById('signinContainer').style.display = 'none';
+            document.getElementById('menuContainer').style.display = 'none';
             document.getElementById('gameContainer').style.display = 'block';
             insertChat({style:'color: #00FF00; font-weight: bold;', text: 'Mountain Guarder ' + version});
             signedIn = true;
@@ -252,7 +252,11 @@ socket.on('signInState', function(state) {
             console.error('DATABASE ERROR. SERVER STOP. YOU SHOULD NOT SEE THIS.');
             window.alert('DATABASE ERROR. SERVER STOP. YOU SHOULD NOT SEE THIS.');
             break;
-        default: 
+        case 'unavailable':
+            signInError.style.color = '#FF0000';
+            signInError.innerText = 'This username is unavailable.';
+            break;
+            default: 
             signInError.style.color = '#FF0000';
             signInError.innerText = 'Invalid signInState: ' + state;
             console.error('Invalid signInState: ' + state);
@@ -457,6 +461,15 @@ function updateSetting(setting) {
             document.getElementById('chatInput').style.width = 20+settings.chatSize*10 + 'vw';
             indicatorText = settings.chatSize;
             break;
+        case 'highContrast':
+            if (settings.highContrast) {
+                CTXRAW.style.filter = 'brightness(90%) saturate(130%) contrast(120%)';
+                indicatorText = 'on';
+            } else {
+                CTXRAW.style.filter = '';
+                indicatorText = 'off';
+            }
+            break;
         case 'debug':
             socket.emit('toggleDebug');
             if (settings.debug) {
@@ -489,10 +502,12 @@ try {
     document.getElementById('particlesToggle').checked = settings.particles;
     document.getElementById('chatBackgroundToggle').checked = settings.chatBackground;
     document.getElementById('chatSizeSlider').value = settings.chatSize;
+    document.getElementById('highContrastToggle').checked = settings.highContrast;
     updateSetting('fps');
     updateSetting('renderDistance');
     updateSetting('renderQuality');
     updateSetting('particles');
     updateSetting('chatBackground');
     updateSetting('chatSize');
+    updateSetting('highContrast');
 } catch {}

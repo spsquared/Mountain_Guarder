@@ -1,6 +1,6 @@
-// Copyright (C) 2021 Radioactive64
+// Copyright (C) 2022 Radioactive64
 
-const version = 'v0.8.1';
+const version = 'v0.8.2';
 var firstload = false;
 // canvas
 CTXRAW = document.getElementById('ctx');
@@ -33,6 +33,7 @@ settings = {
     particles: true,
     chatBackground: false,
     chatSize: 2,
+    highContrast: false,
     debug: false
 };
 
