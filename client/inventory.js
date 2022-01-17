@@ -402,6 +402,7 @@ document.addEventListener('keydown', function(e) {
                         Inventory.currentDrag = Inventory.items[i].slotId;
                         Inventory.drop();
                         document.getElementById('invHoverTooltip').style.opacity = 0;
+                        Inventory.currentHover = null;
                     }
                 }
                 for (var i in Inventory.equips) {
@@ -409,6 +410,7 @@ document.addEventListener('keydown', function(e) {
                         Inventory.currentDrag = Inventory.equips[i].slotId;
                         Inventory.drop();
                         document.getElementById('invHoverTooltip').style.opacity = 0;
+                        Inventory.currentHover = null;
                     }
                 }
             }

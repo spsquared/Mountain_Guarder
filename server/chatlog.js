@@ -14,6 +14,6 @@ postDiscord = async function(text) {
         while (text.includes('`')) {
             text = text.replace('`', '\'');
         }
-        // webhook.send('`[' + time.getUTCHours() + ':' + minute + '] ' + text + '`');
+        webhook.send('`[' + time.getUTCHours() + ':' + minute + '] ' + text + '`');
     }
 };

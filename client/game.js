@@ -22,7 +22,7 @@ function load(data) {
     document.getElementById('loadingContainer').style.animationName = 'fadeIn';
     document.getElementById('loadingContainer').style.display = 'block';
     totalassets = 2;
-    for (var i in data) {
+    for (var i in data.maps) {
         totalassets++;
     }
     setTimeout(async function() {
@@ -49,10 +49,11 @@ function load(data) {
         }, 5);
         await loadEntityData();
         await loadInventoryData();
-        for (var i in data) {
-            await loadMap(data[i]);
+        for (var i in data.maps) {
+            await loadMap(data.maps[i]);
         }
-        await resetRenderedChunks();
+        player = {map: data.self};
+        await updateRenderedChunks();
         loadedassets++;
     }, 500);
 };

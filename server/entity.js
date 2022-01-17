@@ -387,6 +387,10 @@ Rig = function() {
         right: false,
         heal: false
     };
+    self.xmove = 0;
+    self.ymove = 0;
+    self.xknockback = 0;
+    self.yknockback = 0;
     self.animationStage = 0;
     self.animationLength = 0;
     self.lastFrameUpdate = 0;
@@ -1275,7 +1279,7 @@ Player = function(socket) {
                                         if (!signedIn) {
                                             self.creds.username = cred.username;
                                             self.creds.password = cred.password;
-                                            socket.emit('mapData', maps);
+                                            socket.emit('mapData', {maps: maps, self: self.map});
                                             self.signedIn = true;
                                         } else {
                                             socket.emit('signInState', 'alreadySignedIn');
@@ -2385,7 +2389,7 @@ Monster = function(type, x, y, map, layer) {
             if (item != 'nothing') {
                 var attempts = 0;
                 var dropx, dropy;
-                while (true) {
+                while (attempts < 100) {
                     var angle = Math.random()*2*Math.PI;
                     var distance = Math.random()*32;
                     var x = self.x+Math.cos(angle)*distance;
@@ -2405,11 +2409,11 @@ Monster = function(type, x, y, map, layer) {
                             var bound1left = x-24;
                             var bound1right = x+24;
                             var bound1top = y-24;
-                            var bound1bottom = y+24; 
-                            var bound2left = collisions[i].x-(collisions[i].width/2);
-                            var bound2right = collisions[i].x+(collisions[i].width/2);
-                            var bound2top = collisions[i].y-(collisions[i].height/2);
-                            var bound2bottom = collisions[i].y+(collisions[i].height/2);
+                            var bound1bottom = y+24;
+                            var bound2left = collisions[i][j].x-(collisions[i][j].width/2);
+                            var bound2right = collisions[i][j].x+(collisions[i][j].width/2);
+                            var bound2top = collisions[i][j].y-(collisions[i][j].height/2);
+                            var bound2bottom = collisions[i][j].y+(collisions[i][j].height/2);
                             if (bound1left < bound2right && bound1right > bound2left && bound1top < bound2bottom && bound1bottom > bound2top) {
                                 colliding = true;;
                             }
@@ -2420,7 +2424,6 @@ Monster = function(type, x, y, map, layer) {
                         dropy = y;
                         break;
                     }
-                    if (attempts >= 100) break;
                     attempts++;
                 }
                 if (dropx) new DroppedItem(self.map, dropx, dropy, item, [], id);
