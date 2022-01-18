@@ -78,6 +78,18 @@
                             v0.8.3 - 1/12/22
                         </div>
                         <div class="ui-lighttext stackBody">
+                            A patch against a security vulnerability exposed by Suvanth and Maitian352 which allowed anyone to get debug permissions through manipulation by someone with debug.
+                            <ul>
+                                <li>Patched major vulnerability caused by debug console permissions</li>
+                                <li>Removed #teamseas page</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="stack ui-block ui-lighttext">
+                        <div class="ui-lighttext stackHeader">
+                            v0.8.3 - 1/12/22
+                        </div>
+                        <div class="ui-lighttext stackBody">
                             The reason why beta servers are needed. Some bugs that were presumed fixed were not, in fact, fixed. The discord live chat webhook has also been re-enabled after leaving it disabled from testing.
                             <ul>
                                 <li>Re-enabled discord live chat webhook</li>
@@ -936,7 +948,6 @@
                     <button id="inventoryButton" class="ui-lightbutton" onclick="openInventory();">Inventory</button>
                     <button id="settingsButton" class="ui-lightbutton" onclick="openSettings();">Settings</button>
                     <button id="debugConsoleButton" class="ui-lightbutton" style="display: none;" onclick="openDebugConsole();">Debug&nbsp;Console</button>
-                    <button id="teamSeasButton" class="ui-lightbutton" onclick="window.open('/client/teamSeas/');">#TeamSeas</button>
                     <button id="logOutButton" class="ui-lightbutton" onclick="window.location.reload();">Log Out</button>
                 </div>
             </div>

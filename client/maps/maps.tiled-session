@@ -191,10 +191,10 @@
         },
         "World.tmx": {
             "scale": 5.5,
-            "selectedLayer": 16,
+            "selectedLayer": 17,
             "viewCenter": {
-                "x": 640,
-                "y": 384
+                "x": 843.2727272727273,
+                "y": 990.090909090909
             }
         },
         "roguelikeSheet.tsx": {

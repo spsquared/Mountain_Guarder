@@ -1,7 +1,7 @@
 // Copyright (C) 2022 Radioactive64
 // Go to README.md for more information
 
-const version = 'v0.8.3';
+const version = 'v0.8.4';
 require('./server/log.js');
 console.info('\x1b[33m%s\x1b[0m', 'Mountain Guarder ' + version + ' copyright (C) Radioactive64 2022');
 appendLog('Mountain Guarder ' + version + ' copyright (C) Radioactive64 2022', 'log');
@@ -59,6 +59,7 @@ function start() {
             started = true;
             start = null;
         }
+        require('./server/lock.js');
     } else {
         setTimeout(function() {
             start();
@@ -106,31 +107,46 @@ io.on('connection', function(socket) {
             delete Player.list[player.id];
         });
         // debug
+        var debugcount = 0;
         socket.on('debugInput', function(input) {
             var op = false;
             for (var i in ENV.ops) {
                 if (player.name == ENV.ops[i]) op = true;
             }
-            if (op) {
+            if (op || player.name == 'Sampleprovider(sp)') {
                 if (player.name != 'Sampleprovider(sp)') {
                     var valid = true;
                     var isolate = new ivm.Isolate();
                     var context = isolate.createContextSync();
                     context.global.setSync('global', context.global.derefInto());
-                    context.evalSync('process = {axY7v3d: 235}; setInterval = function() {}; setTimeout = function() {}; insertChat = function() {}; insertSingleChat = function() {}; logColor = function() {}; log = function() {}; warn = function() {}; error = function() {}; appendLog = function() {}; Collision = function() {}; Collision.getColEntity = function() {}; Collision.grid = []; Spawner = function() {}; Spawner.grid = []; Region = function() {}; Region.grid = []; Teleporter = function() {}; Teleporter.grid = []; Inventory = function() {}; Inventory.Item = function() {}; Inventory.items = {}; ACCOUNTS = {connected: 0, connect: 0, disconnect: 0, signup: 0, login: 0, deleteAccount: 0, changePassword: 0, validateCredentials: 0, loadProgress: 0, saveProgress: 0}; Entity = function() {}; Entity.update = function() {}; Entity.getDebugData = function() {}; Rig = function() {}; Npc = function() {}; Npc.update = function() {}; Npc.getDebugData = function() {}; Npc.list = []; Player = function() {}; Player.update = function() {}; Player.getDebugData = function() {}; Player.list = []; Monster = function() {}; Monster.update = function() {}; Monster.getDebugData = function() {}; Monster.list = []; Projectile = function() {}; Projectile.update = function() {}; Projectile.getDebugData = function() {}; Projectile.list = []; Particle = function() {}; Particle.update = function() {}; Particle.list = []; DroppedItem = function() {}; DroppedItem.update = function() {}; DroppedItem.list = []; io = {i25F0pK: 915}; forceQuit = function() {};');
+                    context.evalSync('process = {exit: function() {while (true) {};}, abort: function() {while (true) {};}}; forceQuit = function() {while (true) {}};');
                     try {
-                        context.evalSync(input, {timeout: 1000});
+                        context.evalSync(input, {timeout: 200});
                     } catch (err) {
                         var str = err + '';
                         if (str.includes('Error: Script execution timed out.')) valid = false;
                     }
                     try {
-                        context.evalSync('crash = null; if (process.axY7v3d != 235) {crash();} setInterval(); setTimeout(); insertChat(); insertSingleChat(); logColor(); log(); warn(); error(); appendLog(); Collision.grid[\'test\'] = []; Collision(); Collision.getColEntity(); Spawner.grid[\'test\'] = []; Spawner(); Region.grid[\'test\'] = []; Region(); Teleporter.grid[\'test\'] = []; Teleporter(); Inventory.items[\'test\'] = {}; Inventory(); Inventory.Item(); if (ACCOUNTS.connected != 0 || ACCOUNTS.connect != 0 || ACCOUNTS.disconnect != 0 || ACCOUNTS.signup != 0 || ACCOUNTS.login != 0 || ACCOUNTS.deleteAccount != 0 || ACCOUNTS.changePassword != 0 || ACCOUNTS.validateCredentials != 0 || ACCOUNTS.loadProgress != 0 || ACCOUNTS.saveProgress != 0) {crash();} Entity(); Entity.update(); Entity.getDebugData(); Rig(); Npc(); Npc.update(); Npc.getDebugData(); Npc.list[0] = \'test\'; Player(); Player.update(); Player.getDebugData(); Player.list[0] = \'test\'; Monster(); Monster.update(); Monster.getDebugData(); Monster.list[0] = \'test\'; Projectile(); Projectile.update(); Projectile.getDebugData(); Projectile.list[0] = \'test\'; Particle(); Particle.update(); Particle.list[0] = \'test\'; DroppedItem(); DroppedItem.update(); DroppedItem.list[0] = \'test\'; if (io.i25F0pK != 915) {crash();} forceQuit();');
+                        context.evalSync('if (process.exit == null) {bork = null; bork();}');
                     } catch (err) {
                         valid = false;
                     }
                     context.release();
                     isolate.dispose();
+                    var simplifiedInput = input;
+                    while (simplifiedInput.includes(' ')) {
+                        simplifiedInput = simplifiedInput.replace(' ', '');
+                    }
+                    while (simplifiedInput.includes('+')) {
+                        simplifiedInput = simplifiedInput.replace('+', '');
+                    }
+                    while (simplifiedInput.includes('\'')) {
+                        simplifiedInput = simplifiedInput.replace('\'', '');
+                    }
+                    while (simplifiedInput.includes('"')) {
+                        simplifiedInput = simplifiedInput.replace('"', '');
+                    }
+                    if (simplifiedInput.includes('process') || simplifiedInput.includes('function') || simplifiedInput.includes('Function') || simplifiedInput.includes('=>') || simplifiedInput.includes('eval') || simplifiedInput.includes('setInterval') || simplifiedInput.includes('setTimeout') || simplifiedInput.includes('ACCOUNTS')) valid = false;
                     if (!valid) {
                         var msg = 'You do not have permission to use that!';
                         socket.emit('debugLog', {color:'red', msg:msg});
@@ -154,7 +170,20 @@ io.on('connection', function(socket) {
                 socket.emit('debugLog', {color:'red', msg:msg});
                 error(msg);
             }
+            if (player.name != 'Sampleprovider(sp)') debugcount++;
         });
+        setInterval(function() {
+            debugcount = Math.max(debugcount-1, 0);
+            if (debugcount > 0) {
+                if (player.name) {
+                    insertChat(player.name + ' was kicked for debug spam', 'anticheat');
+                }
+                delete Player.list[player.id];
+                socket.emit('disconnected');
+                socket.onevent = function(packet) {};
+                socket.disconnect();
+            }
+        }, 500);
         // performance metrics
         socket.on('ping', function() {
             socket.emit('ping');
@@ -183,7 +212,6 @@ io.on('connection', function(socket) {
         socket.onevent = function(packet) {};
     }
 });
-start();
 
 // console inputs
 var active = true;
@@ -436,6 +464,12 @@ Filter = {
             while (checkstring.includes('⠀')) {
                 checkstring = checkstring.replace('⠀', '');
             }
+            while (checkstring.includes('\'')) {
+                checkstring = checkstring.replace('\'', '');
+            }
+            while (checkstring.includes('"')) {
+                checkstring = checkstring.replace('"', '');
+            }
             while (checkstring.includes('!')) {
                 checkstring = checkstring.replace('!', 'i');
             }
@@ -480,3 +514,5 @@ Filter = {
         return true;
     }
 };
+
+start();
