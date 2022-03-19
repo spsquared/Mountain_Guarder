@@ -256,7 +256,11 @@ socket.on('signInState', function(state) {
             signInError.style.color = '#FF0000';
             signInError.innerText = 'This username is unavailable.';
             break;
-            default: 
+        case 'disabled':
+            signInError.style.color = '#FF0000';
+            signInError.innerText = 'You cannot create or delete accounts on beta servers.';
+            break;
+        default: 
             signInError.style.color = '#FF0000';
             signInError.innerText = 'Invalid signInState: ' + state;
             console.error('Invalid signInState: ' + state);
@@ -279,7 +283,8 @@ DraggableWindow = function(id) {
         window: document.getElementById(id),
         windowBar: document.getElementById(id + 'Bar'),
         windowClose: document.getElementById(id + 'Close'),
-        tabs: []
+        tabs: [],
+        currentTab: null
     };
     self.renderWindow = function() {
         self.x = Math.min(Math.max(self.x, 0), window.innerWidth-self.width-2);
@@ -330,6 +335,7 @@ DraggableWindow = function(id) {
             document.getElementById(self.tabs[i]).style.display = 'none';
         }
         document.getElementById(tab).style.display = '';
+        self.currentTab = tab;
     };
     var children = document.getElementById(id + 'Select').children;
     if (children[0]) {
@@ -365,6 +371,7 @@ function toggleDropdown() {
     }
 };
 var inventoryWindow = new DraggableWindow('inventory');
+var mapWindow = new DraggableWindow('map');
 var settingsWindow = new DraggableWindow('settings');
 debugConsoleWindow = new DraggableWindow('debugConsole');
 inventoryWindow.hide = function() {
@@ -381,6 +388,7 @@ inventoryWindow.hide = function() {
     Inventory.currentDrag = null;
     Inventory.currentHover = null;
 };
+mapWindow.width = mapWindow.height;
 settingsWindow.width = 500;
 settingsWindow.height = 300;
 debugConsoleWindow.width = 400;
@@ -390,10 +398,36 @@ function openInventory() {
 };
 function toggleInventory() {
     inventoryWindow.toggle();
-}
+};
+function toggleToEquips() {
+    if (inventoryWindow.currentTab == 'inventoryEquips') {
+        inventoryWindow.toggle();
+    } else {
+        inventoryWindow.show();
+        inventoryWindow.changeTab('inventoryEquips');
+    }
+};
+function toggleToCrafting() {
+    if (inventoryWindow.currentTab == 'inventoryCrafting') {
+        inventoryWindow.toggle();
+    } else {
+        inventoryWindow.show();
+        inventoryWindow.changeTab('inventoryCrafting');
+    }
+};
+function openMap() {
+    mapWindow.show();
+    toggleDropdown();
+};
+function toggleMap() {
+    mapWindow.toggle();
+};
 function openSettings() {
     settingsWindow.show();
     toggleDropdown();
+};
+function toggleSettings() {
+    settingsWindow.toggle();
 };
 function openDebugConsole() {
     debugConsoleWindow.show();
@@ -442,6 +476,16 @@ function updateSetting(setting) {
                 indicatorText = 'on';
             } else {
                 indicatorText = 'off';
+            }
+            break;
+        case 'pointerLock':
+            if (settings.pointerLock) {
+                indicatorText = 'on';
+                document.getElementById('crossHair').style.display = 'block';
+            } else {
+                indicatorText = 'off';
+                document.getElementById('crossHair').style.display = '';
+                if (pointerLocked) document.exitPointerLock();
             }
             break;
         case 'chatBackground':
@@ -500,6 +544,7 @@ try {
     document.getElementById('renderDistanceSlider').value = settings.renderDistance;
     document.getElementById('renderQualitySlider').value = settings.renderQuality;
     document.getElementById('particlesToggle').checked = settings.particles;
+    // document.getElementById('pointerLockToggle').checked = settings.pointerLock;
     document.getElementById('chatBackgroundToggle').checked = settings.chatBackground;
     document.getElementById('chatSizeSlider').value = settings.chatSize;
     document.getElementById('highContrastToggle').checked = settings.highContrast;
@@ -507,7 +552,58 @@ try {
     updateSetting('renderDistance');
     updateSetting('renderQuality');
     updateSetting('particles');
+    // updateSetting('pointerLock');
     updateSetting('chatBackground');
     updateSetting('chatSize');
     updateSetting('highContrast');
 } catch {}
+
+// keybinds
+var changingKeyBind = false;
+function changeKeybind(keybind) {
+    changingKeyBind = keybind;
+};
+document.addEventListener('keydown', function(e) {
+    if (changingKeyBind) {
+        if (e.key == 'Escape') keybinds[changingKeyBind] = null;
+        else if (e.key.length = 1) keybinds[changingKeyBind] = e.key.toLowerCase();
+        else keybinds[changingKeyBind] = e.key;
+        e.preventDefault();
+        updateKeybind(changingKeyBind);
+        changingKeyBind = false;
+    }
+});
+document.addEventListener('mousedown', function(e) {
+    if (changingKeyBind) {
+        keybinds[changingKeyBind] = e.button;
+        e.preventDefault();
+        updateKeybind(changingKeyBind);
+        changingKeyBind = false;
+    }
+});
+function updateKeybind(keybind) {
+    var str = keybinds[keybind];
+    if (str) {
+        if (str == ' ') str = 'SPACE';
+        if (isFinite(str)) {
+            switch (str) {
+                case 0:
+                    str = 'LMB';
+                    break;
+                case 1:
+                    str = 'CMB';
+                    break;
+                case 2:
+                    str = 'RMB';
+                    break;
+                default:
+                    str = 'MB' + str;
+                    break;
+            }
+        }
+        str = str.toUpperCase();
+    } else {
+        str = '&emsp;';
+    }
+    document.getElementById('keybind_' + keybind).innerText = str;
+};

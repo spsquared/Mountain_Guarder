@@ -18,6 +18,9 @@ img {
     image-rendering: pixelated;
     -webkit-user-drag: none;
 }
+canvas {
+    image-rendering: pixelated;
+}
 
 /* scrollbar */
 ::-webkit-scrollbar {
@@ -37,7 +40,7 @@ img {
     background: rgba(15, 15, 15, 0.5); 
 }
 
-/* ui classes */
+/* ui */
 .ui-lighttext {
     font-family: 'Pixel';
     font-size: 16px;
@@ -47,6 +50,12 @@ img {
     font-family: 'Pixel';
     font-size: 16px;
     color: black;
+}
+a {
+    color: #00ff90;
+}
+a:focus {
+    color: #00aa70;
 }
 .ui-lightbutton {
     font-family: 'Pixel';
@@ -73,9 +82,8 @@ img {
 .ui-slider {
     appearance: none;
     width: 100%;
-    height: 20px;
+    height: 16px;
     background-color: #999999;
-    border-radius: 10px;
     margin: 0px 0px;
 }
 .ui-slider::-webkit-slider-thumb {
@@ -83,7 +91,6 @@ img {
     width: 20px;
     height: 20px;
     background-color: #FFFFFF;
-    border-radius: 10px;
     cursor: grab;
 }
 .ui-slider::-webkit-slider-thumb:active {
@@ -93,7 +100,7 @@ img {
     position: relative;
     display: inline-block;
     width: 40px;
-    height: 20px;
+    height: 16px;
 }
 .ui-toggle .ui-toggleInput {
     opacity: 0px;
@@ -105,21 +112,19 @@ img {
     top: 0px;
     left: 0px;
     width: 40px;
-    height: 20px;
+    height: 16px;
     background-color: #EE0000;
-    border-radius: 10px;
     transition: 0.1s linear;
     cursor: pointer;
 }
 .ui-toggle .ui-toggleSlider::before {
     position: absolute;
-    top: 0px;
+    top: -2px;
     left: 0px;
     width: 20px;
     height: 20px;
     content: "";
     background-color: white;
-    border-radius: 10px;
     transition: 0.1s linear;
 }
 .ui-toggle .ui-toggleInput:checked + .ui-toggleSlider {
@@ -139,18 +144,13 @@ img {
     background-color: #362A1E;
     border: 1px solid black;
 }
-.ui-link {
-    color: #00ff90;
-}
-.ui-link:focus {
-    color: #00aa70;
-}
 .noSelect {
     user-select: none;
     -webkit-user-select: none;
     -moz-user-select: none;
     -webkit-user-drag: none;
 }
+
 /* fade */
 @keyframes fadeIn {
     from {opacity: 0;}
@@ -166,42 +166,44 @@ img {
     position: absolute;
     left: 0px;
     top: 0px;
-    padding: 0px;
-    margin: 0px;
+    padding: 0px 0px;
+    margin: 0px 0px;
     width: 100vw;
     height: 100vh;
-    background-image: url("../img/Preview.png");
-    background-size: 100%, 100%;
+    perspective: 10px;
+    overflow-x: clip;
+    overflow-y: scroll;
+}
+#backgroundImg {
+    position: absolute;
+    top: -32px;
+    left: 0px;
+    padding: 0px 0px;
+    margin: 0px 0px;
+    width: 100vw;
+    transform-origin: top;
+    transform: translateZ(-100px) scale(11) translateY(calc(-50vh * 0.9));
 }
 #backgroundShade {
-    position: absolute;
+    position: sticky;
     left: 0px;
     top: 0px;
-    padding: 0px;
-    margin: 0px;
+    padding: 0px 0px;
+    margin: 0px 0px;
+    width: calc(100% + 20px);
     height: 100%;
-    width: 100%;
     background-color: #ffffff;
     opacity: 0.3;
 }
 #menuTitle {
     position: relative;
-    top: 15%;
+    top: -95%;
     text-align: center;
     font-family: 'pixel';
     font-size: 100px;
     color: #000000;
-}
-#stackScroll {
-    position: absolute;
-    top: 0px;
-    left: 0px;
-    width: 100vw;
-    height: 100vh;
-    margin: 0px 0px;
-    padding: 0px 0px;
-    overflow-y: scroll;
-    overflow-x: hidden;
+    text-shadow: 5px 5px 0px #00000055;
+    transform: translateZ(-4px) scale(1.4);
 }
 #stackLeft {
     position: absolute;
@@ -217,7 +219,7 @@ img {
 }
 .stack {
     width: 100%;
-    overflow: hidden;
+    overflow: clip;
     margin: 0px 0px;
     margin-bottom: 8px;
     padding: 8px 16px;
@@ -253,8 +255,8 @@ img {
     position: absolute;
     left: 0px;
     top: 0px;
-    padding: 0px;
-    margin: 0px;
+    padding: 0px 0px;
+    margin: 0px 0px;
     width: 100vw;
     height: 100vh;
     background-color: black;
@@ -312,12 +314,12 @@ img {
     position: absolute;
     left: 0px;
     top: 0px;
-    padding: 0px;
-    margin: 0px;
+    padding: 0px 0px;
+    margin: 0px 0px;
     width: 100vw;
     height: 100vh;
     text-align: center;
-    overflow: hidden;
+    overflow: clip;
     z-index: 100;
 }
 #disconnected {

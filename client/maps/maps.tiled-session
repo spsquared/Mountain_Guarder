@@ -175,26 +175,26 @@
         },
         "Preview.tmx": {
             "scale": 0.75,
-            "selectedLayer": 5,
+            "selectedLayer": 2,
             "viewCenter": {
                 "x": 400,
-                "y": 559.9999999999999
+                "y": 800
             }
         },
         "The Void.tmx": {
-            "scale": 1.6068359374999999,
-            "selectedLayer": 1,
+            "scale": 1.5,
+            "selectedLayer": 0,
             "viewCenter": {
-                "x": 255.78218062477214,
-                "y": 255.7821806247721
+                "x": 248,
+                "y": 255.99999999999997
             }
         },
         "World.tmx": {
-            "scale": 5.5,
-            "selectedLayer": 17,
+            "scale": 3,
+            "selectedLayer": 9,
             "viewCenter": {
-                "x": 843.2727272727273,
-                "y": 990.090909090909
+                "x": 77.99999999999997,
+                "y": 171.16666666666666
             }
         },
         "roguelikeSheet.tsx": {

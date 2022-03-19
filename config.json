@@ -1,3 +1,4 @@
 {
-    "offlineMode": false
+    "offlineMode": false,
+    "useDiscordWebhook": true
 }

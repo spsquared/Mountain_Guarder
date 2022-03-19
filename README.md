@@ -2,21 +2,23 @@
 Meadow Guarder's sister game!
 
 ***
+![Banner](https://raw.githubusercontent.com/definitely-nobody-is-here/Mountain_Guarder/master/client/img/assets/banner_small.png)]
+***
 
 # How to Play
 
-### Global Public Server
-Play free today at [mountainguarder.herokuapp.com](https://mountainguarder.herokuapp.com)! Just go click the link, create an account, and play Mountain Guarder free, anytime, anywhere! (as long as you have WiFi)
+### Public Server
+Play online for free today at [mountainguarder.herokuapp.com](https://mountainguarder.herokuapp.com)! Just visit our site, create an account, and play Mountain Guarder globally multiplayer free, anytime, anywhere!
 
-### Installation
-##### Local Installation
+### Hosting Your Own Server
+#### Local Installation
+##### Self-hosted Server
 I cannot distribute Node.js as I do not own any rights to it, but visiting [their website](https://nodejs.org/) you can download the LTS version and install it, **checking the box "Automatically install necessary tools"**. NPM should install with it. Wait for the installation to finish, then [download the code](https://github.com/definitely-nobody-is-here/Mountain_Guarder/archive/refs/heads/master.zip) and unzip it into a new folder. Alternatively you can [clone the repsository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) so you can keep your server up to date without redownloading the files. Then open command prompt, navigate to the folder you placed the server in, and run `npm install` to download the required dependencies. If you want to use a global PostgreSQL database use the following. Install a [PostgreSQL server](https://www.postgresql.org/) or use an alternative PostgreSQL hosting site. Make sure you have the database attached to it by creating `url.js` in the `server` folder. Inside, place `url = '<database uri here>';`, replacing `<database uri here>` with your PostgreSQL uri. Make sure your database is running, and run `node app.js` in your command prompt. The server is started! Alternatively, locate `config.json` (or `config`) and set "offlineMode" to `true` and start the server using `node app.js`.
 To stop the server, press Ctrl+C.
-##### Heroku Installation
-[![Deploy](https://www.Herokucdn.com/deploy/button.svg)](https://Heroku.com/deploy?template=https://github.com/definitely-nobody-is-here/Mountain_Guarder)
-
-### Joining the Game
+##### Joining the Server
 Once the server is started, you can find your computer's name (available in Windows>System>About as "Device name"), or simply search [what's my ip](http://google.com/search?q=whats+my+ip) or click the link. The server console will tell you what port to visit and you can type either the ip address or computer name on the client side **connected to the same network as the host** and then followed by a `:` and then the port number. Example: `111.22.33.444:2000` or `hostcomputer:1100`. The port will always be 4000.
+#### Heroku Installation
+[![Deploy](https://www.Herokucdn.com/deploy/button.svg)](https://Heroku.com/deploy?template=https://github.com/definitely-nobody-is-here/Mountain_Guarder)
 
 ### Gameplay
 Visit the [wiki](https://github.com/definitely-nobody-is-here/Mountain_Guarder/wiki) for more information.
@@ -27,7 +29,7 @@ Visit the [wiki](https://github.com/definitely-nobody-is-here/Mountain_Guarder/w
 #### There are errors
 If you are getting errors or something seems broken (missing textures, stuff flying around all over your screen, something gets stuck) you can [submit a bug report](https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/new?assignees=&labels=bug&template=bug-report.md&title=BUG+-+%5BSummary+here%5D) including a screenshot of the problem and the most recent logs and any errors.
 #### My Server Crashed
-In the case that your server crashes, verify that there is a [PostgreSQL database](https://www.postgresql.org/) connected to your server, all dependencies are installed correctly, and that the server has an internet connection. If you have verified that the server has all necessary addons to run and the server still crashed, [submit a bug report](https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/new?assignees=&labels=bug&template=bug-report.md&title=BUG+-+%5BSummary+here%5D) including a screenshot of the most recent logs and any error messages on the client or server.
+In the case that your server crashes, verify that there is a [PostgreSQL database](https://www.postgresql.org/) connected to your server, all dependencies are installed correctly, and that the server has an internet connection. If you are not using a [Discord Webhook](https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks) make sure `useDiscordWebhook` is `false` in `config.json`. If you have verified that the server has all necessary addons to run and the server still crashed, [submit a bug report](https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/new?assignees=&labels=bug&template=bug-report.md&title=BUG+-+%5BSummary+here%5D) including a screenshot of the most recent logs and any error messages on the client or server.
 #### I can't Connect to the Server (ERROR_Connection_Refused)
 If you can't connect to the server and are running it locally without a hosting service, verify that:
  - The server is running
@@ -85,6 +87,7 @@ If you can't resolve your problem after trying these solutions or your problem i
 | 0.8.2   | <ul><li>Optimized collisions</li><li>Synced canvas draw to screen updates</li><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/218" target="_blank">Kind of added high contrast mode (Issue #218)</a></li><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/209" target="_blank">Fixed monster deaggro mechanics (Issue #209)</a></li><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/215" target="_blank">Expanded profanity filter (Issue #215)</a></li><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/164" target="_blank">Fixed item in collision prevention (Issue #164)</a></li><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/210" target="_blank">Tooltip hides when you drop an item with "Q" (Issue #210)</a></li><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/206" target="_blank">Fixed incorrect collisions in the "Foothills" (Issue #208/Issue #206)</a></li><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/204" target="_blank">Made chunk rendering async to reduce draw lag (Issue #204)</a></li><li>Changed chat spam limit</li><li>Updated copyright year</li><li>Modified issue templates</li></ul> |
 | 0.8.3   | <ul><li>Re-enabled discord live chat webhook</li><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/164" target="_blank">Fixed typo causing items to drop in collisions (issue #164)</a></li><li>Re-patched some bugs</li></ul> |
 | 0.8.4   | <ul><li>Patched major vulnerability caused by debug console permissions</li><li>Removed #teamseas page</li></ul> |
+| 0.9.0   | <ul><li>Added knockback</li><li>Rewrote and optimized Rig collisions</li><li>Added world map</li><li>Fixed pathfinding and collisions causing server hangs</li><li>Added console-editable keybinds</li><li>Fixed bug involving layering issues with players on different layers</li><li>Monsters now have a natural heal</li><li>Added parallax effect to menu screen and shadow to title text</li><li>Extended Preview.png</li><li>Made arrows more consistently sized and fixed their hitbox</li><li>Changed Snowy Outpost region size</li><li>Added custom crosshair texture</li><li>Smoothed out biome blending</li><li>Changed monster drop lists</li><li>Changed window close button to red</li><li>Sliders and toggles are now square</li><li>Fixed incorrect damage label on Wooden Bows</li><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/203" target="_blank">Fixed waypoint pathfinding getting stuck in a loop (Issue #203)</a></li><li>Removed "double" projectile pattern</li><li>Added debug view for dropped items</li><li>Added frame time debug</li><li>Added op, which is limited to just s commands</li><li>Added help command to s</li><li>Added server hang prevention correction</li><li>Patched teleport to (0, 0) by socket.io exploits</li><li>Fixed single pixel on snow cliff edge</li><li>Added new stair direction</li><li>Updated CSP</li></ul> |
 
 ***
 

@@ -11,7 +11,7 @@
         "description": "A cheap, simple bow of standard wood",
         "slotType": "weapon",
         "rarity": 0,
-        "damage": 1,
+        "damage": 10,
         "damageType": "ranged",
         "critChance": 0.02,
         "critPower": 0.02,

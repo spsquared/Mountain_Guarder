@@ -1,12 +1,12 @@
 {
     "arrow": {
-        "width": 98,
-        "height": 10,
+        "width": 120,
+        "height": 15,
         "speed": 40,
         "pattern": "none",
         "damage": 1,
         "range": 3,
-        "knockback": 1,
+        "knockback": 0.5,
         "noCollision": false
     },
     "magicball": {
@@ -36,7 +36,7 @@
         "pattern": "follow",
         "damage": 1,
         "range": 1,
-        "knockback": 1,
+        "knockback": 0.8,
         "noCollision": true
     },
     "ninjastar": {
@@ -46,7 +46,7 @@
         "pattern": "spin",
         "damage": 5,
         "range": 4,
-        "knockback": 2,
+        "knockback": 0.2,
         "noCollision": false
     },
     "snowball": {
@@ -56,7 +56,7 @@
         "pattern": "spin",
         "damage": 5,
         "range": 3,
-        "knockback": 1,
+        "knockback": 0.3,
         "noCollision": false
     },
     "fastsnowball": {
@@ -66,7 +66,7 @@
         "pattern": "spin",
         "damage": 10,
         "range": 4,
-        "knockback": 2,
+        "knockback": 0.3,
         "noCollision": false
     },
     "christmas2021": {
@@ -76,7 +76,7 @@
         "pattern": "homing2",
         "damage": 8,
         "range": 10,
-        "knockback": 10,
+        "knockback": 0.8,
         "noCollision": true
     }
 }

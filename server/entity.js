@@ -53,15 +53,12 @@ Entity = function() {
                         var movex = 0;
                         var movey = 0;
                         while (Math.abs(movex) < Math.abs(self.xspeed) || Math.abs(movey) < Math.abs(self.yspeed)) {
-                            var xdir = Math.min(Math.max(-self.width, self.xspeed), self.width);
-                            var ydir = Math.min(Math.max(-self.height, self.yspeed), self.height);
-                            if (Math.abs(self.xspeed) < Math.abs(self.yspeed)) {
-                                if (self.xspeed != 0) ydir = xdir/self.xspeed*self.yspeed;
-                            } else {
-                                if (self.yspeed != 0) xdir = ydir/self.yspeed*self.xspeed;
-                            }
+                            var xdir = self.xspeed/Math.ceil(Math.max(self.xspeed, self.yspeed)/self.width) || 0;
+                            var ydir = self.yspeed/Math.ceil(Math.max(self.xspeed, self.yspeed)/self.height) || 0;
                             self.lastx = self.x;
                             self.lasty = self.y;
+                            var lastmovex = movex;
+                            var lastmovey = movey;
                             self.x += xdir;
                             self.y += ydir;
                             movex += xdir;
@@ -74,13 +71,10 @@ Entity = function() {
                             if (colliding) {
                                 self.x = self.lastx;
                                 self.y = self.lasty;
-                                var xdir2 = Math.min(Math.max(-1, xdir), 1);
-                                var ydir2 = Math.min(Math.max(-1, ydir), 1);
-                                if (Math.abs(xdir) < Math.abs(ydir)) {
-                                    if (xdir != 0) ydir2 = xdir2/xdir*ydir;
-                                } else {
-                                    if (ydir != 0) xdir2 = ydir2/ydir*xdir;
-                                }
+                                movex = lastmovex;
+                                movey = lastmovey;
+                                var xdir2 = xdir/Math.ceil(Math.max(xdir, ydir));
+                                var ydir2 = ydir/Math.ceil(Math.max(xdir, ydir));
                                 var movex2 = 0;
                                 var movey2 = 0;
                                 while (Math.abs(movex2) < Math.abs(xdir) || Math.abs(movey2) < Math.abs(ydir)) {
@@ -131,22 +125,25 @@ Entity = function() {
         return false;
     };
     self.checkSpannedCollision = function() {
-        var colliding = false;
         var x = self.x;
         var y = self.y;
         var width = self.width;
         var height = self.height;
         self.width += Math.abs(self.x-self.lastx);
         self.height += Math.abs(self.y-self.lasty);
-        self.collisionBoxSize = Math.max(self.width, self.height);
         self.x = (self.x+self.lastx)/2;
         self.y = (self.y+self.lasty)/2;
-        if (self.checkPointCollision()) colliding = true;
+        self.gridx = Math.floor(self.x/64);
+        self.gridy = Math.floor(self.y/64);
+        self.collisionBoxSize = Math.max(self.width, self.height);
+        var colliding = self.checkPointCollision();
         self.x = x;
         self.y = y;
         self.width = width;
         self.height = height;
         self.collisionBoxSize = Math.max(self.width, self.height);
+        self.gridx = Math.floor(self.x/64);
+        self.gridy = Math.floor(self.y/64);
         return colliding;
     };
     self.checkLargeSpannedCollision = function() {
@@ -264,7 +261,7 @@ Entity = function() {
             var bound1left = self.x-(self.width/2);
             var bound1right = self.x+(self.width/2);
             var bound1top = self.y-(self.height/2);
-            var bound1bottom = self.y+(self.height/2); 
+            var bound1bottom = self.y+(self.height/2);
             var bound2left = entity.x-(entity.width/2);
             var bound2right = entity.x+(entity.width/2);
             var bound2top = entity.y-(entity.height/2);
@@ -404,7 +401,7 @@ Rig = function() {
         attack: 1,
         defense: 0,
         damageReduction: 0,
-        heal: 1,
+        heal: 0,
         speed: 1,
         range: 1,
         critChance: 0,
@@ -452,7 +449,7 @@ Rig = function() {
                 x: null,
                 y: null
             },
-            waitTime: 5,
+            waitTime: 20,
             lastPathEnd: 0
         },
         path: [],
@@ -478,8 +475,8 @@ Rig = function() {
         self.updatePos();
         self.lastAutoHeal++;
         self.lastHeal++;
-        if (self.lastAutoHeal >= seconds(0.2) && self.hp < self.maxHP) {
-            self.hp = Math.min(self.hp+self.stats.heal, self.maxHP);
+        if (self.stats.heal != 0) if (self.lastAutoHeal >= self.stats.heal && self.hp < self.maxHP && self.alive) {
+            self.hp = Math.min(self.hp+1, self.maxHP);
             self.lastAutoHeal = 0;
         }
         if (self.keys.heal && self.hp < self.maxHP && self.lastHeal >= seconds(0.5) && self.mana >= 10) {
@@ -488,7 +485,7 @@ Rig = function() {
             self.hp = Math.min(self.hp+20, self.maxHP);
             self.mana -= 10;
             self.lastManaUse = 0;
-            new Particle(self.map, self.x, self.y, 'heal', '+' + self.hp-oldhp);
+            new Particle(self.map, self.x, self.y, self.layer, self.layer, 'heal', '+' + self.hp-oldhp);
         }
         self.lastManaRegen++;
         self.lastManaUse++;
@@ -503,32 +500,6 @@ Rig = function() {
         self.updateAnimation();
     };
     self.updatePos = function() {
-        self.animationDirection = 'facing';
-        if (self.keys.up) {
-            self.animationDirection = 'up';
-        }
-        if (self.keys.down) {
-            self.animationDirection = 'down';
-        }
-        if (self.keys.left) {
-            if (self.keys.down) {
-                self.animationDirection = 'downleft';
-            } else if (self.keys.up) {
-                self.animationDirection = 'upleft';
-            } else {
-                self.animationDirection = 'left';
-            }
-        }
-        if (self.keys.right) {
-            if (self.keys.down) {
-                self.animationDirection = 'downright';
-            } else if (self.keys.up) {
-                self.animationDirection = 'upright';
-            } else {
-                self.animationDirection = 'right';
-            }
-        }
-        if (self.animationDirection != 'facing') self.facingDirection = self.animationDirection;
         if (self.aiControlled) {
             self.ai.lastPath++;
             if (self.ai.lastPath >= seconds(0.1)) {
@@ -547,47 +518,33 @@ Rig = function() {
             };
         } else {
             if (self.slowedDown) self.moveSpeed *= 0.5;
-            self.xspeed = 0;
-            self.yspeed = 0;
-            if (self.keys.up) {
-                self.yspeed = -self.moveSpeed;
-            }
-            if (self.keys.down) {
-                self.yspeed = self.moveSpeed;
-            }
-            if (self.keys.left) {
-                self.xspeed = -self.moveSpeed;
-            }
-            if (self.keys.right) {
-                self.xspeed = self.moveSpeed;
-            }
+            self.xmove = 0;
+            self.ymove = 0;
+            if (self.keys.up) self.ymove = -self.moveSpeed;
+            if (self.keys.down) self.ymove = self.moveSpeed;
+            if (self.keys.left) self.xmove = -self.moveSpeed;
+            if (self.keys.right) self.xmove = self.moveSpeed;
             if (self.slowedDown) self.moveSpeed *= 2;
         }
+        self.xspeed = Math.round(self.xmove+self.xknockback);
+        self.yspeed = Math.round(self.ymove+self.yknockback);
         self.collide();
+        self.xknockback *= 0.25;
+        self.yknockback *= 0.25;
+        if (0-Math.abs(self.xknockback) > -0.5) self.xknockback = 0;
+        if (0-Math.abs(self.yknockback) > -0.5) self.yknockback = 0;
         self.animationDirection = 'facing';
-        if (self.keys.up) {
-            self.animationDirection = 'up';
-        }
-        if (self.keys.down) {
-            self.animationDirection = 'down';
-        }
+        if (self.keys.up) self.animationDirection = 'up';
+        if (self.keys.down) self.animationDirection = 'down';
         if (self.keys.left) {
-            if (self.keys.down) {
-                self.animationDirection = 'downleft';
-            } else if (self.keys.up) {
-                self.animationDirection = 'upleft';
-            } else {
-                self.animationDirection = 'left';
-            }
+            if (self.keys.down) self.animationDirection = 'downleft';
+            else if (self.keys.up) self.animationDirection = 'upleft';
+            else self.animationDirection = 'left';
         }
         if (self.keys.right) {
-            if (self.keys.down) {
-                self.animationDirection = 'downright';
-            } else if (self.keys.up) {
-                self.animationDirection = 'upright';
-            } else {
-                self.animationDirection = 'right';
-            }
+            if (self.keys.down) self.animationDirection = 'downright';
+            else if (self.keys.up) self.animationDirection = 'upright';
+            else self.animationDirection = 'right';
         }
         if (self.animationDirection != 'facing') self.facingDirection = self.animationDirection;
         var foundregion = false;
@@ -630,75 +587,121 @@ Rig = function() {
                     if (colliding) {
                         self.x = self.lastx;
                         self.y = self.lasty;
-                        var movex = 0;
-                        var movey = 0;
-                        while (Math.abs(movex) < Math.abs(self.xspeed) || Math.abs(movey) < Math.abs(self.yspeed)) {
-                            var xdir = Math.min(Math.max(-self.width, self.xspeed), self.width);
-                            var ydir = Math.min(Math.max(-self.height, self.yspeed), self.height);
-                            if (Math.abs(self.xspeed) < Math.abs(self.yspeed)) {
-                                if (self.xspeed != 0) ydir = xdir/self.xspeed*self.yspeed;
-                            } else {
-                                if (self.yspeed != 0) xdir = ydir/self.yspeed*self.xspeed;
-                            }
+                        var movexmove = 0;
+                        var moveymove = 0;
+                        var remainingxmove = self.xmove;
+                        var remainingymove = self.ymove;
+                        var remainingxknockback = Math.round(self.xknockback);
+                        var remainingyknockback = Math.round(self.yknockback);
+                        var max = Math.max(Math.abs(remainingxmove), Math.abs(remainingymove), Math.abs(remainingxknockback), Math.abs(remainingyknockback));
+                        var xdirmove = remainingxmove/Math.ceil(max/self.width) || 0;
+                        var ydirmove = remainingymove/Math.ceil(max/self.height) || 0;
+                        var xdirknockback = remainingxknockback/Math.ceil(max/self.width) || 0;
+                        var ydirknockback = remainingyknockback/Math.ceil(max/self.height) || 0;
+                        while (!(-1 < remainingxmove && remainingxmove < 1) || !(-1 < remainingymove && remainingymove < 1) || !(-1 < remainingxknockback && remainingxknockback < 1) || !(-1 < remainingyknockback && remainingyknockback < 1)) {
                             self.lastx = self.x;
                             self.lasty = self.y;
-                            self.x += xdir;
-                            self.y += ydir;
-                            movex += xdir;
-                            movey += ydir;
+                            var lastmovexmove = movexmove;
+                            var lastmoveymove = moveymove;
+                            var lastremainingxmove = remainingxmove;
+                            var lastremainingymove = remainingymove;
+                            var lastremainingxknockback = remainingxknockback;
+                            var lastremainingyknockback = remainingyknockback;
+                            self.x += xdirmove;
+                            self.y += ydirmove;
+                            self.x += xdirknockback;
+                            self.y += ydirknockback;
+                            movexmove += Math.abs(xdirmove);
+                            moveymove += Math.abs(ydirmove);
+                            remainingxmove -= xdirmove;
+                            remainingymove -= ydirmove;
+                            remainingxknockback -= xdirknockback;
+                            remainingyknockback -= ydirknockback;
                             self.gridx = Math.floor(self.x/64);
                             self.gridy = Math.floor(self.y/64);
                             var colliding = false;
+                            var changedDir = false;
                             if (self.width >= 128 && self.height >= 128) colliding = self.checkLargeSpannedCollision();
                             else colliding = self.checkSpannedCollision();
-                            if (self.aiControlled) if (self.aiControl()) colliding = true;
-                            if (colliding) {
+                            if (self.aiControlled) if (self.aiControl()) changedDir = true;
+                            if (colliding || changedDir) {
                                 self.x = self.lastx;
                                 self.y = self.lasty;
-                                var xdir2 = Math.min(Math.max(-1, xdir), 1);
-                                var ydir2 = Math.min(Math.max(-1, ydir), 1);
-                                if (Math.abs(xdir) < Math.abs(ydir)) {
-                                    if (xdir != 0) ydir2 = xdir2/xdir*ydir;
-                                } else {
-                                    if (ydir != 0) xdir2 = ydir2/ydir*xdir;
+                                movexmove = lastmovexmove;
+                                moveymove = lastmoveymove;
+                                remainingxmove = lastremainingxmove;
+                                remainingymove = lastremainingymove;
+                                remainingxknockback = lastremainingxknockback;
+                                remainingyknockback = lastremainingyknockback;
+                                if (changedDir) {
+                                    self.aiControl();
+                                    remainingxmove = self.xmove-(movexmove*Math.abs(self.xmove)/self.xmove) || 0;
+                                    remainingymove = self.ymove-(moveymove*Math.abs(self.ymove)/self.ymove) || 0;
+                                    var max = Math.max(Math.abs(remainingxmove), Math.abs(remainingymove), Math.abs(remainingxknockback), Math.abs(remainingyknockback));
+                                    xdirmove = remainingxmove/Math.ceil(max/self.width) || 0;
+                                    ydirmove = remainingymove/Math.ceil(max/self.height) || 0;
+                                    xdirknockback = remainingxknockback/Math.ceil(max/self.width) || 0;
+                                    ydirknockback = remainingyknockback/Math.ceil(max/self.height) || 0;
                                 }
-                                var movex2 = 0;
-                                var movey2 = 0;
-                                while (Math.abs(movex2) < Math.abs(xdir) || Math.abs(movey2) < Math.abs(ydir)) {
+                                var movexmove2 = 0;
+                                var moveymove2 = 0;
+                                var remainingxmove2 = xdirmove;
+                                var remainingymove2 = ydirmove;
+                                var remainingxknockback2 = xdirknockback;
+                                var remainingyknockback2 = ydirknockback;
+                                var max2 = Math.max(Math.abs(remainingxmove2), Math.abs(remainingymove2), Math.abs(remainingxknockback2), Math.abs(remainingyknockback2));
+                                var xdirmove2 = 0;
+                                var ydirmove2 = 0;
+                                var xdirknockback2 = 0;
+                                var ydirknockback2 = 0;
+                                var xdirmove2 = remainingxmove2/Math.ceil(Math.abs(max2)) || 0;
+                                var ydirmove2 = remainingymove2/Math.ceil(Math.abs(max2)) || 0;
+                                var xdirknockback2 = remainingxknockback2/Math.ceil(Math.abs(max2)) || 0;
+                                var ydirknockback2 = remainingyknockback2/Math.ceil(Math.abs(max2)) || 0;
+                                while (!(-1 < remainingxmove2 && remainingxmove2 < 1) || !(-1 < remainingymove2 && remainingymove2 < 1) || !(-1 < remainingxknockback2 && remainingxknockback2 < 1) || !(-1 < remainingyknockback2 && remainingyknockback2 < 1)) {
                                     if (self.aiControlled) if (self.aiControl()) {
-                                        xdir = Math.min(Math.max(-self.width, self.xspeed), self.width);
-                                        ydir = Math.min(Math.max(-self.height, self.yspeed), self.height);
-                                        if (Math.abs(self.xspeed) < Math.abs(self.yspeed)) {
-                                            if (self.xspeed != 0) ydir = xdir/self.xspeed*self.yspeed;
-                                        } else {
-                                            if (self.yspeed != 0) xdir = ydir/self.yspeed*self.xspeed;
-                                        }
-                                        xdir2 = Math.min(Math.max(-1, xdir), 1);
-                                        ydir2 = Math.min(Math.max(-1, ydir), 1);
-                                        if (Math.abs(xdir) < Math.abs(ydir)) {
-                                            if (xdir != 0) ydir2 = xdir2/xdir*ydir;
-                                        } else {
-                                            if (ydir != 0) xdir2 = ydir2/ydir*xdir;
-                                        }
+                                        remainingxmove = self.xmove-(movexmove*Math.abs(self.xmove)/self.xmove) || 0;
+                                        remainingymove = self.ymove-(moveymove*Math.abs(self.ymove)/self.ymove) || 0;
+                                        var max = Math.max(Math.abs(remainingxmove), Math.abs(remainingymove), Math.abs(remainingxknockback), Math.abs(remainingyknockback));
+                                        xdirmove = remainingxmove/Math.ceil(max/self.width) || 0;
+                                        ydirmove = remainingymove/Math.ceil(max/self.height) || 0;
+                                        xdirknockback = remainingxknockback/Math.ceil(max/self.width) || 0;
+                                        ydirknockback = remainingyknockback/Math.ceil(max/self.height) || 0;
+                                        remainingxmove2 = xdirmove-(movexmove2*Math.abs(self.xmove)/self.xmove) || 0;
+                                        remainingymove2 = ydirmove-(moveymove2*Math.abs(self.ymove)/self.ymove) || 0;
+                                        var max2 = Math.max(Math.abs(remainingxmove2), Math.abs(remainingymove2), Math.abs(remainingxknockback2), Math.abs(remainingyknockback2));
+                                        xdirmove2 = remainingxmove2/Math.ceil(Math.abs(max2)) || 0;
+                                        ydirmove2 = remainingymove2/Math.ceil(Math.abs(max2)) || 0;
+                                        xdirknockback2 = remainingxknockback2/Math.ceil(Math.abs(max2)) || 0;
+                                        ydirknockback2 = remainingyknockback2/Math.ceil(Math.abs(max2)) || 0;
                                     }
                                     self.lastx = self.x;
                                     self.lasty = self.y;
-                                    self.x += xdir2;
-                                    self.y += ydir2;
-                                    movex += xdir2;
-                                    movey += ydir2;
-                                    movex2 += xdir2;
-                                    movey2 += ydir2;
+                                    self.x += xdirmove2;
+                                    self.y += ydirmove2;
+                                    self.x += xdirknockback2;
+                                    self.y += ydirknockback2;
+                                    movexmove += Math.abs(xdirmove2);
+                                    moveymove += Math.abs(ydirmove2);
+                                    remainingxmove -= xdirmove2;
+                                    remainingymove -= ydirmove2;
+                                    remainingxknockback -= xdirknockback2;
+                                    remainingyknockback -= ydirknockback2;
+                                    movexmove2 += Math.abs(xdirmove2);
+                                    moveymove2 += Math.abs(ydirmove2);
+                                    remainingxmove2 -= xdirmove2;
+                                    remainingymove2 -= ydirmove2;
+                                    remainingxknockback2 -= xdirknockback2;
+                                    remainingyknockback2 -= ydirknockback2;
                                     self.gridx = Math.floor(self.x/64);
                                     self.gridy = Math.floor(self.y/64);
                                     if (self.doPointCollision()) break;
+                                    // self.doPointCollision();
                                     self.checkLayer();
                                     self.checkSlowdown();
                                 }
                                 if (self.checkPointCollision()) break;
                             }
-                            self.checkLayer();
-                            self.checkSlowdown();
                         }
                     }
                 }
@@ -728,8 +731,8 @@ Rig = function() {
             right: false,
             heal: false
         };
-        self.xspeed = 0;
-        self.yspeed = 0;
+        self.xmove = 0;
+        self.ymove = 0;
         if (self.ai.path[0]) {
             if (self.ai.path[0][0]*64+32 < self.x) self.keys.left = true;
             if (self.ai.path[0][0]*64+32 > self.x) self.keys.right = true;
@@ -739,13 +742,17 @@ Rig = function() {
                 self.ai.path.shift();
             }
             if (self.slowedDown) self.moveSpeed *= 0.5;
-            if (self.keys.up) self.yspeed = -self.moveSpeed;
-            if (self.keys.down) self.yspeed = self.moveSpeed;
-            if (self.keys.left) self.xspeed = -self.moveSpeed;
-            if (self.keys.right) self.xspeed = self.moveSpeed;
+            if (self.keys.up) self.ymove = -self.moveSpeed;
+            if (self.keys.down) self.ymove = self.moveSpeed;
+            if (self.keys.left) self.xmove = -self.moveSpeed;
+            if (self.keys.right) self.xmove = self.moveSpeed;
             if (self.slowedDown) self.moveSpeed *= 2;
+            self.xspeed = Math.round(self.xmove+self.xknockback);
+            self.yspeed = Math.round(self.ymove+self.yknockback);
         }
-        if (self.keys != oldkeys) return true;
+        for (var i in self.keys) {
+            if (self.keys[i] != oldkeys[i]) return true;
+        }
         return false;
     };
     self.updateAnimation = function() {
@@ -841,36 +848,140 @@ Rig = function() {
         if (self.ai.entityTarget) {
             self.ai.path = [];
             try {
-                if (self.getSquareGridDistance(self.ai.entityTarget) < self.ai.maxRange) {
-                    var offsetx = self.gridx-self.ai.maxRange-1;
-                    var offsety = self.gridy-self.ai.maxRange-1;
-                    var x1 = self.ai.maxRange+1;
-                    var y1 = self.ai.maxRange+1;
-                    var x2 = self.ai.entityTarget.gridx-offsetx;
-                    var y2 = self.ai.entityTarget.gridy-offsety;
-                    var size = self.ai.maxRange*2+1;
-                    self.ai.grid = new PF.Grid(size, size);
-                    for (var y = 0; y < size; y++) {
-                        for (var x = 0; x < size; x++) {
-                            var checkx = x+offsetx;
-                            var checky = y+offsety;
-                            if (Collision.grid[self.map][self.layer]) if (Collision.grid[self.map][self.layer][checky]) if (Collision.grid[self.map][self.layer][checky][checkx]) {
-                                self.ai.grid.setWalkableAt(x, y, false);
-                            }
-                        }
-                    }
-                    var path = self.ai.pathfinder.findPath(x1, y1, x2, y2, self.ai.grid);
-                    path.shift();
-                    self.ai.path = PF.Util.compressPath(path);
-                    for (var i in self.ai.path) {
-                        self.ai.path[i][0] += offsetx;
-                        self.ai.path[i][1] += offsety;
-                    }
+                var x = self.x;
+                var y = self.y;
+                if (self.ai.entityTarget.layer != self.layer) {
+                    // var openList = [];
+                    // var closedList = [];
+                    // for (var py in Layer.grid[self.map][self.layer]) {
+                    //     for (var px in Layer.grid[self.map][self.layer][py]) {
+                    //         if (Layer.grid[self.map][self.layer][py][px]) openList.push({
+                    //             x: px,
+                    //             y: py,
+                    //             layer: self.layer,
+                    //             f: 0,
+                    //             g: 0,
+                    //             h: 0,
+                    //             parent: null,
+                    //             visited: false,
+                    //             closed: false
+                    //         });
+                    //     }
+                    // }
+                    // while (openList.length > 0) {
+                    //     var lowest = 0;
+                    //     for (var i in openList) {
+                    //         if (openList[i].f < openList[lowest].f) lowest = i;
+                    //     }
+                    //     var currentNode = openList[lowest];
+
+                    //     // return if found
+                    //     if (currentNode.layer == self.ai.entityTarget.layer) {
+                    //         self.ai.posTarget = {
+                    //             x: entityTarget.x,
+                    //             y: entityTarget.y
+                    //         };
+                    //         self.x = currentNode.x;
+                    //         self.y = currentNode.y;
+                    //         var path = self.ai.pathtoPos();
+                    //         if (path[0]) {
+                    //             var retpath = path.reverse();
+                    //             var parent = closedList[currentNode.parent];
+                    //             var current = currentNode;
+                    //             while (parent) {
+                    //                 self.ai.posTarget = {
+                    //                     x: current.x,
+                    //                     y: current.y
+                    //                 };
+                    //                 self.x = parent.x;
+                    //                 self.y = parent.y;
+                    //                 path = self.ai.pathtoPos();
+                    //                 retpath = retpath.concat(path);
+                    //                 current = parent;
+                    //                 parent = closedList[current.parent];
+                    //             }
+                    //             retpath.reverse();
+                    //             console.log(retpath);
+                    //             return retpath;
+                    //         }
+                    //     }
+            
+                    //     // var removeIndex = openList.indexOf(currentNode);
+                    //     // openList.splice(removeIndex, 1);
+                    //     // currentNode.closed = true;
+                    //     // closedList.push(currentNode);
+                        
+                    //     // var neighbors = findNeighbors(currentNode.x, currentNode.y);
+                    //     // for (var i in neighbors) {
+                    //     //     var neighbor = neighbors[i];
+                            
+                    //     //     if (neighbor.closed || !neighbor.walkable) {
+                    //     //         continue;
+                    //     //     }
+        
+                    //     //     var nodeAccessable = false;
+                    //     //     for (var i in self.collisionList) {
+                    //     //         var tempnode = self.collisionList[i];
+                    //     //         if (tempnode.x >= neighbor.x - 2 && tempnode.x <= neighbor.x + 2 && tempnode.y <= neighbor.y + 4 && tempnode.y > neighbor.y) {
+                    //     //             nodeAccessable = true;
+                    //     //         }
+                    //     //     }
+                    //     //     if (currentNode.y <= neighbor.y) {
+                    //     //         nodeAccessable = true;
+                    //     //     }
+                            
+                    //     //     if (!nodeAccessable) {
+                    //     //         continue;
+                    //     //     }
+            
+                    //     //     var gScore = currentNode.g+1;
+                    //     //     var bestG = false;
+                    //     //     if (!neighbor.visited) {
+                    //     //         bestG = true;
+                    //     //         neighbor.visited = true;
+                    //     //         self.visitedList.push(neighbor);
+                    //     //         self.openList.push(neighbor);
+                    //     //     } else if (gScore < neighbor.g) {
+                    //     //         bestG = true;
+                    //     //     }
+                    //     //     if (bestG) {
+                    //     //         neighbor.e = 0;
+                    //     //         var closest = {
+                    //     //             side1: false,
+                    //     //             side2: false,
+                    //     //             above: false,
+                    //     //             below: false,
+                    //     //         };
+                    //     //         for (var i in self.collisionList) {
+                    //     //             var tempnode = self.collisionList[i];
+                    //     //             if (tempnode.x >= neighbor.x - 2 && tempnode.x <= neighbor.x + 2) closest.side2 = true;
+                    //     //             if (tempnode.x >= neighbor.x - 1 && tempnode.x <= neighbor.x + 1) closest.side1 = true;
+                    //     //             if (tempnode.y == neighbor.y - 1) closest.above = true;
+                    //     //             if (tempnode.y == neighbor.y + 1) closest.below = true;
+                    //     //         }
+                    //     //         if (closest.side2) neighbor.e -= 1;
+                    //     //         if (closest.side1) neighbor.e -= 1;
+                    //     //         if (closest.above) neighbor.e += 4;
+                    //     //         if (closest.below) neighbor.e -= 2;
+                    //     //         neighbor.parent = self.closedList.indexOf(currentNode);
+                    //     //         neighbor.g = gScore;
+                    //     //         neighbor.h = self.heuristic(neighbor.x, neighbor.y, x2, y2);
+                    //     //         neighbor.f = neighbor.g + neighbor.h + neighbor.e;
+                    //     //     }
+                    //     // }
+                    // }
+                } else {
+                    self.ai.posTarget = {
+                        x: self.ai.entityTarget.gridx,
+                        y: self.ai.entityTarget.gridy
+                    };
+                    self.ai.pathtoPos();
                 }
             } catch (err) {
                 error(err);
             }
         }
+        return self.ai.path;
     };
     self.ai.pathtoPos = function() {
         if (self.ai.posTarget) {
@@ -906,8 +1017,10 @@ Rig = function() {
                 error(err);
             }
         }
+        return self.ai.path;
     };
     self.ai.pathIdle = function() {
+        // self.ai.path = [];
         if (self.ai.idleMove == 'waypoints') {
             try {
                 if (self.ai.idleWaypoints.lastPathEnd >= seconds(self.ai.idleWaypoints.waitTime)*Math.random()) {
@@ -930,7 +1043,7 @@ Rig = function() {
                         for (var i in waypoints) {
                             if (waypoints[i].map == self.map) waypointCount++;
                         }
-                        if (lastWaypoints.length > Math.min(4, waypointCount-2)) lastWaypoints.pop();
+                        if (lastWaypoints.length > Math.min(4, waypointCount-1)) lastWaypoints.pop();
                         for (var i in waypoints) {
                             var waypoint = waypoints[i];
                             for (var j in lastWaypoints) {
@@ -958,7 +1071,7 @@ Rig = function() {
                         }
                     }
                 }
-                if (self.gridx == self.ai.idleWaypoints.pos.x && self.gridy == self.ai.idleWaypoints.pos.y) self.ai.idleWaypoints.walking = false;
+                if (self.x == self.ai.idleWaypoints.pos.x*64+32 && self.y == self.ai.idleWaypoints.pos.y*64+32) self.ai.idleWaypoints.walking = false;
                 if (!self.ai.idleWaypoints.walking) {
                     self.ai.idleWaypoints.lastPathEnd += seconds(0.1);
                     self.ai.path = [];
@@ -1011,6 +1124,7 @@ Rig = function() {
                 error(err);
             }
         }
+        return self.ai.path;
     };
     self.onHit = function(entity, type) {
         var oldhp = self.hp;
@@ -1025,6 +1139,9 @@ Rig = function() {
             switch (type) {
                 case 'projectile':
                     self.hp -= Math.max(Math.round(((entity.damage+critHp)*(1-self.stats.defense))-self.stats.damageReduction), 0);
+                    var rand = 0.5+Math.random();
+                    self.xknockback += entity.xspeed*entity.knockback*rand;
+                    self.yknockback += entity.yspeed*entity.knockback*rand;
                     if (self.hp < 0) {
                         if (entity.parentIsPlayer) self.onDeath(Player.list[entity.parentID], 'killed');
                         else self.onDeath(Monster.list[entity.parentID], 'killed');
@@ -1032,6 +1149,10 @@ Rig = function() {
                     break;
                 case 'cherrybomb':
                     self.hp -= Math.max(Math.round((500*(1-self.stats.defense))-self.stats.damageReduction), 0);
+                    var rand = 0.5+Math.random();
+                    var angle = Math.atan2(self.y-entity.y, self.x-entity.x);
+                    self.xknockback += angle*rand*20;
+                    self.yknockback += angle*rand*20;
                     if (self.hp < 0) self.onDeath(entity, 'explosion');
                     break;
                 default:
@@ -1039,32 +1160,41 @@ Rig = function() {
                     break;
             }
         }
-        if (critHp) new Particle(self.map, self.x, self.y, 'critdamage', self.hp-oldhp);
-        else new Particle(self.map, self.x, self.y, 'damage', self.hp-oldhp);
+        if (critHp) new Particle(self.map, self.x, self.y, self.layer, 'critdamage', self.hp-oldhp);
+        else new Particle(self.map, self.x, self.y, self.layer, 'damage', self.hp-oldhp);
     };
     self.onDeath = function(entity, type) {
-        var oldhp = self.hp;
-        self.hp = 0;
-        self.alive = false;
-        if (self.hp != oldhp) {
-            new Particle(self.map, self.x, self.y, 'damage', self.hp-oldhp);
-        }
-        for (var i = 0; i < 20; i++) {
-            new Particle(self.map, self.x, self.y, 'death');
-        }
-        switch (type) {
-            case 'killed':
-                insertChat(self.name + ' was killed by ' + entity.name + '.', 'death');
-                break;
-            case 'explosion':
-                insertChat(self.name + ' blew up.', 'death');
-                break;
-            case 'debug':
-                insertChat(self.name + ' was debugged.', 'death');
-                break;
-            default:
-                insertChat(self.name + ' died.', 'death');
-                break;
+        if (!self.invincible) {
+            var oldhp = self.hp;
+            self.hp = 0;
+            self.alive = false;
+            if (self.hp != oldhp) {
+                new Particle(self.map, self.x, self.y, self.layer, 'damage', self.hp-oldhp);
+            }
+            for (var i = 0; i < 20; i++) {
+                new Particle(self.map, self.x, self.y, self.layer, 'death');
+            }
+            switch (type) {
+                case 'killed':
+                    insertChat(self.name + ' was killed by ' + entity.name + '.', 'death');
+                    break;
+                case 'explosion':
+                    insertChat(self.name + ' blew up.', 'death');
+                    break;
+                case 'cherrybomb':
+                    var rand = 0.5+Math.random();
+                    var angle = Math.atan2(self.y-entity.y, self.x-entity.x);
+                    self.xknockback += angle*rand*40;
+                    self.yknockback += angle*rand*40;
+                    insertChat(self.name + ' blew up.', 'death');
+                    break;
+                case 'debug':
+                    insertChat(self.name + ' was debugged.', 'death');
+                    break;
+                default:
+                    insertChat(self.name + ' died.', 'death');
+                    break;
+            }
         }
     };
     self.onRegionChange = function() {};
@@ -1072,7 +1202,7 @@ Rig = function() {
         if (!self.teleporting) {
             self.teleporting = true;
             for (var i = 0; i < 20; i++) {
-                new Particle(self.map, self.x, self.y, 'teleport');
+                new Particle(self.map, self.x, self.y, self.layer, 'teleport');
             }
             self.map = map;
             self.x = x*64+32;
@@ -1088,7 +1218,7 @@ Rig = function() {
             self.ai.idleWaypoints.walking = false;
             self.ai.idleWaypoints.lastWaypoints = [];
             for (var i = 0; i < 20; i++) {
-                new Particle(self.map, self.x, self.y, 'teleport');
+                new Particle(self.map, self.x, self.y, self.layer, 'teleport');
             }
             self.teleporting = false;
         }
@@ -1123,6 +1253,10 @@ Npc = function(id, x, y, map) {
     self.x = x*64+32;
     self.y = y*64+32;
     self.map = map;
+    self.gridx = Math.floor(self.x/64);
+    self.gridy = Math.floor(self.y/64);
+    self.chunkx = Math.floor(self.gridx/Collision.grid[self.map].chunkWidth);
+    self.chunky = Math.floor(self.gridy/Collision.grid[self.map].chunkHeight);
     switch (tempnpc.type) {
         case 'static':
             self.moveSpeed = 0;
@@ -1140,6 +1274,7 @@ Npc = function(id, x, y, map) {
     for (var i in tempnpc.data) {
         self[i] = tempnpc.data[i];
     }
+    self.aiControlled = true;
     self.collisionBoxSize = Math.max(self.width, self.height);
 
     self.update = function() {
@@ -1161,6 +1296,7 @@ Npc.update = function() {
             map: localnpc.map,
             x: localnpc.x,
             y: localnpc.y,
+            layer: localnpc.layer,
             name: localnpc.name,
             animationStage: localnpc.animationStage,
             characterStyle: localnpc.characterStyle,
@@ -1201,12 +1337,16 @@ Player = function(socket) {
     self.map = ENV.spawnpoint.map;
     self.x = ENV.spawnpoint.x;
     self.y = ENV.spawnpoint.y;
+    self.gridx = Math.floor(self.x/64);
+    self.gridy = Math.floor(self.y/64);
+    self.chunkx = Math.floor(self.gridx/Collision.grid[self.map].chunkWidth);
+    self.chunky = Math.floor(self.gridy/Collision.grid[self.map].chunkHeight);
     self.animationSpeed = 100;
     self.animationDirection = 'facing';
     self.facingDirection = 'down';
     self.attacking = false;
     self.lastHeal = 0;
-    self.stats.heal = 1;
+    self.stats.heal = 8;
     self.mouseX = 0;
     self.mouseY = 0;
     self.name = null;
@@ -1255,6 +1395,10 @@ Player = function(socket) {
     }
     socket.on('signIn', async function(cred) {
         if (cred) if (typeof cred.username == 'string' && typeof cred.password == 'string') {
+            if (ENV.isBetaServer && (cred.state == 'deleteAccount' || cred.state == 'signUp')) {
+                socket.emit('signInState', 'disabled');
+                return;
+            }
             var valid = ACCOUNTS.validateCredentials(cred.username, cred.password);
             switch (valid) {
                 case 0:
@@ -1480,18 +1624,20 @@ Player = function(socket) {
         self.renderDistance = chunks;
     });
     socket.on('teleport', function() {
-        for (var i = 0; i < 20; i++) {
-            new Particle(self.map, self.x, self.y, 'teleport');
+        if (self.teleporting) {
+            for (var i = 0; i < 20; i++) {
+                new Particle(self.map, self.x, self.y, self.layer, 'teleport');
+            }
+            self.map = self.teleportLocation.map;
+            self.x = self.teleportLocation.x;
+            self.y = self.teleportLocation.y;
+            self.layer = self.teleportLocation.layer;
+            for (var i = 0; i < 20; i++) {
+                new Particle(self.map, self.x, self.y, self.layer, 'teleport');
+            }
+            socket.emit('teleport2', {map: self.map, x: self.x, y: self.y});
+            self.teleporting = false;
         }
-        self.map = self.teleportLocation.map;
-        self.x = self.teleportLocation.x;
-        self.y = self.teleportLocation.y;
-        self.layer = self.teleportLocation.layer;
-        for (var i = 0; i < 20; i++) {
-            new Particle(self.map, self.x, self.y, 'teleport');
-        }
-        socket.emit('teleport2', {map: self.map, x: self.x, y: self.y});
-        self.teleporting = false;
     });
     socket.on('toggleDebug', function() {
         self.debugEnabled = !self.debugEnabled;
@@ -1502,7 +1648,7 @@ Player = function(socket) {
         if (self.signedIn) {
             if (typeof msg == 'string') {
                 try {
-                    if (msg[0] == '/') {
+                    if (msg.indexOf('/') == 0) {
                         var cmd = '';
                         var arg = msg.replace('/', '');
                         while (true) {
@@ -1616,38 +1762,31 @@ Player = function(socket) {
         self.lastAttack++;
         if (self.attacking && !self.region.noattack && self.lastAttack > self.attack.useTime && self.attack.projectile != null && self.mana >= self.attack.manaCost && self.alive) {
             self.lastAttack = 0;
+            var angle = Math.atan2(self.mouseY, self.mouseX);
             switch (self.attack.projectilePattern) {
                 case 'single':
-                    new Projectile(self.attack.projectile, Math.atan2(self.mouseY, self.mouseX), self.id);
-                    break;
-                case 'double':
-                    var angle = Math.atan2(self.mouseY, self.mouseX);
-                    new Projectile(self.attack.projectile, angle-degrees(15), self.id);
-                    new Projectile(self.attack.projectile, angle+degrees(15), self.id);
+                    new Projectile(self.attack.projectile, angle, self.id);
                     break;
                 case 'triple':
-                    var angle = Math.atan2(self.mouseY, self.mouseX);
                     new Projectile(self.attack.projectile, angle-degrees(20), self.id);
                     new Projectile(self.attack.projectile, angle, self.id);
                     new Projectile(self.attack.projectile, angle+degrees(20), self.id);
                     break;
                 case 'spray':
-                    var angle = Math.atan2(self.mouseY, self.mouseX);
-                    new Projectile(self.attack.projectile, angle+Math.random()*0.2-0.1, self.id);
+                    for (var i = 0; i < 5; i++) {
+                        new Projectile(self.attack.projectile, angle+Math.random()*0.2-0.1, self.id);
+                    }
                     break;
                 case 'line':
-                    var angle = Math.atan2(self.mouseY, self.mouseX);
                     new Projectile(self.attack.projectile, angle, self.id);
                     new Projectile(self.attack.projectile, angle-degrees(180), self.id);
                     break;
                 case 'triangle':
-                    var angle = Math.atan2(self.mouseY, self.mouseX);
                     new Projectile(self.attack.projectile, angle-degrees(120), self.id);
                     new Projectile(self.attack.projectile, angle, self.id);
                     new Projectile(self.attack.projectile, angle+degrees(120), self.id);
                     break;
                 case 'ring':
-                    var angle = Math.atan2(self.mouseY, self.mouseX);
                     new Projectile(self.attack.projectile, angle, self.id);
                     new Projectile(self.attack.projectile, angle-degrees(36), self.id);
                     new Projectile(self.attack.projectile, angle-degrees(72), self.id);
@@ -1658,7 +1797,7 @@ Player = function(socket) {
                     new Projectile(self.attack.projectile, angle-degrees(252), self.id);
                     new Projectile(self.attack.projectile, angle-degrees(288), self.id);
                     new Projectile(self.attack.projectile, angle-degrees(324), self.id);
-                break;
+                    break;
                 default:
                     error('Invalid projectilePattern ' + self.attack.projectilePattern);
                     break;
@@ -1668,8 +1807,8 @@ Player = function(socket) {
         }
         self.lastAutoHeal++;
         self.lastHeal++;
-        if (self.lastAutoHeal >= seconds(0.4) && self.hp < self.maxHP && self.alive) {
-            self.hp = Math.min(self.hp+self.stats.heal, self.maxHP);
+        if (self.stats.heal != 0) if (self.lastAutoHeal >= self.stats.heal && self.hp < self.maxHP && self.alive) {
+            self.hp = Math.min(self.hp+1, self.maxHP);
             self.lastAutoHeal = 0;
         }
         if (self.keys.heal && self.alive && self.hp < self.maxHP && self.lastHeal >= seconds(1) && self.mana >= 20) {
@@ -1678,7 +1817,7 @@ Player = function(socket) {
             self.hp = Math.min(self.hp+20, self.maxHP);
             self.mana -= 20;
             self.lastManaUse = 0;
-            new Particle(self.map, self.x, self.y, 'heal', '+' + self.hp-oldhp);
+            new Particle(self.map, self.x, self.y, self.layer, 'heal', '+' + self.hp-oldhp);
         }
         self.lastManaRegen++;
         self.lastManaUse++;
@@ -1753,41 +1892,50 @@ Player = function(socket) {
         }
     };
     self.onDeath = function(entity, type) {
-        var oldhp = self.hp;
-        self.hp = 0;
-        self.alive = false;
-        socket.emit('playerDied');
-        self.keys = {
-            up: false,
-            down: false,
-            left: false,
-            right: false,
-            heal: false
-        };
-        self.attacking = false;
-        if (self.hp != oldhp) {
-            new Particle(self.map, self.x, self.y, 'damage', self.hp-oldhp);
-        }
-        for (var i = 0; i < 20; i++) {
-            new Particle(self.map, self.x, self.y, 'playerdeath');
-        }
-        switch (type) {
-            case 'killed':
-                if (entity) insertChat(self.name + ' was killed by ' + entity.name, 'death');
-                else insertChat(self.name + ' died', 'death');
-                break;
-            case 'explosion':
-                insertChat(self.name + ' blew up', 'death');
-                break;
-            case 'fire':
-                insertChat(self.name + ' went up in flames', 'death');
-                break;
-            case 'debug':
-                insertChat(self.name + ' was debugged', 'death');
-                break;
-            default:
-                insertChat(self.name + ' died', 'death');
-                break;
+        if (!self.invincible) {
+            var oldhp = self.hp;
+            self.hp = 0;
+            self.alive = false;
+            socket.emit('playerDied');
+            self.keys = {
+                up: false,
+                down: false,
+                left: false,
+                right: false,
+                heal: false
+            };
+            self.attacking = false;
+            if (self.hp != oldhp) {
+                new Particle(self.map, self.x, self.y, self.layer, 'damage', self.hp-oldhp);
+            }
+            for (var i = 0; i < 20; i++) {
+                new Particle(self.map, self.x, self.y, self.layer, 'playerdeath');
+            }
+            switch (type) {
+                case 'killed':
+                    if (entity) insertChat(self.name + ' was killed by ' + entity.name, 'death');
+                    else insertChat(self.name + ' died', 'death');
+                    break;
+                case 'explosion':
+                    insertChat(self.name + ' blew up.', 'death');
+                    break;
+                case 'cherrybomb':
+                    var rand = 0.5+Math.random();
+                    var angle = Math.atan2(self.y-entity.y, self.x-entity.x);
+                    self.xknockback += angle*rand*40;
+                    self.yknockback += angle*rand*40;
+                    insertChat(self.name + ' blew up.', 'death');
+                    break;
+                case 'fire':
+                    insertChat(self.name + ' went up in flames', 'death');
+                    break;
+                case 'debug':
+                    insertChat(self.name + ' was debugged', 'death');
+                    break;
+                default:
+                    insertChat(self.name + ' died', 'death');
+                    break;
+            }
         }
     };
     self.respawn = function() {
@@ -1801,7 +1949,7 @@ Player = function(socket) {
             attack: 1,
             defense: 0,
             damageReduction: 0,
-            heal: 1,
+            heal: 8,
             speed: 1,
             range: 1,
             critChance: 0,
@@ -1959,6 +2107,8 @@ Monster = function(type, x, y, map, layer) {
     if (layer != null) self.layer = layer;
     self.gridx = Math.floor(self.x/64);
     self.gridy = Math.floor(self.y/64);
+    self.chunkx = Math.floor(self.gridx/Collision.grid[self.map].chunkWidth);
+    self.chunky = Math.floor(self.gridy/Collision.grid[self.map].chunkHeight);
     self.animationDirection = 'loop'
     self.ai.attackType = 'none';
     self.ai.lastAttack = 0;
@@ -1982,7 +2132,7 @@ Monster = function(type, x, y, map, layer) {
         self.ai.maxRange = tempmonster.aggroRange;
         self.ai.circleTarget = tempmonster.circleTarget;
         self.ai.circleDistance = tempmonster.circleDistance;
-        self.ai.circleDirection = -0.5;
+        self.ai.circleDirection = -0.2;
         self.ai.idleMove = tempmonster.idleMove;
         self.hp = tempmonster.hp;
         self.ai.fleeThreshold = tempmonster.fleeThreshold;
@@ -2007,8 +2157,8 @@ Monster = function(type, x, y, map, layer) {
         }
         if (self.stats.heal != 0) {
             self.lastAutoHeal++;
-            if (self.lastAutoHeal >= seconds(0.2) && self.hp < self.maxHP) {
-                self.hp = Math.min(self.hp+self.stats.heal, self.maxHP);
+            if (self.lastAutoHeal >= self.stats.heal && self.hp < self.maxHP && self.alive) {
+                self.hp = Math.min(self.hp+1, self.maxHP);
                 self.lastAutoHeal = 0;
             }
         }
@@ -2020,145 +2170,127 @@ Monster = function(type, x, y, map, layer) {
         }
     };
     self.updatePos = function() {
-        if (self.aiControlled) {
-            self.ai.lastPath++;
-            if (self.ai.lastPath >= seconds(0.1)) {
-                self.ai.lastPath = 0;
-                self.ai.path = [];
-                if (self.ai.inNomonsterRegion) {
-                    var closest = {
-                        x: null,
-                        y: null
-                    };
-                    for (var x = self.gridx-20; x < self.gridx+20; x++) {
-                        for (var y = self.gridy-20; y < self.gridy+20; y++) {
-                            if (Region.grid[self.map][y]) if (Region.grid[self.map][y][x]) if (Region.grid[self.map][y][x].nomonster == false) {
-                                if (closest.x == null) closest = {
+        self.ai.lastPath++;
+        if (self.ai.lastPath >= seconds(0.1)) {
+            self.ai.lastPath = 0;
+            self.ai.path = [];
+            if (self.ai.inNomonsterRegion) {
+                var closest = {
+                    x: null,
+                    y: null
+                };
+                for (var x = self.gridx-20; x < self.gridx+20; x++) {
+                    for (var y = self.gridy-20; y < self.gridy+20; y++) {
+                        if (Region.grid[self.map][y]) if (Region.grid[self.map][y][x]) if (Region.grid[self.map][y][x].nomonster == false) {
+                            if (closest.x == null) closest = {
+                                x: x,
+                                y: y
+                            };
+                            if (self.getGridDistance({x: x, y: y}) < self.getGridDistance(closest)) {
+                                closest = {
                                     x: x,
                                     y: y
                                 };
-                                if (self.getGridDistance({x: x, y: y}) < self.getGridDistance(closest)) {
-                                    closest = {
-                                        x: x,
-                                        y: y
-                                    };
-                                }
                             }
                         }
                     }
-                    if (closest) {
-                        self.ai.posTarget = closest;
-                        self.ai.pathtoPos();
-                    }
-                } else if (self.ai.entityTarget) {
-                    if (self.ai.fleeing) {
-                        try {
-                            var offsetx = self.gridx-self.ai.maxRange-1;
-                            var offsety = self.gridy-self.ai.maxRange-1;
-                            var size = self.ai.maxRange*2+1;
-                            var grid = [];
-                            for (var i = 0; i < size; i++) {
-                                grid[i] = [];
-                                for (var j = 0; j < size; j++) {
-                                    grid[i][j] = {
-                                        g: 0,
-                                        h: 0,
-                                        f: 0,
-                                        x: i+offsetx,
-                                        y: j+offsety
-                                    };
-                                }
+                }
+                if (closest) {
+                    self.ai.posTarget = closest;
+                    self.ai.pathtoPos();
+                }
+            } else if (self.ai.entityTarget) {
+                if (self.ai.fleeing) {
+                    try {
+                        var offsetx = self.gridx-self.ai.maxRange-1;
+                        var offsety = self.gridy-self.ai.maxRange-1;
+                        var size = self.ai.maxRange*2+1;
+                        var grid = [];
+                        for (var i = 0; i < size; i++) {
+                            grid[i] = [];
+                            for (var j = 0; j < size; j++) {
+                                grid[i][j] = {
+                                    g: 0,
+                                    h: 0,
+                                    f: 0,
+                                    x: i+offsetx,
+                                    y: j+offsety
+                                };
                             }
-                            for (var y = 0; y < size; y++) {
-                                for (var x = 0; x < size; x++) {
-                                    var checkx = x+offsetx;
-                                    var checky = y+offsety;
-                                    grid[x][y].h = Math.sqrt(Math.pow(self.gridx-checkx, 2) + Math.pow(self.gridy-checky, 2));
-                                    grid[x][y].g = Math.sqrt(Math.pow(self.ai.entityTarget.gridx-checkx, 2) + Math.pow(self.ai.entityTarget.gridy-checky, 2));
-                                    grid[x][y].f = grid[x][y].h-grid[x][y].g;
-                                    if (Collision.grid[self.map][self.layer][checky]) if (Collision.grid[self.map][self.layer][checky][checkx]) {
-                                        grid[x][y].g = 999;
-                                    }
-                                    if (Region.grid[self.map]) if (Region.grid[self.map][Math.floor(y)]) if (Region.grid[self.map][Math.floor(y)][Math.floor(x)]) if (Region.grid[self.map][Math.floor(y)][Math.floor(x)].nomonster) {
-                                        grid[x][y].g = 999;
-                                    }
-                                }
-                            }
-                            var best = null;
-                            for (var x in grid) {
-                                for (var y in grid) {
-                                    if (best == null) best = grid[x][y];
-                                    if (grid[x][y].f < best.f) best = grid[x][y];
-                                }
-                            }
-                            if (best) {
-                                self.ai.posTarget.x = best.x;
-                                self.ai.posTarget.y = best.y;
-                                self.ai.pathtoPos();
-                            }
-                        } catch (err) {
-                            error(err);
                         }
-                    } else if (self.ai.circleTarget && self.getGridDistance(self.ai.entityTarget) < (self.ai.circleDistance+1)*64 && !self.rayCast(self.ai.entityTarget.x, self.ai.entityTarget.y)) {
-                        try {
-                            var target = self.ai.entityTarget;
-                            var angle = Math.atan2(target.y-self.y, target.x-self.x);
-                            var x = target.gridx*64+Math.round((Math.cos(angle)*self.ai.circleDistance)*64);
-                            var y = target.gridy*64+Math.round((Math.sin(angle)*self.ai.circleDistance)*64);
-                            angle = Math.atan2(target.y-y, target.x-x);
-                            var oldangle = angle;
+                        for (var y = 0; y < size; y++) {
+                            for (var x = 0; x < size; x++) {
+                                var checkx = x+offsetx;
+                                var checky = y+offsety;
+                                grid[x][y].h = Math.sqrt(Math.pow(self.gridx-checkx, 2) + Math.pow(self.gridy-checky, 2));
+                                grid[x][y].g = Math.sqrt(Math.pow(self.ai.entityTarget.gridx-checkx, 2) + Math.pow(self.ai.entityTarget.gridy-checky, 2));
+                                grid[x][y].f = grid[x][y].h-grid[x][y].g;
+                                if (Collision.grid[self.map][self.layer][checky]) if (Collision.grid[self.map][self.layer][checky][checkx]) {
+                                    grid[x][y].g = 999;
+                                }
+                                if (Region.grid[self.map]) if (Region.grid[self.map][Math.floor(y)]) if (Region.grid[self.map][Math.floor(y)][Math.floor(x)]) if (Region.grid[self.map][Math.floor(y)][Math.floor(x)].nomonster) {
+                                    grid[x][y].g = 999;
+                                }
+                            }
+                        }
+                        var best = null;
+                        for (var x in grid) {
+                            for (var y in grid) {
+                                if (best == null) best = grid[x][y];
+                                if (grid[x][y].f < best.f) best = grid[x][y];
+                            }
+                        }
+                        if (best) {
+                            self.ai.posTarget.x = best.x;
+                            self.ai.posTarget.y = best.y;
+                            self.ai.pathtoPos();
+                        }
+                    } catch (err) {
+                        error(err);
+                    }
+                } else if (self.ai.circleTarget && self.getGridDistance(self.ai.entityTarget) < (self.ai.circleDistance+1)*64 && !self.rayCast(self.ai.entityTarget.x, self.ai.entityTarget.y)) {
+                    try {
+                        var target = self.ai.entityTarget;
+                        var angle = Math.atan2(target.y-self.y, target.x-self.x);
+                        var x = target.gridx*64+Math.round((Math.cos(angle)*self.ai.circleDistance)*64);
+                        var y = target.gridy*64+Math.round((Math.sin(angle)*self.ai.circleDistance)*64);
+                        angle = Math.atan2(target.y-y, target.x-x);
+                        var oldangle = angle;
+                        angle += self.ai.circleDirection;
+                        x = target.gridx*64+Math.round((Math.cos(angle)*self.ai.circleDistance)*64);
+                        y = target.gridy*64+Math.round((Math.sin(angle)*self.ai.circleDistance)*64);
+                        var invalid = false;
+                        if (!self.rayCast(x, y) == false) invalid = true; 
+                        if (Math.random() <= 0.02) invalid = true;
+                        if (invalid) {
+                            angle = oldangle;
+                            self.ai.circleDirection *= -1;
                             angle += self.ai.circleDirection;
                             x = target.gridx*64+Math.round((Math.cos(angle)*self.ai.circleDistance)*64);
                             y = target.gridy*64+Math.round((Math.sin(angle)*self.ai.circleDistance)*64);
-                            var invalid = false;
-                            if (!self.rayCast(x, y) == false) invalid = true; 
-                            if (Math.random() <= 0.02) invalid = true;
-                            if (invalid) {
-                                angle = oldangle;
-                                self.ai.circleDirection *= -1;
-                                angle += self.ai.circleDirection;
-                                x = target.gridx*64+Math.round((Math.cos(angle)*self.ai.circleDistance)*64);
-                                y = target.gridy*64+Math.round((Math.sin(angle)*self.ai.circleDistance)*64);
-                            }
-                            self.ai.posTarget.x = target.gridx+Math.round(Math.cos(angle)*self.ai.circleDistance);
-                            self.ai.posTarget.y = target.gridy+Math.round(Math.sin(angle)*self.ai.circleDistance);
-                            self.ai.pathtoPos();
-                        } catch (err) {
-                            error(err);
                         }
-                    } else {
-                        self.ai.pathtoEntity();
+                        self.ai.posTarget.x = target.gridx+Math.round(Math.cos(angle)*self.ai.circleDistance);
+                        self.ai.posTarget.y = target.gridy+Math.round(Math.sin(angle)*self.ai.circleDistance);
+                        self.ai.pathtoPos();
+                    } catch (err) {
+                        error(err);
                     }
-                } else if (self.ai.idleMove != 'none') {
-                    self.ai.pathIdle();
                 } else {
-                    self.ai.path = [];
+                    self.ai.pathtoEntity();
                 }
-            }
-            self.keys = {
-                up: false,
-                down: false,
-                left: false,
-                right: false,
-                heal: false
-            };
-        } else {
-            self.xspeed = 0;
-            self.yspeed = 0;
-            if (self.keys.up) {
-                self.yspeed = -self.moveSpeed;
-            }
-            if (self.keys.down) {
-                self.yspeed = self.moveSpeed;
-            }
-            if (self.keys.left) {
-                self.xspeed = -self.moveSpeed;
-            }
-            if (self.keys.right) {
-                self.xspeed = self.moveSpeed;
+            } else if (self.ai.idleMove != 'none') {
+                self.ai.pathIdle();
+            } else {
+                self.ai.path = [];
             }
         }
+        self.xspeed = Math.round(self.xmove+self.xknockback);
+        self.yspeed = Math.round(self.ymove+self.yknockback);
         self.collide();
+        self.xknockback *= 0.25;
+        self.yknockback *= 0.25;
+        if (0-Math.abs(self.xknockback) > -0.5) self.xknockback = 0;
+        if (0-Math.abs(self.yknockback) > -0.5) self.yknockback = 0;
         var foundregion = false;
         if (Region.grid[self.map][self.gridy]) if (Region.grid[self.map][self.gridy][self.gridx]) if (Region.grid[self.map][self.gridy][self.gridx].name != self.region.name) {
             self.region = Region.grid[self.map][self.gridy][self.gridx];
@@ -2230,7 +2362,7 @@ Monster = function(type, x, y, map, layer) {
                 if (self.ai.attackTime >= seconds(0.2)) {
                     self.ai.attackType = 'exploding';
                     for (var i = 0; i < 100; i++) {
-                        new Particle(self.map, self.x, self.y, 'explosion');
+                        new Particle(self.map, self.x, self.y, self.layer, 'explosion');
                     }
                     for (var i in Monster.list) {
                         if (parseFloat(i) != self.id && self.getDistance(Monster.list[i]) <= 64) {
@@ -2238,7 +2370,7 @@ Monster = function(type, x, y, map, layer) {
                                 Monster.list[i].ai.attackType = 'triggeredcherrybomb';
                                 Monster.list[i].ai.attackTime = 0;
                             } else if (Monster.list[i].ai.attackType != 'triggeredcherrybomb' && Monster.list[i].alive) {
-                                Monster.list[i].onDeath(self, 'explosion');
+                                Monster.list[i].onDeath(self, 'cherrybomb');
                             }
                         } else if (parseFloat(i) != self.id && self.getDistance(Monster.list[i]) <= 128) {
                             if (Monster.list[i].ai.attackType != 'cherrybomb' && Monster.list[i].ai.attackType != 'triggeredcherrybomb' && Monster.list[i].alive) {
@@ -2247,7 +2379,7 @@ Monster = function(type, x, y, map, layer) {
                         }
                     }
                     for (var i in Player.list) {
-                        if (self.getDistance(Player.list[i]) <= 64 && Player.list[i].alive) Player.list[i].onDeath(self, 'explosion');
+                        if (self.getDistance(Player.list[i]) <= 64 && Player.list[i].alive) Player.list[i].onDeath(self, 'cherrybomb');
                         else if (self.getDistance(Player.list[i]) <= 128 && Player.list[i].alive) Player.list[i].onHit(self, 'cherrybomb');
                     }
                 }
@@ -2344,6 +2476,9 @@ Monster = function(type, x, y, map, layer) {
             switch (type) {
                 case 'projectile':
                     self.hp -= Math.max(Math.round(((entity.damage+critHp)*(1-self.stats.defense))-self.stats.damageReduction), 0);
+                    var rand = 0.5+Math.random();
+                    self.xknockback += entity.xspeed*entity.knockback*rand;
+                    self.yknockback += entity.yspeed*entity.knockback*rand;
                     if (self.hp < 0) {
                         self.onDeath(parent);
                     }
@@ -2351,6 +2486,10 @@ Monster = function(type, x, y, map, layer) {
                     break;
                 case 'cherrybomb':
                     self.hp -= Math.max(Math.round((500*(1-self.stats.defense))-self.stats.damageReduction), 0);
+                    var rand = 0.5+Math.random();
+                    var angle = Math.atan2(self.y-entity.y, self.x-entity.x);
+                    self.xknockback += angle*rand*20;
+                    self.yknockback += angle*rand*20;
                     if (self.hp < 0) self.onDeath(entity, 'explosion');
                     break;
                 default:
@@ -2358,8 +2497,8 @@ Monster = function(type, x, y, map, layer) {
                     break;
             }
         }
-        if (critHp) new Particle(self.map, self.x, self.y, 'critdamage', self.hp-oldhp);
-        else new Particle(self.map, self.x, self.y, 'damage', self.hp-oldhp);
+        if (critHp) new Particle(self.map, self.x, self.y, self.layer, 'critdamage', self.hp-oldhp);
+        else new Particle(self.map, self.x, self.y, self.layer, 'damage', self.hp-oldhp);
         if (self.hp < self.ai.fleeThreshold) self.ai.fleeing = true;
     };
     self.onDeath = function(entity, type) {
@@ -2396,10 +2535,10 @@ Monster = function(type, x, y, map, layer) {
                     var y = self.y+Math.sin(angle)*distance;
                     var collisions = [];
                     if (Collision.grid[self.map]) {
-                        for (var x = self.gridx+1; x >= self.gridx-1; x--) {
-                            for (var y = self.gridy+1; y >= self.gridy-1; y--) {
-                                if (Collision.grid[self.map][y]) if (Collision.grid[self.map][y][x])
-                                collisions.push(Collision.getColEntity(self.map, x, y));
+                        for (var checkx = self.gridx-1; checkx <= self.gridx+1; checkx++) {
+                            for (var checky = self.gridy-1; checky <= self.gridy+1; checky++) {
+                                if (Collision.grid[self.map][checky]) if (Collision.grid[self.map][checky][checkx])
+                                collisions.push(Collision.getColEntity(self.map, checkx, checky));
                             }
                         }
                     }
@@ -2432,10 +2571,10 @@ Monster = function(type, x, y, map, layer) {
             error(err);
         }
         if (self.hp != oldhp) {
-            new Particle(self.map, self.x, self.y, 'damage', self.hp-oldhp);
+            new Particle(self.map, self.x, self.y, self.layer, 'damage', self.hp-oldhp);
         }
         for (var i = 0; i < 20; i++) {
-            new Particle(self.map, self.x+Math.random()*self.width*2-self.width, self.y+Math.random()*self.height*2-self.height, 'death');
+            new Particle(self.map, self.x+Math.random()*self.width*2-self.width, self.y+Math.random()*self.height*2-self.height, self.layer, 'death');
         }
         delete Monster.list[self.id];
     };
@@ -2463,6 +2602,7 @@ Monster.update = function() {
             map: localmonster.map,
             x: localmonster.x,
             y: localmonster.y,
+            layer: localmonster.layer,
             chunkx: localmonster.chunkx,
             chunky: localmonster.chunky,
             type: localmonster.type,
@@ -2528,14 +2668,13 @@ Projectile = function(type, angle, parentID) {
         self.damage = tempprojectile.damage;
         self.noCollision = tempprojectile.noCollision;
         self.maxRange = tempprojectile.range;
+        self.knockback = tempprojectile.knockback;
         self.pattern = Projectile.patterns[tempprojectile.pattern];
     } catch (err) {
         error(err);
         return;
     }
     self.angle = angle;
-    self.x += Math.cos(self.angle)*(self.width/2+4);
-    self.y += Math.sin(self.angle)*(self.width/2+4);
     self.parentID = parentID;
     self.parentIsPlayer = true;
     if (Monster.list[self.parentID]) self.parentIsPlayer = false;
@@ -2558,10 +2697,10 @@ Projectile = function(type, angle, parentID) {
         return;
     }
     self.traveltime = 0;
-    self.xspeed = Math.cos(self.angle)*self.moveSpeed;
-    self.yspeed = Math.sin(self.angle)*self.moveSpeed;
     self.sinAngle = Math.sin(self.angle);
     self.cosAngle = Math.cos(self.angle);
+    self.xspeed = self.cosAngle*self.moveSpeed;
+    self.yspeed = self.sinAngle*self.moveSpeed;
     self.vertices = [
         {x: ((self.width/2)*self.cosAngle)-((self.height/2)*self.sinAngle)+self.x, y: ((self.width/2)*self.sinAngle)+((self.height/2)*self.cosAngle)+self.y},
         {x: ((self.width/2)*self.cosAngle)-((-self.height/2)*self.sinAngle)+self.x, y: ((self.width/2)*self.sinAngle)+((-self.height/2)*self.cosAngle)+self.y},
@@ -2571,6 +2710,8 @@ Projectile = function(type, angle, parentID) {
     ];
     self.lastvertices = self.vertices;
     self.collisionBoxSize = Math.max(Math.abs(self.sinAngle*self.height)+Math.abs(self.cosAngle*self.width), Math.abs(self.cosAngle*self.height)+Math.abs(self.sinAngle*self.width));
+    self.x += self.cosAngle*self.width/2;
+    self.y += self.sinAngle*self.width/2;
 
     self.update = function() {
         if (self.parentIsPlayer) {
@@ -2722,6 +2863,7 @@ Projectile.update = function() {
             map: localprojectile.map,
             x: localprojectile.x,
             y: localprojectile.y,
+            layer: localprojectile.layer,
             chunkx: localprojectile.chunkx,
             chunky: localprojectile.chunky,
             angle: localprojectile.angle,
@@ -2855,11 +2997,12 @@ Projectile.patterns = {
 };
 
 // particles
-Particle = function(map, x, y, type, value) {
+Particle = function(map, x, y, layer, type, value) {
     var self = {
         map: map,
         x: x,
         y: y,
+        layer: layer,
         chunkx: Math.floor(x/(Collision.grid[map].chunkWidth*64)),
         chunky: Math.floor(y/(Collision.grid[map].chunkHeight*64)),
         type: type,
@@ -2910,7 +3053,7 @@ DroppedItem = function(map, x, y, itemId, enchantments, playerId) {
 
     self.update = function() {
         self.time++;
-        if (self.time >= seconds(300)) delete DroppedItem.list[self.id];
+        if (self.time >= seconds(ENV.itemDespawnTime*60)) delete DroppedItem.list[self.id];
     };
 
     DroppedItem.list[self.id] = self;
@@ -2926,6 +3069,7 @@ DroppedItem.update = function() {
             map: localdroppeditem.map,
             x: localdroppeditem.x,
             y: localdroppeditem.y,
+            layer: localdroppeditem.layer,
             chunkx: localdroppeditem.chunkx,
             chunky: localdroppeditem.chunky,
             itemId: localdroppeditem.itemId,
@@ -2955,6 +3099,9 @@ DroppedItem.list = [];
 // conversion functions
 function seconds(s) {
     return s*20;
+};
+function ticks(t) {
+    return Math.round(t/20);
 };
 function degrees(d) {
     return d*Math.PI/180;

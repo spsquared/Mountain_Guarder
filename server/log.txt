@@ -1,1792 +1,324 @@
-LOG Mountain Guarder v0.8.3 copyright (C) Radioactive64 2022
-LOG [22:44] Starting server...
-LOG Mountain Guarder v0.8.3 copyright (C) Radioactive64 2022
-LOG [22:50] Starting server...
-LOG [22:50] Connecting to database...
-LOG [22:50] Server started on port 4000
-LOG [22:50] ---------------------------
-CHT [22:50] Sampleprovider(sp) joined the game
-ERR [22:51] NO PERMISSION
-CHT [22:52] [!] SERVER IS CLOSING [!]
-LOG [22:52] Stopping Server...
-CHT [22:52] Sampleprovider(sp) left the game
-ERR [22:52] SERVER ENCOUNTERED A CATASTROPHIC ERROR. STOP CODE:
+LOG Mountain Guarder v0.9.0 copyright (C) Radioactive64 2022
+LOG [0:31] Starting server...
+LOG [0:31] Connecting to database...
+LOG [0:31] Server started on port 4000
+LOG [0:31] ---------------------------
+CHT [0:31] Sampleprovider(sp) joined the game
+CHT [0:33] [!] SERVER IS CLOSING [!]
+LOG [0:33] Stopping Server...
+CHT [0:33] Sampleprovider(sp) left the game
+LOG [0:33] Server Stopped.
+--- ----------------------------------------
+LOG Mountain Guarder v0.9.0 copyright (C) Radioactive64 2022
+LOG [0:33] Starting server...
+LOG [0:33] Connecting to database...
+LOG [0:33] Server started on port 4000
+LOG [0:33] ---------------------------
+CHT [0:33] Sampleprovider(sp) joined the game
+CHT [0:34] [!] SERVER IS CLOSING [!]
+LOG [0:34] Stopping Server...
+CHT [0:34] Sampleprovider(sp) left the game
+ERR [0:34] SERVER ENCOUNTERED A CATASTROPHIC ERROR. STOP CODE:
 ERR Error: Client was closed and is not queryable
-CHT [22:52] [!] SERVER ENCOUNTERED A CATASTROPHIC ERROR. [!]
-CHT [22:52] Client was closed and is not queryable
+CHT [0:34] [!] SERVER ENCOUNTERED A CATASTROPHIC ERROR. [!]
+CHT [0:34] Client was closed and is not queryable
 ERR Error code 2
-ERR [22:52] STOP.
-!WN [22:52] Failed to save progress!
-CHT [22:52] Sampleprovider(sp) left the game
-LOG [22:52] Server Stopped.
+ERR [0:34] STOP.
+!WN [0:34] Failed to save progress!
+CHT [0:34] Sampleprovider(sp) left the game
+LOG [0:34] Server Stopped.
 --- ----------------------------------------
-LOG Mountain Guarder v0.8.3 copyright (C) Radioactive64 2022
-LOG [22:52] Starting server...
-LOG [22:52] Connecting to database...
-LOG [22:52] Server started on port 4000
-LOG [22:52] ---------------------------
-CHT [22:52] Sampleprovider(sp) joined the game
-LOG [22:52] Sampleprovider(sp): asdf
-ERR [22:52] ReferenceError: asdf is not defined
-LOG [22:52] Sampleprovider(sp): ENV.ops
-LOG [22:52] Sampleprovider(sp),suvanth
-LOG [22:52] Sampleprovider(sp): ENV.ops = null
-LOG [22:52] null
-LOG [22:52] Sampleprovider(sp): ENV.ops
-LOG [22:52] Sampleprovider(sp),suvanth
-CHT [22:53] [!] SERVER IS CLOSING [!]
-LOG [22:53] Stopping Server...
-CHT [22:53] Sampleprovider(sp) left the game
-ERR [22:53] SERVER ENCOUNTERED A CATASTROPHIC ERROR. STOP CODE:
+LOG Mountain Guarder v0.9.0 copyright (C) Radioactive64 2022
+LOG [0:34] Starting server...
+LOG [0:34] Connecting to database...
+LOG [0:34] Server started on port 4000
+LOG [0:34] ---------------------------
+CHT [0:34] [!] SERVER IS CLOSING [!]
+LOG [0:34] Stopping Server...
+LOG [0:34] Server Stopped.
+--- ----------------------------------------
+LOG Mountain Guarder v0.9.0 copyright (C) Radioactive64 2022
+LOG [0:34] Starting server...
+LOG [0:34] Connecting to database...
+LOG [0:34] Server started on port 4000
+LOG [0:34] ---------------------------
+CHT [0:34] [!] SERVER IS CLOSING [!]
+LOG [0:34] Stopping Server...
+LOG [0:34] Server Stopped.
+--- ----------------------------------------
+LOG Mountain Guarder v0.9.0 copyright (C) Radioactive64 2022
+LOG [0:37] Starting server...
+LOG [0:37] Connecting to database...
+LOG [0:37] Server started on port 4000
+LOG [0:37] ---------------------------
+CHT [0:37] [!] SERVER IS CLOSING [!]
+LOG [0:37] Stopping Server...
+LOG [0:37] Server Stopped.
+--- ----------------------------------------
+LOG Mountain Guarder v0.9.0 copyright (C) Radioactive64 2022
+LOG [0:38] Starting server...
+LOG [0:38] Connecting to database...
+LOG [0:38] Server started on port 4000
+LOG [0:38] ---------------------------
+CHT [0:38] [!] SERVER IS CLOSING [!]
+LOG [0:38] Stopping Server...
+LOG [0:38] Server Stopped.
+--- ----------------------------------------
+LOG Mountain Guarder v0.9.0 copyright (C) Radioactive64 2022
+LOG [0:38] Starting server...
+LOG [0:38] Connecting to database...
+LOG [0:38] Server started on port 4000
+LOG [0:38] ---------------------------
+CHT [0:38] [!] SERVER IS CLOSING [!]
+LOG [0:38] Stopping Server...
+LOG [0:38] Server Stopped.
+--- ----------------------------------------
+LOG Mountain Guarder v0.9.0 copyright (C) Radioactive64 2022
+LOG [0:38] Starting server...
+LOG [0:38] Connecting to database...
+LOG [0:38] Server started on port 4000
+LOG [0:38] ---------------------------
+CHT [0:38] [!] SERVER IS CLOSING [!]
+LOG [0:38] Stopping Server...
+LOG [0:38] Server Stopped.
+--- ----------------------------------------
+LOG Mountain Guarder v0.9.0 copyright (C) Radioactive64 2022
+LOG [0:38] Starting server...
+LOG [0:38] Connecting to database...
+LOG [0:38] Server started on port 4000
+LOG [0:38] ---------------------------
+CHT [0:38] Sampleprovider(sp) joined the game
+CHT [0:38] [!] SERVER IS CLOSING [!]
+LOG [0:38] Stopping Server...
+CHT [0:38] Sampleprovider(sp) left the game
+ERR [0:38] SERVER ENCOUNTERED A CATASTROPHIC ERROR. STOP CODE:
 ERR Error: Client was closed and is not queryable
-CHT [22:53] [!] SERVER ENCOUNTERED A CATASTROPHIC ERROR. [!]
-CHT [22:53] Client was closed and is not queryable
+CHT [0:38] [!] SERVER ENCOUNTERED A CATASTROPHIC ERROR. [!]
+CHT [0:38] Client was closed and is not queryable
 ERR Error code 2
-ERR [22:53] STOP.
-!WN [22:53] Failed to save progress!
-CHT [22:53] Sampleprovider(sp) left the game
-LOG Mountain Guarder v0.8.3 copyright (C) Radioactive64 2022
-LOG [23:24] Starting server...
-LOG Mountain Guarder v0.8.3 copyright (C) Radioactive64 2022
-LOG [23:24] Starting server...
-LOG [23:24] Connecting to database...
-ERR [23:24] TypeError: Collision.getColEntity is not a function
-ERR [23:24] TypeError: Collision.getColEntity is not a function
-ERR [23:24] TypeError: Collision.getColEntity is not a function
-ERR [23:24] TypeError: Collision.getColEntity is not a function
-ERR [23:24] TypeError: Collision.getColEntity is not a function
-ERR [23:24] TypeError: Collision.getColEntity is not a function
-ERR [23:24] TypeError: Collision.getColEntity is not a function
-ERR [23:24] TypeError: Collision.getColEntity is not a function
-ERR [23:24] TypeError: Collision.getColEntity is not a function
-ERR [23:24] TypeError: Collision.getColEntity is not a function
-ERR [23:24] TypeError: Collision.getColEntity is not a function
-ERR [23:24] TypeError: Collision.getColEntity is not a function
-ERR [23:24] TypeError: Collision.getColEntity is not a function
-ERR [23:24] TypeError: Collision.getColEntity is not a function
-ERR [23:24] TypeError: Collision.getColEntity is not a function
-LOG [23:24] Server started on port 4000
-LOG [23:24] ---------------------------
-ERR [23:24] TypeError: Collision.getColEntity is not a function
-ERR [23:24] TypeError: Collision.getColEntity is not a function
-ERR [23:24] TypeError: Collision.getColEntity is not a function
-ERR [23:24] TypeError: Collision.getColEntity is not a function
-ERR [23:24] TypeError: Collision.getColEntity is not a function
-ERR [23:24] TypeError: Collision.getColEntity is not a function
-ERR [23:24] TypeError: Collision.getColEntity is not a function
-ERR [23:24] TypeError: Collision.getColEntity is not a function
-ERR [23:24] TypeError: Collision.getColEntity is not a function
-ERR [23:24] TypeError: Collision.getColEntity is not a function
-ERR [23:24] TypeError: Collision.getColEntity is not a function
-ERR [23:24] TypeError: Collision.getColEntity is not a function
-CHT [23:24] [!] SERVER IS CLOSING [!]
-LOG [23:24] Stopping Server...
-LOG [23:24] Server Stopped.
+ERR [0:38] STOP.
+!WN [0:38] Failed to save progress!
+CHT [0:38] Sampleprovider(sp) left the game
+LOG [0:38] Server Stopped.
 --- ----------------------------------------
-LOG Mountain Guarder v0.8.3 copyright (C) Radioactive64 2022
-LOG [23:34] Starting server...
-LOG Mountain Guarder v0.8.3 copyright (C) Radioactive64 2022
-LOG [23:34] Starting server...
-LOG [23:34] Connecting to database...
-ERR [23:34] SERVER ENCOUNTERED A CATASTROPHIC ERROR. STOP CODE:
-ERR TypeError: Entity.update is not a function
-CHT [23:34] [!] SERVER ENCOUNTERED A CATASTROPHIC ERROR. [!]
-ERR [23:34] ReferenceError: postDiscord is not defined
-CHT [23:34] Entity.update is not a function
-ERR [23:34] ReferenceError: postDiscord is not defined
-ERR Error code 1
-ERR [23:34] STOP.
-!WN [23:34] Not Connected!
-LOG [23:34] Server started on port 4000
-LOG [23:34] ---------------------------
---- ----------------------------------------
-LOG Mountain Guarder v0.8.3 copyright (C) Radioactive64 2022
-LOG [23:35] Starting server...
-LOG [23:35] Connecting to database...
-ERR [23:35] SERVER ENCOUNTERED A CATASTROPHIC ERROR. STOP CODE:
-ERR TypeError: Entity.update is not a function
-CHT [23:35] [!] SERVER ENCOUNTERED A CATASTROPHIC ERROR. [!]
-ERR [23:35] ReferenceError: postDiscord is not defined
-CHT [23:35] Entity.update is not a function
-ERR [23:35] ReferenceError: postDiscord is not defined
-ERR Error code 1
-ERR [23:35] STOP.
-!WN [23:35] Not Connected!
-LOG [23:35] Server started on port 4000
-LOG [23:35] ---------------------------
---- ----------------------------------------
-LOG Mountain Guarder v0.8.3 copyright (C) Radioactive64 2022
-LOG [23:36] Starting server...
-LOG [23:36] Connecting to database...
-ERR [23:36] SERVER ENCOUNTERED A CATASTROPHIC ERROR. STOP CODE:
-ERR TypeError: Entity.update is not a function
-CHT [23:36] [!] SERVER ENCOUNTERED A CATASTROPHIC ERROR. [!]
-ERR [23:36] ReferenceError: postDiscord is not defined
-CHT [23:36] Entity.update is not a function
-ERR [23:36] ReferenceError: postDiscord is not defined
-ERR Error code 1
-ERR [23:36] STOP.
-!WN [23:36] Not Connected!
-LOG [23:36] Server started on port 4000
-LOG [23:36] ---------------------------
---- ----------------------------------------
-LOG Mountain Guarder v0.8.3 copyright (C) Radioactive64 2022
-LOG [23:36] Starting server...
-LOG [23:36] Connecting to database...
-ERR [23:36] SERVER ENCOUNTERED A CATASTROPHIC ERROR. STOP CODE:
-ERR TypeError: Entity.update is not a function
-CHT [23:36] [!] SERVER ENCOUNTERED A CATASTROPHIC ERROR. [!]
-ERR [23:36] ReferenceError: postDiscord is not defined
-CHT [23:36] Entity.update is not a function
-ERR [23:36] ReferenceError: postDiscord is not defined
-ERR Error code 1
-ERR [23:36] STOP.
-!WN [23:36] Not Connected!
-LOG [23:36] Server started on port 4000
-LOG [23:36] ---------------------------
---- ----------------------------------------
-LOG Mountain Guarder v0.8.3 copyright (C) Radioactive64 2022
-LOG [23:36] Starting server...
-LOG [23:36] Connecting to database...
-ERR [23:36] SERVER ENCOUNTERED A CATASTROPHIC ERROR. STOP CODE:
-ERR TypeError: Entity.update is not a function
-CHT [23:36] [!] SERVER ENCOUNTERED A CATASTROPHIC ERROR. [!]
-ERR [23:36] ReferenceError: postDiscord is not defined
-CHT [23:36] Entity.update is not a function
-ERR [23:36] ReferenceError: postDiscord is not defined
-ERR Error code 1
-ERR [23:36] STOP.
-!WN [23:36] Not Connected!
-LOG [23:36] Server started on port 4000
-LOG [23:36] ---------------------------
---- ----------------------------------------
-LOG Mountain Guarder v0.8.3 copyright (C) Radioactive64 2022
-LOG [23:36] Starting server...
-LOG [23:36] Connecting to database...
-LOG [23:36] Server started on port 4000
-LOG [23:36] ---------------------------
-LOG s: Entity()
-LOG [23:37] [object Object]
-LOG s: Entity.update
-LOG [23:37] Successfully executed command
-CHT [23:37] [!] SERVER IS CLOSING [!]
-LOG [23:37] Stopping Server...
-ERR [23:37] SERVER ENCOUNTERED A CATASTROPHIC ERROR. STOP CODE:
-ERR ReferenceError: updateTicks is not defined
-CHT [23:37] [!] SERVER ENCOUNTERED A CATASTROPHIC ERROR. [!]
-CHT [23:37] updateTicks is not defined
-ERR Error code 1
-ERR [23:37] STOP.
-LOG Mountain Guarder v0.8.3 copyright (C) Radioactive64 2022
-LOG [23:37] Starting server...
-LOG [23:37] Connecting to database...
-LOG [23:37] Server started on port 4000
-LOG [23:37] ---------------------------
-CHT [23:37] [!] SERVER IS CLOSING [!]
-LOG [23:37] Stopping Server...
-ERR [23:37] SERVER ENCOUNTERED A CATASTROPHIC ERROR. STOP CODE:
-ERR ReferenceError: updateTicks is not defined
-CHT [23:37] [!] SERVER ENCOUNTERED A CATASTROPHIC ERROR. [!]
-CHT [23:37] updateTicks is not defined
-ERR Error code 1
-ERR [23:37] STOP.
-LOG Mountain Guarder v0.8.3 copyright (C) Radioactive64 2022
-LOG [23:37] Starting server...
-LOG [23:37] Connecting to database...
-LOG [23:37] Server started on port 4000
-LOG [23:37] ---------------------------
-CHT [23:37] [!] SERVER IS CLOSING [!]
-LOG [23:37] Stopping Server...
-ERR [23:37] SERVER ENCOUNTERED A CATASTROPHIC ERROR. STOP CODE:
-ERR ReferenceError: updateTicks is not defined
-CHT [23:37] [!] SERVER ENCOUNTERED A CATASTROPHIC ERROR. [!]
-CHT [23:37] updateTicks is not defined
-ERR Error code 1
-ERR [23:37] STOP.
-LOG Mountain Guarder v0.8.3 copyright (C) Radioactive64 2022
-LOG [23:48] Starting server...
-LOG [23:48] Connecting to database...
-LOG [23:48] Server started on port 4000
-LOG [23:48] ---------------------------
-LOG s: ACCOUNTS.login = null
-LOG [23:49] Successfully executed command
-LOG s: ACCOUNTS.login
-LOG [23:49] Successfully executed command
-LOG s: console.log(ACCOUNTS.login
-ERR [23:49] SyntaxError: missing ) after argument list
-LOG s: console.log(ACCOUNTS.login)
-LOG [23:49] Successfully executed command
-CHT [23:50] [!] SERVER IS CLOSING [!]
-LOG [23:50] Stopping Server...
-ERR [23:50] SERVER ENCOUNTERED A CATASTROPHIC ERROR. STOP CODE:
-ERR ReferenceError: updateTicks is not defined
-CHT [23:50] [!] SERVER ENCOUNTERED A CATASTROPHIC ERROR. [!]
-CHT [23:50] updateTicks is not defined
-ERR Error code 1
-ERR [23:50] STOP.
-LOG Mountain Guarder v0.8.3 copyright (C) Radioactive64 2022
-LOG [23:51] Starting server...
-LOG [23:51] Connecting to database...
-LOG [23:51] Server started on port 4000
-LOG [23:51] ---------------------------
-CHT [23:53] [!] SERVER IS CLOSING [!]
-LOG [23:53] Stopping Server...
-LOG [23:53] Server Stopped.
---- ----------------------------------------
-LOG Mountain Guarder v0.8.3 copyright (C) Radioactive64 2022
-LOG [23:55] Starting server...
-LOG [23:55] Connecting to database...
-LOG Mountain Guarder v0.8.3 copyright (C) Radioactive64 2022
-LOG [23:55] Starting server...
-LOG [23:55] Connecting to database...
-LOG [23:55] Server started on port 4000
-LOG [23:55] ---------------------------
-CHT [23:55] [!] SERVER IS CLOSING [!]
-LOG [23:55] Stopping Server...
-LOG [23:55] Server Stopped.
---- ----------------------------------------
-LOG Mountain Guarder v0.8.3 copyright (C) Radioactive64 2022
-LOG [23:58] Starting server...
-LOG [23:58] Connecting to database...
-LOG Mountain Guarder v0.8.3 copyright (C) Radioactive64 2022
-LOG [23:59] Starting server...
-LOG [23:59] Connecting to database...
-LOG [23:59] Server started on port 4000
-LOG [23:59] ---------------------------
-LOG s: Collision.grid['World'][0][0][0]
-LOG [23:59] 1
-LOG s: Collision.grid['World'][0][0][0] = 0
-LOG [23:59] 0
-LOG s: Collision.grid['World'][0][0][0]
-LOG [23:59] 0
-LOG s: Collision = null
-LOG [23:59] Successfully executed command
-LOG s: Collision
-LOG [23:59] function(map, x, y, layer, type) {
-    var coltype = 0;
-    switch (type) {
-        case -1:
-            coltype = 0;
-            break;
-        case 2121:
-            coltype = 1;
-            break;
-        case 2122:
-            coltype = 2;
-            break;
-        case 2123:
-            coltype = 3;
-            break;
-        case 2124:
-            coltype = 4;
-            break;
-        case 2125:
-            coltype = 5;
-            break;
-        case 2126:
-            coltype = 6;
-            break;
-        case 2127:
-            coltype = 7;
-            break;
-        case 2128:
-            coltype = 8;
-            break;
-        case 2129:
-            coltype = 9;
-            break;
-        case 2207:
-            coltype = 10;
-            break;
-        case 2208:
-            coltype = 11;
-            break;
-        case 2209:
-            coltype = 12;
-            break;
-        case 2210:
-            coltype = 13;
-            break;
-        case 2211:
-            coltype = 14;
-            break;
-        case 2212:
-            coltype = 15;
-            break;
-        case 2213:
-            coltype = 16;
-            break;
-        case 2293:
-            coltype = 17;
-            break;
-        case 2294:
-            coltype = 18;
-            break;
-        case 2295:
-            coltype = 19;
-            break;
-        case 2296:
-            coltype = 20;
-            break;
-        case 2297:
-            coltype = 21;
-            break;
-        case 2298:
-            coltype = 22;
-            break;
-        case 2299:
-            coltype = 23;
-            break;
-        case 2230:
-            coltype = 24;
-            break;
-        case 2231:
-            coltype = 25;
-            break;
-        case 2379:
-            coltype = 26;
-            break;
-        case 2380:
-            coltype = 27;
-            break;
-        case 2381:
-            coltype = 28;
-            break;
-        case 2382:
-            coltype = 29;
-            break;
-        case 2383:
-            coltype = 30;
-            break;
-        case 2384:
-            coltype = 31;
-            break;
-        case 2385:
-            coltype = 32;
-            break;
-        case 1949:
-            new Layer(map, x, y, layer, 1);
-            return;
-        case 1950:
-            new Layer(map, x, y, layer, 2);
-            return;
-        case 1951:
-            new Layer(map, x, y, layer, 3);
-            return;
-        case 1952:
-            new Layer(map, x, y, layer, 4);
-            return;
-        case 1953:
-            new Layer(map, x, y, layer, 5);
-            return;
-        case 2035:
-            new Layer(map, x, y, layer, 6);
-            return;
-        case 2036:
-            new Layer(map, x, y, layer, 7);
-            return;
-        case 2037:
-            new Layer(map, x, y, layer, 8);
-            return;
-        case 2038:
-            new Layer(map, x, y, layer, 9);
-            return;
-        case 2039:
-            new Layer(map, x, y, layer, 10);
-            return;
-        case 2130:
-            coltype = 3;
-            new Layer(map, x, y, layer, 2);
-            break;
-        case 2131:
-            coltype = 2;
-            new Layer(map, x, y, layer, 3);
-            break;
-        case 2132:
-            coltype = 5;
-            new Layer(map, x, y, layer, 4);
-            break;
-        case 2133:
-            coltype = 4;
-            new Layer(map, x, y, layer, 5);
-            break;
-        case 2216:
-            coltype = 3;
-            new Layer(map, x, y, layer, 7);
-            break;
-        case 2217:
-            coltype = 2;
-            new Layer(map, x, y, layer, 8);
-            break;
-        case 2218:
-            coltype = 5;
-            new Layer(map, x, y, layer, 9);
-            break;
-        case 2219:
-            coltype = 4;
-            new Layer(map, x, y, layer, 10);
-            break;
-        case 2302:
-            coltype = 19;
-            new Layer(map, x, y, layer, 2);
-            break;
-        case 2303:
-            coltype = 18;
-            new Layer(map, x, y, layer, 3);
-            break;
-        case 2304:
-            coltype = 21;
-            new Layer(map, x, y, layer, 4);
-            break;
-        case 2305:
-            coltype = 20;
-            new Layer(map, x, y, layer, 5);
-            break;
-        case 2388:
-            coltype = 19;
-            new Layer(map, x, y, layer, 7);
-            break;
-        case 2389:
-            coltype = 18;
-            new Layer(map, x, y, layer, 8);
-            break;
-        case 2390:
-            coltype = 21;
-            new Layer(map, x, y, layer, 9);
-            break;
-        case 2391:
-            coltype = 20;
-            new Layer(map, x, y, layer, 10);
-            break;
-        default:
-            error('Invalid collision at (' + map + ',' + layer + ',' + x + ',' + y + ')');
-            break;
-    }
-    if (Collision.grid[map][layer][parseInt(y)]) {
-        Collision.grid[map][layer][parseInt(y)][parseInt(x)] = coltype;
-    } else {
-        Collision.grid[map][layer][parseInt(y)] = [];
-        Collision.grid[map][layer][parseInt(y)][parseInt(x)] = coltype;
-    }
-    return coltype;
-}
-LOG s: Collision.getColEntity
-LOG [23:59] function(map, x, y, layer) {
-    var collision = [];
-    var coltype = 0;
-    if (Collision.grid[map]) if (Collision.grid[map][layer]) if (Collision.grid[map][layer][y]) if (Collision.grid[map][layer][y][x]) coltype = Collision.grid[map][layer][y][x];
-    var noProjectile = false;
-    if (coltype > 16) {
-        noProjectile = true;
-        coltype -= 16;
-    }
-    switch (coltype) {
-        case 0:
-            break;
-        case 1:
-            collision[0] = {
-                map: map,
-                x: x*64+32,
-                y: y*64+32,
-                width: 64,
-                height: 64,
-                collisionBoxSize: 64,
-                noProjectile: noProjectile
-            };
-            break;
-        case 2:
-            collision[0] = {
-                map: map,
-                x: x*64+32,
-                y: y*64+48,
-                width: 64,
-                height: 32,
-                collisionBoxSize: 64,
-                noProjectile: noProjectile
-            };
-            break;
-        case 3:
-            collision[0] = {
-                map: map,
-                x: x*64+32,
-                y: y*64+16,
-                width: 64,
-                height: 32,
-                collisionBoxSize: 64,
-                noProjectile: noProjectile
-            };
-            break;
-        case 4:
-            collision[0] = {
-                map: map,
-                x: x*64+16,
-                y: y*64+32,
-                width: 32,
-                height: 64,
-                collisionBoxSize: 64,
-                noProjectile: noProjectile
-            };
-            break;
-        case 5:
-            collision[0] = {
-                map: map,
-                x: x*64+48,
-                y: y*64+32,
-                width: 32,
-                height: 64,
-                collisionBoxSize: 64,
-                noProjectile: noProjectile
-            };
-            break;
-        case 6:
-            collision[0] = {
-                map: map,
-                x: x*64+32,
-                y: y*64+48,
-                width: 64,
-                height: 32,
-                collisionBoxSize: 64,
-                noProjectile: noProjectile
-            };
-            collision[1] = {
-                map: map,
-                x: x*64+48,
-                y: y*64+32,
-                width: 32,
-                height: 64,
-                collisionBoxSize: 64,
-                noProjectile: noProjectile
-            };
-            break;
-        case 7:
-            collision[0] = {
-                map: map,
-                x: x*64+32,
-                y: y*64+16,
-                width: 64,
-                height: 32,
-                collisionBoxSize: 64,
-                noProjectile: noProjectile
-            };
-            collision[1] = {
-                map: map,
-                x: x*64+16,
-                y: y*64+32,
-                width: 32,
-                height: 64,
-                collisionBoxSize: 64,
-                noProjectile: noProjectile
-            };
-            break;
-        case 8:
-            collision[0] = {
-                map: map,
-                x: x*64+32,
-                y: y*64+16,
-                width: 64,
-                height: 32,
-                collisionBoxSize: 64,
-                noProjectile: noProjectile
-            };
-            collision[1] = {
-                map: map,
-                x: x*64+48,
-                y: y*64+32,
-                width: 32,
-                height: 64,
-                collisionBoxSize: 64,
-                noProjectile: noProjectile
-            };
-            break;
-        case 9:
-            collision[0] = {
-                map: map,
-                x: x*64+32,
-                y: y*64+48,
-                width: 64,
-                height: 32,
-                collisionBoxSize: 64,
-                noProjectile: noProjectile
-            };
-            collision[1] = {
-                map: map,
-                x: x*64+16,
-                y: y*64+32,
-                width: 32,
-                height: 64,
-                collisionBoxSize: 64,
-                noProjectile: noProjectile
-            };
-            break;
-        case 10:
-            collision[0] = {
-                map: map,
-                x: x*64+32,
-                y: y*64+32,
-                width: 32,
-                height: 32,
-                collisionBoxSize: 32,
-                noProjectile: noProjectile
-            };
-            break;
-        case 11:
-            collision[0] = {
-                map: map,
-                x: x*64+16,
-                y: y*64+48,
-                width: 32,
-                height: 32,
-                collisionBoxSize: 32,
-                noProjectile: noProjectile
-            };
-            break;
-        case 12:
-            collision[0] = {
-                map: map,
-                x: x*64+48,
-                y: y*64+48,
-                width: 32,
-                height: 32,
-                collisionBoxSize: 32,
-                noProjectile: noProjectile
-            };
-            break;
-        case 13:
-            collision[0] = {
-                map: map,
-                x: x*64+48,
-                y: y*64+16,
-                width: 32,
-                height: 32,
-                collisionBoxSize: 32,
-                noProjectile: noProjectile
-            };
-            break;
-        case 14:
-            collision[0] = {
-                map: map,
-                x: x*64+16,
-                y: y*64+16,
-                width: 32,
-                height: 32,
-                collisionBoxSize: 32,
-                noProjectile: noProjectile
-            };
-            break;
-        case 15:
-            collision[0] = {
-                map: map,
-                x: x*64+32,
-                y: y*64+40,
-                width: 48,
-                height: 48,
-                collisionBoxSize: 48,
-                noProjectile: noProjectile
-            };
-            break;
-        case 16:
-            collision[0] = {
-                map: map,
-                x: x*64+32,
-                y: y*64+36,
-                width: 48,
-                height: 56,
-                collisionBoxSize: 56,
-                noProjectile: noProjectile
-            };
-            break;
-        default:
-            error('Invalid collision ' + coltype + ' at (' + map + ',' + layer + ',' + x + ',' + y + ')');
-            break;
-    }
-    
-    return collision;
-}
-LOG s: Collision.getColEntity = null
-LOG [23:59] Successfully executed command
-ERR [23:59] TypeError: Collision.getColEntity is not a function
-ERR [23:59] TypeError: Collision.getColEntity is not a function
-ERR [23:59] TypeError: Collision.getColEntity is not a function
-ERR [23:59] TypeError: Collision.getColEntity is not a function
-ERR [23:59] TypeError: Collision.getColEntity is not a function
-ERR [23:59] TypeError: Collision.getColEntity is not a function
-ERR [23:59] TypeError: Collision.getColEntity is not a function
-ERR [23:59] TypeError: Collision.getColEntity is not a function
-ERR [23:59] TypeError: Collision.getColEntity is not a function
-ERR [23:59] TypeError: Collision.getColEntity is not a function
-ERR [23:59] TypeError: Collision.getColEntity is not a function
-ERR [23:59] TypeError: Collision.getColEntity is not a function
-ERR [23:59] TypeError: Collision.getColEntity is not a function
-ERR [23:59] TypeError: Collision.getColEntity is not a function
-ERR [23:59] TypeError: Collision.getColEntity is not a function
-ERR [23:59] TypeError: Collision.getColEntity is not a function
-ERR [23:59] TypeError: Collision.getColEntity is not a function
-ERR [23:59] TypeError: Collision.getColEntity is not a function
-ERR [23:59] TypeError: Collision.getColEntity is not a function
-ERR [23:59] TypeError: Collision.getColEntity is not a function
-ERR [23:59] TypeError: Collision.getColEntity is not a function
-ERR [23:59] TypeError: Collision.getColEntity is not a function
-CHT [23:59] [!] SERVER IS CLOSING [!]
-ERR [23:59] TypeError: postDiscord is not a function
-LOG [23:59] Stopping Server...
-LOG [23:59] Server Stopped.
---- ----------------------------------------
-LOG Mountain Guarder v0.8.3 copyright (C) Radioactive64 2022
-LOG [0:02] Starting server...
-LOG [0:02] Connecting to database...
-LOG [0:02] Server started on port 4000
-LOG [0:02] ---------------------------
-LOG s: Collision.getColEntity
-LOG [0:02] function(map, x, y, layer) {
-    var collision = [];
-    var coltype = 0;
-    if (Collision.grid[map]) if (Collision.grid[map][layer]) if (Collision.grid[map][layer][y]) if (Collision.grid[map][layer][y][x]) coltype = Collision.grid[map][layer][y][x];
-    var noProjectile = false;
-    if (coltype > 16) {
-        noProjectile = true;
-        coltype -= 16;
-    }
-    switch (coltype) {
-        case 0:
-            break;
-        case 1:
-            collision[0] = {
-                map: map,
-                x: x*64+32,
-                y: y*64+32,
-                width: 64,
-                height: 64,
-                collisionBoxSize: 64,
-                noProjectile: noProjectile
-            };
-            break;
-        case 2:
-            collision[0] = {
-                map: map,
-                x: x*64+32,
-                y: y*64+48,
-                width: 64,
-                height: 32,
-                collisionBoxSize: 64,
-                noProjectile: noProjectile
-            };
-            break;
-        case 3:
-            collision[0] = {
-                map: map,
-                x: x*64+32,
-                y: y*64+16,
-                width: 64,
-                height: 32,
-                collisionBoxSize: 64,
-                noProjectile: noProjectile
-            };
-            break;
-        case 4:
-            collision[0] = {
-                map: map,
-                x: x*64+16,
-                y: y*64+32,
-                width: 32,
-                height: 64,
-                collisionBoxSize: 64,
-                noProjectile: noProjectile
-            };
-            break;
-        case 5:
-            collision[0] = {
-                map: map,
-                x: x*64+48,
-                y: y*64+32,
-                width: 32,
-                height: 64,
-                collisionBoxSize: 64,
-                noProjectile: noProjectile
-            };
-            break;
-        case 6:
-            collision[0] = {
-                map: map,
-                x: x*64+32,
-                y: y*64+48,
-                width: 64,
-                height: 32,
-                collisionBoxSize: 64,
-                noProjectile: noProjectile
-            };
-            collision[1] = {
-                map: map,
-                x: x*64+48,
-                y: y*64+32,
-                width: 32,
-                height: 64,
-                collisionBoxSize: 64,
-                noProjectile: noProjectile
-            };
-            break;
-        case 7:
-            collision[0] = {
-                map: map,
-                x: x*64+32,
-                y: y*64+16,
-                width: 64,
-                height: 32,
-                collisionBoxSize: 64,
-                noProjectile: noProjectile
-            };
-            collision[1] = {
-                map: map,
-                x: x*64+16,
-                y: y*64+32,
-                width: 32,
-                height: 64,
-                collisionBoxSize: 64,
-                noProjectile: noProjectile
-            };
-            break;
-        case 8:
-            collision[0] = {
-                map: map,
-                x: x*64+32,
-                y: y*64+16,
-                width: 64,
-                height: 32,
-                collisionBoxSize: 64,
-                noProjectile: noProjectile
-            };
-            collision[1] = {
-                map: map,
-                x: x*64+48,
-                y: y*64+32,
-                width: 32,
-                height: 64,
-                collisionBoxSize: 64,
-                noProjectile: noProjectile
-            };
-            break;
-        case 9:
-            collision[0] = {
-                map: map,
-                x: x*64+32,
-                y: y*64+48,
-                width: 64,
-                height: 32,
-                collisionBoxSize: 64,
-                noProjectile: noProjectile
-            };
-            collision[1] = {
-                map: map,
-                x: x*64+16,
-                y: y*64+32,
-                width: 32,
-                height: 64,
-                collisionBoxSize: 64,
-                noProjectile: noProjectile
-            };
-            break;
-        case 10:
-            collision[0] = {
-                map: map,
-                x: x*64+32,
-                y: y*64+32,
-                width: 32,
-                height: 32,
-                collisionBoxSize: 32,
-                noProjectile: noProjectile
-            };
-            break;
-        case 11:
-            collision[0] = {
-                map: map,
-                x: x*64+16,
-                y: y*64+48,
-                width: 32,
-                height: 32,
-                collisionBoxSize: 32,
-                noProjectile: noProjectile
-            };
-            break;
-        case 12:
-            collision[0] = {
-                map: map,
-                x: x*64+48,
-                y: y*64+48,
-                width: 32,
-                height: 32,
-                collisionBoxSize: 32,
-                noProjectile: noProjectile
-            };
-            break;
-        case 13:
-            collision[0] = {
-                map: map,
-                x: x*64+48,
-                y: y*64+16,
-                width: 32,
-                height: 32,
-                collisionBoxSize: 32,
-                noProjectile: noProjectile
-            };
-            break;
-        case 14:
-            collision[0] = {
-                map: map,
-                x: x*64+16,
-                y: y*64+16,
-                width: 32,
-                height: 32,
-                collisionBoxSize: 32,
-                noProjectile: noProjectile
-            };
-            break;
-        case 15:
-            collision[0] = {
-                map: map,
-                x: x*64+32,
-                y: y*64+40,
-                width: 48,
-                height: 48,
-                collisionBoxSize: 48,
-                noProjectile: noProjectile
-            };
-            break;
-        case 16:
-            collision[0] = {
-                map: map,
-                x: x*64+32,
-                y: y*64+36,
-                width: 48,
-                height: 56,
-                collisionBoxSize: 56,
-                noProjectile: noProjectile
-            };
-            break;
-        default:
-            error('Invalid collision ' + coltype + ' at (' + map + ',' + layer + ',' + x + ',' + y + ')');
-            break;
-    }
-    
-    return collision;
-}
-LOG s: Collision.getColEntity = null
-LOG [0:02] Successfully executed command
-ERR [0:02] TypeError: Collision.getColEntity is not a function
-ERR [0:02] TypeError: Collision.getColEntity is not a function
-ERR [0:02] TypeError: Collision.getColEntity is not a function
-ERR [0:02] TypeError: Collision.getColEntity is not a function
-ERR [0:02] TypeError: Collision.getColEntity is not a function
-ERR [0:02] TypeError: Collision.getColEntity is not a function
-ERR [0:02] TypeError: Collision.getColEntity is not a function
-ERR [0:02] TypeError: Collision.getColEntity is not a function
-ERR [0:02] TypeError: Collision.getColEntity is not a function
-ERR [0:02] TypeError: Collision.getColEntity is not a function
-ERR [0:02] TypeError: Collision.getColEntity is not a function
-ERR [0:02] TypeError: Collision.getColEntity is not a function
-ERR [0:02] TypeError: Collision.getColEntity is not a function
-ERR [0:02] TypeError: Collision.getColEntity is not a function
-ERR [0:02] TypeError: Collision.getColEntity is not a function
-CHT [0:02] [!] SERVER IS CLOSING [!]
-ERR [0:02] TypeError: postDiscord is not a function
-LOG [0:02] Stopping Server...
-LOG [0:02] Server Stopped.
---- ----------------------------------------
-LOG Mountain Guarder v0.8.3 copyright (C) Radioactive64 2022
-LOG [0:03] Starting server...
-LOG [0:03] Connecting to database...
-LOG Mountain Guarder v0.8.3 copyright (C) Radioactive64 2022
-LOG [0:03] Starting server...
-LOG [0:03] Connecting to database...
-LOG Mountain Guarder v0.8.3 copyright (C) Radioactive64 2022
-LOG [0:04] Starting server...
-LOG [0:04] Connecting to database...
-ERR [0:04] SERVER ENCOUNTERED A CATASTROPHIC ERROR. STOP CODE:
-ERR Error: connect ETIMEDOUT 35.171.250.21:5432
-CHT [0:04] [!] SERVER ENCOUNTERED A CATASTROPHIC ERROR. [!]
-ERR [0:04] TypeError: postDiscord is not a function
-CHT [0:04] connect ETIMEDOUT 35.171.250.21:5432
-ERR [0:04] TypeError: postDiscord is not a function
-ERR Error code 2
-ERR [0:04] STOP.
-!WN [0:04] Not Connected!
---- ----------------------------------------
-LOG Mountain Guarder v0.8.3 copyright (C) Radioactive64 2022
-LOG [0:04] Starting server...
-LOG [0:04] Connecting to database...
-CHT [0:04] [!] SERVER IS CLOSING [!]
-ERR [0:04] TypeError: postDiscord is not a function
-LOG [0:04] Stopping Server...
-!WN [0:04] Not Connected!
-LOG [0:04] Server Stopped.
---- ----------------------------------------
-LOG Mountain Guarder v0.8.3 copyright (C) Radioactive64 2022
-LOG [0:05] Starting server...
-LOG [0:05] Connecting to database...
-LOG [0:05] Server started on port 4000
-LOG [0:05] ---------------------------
-LOG s: Collision.getColEntity
-LOG [0:05] function(map, x, y, layer) {
-    var collision = [];
-    var coltype = 0;
-    if (Collision.grid[map]) if (Collision.grid[map][layer]) if (Collision.grid[map][layer][y]) if (Collision.grid[map][layer][y][x]) coltype = Collision.grid[map][layer][y][x];
-    var noProjectile = false;
-    if (coltype > 16) {
-        noProjectile = true;
-        coltype -= 16;
-    }
-    switch (coltype) {
-        case 0:
-            break;
-        case 1:
-            collision[0] = {
-                map: map,
-                x: x*64+32,
-                y: y*64+32,
-                width: 64,
-                height: 64,
-                collisionBoxSize: 64,
-                noProjectile: noProjectile
-            };
-            break;
-        case 2:
-            collision[0] = {
-                map: map,
-                x: x*64+32,
-                y: y*64+48,
-                width: 64,
-                height: 32,
-                collisionBoxSize: 64,
-                noProjectile: noProjectile
-            };
-            break;
-        case 3:
-            collision[0] = {
-                map: map,
-                x: x*64+32,
-                y: y*64+16,
-                width: 64,
-                height: 32,
-                collisionBoxSize: 64,
-                noProjectile: noProjectile
-            };
-            break;
-        case 4:
-            collision[0] = {
-                map: map,
-                x: x*64+16,
-                y: y*64+32,
-                width: 32,
-                height: 64,
-                collisionBoxSize: 64,
-                noProjectile: noProjectile
-            };
-            break;
-        case 5:
-            collision[0] = {
-                map: map,
-                x: x*64+48,
-                y: y*64+32,
-                width: 32,
-                height: 64,
-                collisionBoxSize: 64,
-                noProjectile: noProjectile
-            };
-            break;
-        case 6:
-            collision[0] = {
-                map: map,
-                x: x*64+32,
-                y: y*64+48,
-                width: 64,
-                height: 32,
-                collisionBoxSize: 64,
-                noProjectile: noProjectile
-            };
-            collision[1] = {
-                map: map,
-                x: x*64+48,
-                y: y*64+32,
-                width: 32,
-                height: 64,
-                collisionBoxSize: 64,
-                noProjectile: noProjectile
-            };
-            break;
-        case 7:
-            collision[0] = {
-                map: map,
-                x: x*64+32,
-                y: y*64+16,
-                width: 64,
-                height: 32,
-                collisionBoxSize: 64,
-                noProjectile: noProjectile
-            };
-            collision[1] = {
-                map: map,
-                x: x*64+16,
-                y: y*64+32,
-                width: 32,
-                height: 64,
-                collisionBoxSize: 64,
-                noProjectile: noProjectile
-            };
-            break;
-        case 8:
-            collision[0] = {
-                map: map,
-                x: x*64+32,
-                y: y*64+16,
-                width: 64,
-                height: 32,
-                collisionBoxSize: 64,
-                noProjectile: noProjectile
-            };
-            collision[1] = {
-                map: map,
-                x: x*64+48,
-                y: y*64+32,
-                width: 32,
-                height: 64,
-                collisionBoxSize: 64,
-                noProjectile: noProjectile
-            };
-            break;
-        case 9:
-            collision[0] = {
-                map: map,
-                x: x*64+32,
-                y: y*64+48,
-                width: 64,
-                height: 32,
-                collisionBoxSize: 64,
-                noProjectile: noProjectile
-            };
-            collision[1] = {
-                map: map,
-                x: x*64+16,
-                y: y*64+32,
-                width: 32,
-                height: 64,
-                collisionBoxSize: 64,
-                noProjectile: noProjectile
-            };
-            break;
-        case 10:
-            collision[0] = {
-                map: map,
-                x: x*64+32,
-                y: y*64+32,
-                width: 32,
-                height: 32,
-                collisionBoxSize: 32,
-                noProjectile: noProjectile
-            };
-            break;
-        case 11:
-            collision[0] = {
-                map: map,
-                x: x*64+16,
-                y: y*64+48,
-                width: 32,
-                height: 32,
-                collisionBoxSize: 32,
-                noProjectile: noProjectile
-            };
-            break;
-        case 12:
-            collision[0] = {
-                map: map,
-                x: x*64+48,
-                y: y*64+48,
-                width: 32,
-                height: 32,
-                collisionBoxSize: 32,
-                noProjectile: noProjectile
-            };
-            break;
-        case 13:
-            collision[0] = {
-                map: map,
-                x: x*64+48,
-                y: y*64+16,
-                width: 32,
-                height: 32,
-                collisionBoxSize: 32,
-                noProjectile: noProjectile
-            };
-            break;
-        case 14:
-            collision[0] = {
-                map: map,
-                x: x*64+16,
-                y: y*64+16,
-                width: 32,
-                height: 32,
-                collisionBoxSize: 32,
-                noProjectile: noProjectile
-            };
-            break;
-        case 15:
-            collision[0] = {
-                map: map,
-                x: x*64+32,
-                y: y*64+40,
-                width: 48,
-                height: 48,
-                collisionBoxSize: 48,
-                noProjectile: noProjectile
-            };
-            break;
-        case 16:
-            collision[0] = {
-                map: map,
-                x: x*64+32,
-                y: y*64+36,
-                width: 48,
-                height: 56,
-                collisionBoxSize: 56,
-                noProjectile: noProjectile
-            };
-            break;
-        default:
-            error('Invalid collision ' + coltype + ' at (' + map + ',' + layer + ',' + x + ',' + y + ')');
-            break;
-    }
-    
-    return collision;
-}
-LOG s: Collision.getColEntity = null
-LOG [0:05] Successfully executed command
-LOG s: Collision.getColEntity
-LOG [0:05] function(map, x, y, layer) {
-    var collision = [];
-    var coltype = 0;
-    if (Collision.grid[map]) if (Collision.grid[map][layer]) if (Collision.grid[map][layer][y]) if (Collision.grid[map][layer][y][x]) coltype = Collision.grid[map][layer][y][x];
-    var noProjectile = false;
-    if (coltype > 16) {
-        noProjectile = true;
-        coltype -= 16;
-    }
-    switch (coltype) {
-        case 0:
-            break;
-        case 1:
-            collision[0] = {
-                map: map,
-                x: x*64+32,
-                y: y*64+32,
-                width: 64,
-                height: 64,
-                collisionBoxSize: 64,
-                noProjectile: noProjectile
-            };
-            break;
-        case 2:
-            collision[0] = {
-                map: map,
-                x: x*64+32,
-                y: y*64+48,
-                width: 64,
-                height: 32,
-                collisionBoxSize: 64,
-                noProjectile: noProjectile
-            };
-            break;
-        case 3:
-            collision[0] = {
-                map: map,
-                x: x*64+32,
-                y: y*64+16,
-                width: 64,
-                height: 32,
-                collisionBoxSize: 64,
-                noProjectile: noProjectile
-            };
-            break;
-        case 4:
-            collision[0] = {
-                map: map,
-                x: x*64+16,
-                y: y*64+32,
-                width: 32,
-                height: 64,
-                collisionBoxSize: 64,
-                noProjectile: noProjectile
-            };
-            break;
-        case 5:
-            collision[0] = {
-                map: map,
-                x: x*64+48,
-                y: y*64+32,
-                width: 32,
-                height: 64,
-                collisionBoxSize: 64,
-                noProjectile: noProjectile
-            };
-            break;
-        case 6:
-            collision[0] = {
-                map: map,
-                x: x*64+32,
-                y: y*64+48,
-                width: 64,
-                height: 32,
-                collisionBoxSize: 64,
-                noProjectile: noProjectile
-            };
-            collision[1] = {
-                map: map,
-                x: x*64+48,
-                y: y*64+32,
-                width: 32,
-                height: 64,
-                collisionBoxSize: 64,
-                noProjectile: noProjectile
-            };
-            break;
-        case 7:
-            collision[0] = {
-                map: map,
-                x: x*64+32,
-                y: y*64+16,
-                width: 64,
-                height: 32,
-                collisionBoxSize: 64,
-                noProjectile: noProjectile
-            };
-            collision[1] = {
-                map: map,
-                x: x*64+16,
-                y: y*64+32,
-                width: 32,
-                height: 64,
-                collisionBoxSize: 64,
-                noProjectile: noProjectile
-            };
-            break;
-        case 8:
-            collision[0] = {
-                map: map,
-                x: x*64+32,
-                y: y*64+16,
-                width: 64,
-                height: 32,
-                collisionBoxSize: 64,
-                noProjectile: noProjectile
-            };
-            collision[1] = {
-                map: map,
-                x: x*64+48,
-                y: y*64+32,
-                width: 32,
-                height: 64,
-                collisionBoxSize: 64,
-                noProjectile: noProjectile
-            };
-            break;
-        case 9:
-            collision[0] = {
-                map: map,
-                x: x*64+32,
-                y: y*64+48,
-                width: 64,
-                height: 32,
-                collisionBoxSize: 64,
-                noProjectile: noProjectile
-            };
-            collision[1] = {
-                map: map,
-                x: x*64+16,
-                y: y*64+32,
-                width: 32,
-                height: 64,
-                collisionBoxSize: 64,
-                noProjectile: noProjectile
-            };
-            break;
-        case 10:
-            collision[0] = {
-                map: map,
-                x: x*64+32,
-                y: y*64+32,
-                width: 32,
-                height: 32,
-                collisionBoxSize: 32,
-                noProjectile: noProjectile
-            };
-            break;
-        case 11:
-            collision[0] = {
-                map: map,
-                x: x*64+16,
-                y: y*64+48,
-                width: 32,
-                height: 32,
-                collisionBoxSize: 32,
-                noProjectile: noProjectile
-            };
-            break;
-        case 12:
-            collision[0] = {
-                map: map,
-                x: x*64+48,
-                y: y*64+48,
-                width: 32,
-                height: 32,
-                collisionBoxSize: 32,
-                noProjectile: noProjectile
-            };
-            break;
-        case 13:
-            collision[0] = {
-                map: map,
-                x: x*64+48,
-                y: y*64+16,
-                width: 32,
-                height: 32,
-                collisionBoxSize: 32,
-                noProjectile: noProjectile
-            };
-            break;
-        case 14:
-            collision[0] = {
-                map: map,
-                x: x*64+16,
-                y: y*64+16,
-                width: 32,
-                height: 32,
-                collisionBoxSize: 32,
-                noProjectile: noProjectile
-            };
-            break;
-        case 15:
-            collision[0] = {
-                map: map,
-                x: x*64+32,
-                y: y*64+40,
-                width: 48,
-                height: 48,
-                collisionBoxSize: 48,
-                noProjectile: noProjectile
-            };
-            break;
-        case 16:
-            collision[0] = {
-                map: map,
-                x: x*64+32,
-                y: y*64+36,
-                width: 48,
-                height: 56,
-                collisionBoxSize: 56,
-                noProjectile: noProjectile
-            };
-            break;
-        default:
-            error('Invalid collision ' + coltype + ' at (' + map + ',' + layer + ',' + x + ',' + y + ')');
-            break;
-    }
-    
-    return collision;
-}
-CHT [0:05] [!] SERVER IS CLOSING [!]
-ERR [0:05] TypeError: postDiscord is not a function
-LOG [0:05] Stopping Server...
-LOG [0:05] Server Stopped.
---- ----------------------------------------
-LOG Mountain Guarder v0.8.3 copyright (C) Radioactive64 2022
-LOG [0:10] Starting server...
-LOG [0:10] Connecting to database...
-LOG [0:10] Server started on port 4000
-LOG [0:10] ---------------------------
-CHT [0:11] [!] SERVER IS CLOSING [!]
-ERR [0:11] TypeError: postDiscord is not a function
-LOG [0:11] Stopping Server...
-LOG [0:11] Server Stopped.
---- ----------------------------------------
-LOG Mountain Guarder v0.8.3 copyright (C) Radioactive64 2022
-LOG [0:11] Starting server...
-LOG [0:11] Connecting to database...
-LOG [0:11] Server started on port 4000
-LOG [0:11] ---------------------------
-LOG s: postDiscord
-LOG [0:11] Successfully executed command
-LOG s: postDiscord()
-ERR [0:11] TypeError: postDiscord is not a function
-CHT [0:11] [!] SERVER IS CLOSING [!]
-ERR [0:11] TypeError: postDiscord is not a function
-LOG [0:11] Stopping Server...
-LOG [0:11] Server Stopped.
---- ----------------------------------------
-LOG Mountain Guarder v0.8.3 copyright (C) Radioactive64 2022
-LOG [1:06] Starting server...
-LOG [1:06] Connecting to database...
-LOG Mountain Guarder v0.8.3 copyright (C) Radioactive64 2022
-LOG [1:06] Starting server...
-LOG [1:06] Connecting to database...
-LOG [1:06] Server started on port 4000
-LOG [1:06] ---------------------------
-LOG s: process = null
-LOG [1:06] Successfully executed command
-LOG s: process
-LOG [1:06] Successfully executed command
-LOG s: process.exit
-ERR [1:06] TypeError: Cannot read properties of null (reading 'exit')
-ERR [1:11] SERVER ENCOUNTERED A CATASTROPHIC ERROR. STOP CODE:
-ERR TypeError: Cannot read properties of null (reading 'env')
-CHT [1:11] [!] SERVER ENCOUNTERED A CATASTROPHIC ERROR. [!]
-CHT [1:11] Cannot read properties of null (reading 'env')
-ERR Error code 1
-ERR [1:11] STOP.
-LOG Mountain Guarder v0.8.3 copyright (C) Radioactive64 2022
-LOG [1:31] Starting server...
-LOG [1:31] Connecting to database...
-LOG [1:31] Server started on port 4000
-LOG [1:31] ---------------------------
-CHT [1:32] Sampleprovider(sp) joined the game
-ERR [1:32] You do not have permission to use that!
-ERR [1:32] You do not have permission to use that!
-ERR [1:32] You do not have permission to use that!
-CHT [1:33] [!] SERVER IS CLOSING [!]
-LOG [1:33] Stopping Server...
-CHT [1:33] Sampleprovider(sp) left the game
-LOG Mountain Guarder v0.8.3 copyright (C) Radioactive64 2022
-LOG [1:33] Starting server...
-LOG [1:33] Connecting to database...
-LOG Mountain Guarder v0.8.3 copyright (C) Radioactive64 2022
-LOG [1:39] Starting server...
-LOG [1:39] Connecting to database...
-LOG [1:40] Server started on port 4000
-LOG [1:40] ---------------------------
-CHT [1:40] Sampleprovider(sp) joined the game
-ERR [1:40] You do not have permission to use that!
-CHT [1:43] [!] SERVER IS CLOSING [!]
-LOG [1:43] Stopping Server...
-CHT [1:43] Sampleprovider(sp) left the game
-LOG Mountain Guarder v0.8.3 copyright (C) Radioactive64 2022
-LOG [1:43] Starting server...
-LOG [1:43] Connecting to database...
-LOG [1:43] Server started on port 4000
-LOG [1:43] ---------------------------
-CHT [1:44] [!] SERVER IS CLOSING [!]
-LOG [1:44] Stopping Server...
-LOG Mountain Guarder v0.8.3 copyright (C) Radioactive64 2022
-LOG [1:44] Starting server...
-LOG [1:44] Connecting to database...
-LOG [1:44] Server started on port 4000
-LOG [1:44] ---------------------------
-CHT [1:44] Sampleprovider(sp) joined the game
-ERR [1:44] You do not have permission to use that!
-ERR [1:45] You do not have permission to use that!
-ERR [1:45] You do not have permission to use that!
-LOG [1:45] Sampleprovider(sp): process.
-ERR [1:45] SyntaxError: Unexpected end of input
-ERR [1:45] You do not have permission to use that!
-LOG [1:46] Sampleprovider(sp): io = null
-LOG [1:46] null
-LOG [1:46] Sampleprovider(sp): socket = null
-ERR [1:46] SERVER ENCOUNTERED A CATASTROPHIC ERROR. STOP CODE:
-ERR TypeError: Cannot read properties of null (reading 'emit')
-CHT [1:46] [!] SERVER ENCOUNTERED A CATASTROPHIC ERROR. [!]
-LOG Mountain Guarder v0.8.3 copyright (C) Radioactive64 2022
-LOG [1:47] Starting server...
-LOG [1:47] Connecting to database...
-LOG [1:47] Server started on port 4000
-LOG [1:47] ---------------------------
-ERR [1:47] SERVER ENCOUNTERED A CATASTROPHIC ERROR. STOP CODE:
-ERR TypeError: Cannot assign to read only property 'flags' of object '#<Socket>'
-CHT [1:47] [!] SERVER ENCOUNTERED A CATASTROPHIC ERROR. [!]
-CHT [1:47] Cannot assign to read only property 'flags' of object '#<Socket>'
-ERR Error code 1
-ERR [1:47] STOP.
-LOG Mountain Guarder v0.8.3 copyright (C) Radioactive64 2022
-LOG [1:47] Starting server...
-LOG [1:47] Connecting to database...
-LOG [1:47] Server started on port 4000
-LOG [1:47] ---------------------------
-CHT [1:47] Sampleprovider(sp) joined the game
-CHT [1:48] Sampleprovider(sp) left the game
-CHT [1:48] Sampleprovider(sp) joined the game
-LOG [1:48] Sampleprovider(sp): asdf
-ERR [1:48] ReferenceError: asdf is not defined
-LOG [1:48] Sampleprovider(sp): asdf
-ERR [1:48] ReferenceError: asdf is not defined
-LOG [1:48] Sampleprovider(sp): asdf
-ERR [1:48] ReferenceError: asdf is not defined
-LOG [1:48] Sampleprovider(sp): adsf
-ERR [1:48] ReferenceError: adsf is not defined
-LOG [1:48] Sampleprovider(sp): sadf
-ERR [1:48] ReferenceError: sadf is not defined
-LOG [1:48] Sampleprovider(sp): sadf
-ERR [1:48] ReferenceError: sadf is not defined
-LOG [1:48] Sampleprovider(sp): sadf
-ERR [1:48] ReferenceError: sadf is not defined
-LOG [1:48] Sampleprovider(sp): sadf
-ERR [1:48] ReferenceError: sadf is not defined
-LOG [1:48] Sampleprovider(sp): sadf
-ERR [1:48] ReferenceError: sadf is not defined
-LOG [1:48] Sampleprovider(sp): sadf
-ERR [1:48] ReferenceError: sadf is not defined
-LOG [1:48] Sampleprovider(sp): sdaf
-ERR [1:48] ReferenceError: sdaf is not defined
-LOG [1:48] Sampleprovider(sp): sadf
-ERR [1:48] ReferenceError: sadf is not defined
-LOG [1:48] Sampleprovider(sp): sadf
-ERR [1:48] ReferenceError: sadf is not defined
-LOG [1:48] Sampleprovider(sp): sddf
-ERR [1:48] ReferenceError: sddf is not defined
-LOG [1:48] Sampleprovider(sp): sda
-ERR [1:48] ReferenceError: sda is not defined
-LOG [1:48] Sampleprovider(sp): fasd
-ERR [1:48] ReferenceError: fasd is not defined
-LOG [1:48] Sampleprovider(sp): f
-ERR [1:48] ReferenceError: f is not defined
-LOG [1:48] Sampleprovider(sp): dsaf
-ERR [1:48] ReferenceError: dsaf is not defined
-LOG [1:48] Sampleprovider(sp): sad
-ERR [1:48] ReferenceError: sad is not defined
-LOG [1:48] Sampleprovider(sp): f
-ERR [1:48] ReferenceError: f is not defined
-LOG [1:48] Sampleprovider(sp): asdfdsa
-ERR [1:48] ReferenceError: asdfdsa is not defined
-LOG [1:48] Sampleprovider(sp): fsad
-ERR [1:48] ReferenceError: fsad is not defined
-LOG [1:48] Sampleprovider(sp): fsd
-ERR [1:48] ReferenceError: fsd is not defined
-LOG [1:48] Sampleprovider(sp): af
-ERR [1:48] ReferenceError: af is not defined
-LOG [1:48] Sampleprovider(sp): sadf
-ERR [1:48] ReferenceError: sadf is not defined
-LOG [1:48] Sampleprovider(sp): sd
-ERR [1:48] ReferenceError: sd is not defined
-LOG [1:48] Sampleprovider(sp): fas
-ERR [1:48] ReferenceError: fas is not defined
-LOG [1:48] Sampleprovider(sp): f
-ERR [1:48] ReferenceError: f is not defined
-LOG [1:48] Sampleprovider(sp): ads
-ERR [1:48] ReferenceError: ads is not defined
-LOG [1:48] Sampleprovider(sp): fdsa
-ERR [1:48] ReferenceError: fdsa is not defined
-LOG [1:48] Sampleprovider(sp): f
-ERR [1:48] ReferenceError: f is not defined
-LOG [1:48] Sampleprovider(sp): adsf
-ERR [1:48] ReferenceError: adsf is not defined
-LOG [1:48] Sampleprovider(sp): sda
-ERR [1:48] ReferenceError: sda is not defined
-LOG [1:48] Sampleprovider(sp): f
-ERR [1:48] ReferenceError: f is not defined
-LOG [1:48] Sampleprovider(sp): dsaf
-ERR [1:48] ReferenceError: dsaf is not defined
-LOG [1:48] Sampleprovider(sp): sdaf
-ERR [1:48] ReferenceError: sdaf is not defined
-LOG [1:48] Sampleprovider(sp): sad
-ERR [1:48] ReferenceError: sad is not defined
-LOG [1:48] Sampleprovider(sp): fsad
-ERR [1:48] ReferenceError: fsad is not defined
-LOG [1:48] Sampleprovider(sp): f
-ERR [1:48] ReferenceError: f is not defined
-LOG [1:48] Sampleprovider(sp): asdf
-ERR [1:48] ReferenceError: asdf is not defined
-LOG [1:48] Sampleprovider(sp): asdf
-ERR [1:48] ReferenceError: asdf is not defined
-LOG [1:48] Sampleprovider(sp): asd
-ERR [1:48] ReferenceError: asd is not defined
-LOG [1:48] Sampleprovider(sp): f
-ERR [1:48] ReferenceError: f is not defined
-LOG [1:48] Sampleprovider(sp): asdf
-ERR [1:48] ReferenceError: asdf is not defined
-LOG [1:48] Sampleprovider(sp): asdf
-ERR [1:48] ReferenceError: asdf is not defined
-CHT [1:48] [!] SERVER IS CLOSING [!]
-LOG [1:48] Stopping Server...
-CHT [1:48] Sampleprovider(sp) left the game
-ERR [1:48] SERVER ENCOUNTERED A CATASTROPHIC ERROR. STOP CODE:
+LOG Mountain Guarder v0.9.0 copyright (C) Radioactive64 2022
+LOG [0:39] Starting server...
+LOG [0:39] Connecting to database...
+LOG [0:39] Server started on port 4000
+LOG [0:39] ---------------------------
+CHT [0:39] Sampleprovider(sp) joined the game
+CHT [0:39] [!] SERVER IS CLOSING [!]
+LOG [0:39] Stopping Server...
+CHT [0:39] Sampleprovider(sp) left the game
+ERR [0:39] SERVER ENCOUNTERED A CATASTROPHIC ERROR. STOP CODE:
 ERR Error: Client was closed and is not queryable
-CHT [1:48] [!] SERVER ENCOUNTERED A CATASTROPHIC ERROR. [!]
-CHT [1:48] Client was closed and is not queryable
+CHT [0:39] [!] SERVER ENCOUNTERED A CATASTROPHIC ERROR. [!]
+CHT [0:39] Client was closed and is not queryable
 ERR Error code 2
-ERR [1:48] STOP.
-!WN [1:48] Failed to save progress!
-CHT [1:48] Sampleprovider(sp) left the game
-LOG Mountain Guarder v0.8.3 copyright (C) Radioactive64 2022
-LOG [1:48] Starting server...
-LOG [1:48] Connecting to database...
-LOG [1:49] Server started on port 4000
-LOG [1:49] ---------------------------
-CHT [1:49] Sampleprovider(sp) joined the game
-LOG [1:49] Sampleprovider(sp): asdf
-ERR [1:49] ReferenceError: asdf is not defined
-CHT [1:49] Sampleprovider(sp) was kicked for socket.io DOS
-CHT [1:49] Sampleprovider(sp) left the game
-CHT [1:49] Sampleprovider(sp) joined the game
-CHT [1:51] [!] SERVER IS CLOSING [!]
-LOG [1:51] Stopping Server...
-CHT [1:51] Sampleprovider(sp) left the game
-ERR [1:51] SERVER ENCOUNTERED A CATASTROPHIC ERROR. STOP CODE:
-ERR Error: Client was closed and is not queryable
-CHT [1:51] [!] SERVER ENCOUNTERED A CATASTROPHIC ERROR. [!]
-CHT [1:51] Client was closed and is not queryable
-ERR Error code 2
-ERR [1:51] STOP.
-!WN [1:51] Failed to save progress!
-CHT [1:51] Sampleprovider(sp) left the game
-LOG Mountain Guarder v0.8.3 copyright (C) Radioactive64 2022
-LOG [1:52] Starting server...
-LOG [1:52] Connecting to database...
-LOG [1:52] Server started on port 4000
-LOG [1:52] ---------------------------
-CHT [1:52] Sampleprovider(sp) joined the game
-LOG [1:52] Sampleprovider(sp): process
-ERR [1:52] RangeError: Maximum call stack size exceeded
-LOG [1:53] Sampleprovider(sp): process = null
-LOG [1:53] null
-ERR [1:53] SERVER ENCOUNTERED A CATASTROPHIC ERROR. STOP CODE:
-ERR TypeError: Cannot read properties of null (reading 'domain')
-CHT [1:53] [!] SERVER ENCOUNTERED A CATASTROPHIC ERROR. [!]
-CHT [1:53] Cannot read properties of null (reading 'domain')
-ERR Error code 2
-ERR [1:53] STOP.
-LOG Mountain Guarder v0.8.3 copyright (C) Radioactive64 2022
-LOG [1:53] Starting server...
-LOG [1:53] Connecting to database...
-LOG [1:53] Server started on port 4000
-LOG [1:53] ---------------------------
-CHT [1:53] Sampleprovider(sp) joined the game
-LOG [1:54] Sampleprovider(sp): process = null
-LOG [1:54] null
-ERR [1:54] SERVER ENCOUNTERED A CATASTROPHIC ERROR. STOP CODE:
-ERR TypeError: Cannot read properties of null (reading 'domain')
-CHT [1:54] [!] SERVER ENCOUNTERED A CATASTROPHIC ERROR. [!]
-CHT [1:54] Cannot read properties of null (reading 'domain')
-ERR Error code 2
-ERR [1:54] STOP.
-LOG Mountain Guarder v0.8.3 copyright (C) Radioactive64 2022
-LOG [1:54] Starting server...
-LOG [1:54] Connecting to database...
-LOG [1:54] Server started on port 4000
-LOG [1:54] ---------------------------
-CHT [1:54] [!] SERVER IS CLOSING [!]
-LOG [1:54] Stopping Server...
-LOG [1:54] Server Stopped.
+ERR [0:39] STOP.
+!WN [0:39] Failed to save progress!
+CHT [0:39] Sampleprovider(sp) left the game
+LOG [0:39] Server Stopped.
 --- ----------------------------------------
-LOG Mountain Guarder v0.8.3 copyright (C) Radioactive64 2022
-LOG [1:54] Starting server...
-LOG [1:54] Connecting to database...
-LOG [1:54] Server started on port 4000
-LOG [1:54] ---------------------------
-CHT [1:54] Sampleprovider(sp) joined the game
-LOG [1:55] Sampleprovider(sp): asdf
-ERR [1:55] ReferenceError: asdf is not defined
-LOG [1:55] Sampleprovider(sp): process = null
-LOG [1:55] null
-ERR [1:55] SERVER ENCOUNTERED A CATASTROPHIC ERROR. STOP CODE:
-ERR TypeError: Cannot read properties of null (reading 'domain')
-CHT [1:55] [!] SERVER ENCOUNTERED A CATASTROPHIC ERROR. [!]
-CHT [1:55] Cannot read properties of null (reading 'domain')
+LOG Mountain Guarder v0.9.0 copyright (C) Radioactive64 2022
+LOG [0:39] Starting server...
+LOG [0:39] Connecting to database...
+LOG [0:39] Server started on port 4000
+LOG [0:39] ---------------------------
+CHT [0:40] Sampleprovider(sp) joined the game
+CHT [0:40] [!] SERVER IS CLOSING [!]
+LOG [0:40] Stopping Server...
+CHT [0:40] Sampleprovider(sp) left the game
+ERR [0:40] SERVER ENCOUNTERED A CATASTROPHIC ERROR. STOP CODE:
+ERR Error: Client was closed and is not queryable
+CHT [0:40] [!] SERVER ENCOUNTERED A CATASTROPHIC ERROR. [!]
+CHT [0:40] Client was closed and is not queryable
 ERR Error code 2
-ERR [1:55] STOP.
-LOG Mountain Guarder v0.8.3 copyright (C) Radioactive64 2022
-LOG [1:55] Starting server...
-LOG [1:55] Connecting to database...
-LOG [1:55] Server started on port 4000
-LOG [1:55] ---------------------------
+ERR [0:40] STOP.
+!WN [0:40] Failed to save progress!
+CHT [0:40] Sampleprovider(sp) left the game
+LOG [0:40] Server Stopped.
+--- ----------------------------------------
+LOG Mountain Guarder v0.9.0 copyright (C) Radioactive64 2022
+LOG [0:40] Starting server...
+LOG [0:41] Connecting to database...
+LOG [0:41] Server started on port 4000
+LOG [0:41] ---------------------------
+CHT [0:41] [!] SERVER IS CLOSING [!]
+LOG [0:41] Stopping Server...
+LOG [0:41] Server Stopped.
+--- ----------------------------------------
+LOG Mountain Guarder v0.9.0 copyright (C) Radioactive64 2022
+LOG [0:41] Starting server...
+LOG [0:41] Connecting to database...
+LOG [0:41] Server started on port 4000
+LOG [0:41] ---------------------------
+CHT [0:41] [!] SERVER IS CLOSING [!]
+LOG [0:41] Stopping Server...
+LOG [0:41] Server Stopped.
+--- ----------------------------------------
+LOG Mountain Guarder v0.9.0 copyright (C) Radioactive64 2022
+LOG [0:42] Starting server...
+LOG [0:42] Connecting to database...
+LOG [0:42] Server started on port 4000
+LOG [0:42] ---------------------------
+CHT [0:42] [!] SERVER IS CLOSING [!]
+LOG [0:42] Stopping Server...
+LOG [0:42] Server Stopped.
+--- ----------------------------------------
+LOG Mountain Guarder v0.9.0 copyright (C) Radioactive64 2022
+LOG [0:42] Starting server...
+LOG [0:42] Connecting to database...
+LOG [0:42] Server started on port 4000
+LOG [0:42] ---------------------------
+CHT [0:42] [!] SERVER IS CLOSING [!]
+LOG [0:42] Stopping Server...
+LOG [0:42] Server Stopped.
+--- ----------------------------------------
+LOG Mountain Guarder v0.9.0 copyright (C) Radioactive64 2022
+LOG [0:42] Starting server...
+LOG [0:42] Connecting to database...
+LOG [0:42] Server started on port 4000
+LOG [0:42] ---------------------------
+CHT [0:42] [!] SERVER IS CLOSING [!]
+LOG [0:42] Stopping Server...
+LOG [0:42] Server Stopped.
+--- ----------------------------------------
+LOG Mountain Guarder v0.9.0 copyright (C) Radioactive64 2022
+LOG [0:42] Starting server...
+LOG [0:42] Connecting to database...
+LOG [0:42] Server started on port 4000
+LOG [0:42] ---------------------------
+CHT [0:42] [!] SERVER IS CLOSING [!]
+LOG [0:42] Stopping Server...
+LOG [0:42] Server Stopped.
+--- ----------------------------------------
+LOG Mountain Guarder v0.9.0 copyright (C) Radioactive64 2022
+LOG [0:43] Starting server...
+LOG [0:43] Connecting to database...
+LOG [0:43] Server started on port 4000
+LOG [0:43] ---------------------------
+CHT [0:43] [!] SERVER IS CLOSING [!]
+LOG [0:43] Stopping Server...
+LOG [0:43] Server Stopped.
+--- ----------------------------------------
+LOG Mountain Guarder v0.9.0 copyright (C) Radioactive64 2022
+LOG [0:43] Starting server...
+LOG [0:43] Connecting to database...
+LOG [0:43] Server started on port 4000
+LOG [0:43] ---------------------------
+CHT [0:43] Sampleprovider(sp) joined the game
+CHT [0:43] [!] SERVER IS CLOSING [!]
+LOG [0:43] Stopping Server...
+CHT [0:43] Sampleprovider(sp) left the game
+ERR [0:43] SERVER ENCOUNTERED A CATASTROPHIC ERROR. STOP CODE:
+ERR Error: Client was closed and is not queryable
+CHT [0:43] [!] SERVER ENCOUNTERED A CATASTROPHIC ERROR. [!]
+CHT [0:43] Client was closed and is not queryable
+ERR Error code 2
+ERR [0:43] STOP.
+!WN [0:43] Failed to save progress!
+CHT [0:43] Sampleprovider(sp) left the game
+LOG [0:43] Server Stopped.
+--- ----------------------------------------
+LOG Mountain Guarder v0.9.0 copyright (C) Radioactive64 2022
+LOG [0:43] Starting server...
+LOG [0:44] Connecting to database...
+LOG [0:44] Server started on port 4000
+LOG [0:44] ---------------------------
+CHT [0:44] Sampleprovider(sp) joined the game
+CHT [0:44] [!] SERVER IS CLOSING [!]
+LOG [0:44] Stopping Server...
+CHT [0:44] Sampleprovider(sp) left the game
+ERR [0:44] SERVER ENCOUNTERED A CATASTROPHIC ERROR. STOP CODE:
+ERR Error: Client was closed and is not queryable
+CHT [0:44] [!] SERVER ENCOUNTERED A CATASTROPHIC ERROR. [!]
+CHT [0:44] Client was closed and is not queryable
+ERR Error code 2
+ERR [0:44] STOP.
+!WN [0:44] Failed to save progress!
+CHT [0:44] Sampleprovider(sp) left the game
+LOG [0:44] Server Stopped.
+--- ----------------------------------------
+LOG Mountain Guarder v0.9.0 copyright (C) Radioactive64 2022
+LOG [0:44] Starting server...
+LOG [0:44] Connecting to database...
+LOG [0:44] Server started on port 4000
+LOG [0:44] ---------------------------
+CHT [0:44] Sampleprovider(sp) joined the game
+CHT [0:44] [!] Server tick timed out! [!]
+ERR [0:44] Server tick timed out!
+LOG [0:45] Sampleprovider(sp): self.y
+LOG [0:45] 656
+CHT [0:45] Sampleprovider(sp) left the game
+CHT [0:45] Sampleprovider(sp) joined the game
+LOG [0:46] Sampleprovider(sp): self.y = 672
+LOG [0:46] 672
+CHT [0:48] [!] SERVER IS CLOSING [!]
+LOG [0:48] Stopping Server...
+CHT [0:48] Sampleprovider(sp) left the game
+ERR [0:48] SERVER ENCOUNTERED A CATASTROPHIC ERROR. STOP CODE:
+ERR Error: Client was closed and is not queryable
+CHT [0:48] [!] SERVER ENCOUNTERED A CATASTROPHIC ERROR. [!]
+CHT [0:48] Client was closed and is not queryable
+ERR Error code 2
+ERR [0:48] STOP.
+!WN [0:48] Failed to save progress!
+CHT [0:48] Sampleprovider(sp) left the game
+LOG [0:48] Server Stopped.
+--- ----------------------------------------
+LOG Mountain Guarder v0.9.0 copyright (C) Radioactive64 2022
+LOG [0:48] Starting server...
+LOG [0:48] Connecting to database...
+LOG [0:48] Server started on port 4000
+LOG [0:48] ---------------------------
+CHT [0:48] [!] SERVER IS CLOSING [!]
+LOG [0:48] Stopping Server...
+LOG [0:48] Server Stopped.
+--- ----------------------------------------
+LOG Mountain Guarder v0.9.0 copyright (C) Radioactive64 2022
+LOG [0:48] Starting server...
+LOG [0:48] Connecting to database...
+LOG [0:48] Server started on port 4000
+LOG [0:48] ---------------------------
+CHT [0:48] [!] SERVER IS CLOSING [!]
+LOG [0:48] Stopping Server...
+LOG [0:48] Server Stopped.
+--- ----------------------------------------
+LOG Mountain Guarder v0.9.0 copyright (C) Radioactive64 2022
+LOG [0:48] Starting server...
+LOG [0:49] Connecting to database...
+LOG [0:49] Server started on port 4000
+LOG [0:49] ---------------------------
+CHT [0:49] [!] SERVER IS CLOSING [!]
+LOG [0:49] Stopping Server...
+LOG [0:49] Server Stopped.
+--- ----------------------------------------
+LOG Mountain Guarder v0.9.0 copyright (C) Radioactive64 2022
+LOG [0:49] Starting server...
+LOG [0:49] Connecting to database...
+LOG [0:49] Server started on port 4000
+LOG [0:49] ---------------------------
+CHT [0:49] Sampleprovider(sp) joined the game
+CHT [0:50] [!] SERVER IS CLOSING [!]
+LOG [0:50] Stopping Server...
+CHT [0:50] Sampleprovider(sp) left the game
+ERR [0:50] SERVER ENCOUNTERED A CATASTROPHIC ERROR. STOP CODE:
+ERR Error: Client was closed and is not queryable
+CHT [0:50] [!] SERVER ENCOUNTERED A CATASTROPHIC ERROR. [!]
+CHT [0:50] Client was closed and is not queryable
+ERR Error code 2
+ERR [0:50] STOP.
+!WN [0:50] Failed to save progress!
+CHT [0:50] Sampleprovider(sp) left the game
+LOG Mountain Guarder v0.9.0 copyright (C) Radioactive64 2022
+LOG [0:50] Starting server...
+LOG [0:50] Connecting to database...
+LOG [0:50] Server started on port 4000
+LOG [0:50] ---------------------------
+CHT [0:50] Sampleprovider(sp) joined the game
+CHT [0:51] Sampleprovider(sp) left the game
+CHT [0:52] [!] SERVER IS CLOSING [!]
+LOG [0:52] Stopping Server...
+LOG [0:52] Server Stopped.
+--- ----------------------------------------

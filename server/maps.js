@@ -255,10 +255,26 @@ function loadMap(name) {
     }
 };
 
-loadMap('World');
-loadMap('The Void')
-loadMap('Outpost Cottage 1');
-loadMap('Outpost Cottage 2');
+function loadAll() {
+    loadMap('World');
+    loadMap('The Void')
+    loadMap('Outpost Cottage 1');
+    loadMap('Outpost Cottage 2');
+};
+loadAll();
+
+resetMaps = function() {
+    insertChat('[!] Reloading all maps [!]', 'server');
+    logColor('Reloading all maps', '\x1b[33m', 'error');
+    Monster.list = [];
+    Collision.grid = [];
+    Layer.grid = [];
+    Slowdown.grid = [];
+    Spawner.list = [];
+    Region.grid = [];
+    Teleporter.grid = [];
+    loadAll();
+};
 
 for (var i in Npc.list) {
     if (npcWaypoints[Npc.list[i].npcId]) {

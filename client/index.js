@@ -1,23 +1,38 @@
 // Copyright (C) 2022 Radioactive64
 
-const version = 'v0.8.4';
+const version = 'v0.9.0';
 var firstload = false;
 // canvas
 CTXRAW = document.getElementById('ctx');
 CTX = CTXRAW.getContext('2d');
 MAPS = [];
+NO_OFFSCREENCANVAS = false;
+if (typeof OffscreenCanvas == 'undefined') NO_OFFSCREENCANVAS = true;
+function createCanvas(w, h) {
+    if (NO_OFFSCREENCANVAS) {
+        var canvas = document.createElement('canvas');
+        canvas.width = w || 1;
+        canvas.height = h || 1;
+        return canvas;
+    } else {
+        return new OffscreenCanvas(w || 1, h || 1);
+    }
+};
 LAYERS = {
-    map0: new OffscreenCanvas(100, 100),
-    entity0: new OffscreenCanvas(100, 100),
-    map1: new OffscreenCanvas(100, 100),
-    entity1: new OffscreenCanvas(100, 100),
+    map0: createCanvas(),
+    entity0: null,
+    mapvariables: [],
+    entitylayers: [],
+    map1: createCanvas(),
+    entity1: createCanvas(),
     mlower: null,
     elower: null,
+    mvariables: [],
+    elayers: [],
     mupper: null,
     eupper: null
 };
 LAYERS.mlower = LAYERS.map0.getContext('2d');
-LAYERS.elower = LAYERS.entity0.getContext('2d');
 LAYERS.mupper = LAYERS.map1.getContext('2d');
 LAYERS.eupper = LAYERS.entity1.getContext('2d');
 OFFSETX = 0;
@@ -31,21 +46,39 @@ settings = {
     renderDistance: 1,
     renderQuality: 100,
     particles: true,
+    pointerLock: false,
     chatBackground: false,
     chatSize: 2,
     highContrast: false,
     debug: false
 };
+keybinds = {
+    up: 'w',
+    down: 's',
+    left: 'a',
+    right: 'd',
+    heal: ' ',
+    use: 0,
+    second: 2,
+    chat: 't',
+    settings: null,
+    inventory: 'e',
+    inventoryEquips: 'i',
+    inventoryCrafting: 'c',
+    map: 'm'
+};
 
 // canvas scaling and pixelation
-var dpr = 1;
+DPR = 1;
+SCALE = settings.renderQuality/100;
 if (window.devicePixelRatio) {
-    dpr = window.devicePixelRatio;
+    DPR = window.devicePixelRatio;
+    SCALE = (settings.renderQuality/100)*DPR;
 }
 
 window.onresize = function() {
     if (window.devicePixelRatio) {
-        dpr = window.devicePixelRatio;
+        DPR = window.devicePixelRatio;
     }
     resetCanvases();
     drawFrame();
@@ -57,26 +90,34 @@ function resetCanvas(ctx) {
     ctx.getContext('2d').mozImageSmoothingEnabled = false;
 };
 function resetCanvases() {
-    var scale = dpr*(settings.renderQuality/100);
-    LAYERS.map0.width = window.innerWidth*scale;
-    LAYERS.map0.height = window.innerHeight*scale;
-    LAYERS.mlower.scale(scale, scale);
+    SCALE = (settings.renderQuality/100)*DPR;
+    LAYERS.map0.width = window.innerWidth*SCALE;
+    LAYERS.map0.height = window.innerHeight*SCALE;
+    LAYERS.mlower.scale(SCALE, SCALE);
     resetCanvas(LAYERS.map0);
-    LAYERS.entity0.width = window.innerWidth*scale;
-    LAYERS.entity0.height = window.innerHeight*scale;
-    LAYERS.elower.scale(scale, scale);
-    resetCanvas(LAYERS.entity0);
-    LAYERS.map1.width = window.innerWidth*scale;
-    LAYERS.map1.height = window.innerHeight*scale;
-    LAYERS.mupper.scale(scale, scale);
+    for (var i in LAYERS.mapvariables) {
+        LAYERS.mapvariables[i].width = window.innerWidth*SCALE;
+        LAYERS.mapvariables[i].height = window.innerHeight*SCALE;
+        LAYERS.mvariables[i].scale(SCALE, SCALE);
+        resetCanvas(LAYERS.mapvariables[i]);
+    }
+    for (var i in LAYERS.entitylayers) {
+        LAYERS.entitylayers[i].width = window.innerWidth*SCALE;
+        LAYERS.entitylayers[i].height = window.innerHeight*SCALE;
+        LAYERS.elayers[i].scale(SCALE, SCALE);
+        resetCanvas(LAYERS.entitylayers[i]);
+    }
+    LAYERS.map1.width = window.innerWidth*SCALE;
+    LAYERS.map1.height = window.innerHeight*SCALE;
+    LAYERS.mupper.scale(SCALE, SCALE);
     resetCanvas(LAYERS.map1);
-    LAYERS.entity1.width = window.innerWidth*scale;
-    LAYERS.entity1.height = window.innerHeight*scale;
-    LAYERS.eupper.scale(scale, scale);
+    LAYERS.entity1.width = window.innerWidth*SCALE;
+    LAYERS.entity1.height = window.innerHeight*SCALE;
+    LAYERS.eupper.scale(SCALE, SCALE);
     resetCanvas(LAYERS.entity1);
-    CTXRAW.width = window.innerWidth*scale;
-    CTXRAW.height = window.innerHeight*scale;
-    CTX.scale(scale, scale);
+    CTXRAW.width = window.innerWidth*SCALE;
+    CTXRAW.height = window.innerHeight*SCALE;
+    CTX.scale(SCALE, SCALE);
     resetCanvas(CTXRAW);
     for (var i in MAPS) {
         for (var j in MAPS[i].chunks) {
@@ -148,6 +189,17 @@ socket.on('disconnected', function() {
     document.getElementById('disconnectedContainer').style.display = 'block';
     socket.emit('disconnected');
 });
+
+// pointer lock
+var pointerLocked = false;
+setInterval(function() {
+    if (document.pointerLockElement == document.body) pointerLocked = true;
+    else {
+        pointerLocked = false;
+        document.getElementById('crossHair').style.top = '-11px';
+        document.getElementById('crossHair').style.left = '-11px';
+    }
+}, 50);
 
 // not rickrolling
 const onevent = socket.onevent;

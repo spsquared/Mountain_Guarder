@@ -107,5 +107,6 @@ dist
 # TernJS port file
 .tern-port
 
-# Private database URL
+# Private database URI & Discord webhook URI
 server/url.js
+server/token.js

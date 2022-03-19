@@ -178,10 +178,10 @@ Inventory = function(socket, player) {
                 var y = player.y+Math.sin(angle)*distance;
                 var collisions = [];
                 if (Collision.grid[self.map]) {
-                    for (var x = self.gridx+1; x >= self.gridx-1; x--) {
-                        for (var y = self.gridy+1; y >= self.gridy-1; y--) {
-                            if (Collision.grid[self.map][y]) if (Collision.grid[self.map][y][x])
-                            collisions.push(Collision.getColEntity(self.map, x, y));
+                    for (var checkx = self.gridx-1; checkx <= self.gridx+1; checkx++) {
+                        for (var checky = self.gridy-1; checky <= self.gridy+1; checky++) {
+                            if (Collision.grid[self.map][checky]) if (Collision.grid[self.map][checky][checkx])
+                            collisions.push(Collision.getColEntity(self.map, checkx, checky));
                         }
                     }
                 }

@@ -16,7 +16,7 @@
         "damageType": "ranged",
         "critChance": 0.02,
         "critPower": 0.02,
-        "knockback": 1.5,
+        "knockback": 1,
         "useTime": 10,
         "manaCost": 0,
         "effects": [],
@@ -37,7 +37,7 @@
         "damageType": "melee",
         "critChance": 0.1,
         "critPower": 0.15,
-        "knockback": 4,
+        "knockback": 1,
         "useTime": 15,
         "manaCost": 0,
         "effects": [],
@@ -57,7 +57,7 @@
         "damageType": "magic",
         "critChance": 0.05,
         "critPower": 0.1,
-        "knockback": 0,
+        "knockback": 1,
         "useTime": 10,
         "manaCost": 10,
         "effects": [],
@@ -177,16 +177,16 @@
     },
     "steelbow": {
         "slotType": "weapon",
-        "rarity": 2,
+        "rarity": 1,
         "projectile": "arrow",
-        "projectilePattern": "double",
+        "projectilePattern": "single",
         "projectileSpeed": 1,
         "projectileRange": 1,
         "damage": 12,
         "damageType": "ranged",
         "critChance": 0.04,
         "critPower": 0.05,
-        "knockback": 2,
+        "knockback": 1.5,
         "useTime": 10,
         "manaCost": 0,
         "effects": [],
@@ -198,7 +198,7 @@
     },
     "steelbroadsword": {
         "slotType": "weapon",
-        "rarity": 2,
+        "rarity": 1,
         "projectile": "meleedamage",
         "projectilePattern": "single",
         "projectileSpeed": 1,
@@ -207,7 +207,7 @@
         "damageType": "melee",
         "critChance": 0.15,
         "critPower": 0.2,
-        "knockback": 3,
+        "knockback": 1,
         "useTime": 12,
         "manaCost": 0,
         "effects": [],
@@ -219,7 +219,7 @@
     },
     "steelcutlass": {
         "slotType": "weapon",
-        "rarity": 2,
+        "rarity": 1,
         "projectile": "meleedamage",
         "projectilePattern": "single",
         "projectileSpeed": 1,
@@ -228,7 +228,7 @@
         "damageType": "melee",
         "critChance": 0.15,
         "critPower": 0.18,
-        "knockback": 2,
+        "knockback": 1,
         "useTime": 30,
         "manaCost": 0,
         "effects": [],
@@ -240,7 +240,7 @@
     },
     "steelstaff": {
         "slotType": "weapon",
-        "rarity": 2,
+        "rarity": 1,
         "projectile": "magicball",
         "projectilePattern": "line",
         "projectileSpeed": 1.2,
@@ -249,7 +249,7 @@
         "damageType": "magic",
         "critChance": 0.1,
         "critPower": 0.08,
-        "knockback": 0,
+        "knockback": 1,
         "useTime": 10,
         "manaCost": 9,
         "effects": [],
@@ -262,7 +262,7 @@
     },
     "simplewizardhat": {
         "slotType": "helmet",
-        "rarity": 2,
+        "rarity": 1,
         "effects": [
             {
                 "id": "rangedDamage",
@@ -290,7 +290,7 @@
     },
     "whitefabrichood": {
         "slotType": "helmet",
-        "rarity": 2,
+        "rarity": 1,
         "effects": [
             {
                 "id": "rangedDamage",
@@ -313,7 +313,7 @@
     },
     "steelhelmet": {
         "slotType": "helmet",
-        "rarity": 2,
+        "rarity": 1,
         "effects": [
             {
                 "id": "rangedDamage",
@@ -344,7 +344,7 @@
     },
     "steelarmor": {
         "slotType": "armor",
-        "rarity": 2,
+        "rarity": 1,
         "effects": [
             {
                 "id": "meleeDamage",
@@ -367,7 +367,7 @@
     },
     "titaniumstaff": {
         "slotType": "weapon",
-        "rarity": 3,
+        "rarity": 2,
         "projectile": "magicballnoclip",
         "projectilePattern": "line",
         "projectileSpeed": 1.2,
@@ -376,7 +376,7 @@
         "damageType": "magic",
         "critChance": 0.1,
         "critPower": 0.3,
-        "knockback": 0,
+        "knockback": 1,
         "useTime": 8,
         "manaCost": 10,
         "effects": [],

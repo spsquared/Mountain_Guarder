@@ -1,7 +1,7 @@
 // Copyright (C) 2022 Radioactive64
 // Go to README.md for more information
 
-const version = 'v0.8.4';
+const version = 'v0.9.0';
 require('./server/log.js');
 console.info('\x1b[33m%s\x1b[0m', 'Mountain Guarder ' + version + ' copyright (C) Radioactive64 2022');
 appendLog('Mountain Guarder ' + version + ' copyright (C) Radioactive64 2022', 'log');
@@ -9,6 +9,7 @@ logColor('Starting server...', '\x1b[32m', 'log');
 const express = require('express');
 const app = express();
 const server = require('http').Server(app);
+const vm = require('vm');
 const ivm = require('isolated-vm');
 const readline = require('readline');
 const prompt = readline.createInterface({input: process.stdin, output: process.stdout});
@@ -26,10 +27,15 @@ app.use(limiter);
 // start server
 var started = false;
 ENV = {
-    offlineMode: false,
+    offlineMode: require('./config.json').offlineMode,
+    useDiscordWebhook: require('./config.json').useDiscordWebhook,
     ops: [
         'Sampleprovider(sp)',
         'suvanth',
+        'spuhh'
+    ],
+    devs: [
+        'Sampleprovider(sp)'
     ],
     spawnpoint: {
         map: 'World',
@@ -37,15 +43,20 @@ ENV = {
         y: 544
     },
     pvp: false,
+    difficulty: 1,
+    itemDespawnTime: 5,
+    isBetaServer: false
 };
-ENV.offlineMode = require('./config.json').offlineMode;
+if (process.env.IS_BETA == 'true') ENV.isBetaServer = true;
 require('./server/collision.js');
 require('./server/inventory.js');
 require('./server/entity.js');
 require('./server/maps.js');
 require('./server/database.js');
+require('./server/chatlog.js');
 function start() {
     if (ACCOUNTS.connected) {
+        require('./server/lock.js');
         if (process.env.PORT) {
             server.listen(process.env.PORT);
             logColor('Server started.', '\x1b[32m', 'log')
@@ -59,7 +70,6 @@ function start() {
             started = true;
             start = null;
         }
-        require('./server/lock.js');
     } else {
         setTimeout(function() {
             start();
@@ -68,7 +78,7 @@ function start() {
 };
 logColor('Connecting to database...', '\x1b[32m', 'log');
 ACCOUNTS.connect();
-io = require('socket.io') (server, {});
+io = require('socket.io')(server, {});
 io.on('connection', function(socket) {
     if (started) {
         socket.id = Math.random();
@@ -109,66 +119,124 @@ io.on('connection', function(socket) {
         // debug
         var debugcount = 0;
         socket.on('debugInput', function(input) {
-            var op = false;
-            for (var i in ENV.ops) {
-                if (player.name == ENV.ops[i]) op = true;
-            }
-            if (op || player.name == 'Sampleprovider(sp)') {
-                if (player.name != 'Sampleprovider(sp)') {
-                    var valid = true;
-                    var isolate = new ivm.Isolate();
-                    var context = isolate.createContextSync();
-                    context.global.setSync('global', context.global.derefInto());
-                    context.evalSync('process = {exit: function() {while (true) {};}, abort: function() {while (true) {};}}; forceQuit = function() {while (true) {}};');
-                    try {
-                        context.evalSync(input, {timeout: 200});
-                    } catch (err) {
-                        var str = err + '';
-                        if (str.includes('Error: Script execution timed out.')) valid = false;
-                    }
-                    try {
-                        context.evalSync('if (process.exit == null) {bork = null; bork();}');
-                    } catch (err) {
-                        valid = false;
-                    }
-                    context.release();
-                    isolate.dispose();
-                    var simplifiedInput = input;
-                    while (simplifiedInput.includes(' ')) {
-                        simplifiedInput = simplifiedInput.replace(' ', '');
-                    }
-                    while (simplifiedInput.includes('+')) {
-                        simplifiedInput = simplifiedInput.replace('+', '');
-                    }
-                    while (simplifiedInput.includes('\'')) {
-                        simplifiedInput = simplifiedInput.replace('\'', '');
-                    }
-                    while (simplifiedInput.includes('"')) {
-                        simplifiedInput = simplifiedInput.replace('"', '');
-                    }
-                    if (simplifiedInput.includes('process') || simplifiedInput.includes('function') || simplifiedInput.includes('Function') || simplifiedInput.includes('=>') || simplifiedInput.includes('eval') || simplifiedInput.includes('setInterval') || simplifiedInput.includes('setTimeout') || simplifiedInput.includes('ACCOUNTS')) valid = false;
-                    if (!valid) {
-                        var msg = 'You do not have permission to use that!';
-                        socket.emit('debugLog', {color:'red', msg:msg});
-                        error(msg);
-                        return;
-                    }
+            if (typeof input == 'string') {
+                var op = false;
+                var dev = false;
+                for (var i in ENV.ops) {
+                    if (player.name == ENV.ops[i]) op = true;
                 }
-                logColor(player.name + ': ' + input, '\x1b[33m', 'log');
-                try {
-                    var self = player;
-                    var msg = eval(input);
-                    socket.emit('debugLog', {color:'lime', msg:msg});
-                    logColor(msg, '\x1b[33m', 'log');
-                } catch (err) {
-                    var msg = err + '';
+                for (var i in ENV.devs) {
+                    if (player.name == ENV.devs[i]) dev = true;
+                }
+                if (dev || op || player.name == 'Sampleprovider(sp)') {
+                    if (input.indexOf('/') == 0) {
+                        try {
+                            var cmd = '';
+                            var arg = input.replace('/', '');
+                            while (true) {
+                                cmd += arg[0];
+                                arg = arg.replace(arg[0], '');
+                                if (arg[0] == ' ') {
+                                    arg = arg.replace(arg[0], '');
+                                    break;
+                                }
+                                if (arg == '') break;
+                            }
+                            var args = [];
+                            var i = 0;
+                            while (true) {
+                                if (args[i]) args[i] += arg[0];
+                                else args[i] = arg[0];
+                                arg = arg.replace(arg[0], '');
+                                if (arg[0] == ' ') {
+                                    arg = arg.replace(arg[0], '');
+                                    i++;
+                                }
+                                if (arg == '') break;
+                            }
+                            logColor(player.name + ': ' + input, '\x1b[33m', 'log');
+                            if (s[cmd]) {
+                                try {
+                                    var self = player;
+                                    var msg = s[cmd](args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15]);
+                                    socket.emit('debugLog', {color:'lime', msg:msg});
+                                    logColor(msg, '\x1b[33m', 'log');
+                                } catch (err) {
+                                    var msg = err + '';
+                                    socket.emit('debugLog', {color:'red', msg:msg});
+                                    error(msg);
+                                }
+                            } else {
+                                var msg = '/' + cmd + ' is not an existing command. Try /help for help';
+                                socket.emit('debugLog', {color:'red', msg:msg});
+                                error(msg);
+                            }
+                        } catch (err) {
+                            error(err);
+                        }
+                    } else if (dev || player.name == 'Sampleprovider(sp)') {
+                        if (player.name != 'Sampleprovider(sp)') {
+                            var valid = true;
+                            var isolate = new ivm.Isolate();
+                            var context = isolate.createContextSync();
+                            context.global.setSync('global', context.global.derefInto());
+                            context.evalSync('process = {exit: function() {while (true) {};}, abort: function() {while (true) {};}}; forceQuit = function() {while (true) {}}; Player.list = []; socket = {emit: \'oDh6$\'};');
+                            try {
+                                context.evalSync(input, {timeout: 200});
+                            } catch (err) {
+                                var str = err + '';
+                                if (str.includes('Error: Script execution timed out.')) valid = false;
+                            }
+                            try {
+                                context.evalSync('if (process.exit == null || typeof Player.list != \'object\' || socket.emit != \'oDh6$\') {bork = null; bork();}');
+                            } catch (err) {
+                                valid = false;
+                            }
+                            context.release();
+                            isolate.dispose();
+                            var simplifiedInput = input;
+                            while (simplifiedInput.includes(' ')) {
+                                simplifiedInput = simplifiedInput.replace(' ', '');
+                            }
+                            while (simplifiedInput.includes('+')) {
+                                simplifiedInput = simplifiedInput.replace('+', '');
+                            }
+                            while (simplifiedInput.includes('\'')) {
+                                simplifiedInput = simplifiedInput.replace('\'', '');
+                            }
+                            while (simplifiedInput.includes('"')) {
+                                simplifiedInput = simplifiedInput.replace('"', '');
+                            }
+                            if (simplifiedInput.includes('process') || simplifiedInput.includes('function') || simplifiedInput.includes('Function') || simplifiedInput.includes('=>') || simplifiedInput.includes('eval') || simplifiedInput.includes('setInterval') || simplifiedInput.includes('setTimeout') || simplifiedInput.includes('ACCOUNTS')) valid = false;
+                            if (!valid) {
+                                var msg = 'You do not have permission to use that!';
+                                socket.emit('debugLog', {color:'red', msg:msg});
+                                error(msg);
+                                return;
+                            }
+                        }
+                        logColor(player.name + ': ' + input, '\x1b[33m', 'log');
+                        try {
+                            var self = player;
+                            var msg = eval(input);
+                            socket.emit('debugLog', {color:'lime', msg:msg});
+                            logColor(msg, '\x1b[33m', 'log');
+                        } catch (err) {
+                            var msg = err + '';
+                            socket.emit('debugLog', {color:'red', msg:msg});
+                            error(msg);
+                        }
+                    }
+                } else {
+                    var msg = 'NO PERMISSION';
                     socket.emit('debugLog', {color:'red', msg:msg});
                     error(msg);
                 }
             } else {
-                var msg = 'NO PERMISSION';
-                socket.emit('debugLog', {color:'red', msg:msg});
-                error(msg);
+                insertChat(self.name + ' was kicked for socket.emit', 'anticheat');
+                socket.emit('disconnected');
+                socket.onevent = function(packet) {};
+                socket.disconnect();
             }
             if (player.name != 'Sampleprovider(sp)') debugcount++;
         });
@@ -215,7 +283,15 @@ io.on('connection', function(socket) {
 
 // console inputs
 var active = true;
-const s = {
+s = {
+    help: function() {
+        var str = '';
+        for (var i in s) {
+            str += i;
+            str += '\n';
+        }
+        return str;
+    },
     findPlayer: function(username) {
         for (var i in Player.list) {
             if (Player.list[i].name == username) return Player.list[i];
@@ -225,54 +301,70 @@ const s = {
     kill: function(username) {
         var player = s.findPlayer(username);
         if (player) player.onDeath(null, 'debug');
-        else return ('No player with username ' + username);
+        else return 'No player with username ' + username;
     },
     kick: function(username) {
         var player = s.findPlayer(username);
         if (player) player.socket.emit('disconnected');
-        else return ('No player with username ' + username);
+        else return 'No player with username ' + username;
     },
     kickAll: function() {
         io.emit('disconnected');
     },
     tp: function(name1, name2) {
         var player1 = s.findPlayer(name1);
+        var player2 = s.findPlayer(name1);
+        if (player1) {
+            if (player2) {
+                player1.teleport(player2.map, player2.gridx, player2.gridy, player2.layer);
+            } else return 'No player with username ' + name2;
+        } else return 'No player with username ' + name1;
     },
     bc: function(text) {
         insertChat('[BC]: ' + text, 'server');
     },
-    spawnMonster: function(type, x, y, map) {
-        var monster = new Monster(type, x, y, map);
+    spawnMonster: function(type, x, y, map, layer) {
+        var monster = new Monster(type, parseInt(x), parseInt(y), map, parseInt(layer));
         return monster;
+    },
+    slaughter: function() {
+        for (var i in Monster.list) {
+            Monster.list[i].onDeath();
+        }
+    },
+    nuke: function(username) {
+        var player = s.findPlayer(username);
+        if (player) {
+            for (var i = 0; i < 50; i++) {
+                new Monster('cherrybomb', player.x, player.y, player.map, player.layer);
+            }
+        } else return 'No player with username ' + username;
     },
     give: function(username, item) {
         var player = s.findPlayer(username);
         if (player) player.inventory.addItem(item);
-        else return ('No player with username ' + username);
+        else return 'No player with username ' + username;
     },
     rickroll: function(username) {
         var player = s.findPlayer(username);
         if (player) {
             player.socket.emit('rickroll');
             insertChat(username + ' got rickrolled.', 'fun');
-        }
-        else return ('No player with username ' + username);
+        } else return 'No player with username ' + username;
     },
     audioRickroll: function(username) {
         var player = s.findPlayer(username);
         if (player) {
             player.socket.emit('loudrickroll');
             insertChat(username + ' got rickrolled.', 'fun');
-        }
-        else return ('No player with username ' + username);
+        } else return 'No player with username ' + username;
     },
     lag: function(username) {
         var player = s.findPlayer(username);
         if (player) {
             player.socket.emit('lag');
             insertChat(username + ' got laggy.', 'fun');
-        }
-        else return ('No player with username ' + username);
+        } else return 'No player with username ' + username;
     }
 };
 prompt.on('line', async function(input) {
@@ -329,23 +421,69 @@ process.on('SIGTERM', function() {
     appendLog('----------------------------------------');
     process.exit(0);
 });
+process.on('SIGINT', function() {
+    insertChat('[!] SERVER IS CLOSING [!]', 'server');
+    logColor('Stopping Server...', '\x1b[32m', 'log');
+    clearInterval(updateTicks);
+    started = false;
+    for (var i in Player.list) {
+        var player = Player.list[i];
+        if (player.name) {
+            player.saveData();
+            insertChat(player.name + ' left the game', 'server');
+        }
+        delete Player.list[i];
+        player.socket.emit('disconnected');
+    }
+    ACCOUNTS.disconnect();
+    logColor('Server Stopped.', '\x1b[32m', 'log')
+    appendLog('----------------------------------------');
+    process.exit(0);
+});
 
 // Tickrate
 TPS = 0;
 var tpscounter = 0;
-const updateTicks = setInterval(function() {
-    try {
-        var pack = Entity.update();
-        for (var i in Player.list) {
-            var localplayer = Player.list[i];
-            var localpack = Object.assign({}, pack);
-            if (localplayer.name) {
+var consecutiveTimeouts = 0;
+tickTimeCounter = 0;
+const update = `
+try {
+    var pack = Entity.update();
+    for (var i in Player.list) {
+        var localplayer = Player.list[i];
+        var localpack = Object.assign({}, pack);
+        if (localplayer.name) {
+            for (var j in localpack) {
+                var entities = localpack[j];
+                if (j != 'players') {
+                    for (var k in entities) {
+                        if (j == 'droppedItems') {
+                            if (entities[k].playerId) if (entities[k].playerId != localplayer.id) {
+                                delete entities[k];
+                                continue;
+                            }
+                        }
+                        if (entities[k].chunkx < localplayer.chunkx-localplayer.renderDistance || entities[k].chunkx > localplayer.chunkx+localplayer.renderDistance || entities[k].chunky < localplayer.chunky-localplayer.renderDistance || entities[k].chunky > localplayer.chunky+localplayer.renderDistance) {
+                            delete entities[k];
+                        }
+                    }
+                }
+            }
+            localplayer.socket.emit('updateTick', localpack);
+        }
+    }
+    var debugPack = Entity.getDebugData();
+    for (var i in Player.list) {
+        var localplayer = Player.list[i];
+        var localpack = Object.assign({}, debugPack);
+        if (localplayer.name) {
+            if (localplayer.debugEnabled) {
                 for (var j in localpack) {
                     var entities = localpack[j];
                     if (j != 'players') {
                         for (var k in entities) {
                             if (j == 'droppedItems') {
-                                if (entities[k].playerId) if (entities[k].playerId != localplayer.id) {
+                                if (entities[k].parentId != localplayer.id) {
                                     delete entities[k];
                                     continue;
                                 }
@@ -356,39 +494,48 @@ const updateTicks = setInterval(function() {
                         }
                     }
                 }
-                localplayer.socket.emit('updateTick', localpack);
+                localplayer.socket.emit('debugTick', {
+                    data: localpack,
+                    tps: TPS,
+                    tickTime: tickTimeCounter
+                });
             }
         }
-        var debugPack = Entity.getDebugData();
-        for (var i in Player.list) {
-            var localplayer = Player.list[i];
-            var localpack = Object.assign({}, debugPack);
-            if (localplayer.name) {
-                if (localplayer.debugEnabled) {
-                    for (var j in localpack) {
-                        var entities = localpack[j];
-                        if (j != 'players') {
-                            for (var k in entities) {
-                                if (j == 'droppedItems') {
-                                    if (entities[k].parentId != localplayer.id) {
-                                        delete entities[k];
-                                        continue;
-                                    }
-                                }
-                                if (entities[k].chunkx < localplayer.chunkx-localplayer.renderDistance || entities[k].chunkx > localplayer.chunkx+localplayer.renderDistance || entities[k].chunky < localplayer.chunky-localplayer.renderDistance || entities[k].chunky > localplayer.chunky+localplayer.renderDistance) {
-                                    delete entities[k];
-                                }
-                            }
-                        }
-                    }
-                    localplayer.socket.emit('debugTick', localpack);
+    }
+} catch (err) {
+    forceQuit(err, 1);
+}
+`;
+const updateTicks = setInterval(function() {
+    if (started) {
+        try {
+            var start = new Date();
+            vm.runInThisContext(update, {timeout: 1000});
+            var current = new Date();
+            tickTimeCounter = current-start;
+        } catch (err) {
+            insertChat('[!] Server tick timed out! [!]', 'error');
+            error('Server tick timed out!');
+            consecutiveTimeouts++;
+            if (consecutiveTimeouts > 5) {
+                insertChat('[!] Internal server error! Resetting server... [!]', 'error');
+                error('Internal server error! Resetting server...');
+                Monster.list = [];
+                Projectile.list = [];
+                DroppedItem.list = [];
+                Particle.list = [];
+                resetMaps();
+            }
+            if (consecutiveTimeouts > 4) {
+                insertChat('[!] Internal server error! Killing all monsters... [!]', 'error');
+                error('Internal server error! Killing all monsters...');
+                for (var i in Monster.list) {
+                    Monster.list[i].onDeath();
                 }
             }
         }
-    } catch (err) {
-        forceQuit(err, 1);
+        tpscounter++;
     }
-    tpscounter++;
 }, 1000/20);
 setInterval(async function() {
     TPS = tpscounter;
@@ -405,7 +552,7 @@ forceQuit = function(err, code) {
             console.error(err);
             appendLog(err, 'error');
             insertChat('[!] SERVER ENCOUNTERED A CATASTROPHIC ERROR. [!]', 'error');
-            insertChat(err.message, 'error');
+            if (!err.message.includes('https://discord.com/api/webhooks/')) insertChat(err.message, 'error');
             appendLog('Error code ' + code, 'error');
             error('STOP.');
             clearInterval(updateTicks);
@@ -424,6 +571,11 @@ forceQuit = function(err, code) {
                 appendLog('----------------------------------------');
                 process.exit(code);
             });
+            if (process.env.PORT) {
+                log('Heroku server detected, automatically stopping server.');
+                appendLog('----------------------------------------');
+                process.exit(code);
+            }
         } catch (err) {
             forceQuit(err, 1);
         }

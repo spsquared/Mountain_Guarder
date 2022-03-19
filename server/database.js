@@ -3,7 +3,6 @@
 const bcrypt = require('bcrypt');
 const salt = 10;
 const {Client} = require('pg');
-url = null;
 if (process.env.DATABASE_URL) {
     url = process.env.DATABASE_URL;
 } else {
@@ -29,8 +28,6 @@ ACCOUNTS = {
             } else {
                 try {
                     await database.connect();
-                    // database.query('ALTER TABLE users ADD COLLUMN hardwareid varchar(255)')
-                    await webHookURL();
                     ACCOUNTS.connected = true;
                 } catch (err) {
                     forceQuit(err, 2);
@@ -56,9 +53,11 @@ ACCOUNTS = {
         if (ENV.offlineMode) return 0;
         if (username == 'unavailable') return 3;
         if (await getCredentials(username) == false) {
-            var status = await writeCredentials(username, password);
-            if (status) {
-                return 0;
+            if (typeof username == 'string' && typeof password == 'string') {
+                var status = await writeCredentials(username, password);
+                if (status) {
+                    return 0;
+                }
             }
             warn('Failed to sign up!');
             return 2;
@@ -240,7 +239,7 @@ async function writeCredentials(username, password) {
     }
     return false;
 };
-async function deleteCredentials(username,) {
+async function deleteCredentials(username) {
     try {
         await database.query('DELETE FROM users WHERE username=$1;', [username]);
         return true;
@@ -293,15 +292,4 @@ async function updateProgress(username, password, data) {
         }
     }
     return false;
-};
-
-// bot token
-async function webHookURL() {
-    const data = await database.query('SELECT token FROM webhook;');
-    if (data.rows[0]) {
-        url = data.rows[0].token;
-        require('./chatlog.js');
-        url = null;
-    }
-    webHookURL = null;
 };

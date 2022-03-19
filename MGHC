@@ -1,9 +1,10 @@
 javascript:
+if (hacks == null)
 var hacks = document.createElement('div');
-hacks.innerHTML = '<div style="display: block; position: absolute; top: 100px;"><div><button id="Mtracers" class="ui-lightbutton" style="background-color: #FFFFFFAA; color: black;" onclick="toggleMTracers();">Monster Tracers</button><button id="Mattack" class="ui-lightbutton" style="background-color: #FFFFFFAA; color: black;" onclick="toggleMAttack();">Attack Monsters</button></div><div><button id="autopickup" class="ui-lightbutton" style="background-color: #FFFFFFAA; color: black;" onclick="toggleItemPickup();">Auto Item Pickup</button><button id="skiptpwait" class="ui-lightbutton" style="background-color: #FFFFFFAA; color: black;" onclick="toggleSkipTpWait();">Skip TP Fade</button></div><div><button id="autoheal" class="ui-lightbutton" style="background-color: #FFFFFFAA; color: black;" onclick="toggleHeal();">Auto Heal</button><button id="autorespawn" class="ui-lightbutton" style="background-color: #FFFFFFAA; color: black;" onclick="toggleRespawn();">Auto Respawn</button></div><div><button id="rickroll" class="ui-lightbutton" style="background-color: #FFFFFFAA; color: black;" onclick="disableRickrolls();">Disable Rickrolls</button></div></div>';
+hacks.innerHTML = '<div style="display: block; position: absolute; top: 100px;"><div><button id="Mtracers" class="ui-lightbutton" style="background-color: #FFFFFFAA; color: black;" onclick="toggleMTracers();">Monster Tracers</button><button id="Mattack" class="ui-lightbutton" style="background-color: #FFFFFFAA; color: black;" onclick="cycleMAttack();">Auto Kill - off</button></div><div><button id="autopickup" class="ui-lightbutton" style="background-color: #FFFFFFAA; color: black;" onclick="toggleItemPickup();">Auto Pickup</button><button id="skiptpwait" class="ui-lightbutton" style="background-color: #FFFFFFAA; color: black;" onclick="toggleSkipTpWait();">Skip TP Fade</button></div><div><button id="autoheal" class="ui-lightbutton" style="background-color: #FFFFFFAA; color: black;" onclick="toggleHeal();">Auto Heal</button><button id="autorespawn" class="ui-lightbutton" style="background-color: #FFFFFFAA; color: black;" onclick="toggleRespawn();">Auto Respawn</button></div><div><button id="rickroll" class="ui-lightbutton" style="background-color: #FFFFFFAA; color: black;" onclick="disableRickrolls();">Disable Rickrolls</button></div></div>';
 document.getElementById('gameContainer').appendChild(hacks);
 var mTracers = false;
-var mAttack = false;
+var mAttack = 0;
 var autopickup = false;
 var skiptpwait = false;
 var autoheal = false;
@@ -19,16 +20,21 @@ function toggleMTracers() {
         mTracers = true;
     }
 };
-function toggleMAttack() {
+function cycleMAttack() {
+    mAttack++;
+    if (mAttack > 2) mAttack = 0;
     if (mAttack) {
-        document.getElementById('Mattack').style.backgroundColor = '#FFFFFFAA';
-        document.getElementById('Mattack').style.color = '#000000';
-        socket.emit('click', {button: 'left', x: mouseX+OFFSETX, y: mouseY+OFFSETY, state: false});
-        mAttack = false;
-    } else {
         document.getElementById('Mattack').style.backgroundColor = '#000000AA';
         document.getElementById('Mattack').style.color = '#FFFFFF';
-        mAttack = true;
+        if (mAttack == 1) {
+            document.getElementById('Mattack').innerText = 'Auto Kill - closest';
+        } else if (mAttack == 2) {
+            document.getElementById('Mattack').innerText = 'Auto Kill - highest HP';
+        }
+    } else {
+        document.getElementById('Mattack').style.backgroundColor = '#FFFFFFAA';
+        document.getElementById('Mattack').style.color = '#000000';
+        document.getElementById('Mattack').innerText = 'Auto Kill - off';
     }
 };
 function toggleItemPickup() {
@@ -46,7 +52,7 @@ function toggleSkipTpWait() {
     if (skiptpwait) {
         document.getElementById('skiptpwait').style.backgroundColor = '#FFFFFFAA';
         document.getElementById('skiptpwait').style.color = '#000000';
-        autopickup = false;
+        skiptpwait = false;
     } else {
         document.getElementById('skiptpwait').style.backgroundColor = '#000000AA';
         document.getElementById('skiptpwait').style.color = '#FFFFFF';
@@ -122,7 +128,11 @@ MGHC = function() {
         var lowest = null;
         for (var i in Monster.list) {
             if (lowest == null && Monster.list[i].map == player.map) lowest = i;
-            if (lowest) if (Monster.list[i].map == player.map && getDistance(Monster.list[i]) < getDistance(Monster.list[lowest])) lowest = i;
+            if (mAttack == 1) {
+                if (lowest) if (Monster.list[i].map == player.map && getDistance(Monster.list[i]) < getDistance(Monster.list[lowest])) lowest = i;
+            } else if (mAttack == 2) {
+                if (lowest) if (Monster.list[i].map == player.map && Monster.list[i].hp > Monster.list[lowest].hp) lowest = i;
+            }
         }
         if (lowest) {
             socket.emit('click', {button: 'left', x: Monster.list[lowest].x-player.x, y: Monster.list[lowest].y-player.y, state: true});
@@ -154,7 +164,7 @@ document.onmousemove = function(e) {
         DroppedItem.updateHighlight();
     }
 };
-socket.removeListener('teleport1');
+socket.off('teleport1');
 socket.on('teleport1', function() {
     if (skiptpwait) {
         socket.emit('teleport');
@@ -167,20 +177,23 @@ socket.on('teleport1', function() {
         };
     }
 });
-socket.removeListener('teleport2');
+socket.off('teleport2');
 socket.on('teleport2', function(pos) {
     player.map = pos.map;
     player.x = pos.x;
     player.y = pos.y;
-    if (!skiptpwait) {
+    if (skiptpwait) {
+        socket.emit('teleport2');
+    } else {
         document.getElementById('fade').style.animationName = 'fadeOut';
         document.getElementById('fade').onanimationend = function() {
             document.getElementById('fade').style.display = 'none';
+            socket.emit('teleport2');
             document.getElementById('fade').onanimationend = function() {};
         };
     }
 });
-socket.removeListener('playerDied');
+socket.off('playerDied');
 socket.on('playerDied', function() {
     if (autorespawn) {
         setTimeout(function() {

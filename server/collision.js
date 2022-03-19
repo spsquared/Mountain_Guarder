@@ -630,7 +630,7 @@ Spawner = function(map, x, y, layer, types) {
         x: x*64+32,
         y: y*64+32,
         map: map,
-        layer: layer,
+        layer: parseInt(layer),
         types: types
     };
     self.id = Math.random();

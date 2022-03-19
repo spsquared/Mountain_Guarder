@@ -4,8 +4,9 @@ const {lock} = require('object-property-lock');
 // node
 lock(global, ['setInterval', 'setTimeout', 'setImmediate']);
 // app.js
-lock(ENV, ['ops', 'offlineMode']);
+lock(ENV, ['ops', 'devs', 'offlineMode']);
 lock(io);
+lock(s);
 lock(global, ['forceQuit']);
 // database.js
 lock(ACCOUNTS, ['connect', 'disconnect', 'signup', 'login', 'deleteAccount', 'changePassword', 'validateCredentials', 'loadProgress', 'saveProgress']);
@@ -28,4 +29,5 @@ lock(global.Monster, ['update', 'getDebugData']);
 lock(global.Projectile, ['update', 'getDebugData']);
 lock(global.Particle, ['update']);
 lock(global.DroppedItem, ['update', 'getDebugData']);
-
+// misc
+lock(global, ['resetMaps']);
