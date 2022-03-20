@@ -73,6 +73,10 @@
                         insert changes here
                     </div>
                 </div> -->
+                <div class="stack ui-block ui-lighttext">
+                    <div class="ui-lighttext stackHeader">
+                        v0.9.1 - 3/19/22
+                    </div>
                     <div class="ui-lighttext stackBody">
                         Quick patches and finishing some things.
                         <ul>
@@ -1152,13 +1156,19 @@
                                     Dialogue Speed:
                                 </td>
                                 <td>
+                                    <input type="range" id="dialogueSpeedSlider" class="ui-slider" min="1" max="10" value="5" step="1" oninput="slider('dialogueSpeed');">
+                                </td>
+                                <td>
+                                    <div id="dialogueSpeedIndicator" class="ui-lighttext"></div>
+                                </td>
+                            </tr>
                             <!-- <tr>
                                 <td style="text-align: right;">
                                     Pointer Lock:
                                 </td>
                                 <td>
                                     <label class="ui-toggle">
-                                        <input type="checkbox" id="pointerLockToggle" class="ui-toggleInput" onclick="toggle('pointerLock');" checked>
+                                        <input type="checkbox" id="pointerLockToggle" class="ui-toggleInput" onclick="toggle('pointerLock');">
                                         <span class="ui-toggleSlider"></span>
                                     </label>
                                 </td>
