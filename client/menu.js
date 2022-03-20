@@ -478,23 +478,6 @@ function updateSetting(setting) {
                 indicatorText = 'off';
             }
             break;
-        case 'dialogueSpeed':
-            document.getElementById('promptContainer').style.setProperty('--transitionSpeed', ((11-settings.dialogueSpeed)*10) + 'ms');
-            break;
-        case 'pointerLock':
-            return;
-            if (settings.pointerLock) {
-                indicatorText = 'on';
-                document.getElementById('crossHair').style.display = 'block';
-            } else {
-                indicatorText = 'off';
-                document.getElementById('crossHair').style.display = '';
-                if (pointerLocked) document.exitPointerLock();
-            }
-            break;
-        case 'useController':
-            return;
-            break;
         case 'chatBackground':
             if (settings.chatBackground) {
                 document.getElementById('chatText').style.backgroundColor = '#00000055';
@@ -552,8 +535,6 @@ try {
         document.getElementById('renderDistanceSlider').value = settings.renderDistance;
         document.getElementById('renderQualitySlider').value = settings.renderQuality;
         document.getElementById('particlesToggle').checked = settings.particles;
-        document.getElementById('dialogueSpeedSlider').value = settings.dialogueSpeed;
-        document.getElementById('useControllerToggle').checked = settings.useController;
         document.getElementById('chatBackgroundToggle').checked = settings.chatBackground;
         document.getElementById('chatSizeSlider').value = settings.chatSize;
         document.getElementById('highContrastToggle').checked = settings.highContrast;
