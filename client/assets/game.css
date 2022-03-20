@@ -34,24 +34,6 @@
     z-index: 100;
 }
 
-/* region name */
-#regionName {
-    display: none;
-    position: absolute;
-    top: 15%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 60px;
-    color: #362b20;
-    background-color: #725640;
-    border: 2px solid #000000;
-    margin-right: -50%;
-    padding: 8px 20px;
-    animation-duration: 2s;
-    cursor: url('/client/img/assets/crosshair.png') 11 11, crosshair;
-    z-index: 1;
-}
-
 /* bossbars */
 #bossBars {
     position: absolute;
@@ -77,6 +59,54 @@
 }
 .bossBar-text {
     padding-top: -2px;
+}
+
+/* region name */
+#regionName {
+    display: none;
+    position: absolute;
+    top: 15%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 60px;
+    color: #362b20;
+    background-color: #725640;
+    border: 2px solid #000000;
+    margin-right: -50%;
+    padding: 8px 20px;
+    animation-duration: 2s;
+    cursor: url('/client/img/assets/crosshair.png') 11 11, crosshair;
+    z-index: 1;
+}
+
+/* dialogue box */
+#promptContainer {
+    display: none;
+    position: absolute;
+    bottom: 10%;
+    left: 25%;
+    width: 50%;
+    z-index: 1;
+    --transitionSpeed: 120ms;
+}
+#promptText {
+    margin: 4px 8px;
+}
+.promptChoice {
+    width: calc(100% - 28px);
+    margin: 8px 8px;
+    text-align: left;
+}
+.promptFade {
+    animation: promptFade var(--transitionSpeed);
+}
+@keyframes promptFade {
+    from {
+        color: transparent;
+    }
+    to {
+        color: white;
+    }
 }
 
 /* fade */
@@ -250,6 +280,7 @@
     height: 160px;
     border: 1px solid black;
     padding: 0px 4px;
+    cursor: url('/client/img/assets/crosshair.png') 11 11, crosshair;
     z-index: 4;
 }
 #chatText {
@@ -262,7 +293,6 @@
     overflow-y: scroll;
     overflow-x: clip;
     overflow-wrap: break-word;
-    cursor: url('/client/img/assets/crosshair.png') 11 11, crosshair;
 }
 #chatInput {
     position: absolute;
@@ -331,7 +361,6 @@
     top: 36px;
     left: 8px;
     max-height: calc(100% - 44px);
-    overflow-y: auto;
 }
 .window .window-select {
     position: absolute;
@@ -539,6 +568,9 @@
     height: 200px;
     border: 2px solid black;
 }
+.keyBindButton {
+    min-width: 80px;
+}
 
 /* debug console */
 #debugConsole {
@@ -567,14 +599,20 @@
 }
 .experimental::after {
     content: 'Experimental!';
+    position: absolute;
+    height: 24px;
     color: red;
     background-color: black;
-    border-radius: 10px;
-    height: 20px;
+    opacity: 0;
+    transition: opacity 0.2s linear;
+    border-radius: 5px;
+    padding: 4px 4px;
+    margin-left: 4px;
+    z-index: 4170000000;
+    pointer-events: none;
 }
-.experimental:hover .experimental::after {
-    position: relative;
-    display: block;
+.experimental:hover::after {
+    opacity: 1;
 }
 
 /* spuhctator div */

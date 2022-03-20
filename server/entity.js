@@ -377,11 +377,15 @@ Rig = function() {
     var self = new Entity();
     self.width = 32;
     self.height = 32;
-    self.keys = {
+    self.controls = {
         up: false,
         down: false,
         left: false,
         right: false,
+        xaxis: 0,
+        yaxis: 0,
+        x: 0,
+        y: 0,
         heal: false
     };
     self.xmove = 0;
@@ -479,7 +483,7 @@ Rig = function() {
             self.hp = Math.min(self.hp+1, self.maxHP);
             self.lastAutoHeal = 0;
         }
-        if (self.keys.heal && self.hp < self.maxHP && self.lastHeal >= seconds(0.5) && self.mana >= 10) {
+        if (self.controls.heal && self.hp < self.maxHP && self.lastHeal >= seconds(0.5) && self.mana >= 10) {
             var oldhp = self.hp;
             self.lastHeal = 0;
             self.hp = Math.min(self.hp+20, self.maxHP);
@@ -509,21 +513,27 @@ Rig = function() {
                 else if (self.ai.idleMove != 'none') self.ai.pathIdle();
                 else self.ai.path = [];
             }
-            self.keys = {
+            self.controls = {
                 up: false,
                 down: false,
                 left: false,
                 right: false,
+                xaxis: 0,
+                yaxis: 0,
+                x: 0,
+                y: 0,
                 heal: false
             };
         } else {
             if (self.slowedDown) self.moveSpeed *= 0.5;
-            self.xmove = 0;
-            self.ymove = 0;
-            if (self.keys.up) self.ymove = -self.moveSpeed;
-            if (self.keys.down) self.ymove = self.moveSpeed;
-            if (self.keys.left) self.xmove = -self.moveSpeed;
-            if (self.keys.right) self.xmove = self.moveSpeed;
+            self.controls.x = self.controls.xaxis;
+            self.controls.y = self.controls.yaxis;
+            if (self.controls.up) self.controls.y = Math.max(-1, Math.min(self.controls.y-1, 1));
+            if (self.controls.down) self.controls.y = Math.max(-1, Math.min(self.controls.y+1, 1));
+            if (self.controls.left) self.controls.x = Math.max(-1, Math.min(self.controls.x-1, 1));
+            if (self.controls.right) self.controls.x = Math.max(-1, Math.min(self.controls.x+1, 1));
+            self.xmove = self.controls.x*self.moveSpeed;
+            self.ymove = self.controls.y*self.moveSpeed;
             if (self.slowedDown) self.moveSpeed *= 2;
         }
         self.xspeed = Math.round(self.xmove+self.xknockback);
@@ -534,17 +544,36 @@ Rig = function() {
         if (0-Math.abs(self.xknockback) > -0.5) self.xknockback = 0;
         if (0-Math.abs(self.yknockback) > -0.5) self.yknockback = 0;
         self.animationDirection = 'facing';
-        if (self.keys.up) self.animationDirection = 'up';
-        if (self.keys.down) self.animationDirection = 'down';
-        if (self.keys.left) {
-            if (self.keys.down) self.animationDirection = 'downleft';
-            else if (self.keys.up) self.animationDirection = 'upleft';
-            else self.animationDirection = 'left';
-        }
-        if (self.keys.right) {
-            if (self.keys.down) self.animationDirection = 'downright';
-            else if (self.keys.up) self.animationDirection = 'upright';
-            else self.animationDirection = 'right';
+        if (self.controls.x || self.controls.y) {
+            var dir = Math.round(radians(Math.atan2(self.controls.y, self.controls.x))/45);
+            if (dir <= 0) dir = 8-Math.abs(dir);
+            if (dir == 8) dir = 0;
+            switch (dir) {
+                case 0:
+                    self.animationDirection = 'right';
+                    break;
+                case 1:
+                    self.animationDirection = 'downright';
+                    break;
+                case 2:
+                    self.animationDirection = 'down';
+                    break;
+                case 3:
+                    self.animationDirection = 'downleft';
+                    break;
+                case 4:
+                    self.animationDirection = 'left';
+                    break;
+                case 5:
+                    self.animationDirection = 'upleft';
+                    break;
+                case 6:
+                    self.animationDirection = 'up';
+                    break;
+                case 7:
+                    self.animationDirection = 'upright';
+                    break;
+            }
         }
         if (self.animationDirection != 'facing') self.facingDirection = self.animationDirection;
         var foundregion = false;
@@ -696,7 +725,6 @@ Rig = function() {
                                     self.gridx = Math.floor(self.x/64);
                                     self.gridy = Math.floor(self.y/64);
                                     if (self.doPointCollision()) break;
-                                    // self.doPointCollision();
                                     self.checkLayer();
                                     self.checkSlowdown();
                                 }
@@ -723,35 +751,46 @@ Rig = function() {
         }
     };
     self.aiControl = function() {
-        var oldkeys = self.keys;
-        self.keys = {
+        var oldcontrols = self.controls;
+        self.controls = {
             up: false,
             down: false,
             left: false,
             right: false,
+            xaxis: 0,
+            yaxis: 0,
+            x: 0,
+            y: 0,
             heal: false
         };
         self.xmove = 0;
         self.ymove = 0;
         if (self.ai.path[0]) {
-            if (self.ai.path[0][0]*64+32 < self.x) self.keys.left = true;
-            if (self.ai.path[0][0]*64+32 > self.x) self.keys.right = true;
-            if (self.ai.path[0][1]*64+32 < self.y) self.keys.up = true;
-            if (self.ai.path[0][1]*64+32 > self.y) self.keys.down = true;
+            // var angle = Math.atan2(self.ai.path[0][1]*64+32-self.y, self.ai.path[0][0]*64+32-self.x);
+            // self.controls.xaxis = Math.cos(angle);
+            // self.controls.yaxis = Math.sin(angle);
+            if (self.ai.path[0][0]*64+32 < self.x) self.controls.left = true;
+            else if (self.ai.path[0][0]*64+32 > self.x) self.controls.right = true;
+            if (self.ai.path[0][1]*64+32 < self.y) self.controls.up = true;
+            else if (self.ai.path[0][1]*64+32 > self.y) self.controls.down = true;
             if (Math.round(self.x) == self.ai.path[0][0]*64+32 && Math.round(self.y) == self.ai.path[0][1]*64+32) {
                 self.ai.path.shift();
             }
             if (self.slowedDown) self.moveSpeed *= 0.5;
-            if (self.keys.up) self.ymove = -self.moveSpeed;
-            if (self.keys.down) self.ymove = self.moveSpeed;
-            if (self.keys.left) self.xmove = -self.moveSpeed;
-            if (self.keys.right) self.xmove = self.moveSpeed;
+            self.controls.x = self.controls.xaxis;
+            self.controls.y = self.controls.yaxis;
+            if (self.controls.up) self.controls.y = Math.max(-1, Math.min(self.controls.y-1, 1));
+            if (self.controls.down) self.controls.y = Math.max(-1, Math.min(self.controls.y+1, 1));
+            if (self.controls.left) self.controls.x = Math.max(-1, Math.min(self.controls.x-1, 1));
+            if (self.controls.right) self.controls.x = Math.max(-1, Math.min(self.controls.x+1, 1));
+            self.xmove = self.controls.x*self.moveSpeed;
+            self.ymove = self.controls.y*self.moveSpeed;
             if (self.slowedDown) self.moveSpeed *= 2;
             self.xspeed = Math.round(self.xmove+self.xknockback);
             self.yspeed = Math.round(self.ymove+self.yknockback);
         }
-        for (var i in self.keys) {
-            if (self.keys[i] != oldkeys[i]) return true;
+        for (var i in self.controls) {
+            if (self.controls[i] != oldcontrols[i]) return true;
         }
         return false;
     };
@@ -1271,9 +1310,11 @@ Npc = function(id, x, y, map) {
             error('Invalid npc type ' + tempnpc.type);
             break;
     }
+    self.rightClickEvent = new Function('return ' + tempnpc.rightClickEvent)();
     for (var i in tempnpc.data) {
         self[i] = tempnpc.data[i];
     }
+    delete tempnpc;
     self.aiControlled = true;
     self.collisionBoxSize = Math.max(self.width, self.height);
 
@@ -1320,7 +1361,7 @@ Npc.getDebugData = function() {
             collisionBoxSize: localnpc.collisionBoxSize,
             path: localnpc.ai.path,
             idleWaypoints: localnpc.ai.idleWaypoints,
-            keys: localnpc.keys,
+            controls: localnpc.controls,
         });
     }
 
@@ -1368,7 +1409,9 @@ Player = function(socket) {
         y: 0,
         layer: 0
     };
+    self.invincible = true;
     self.canMove = false;
+    self.talking = false;
     self.alive = false;
     self.debugEnabled = false;
     self.creds = {
@@ -1444,6 +1487,7 @@ Player = function(socket) {
                                 await self.loadData();
                                 socket.emit('signInState', 'signedIn');
                                 insertChat(self.name + ' joined the game', 'server');
+                                self.invincible = false;
                                 self.canMove = true;
                                 self.alive = true;
                             } else {
@@ -1548,11 +1592,7 @@ Player = function(socket) {
     socket.on('keyPress', async function(data) {
         if (typeof data == 'object') {
             if (self.alive) {
-                if (data.key == 'up') self.keys.up = data.state;
-                if (data.key == 'down') self.keys.down = data.state;
-                if (data.key == 'left') self.keys.left = data.state;
-                if (data.key == 'right') self.keys.right = data.state;
-                if (data.key == 'heal') self.keys.heal = data.state;
+                self.controls[data.key] = data.state;
             }
         } else {
             insertChat(self.name + ' was kicked for socket.emit', 'anticheat');
@@ -1588,7 +1628,7 @@ Player = function(socket) {
                                             }
                                             delete DroppedItem.list[i];
                                         }
-                                        break;
+                                        return;
                                     }
                                 }
                             }
@@ -1811,7 +1851,7 @@ Player = function(socket) {
             self.hp = Math.min(self.hp+1, self.maxHP);
             self.lastAutoHeal = 0;
         }
-        if (self.keys.heal && self.alive && self.hp < self.maxHP && self.lastHeal >= seconds(1) && self.mana >= 20) {
+        if (self.controls.heal && self.alive && self.hp < self.maxHP && self.lastHeal >= seconds(1) && self.mana >= 20) {
             var oldhp = self.hp;
             self.lastHeal = 0;
             self.hp = Math.min(self.hp+20, self.maxHP);
@@ -1897,11 +1937,15 @@ Player = function(socket) {
             self.hp = 0;
             self.alive = false;
             socket.emit('playerDied');
-            self.keys = {
+            self.controls = {
                 up: false,
                 down: false,
                 left: false,
                 right: false,
+                xaxis: 0,
+                yaxis: 0,
+                x: 0,
+                y: 0,
                 heal: false
             };
             self.attacking = false;
@@ -2089,7 +2133,7 @@ Player.getDebugData = function() {
                 width: localplayer.width,
                 height: localplayer.height,
                 collisionBoxSize: localplayer.collisionBoxSize,
-                keys: localplayer.keys,
+                controls: localplayer.controls,
             });
         }
     }
@@ -2140,6 +2184,7 @@ Monster = function(type, x, y, map, layer) {
         self.xpDrop = tempmonster.xpDrop;
         self.drops = tempmonster.drops;
         self.animationLength = tempmonster.animationLength;
+        delete tempmonster;
     } catch (err) {
         error(err);
         return;
@@ -2629,7 +2674,7 @@ Monster.getDebugData = function() {
                     collisionBoxSize: localmonster.collisionBoxSize,
                     animationStage: localmonster.animationStage,
                     path: localmonster.ai.path,
-                    keys: localmonster.keys,
+                    controls: localmonster.controls,
                     aggroTarget: localmonster.ai.entityTarget.id,
                     aggroRange: localmonster.ai.maxRange
                 });
@@ -2642,7 +2687,7 @@ Monster.getDebugData = function() {
                     height: localmonster.height,
                     collisionBoxSize: localmonster.collisionBoxSize,
                     path: localmonster.ai.path,
-                    keys: localmonster.keys,
+                    controls: localmonster.controls,
                     aggroTarget: null,
                     aggroRange: localmonster.ai.maxRange
                 });
@@ -2670,6 +2715,7 @@ Projectile = function(type, angle, parentID) {
         self.maxRange = tempprojectile.range;
         self.knockback = tempprojectile.knockback;
         self.pattern = Projectile.patterns[tempprojectile.pattern];
+        delete tempprojectile;
     } catch (err) {
         error(err);
         return;

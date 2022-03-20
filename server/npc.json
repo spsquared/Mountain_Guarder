@@ -1,7 +1,7 @@
 {
     "template": {
         "type": "static/waypoint/wander",
-        "rightClickEvent": "open quest or something",
+        "rightClickEvent": "function(player, self) {};",
         "data": {
             "name": "name",
             "characterStyle": {
@@ -15,7 +15,7 @@
     },
     "bob": {
         "type": "waypoint",
-        "rightClickEvent": "function(player) {};",
+        "rightClickEvent": "function(player, self) {player.prompt('bob1');};",
         "data": {
             "name": "Bob",
             "characterStyle": {

@@ -52,7 +52,7 @@ Inventory = function(socket, player) {
         return slot;
     };
     self.removeItem = function(slot) {
-        if (isFinite(slot)) {
+        if (typeof slot == 'number') {
             delete self.items[slot];
         } else {
             delete self.equips[slot];
@@ -75,7 +75,7 @@ Inventory = function(socket, player) {
         return true;
     };
     self.refreshItem = function(slot) {
-        if (isFinite(slot)) {
+        if (typeof slot == 'number') {
             if (self.items[slot]) {
                 self.items[slot].refresh();
                 socket.emit('item', {
@@ -109,7 +109,7 @@ Inventory = function(socket, player) {
         }
     };
     self.enchantItem = function(slot, enchantment) {
-        if (isFinite(slot)) {
+        if (typeof slot == 'number') {
             self.items[slot].enchant(enchantment);
         } else {
             self.equips[slot].enchant(enchantment);
@@ -119,8 +119,8 @@ Inventory = function(socket, player) {
     self.dragItem = function(slot, newslot) {
         var item1, item2;
         var slot1 = false, slot2 = false;
-        if (isFinite(slot)) slot1 = true;
-        if (isFinite(newslot)) slot2 = true;
+        if (typeof slot == 'number') slot1 = true;
+        if (typeof newslot == 'number') slot2 = true;
         if (slot1) {
             item1 = self.items[slot];
         } else {
@@ -163,7 +163,7 @@ Inventory = function(socket, player) {
     };
     self.dropItem = function(slot) {
         var item;
-        if (isFinite(slot)) {
+        if (typeof slot == 'number') {
             item = self.items[slot];
         } else {
             item = self.equips[slot];

@@ -1,7 +1,7 @@
 // Copyright (C) 2022 Radioactive64
 // Go to README.md for more information
 
-const version = 'v0.9.0';
+const version = 'v0.9.1';
 require('./server/log.js');
 console.info('\x1b[33m%s\x1b[0m', 'Mountain Guarder ' + version + ' copyright (C) Radioactive64 2022');
 appendLog('Mountain Guarder ' + version + ' copyright (C) Radioactive64 2022', 'log');
@@ -331,6 +331,7 @@ s = {
         for (var i in Monster.list) {
             Monster.list[i].onDeath();
         }
+        return 'Slaughtered all monsters';
     },
     nuke: function(username) {
         var player = s.findPlayer(username);

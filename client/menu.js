@@ -478,7 +478,11 @@ function updateSetting(setting) {
                 indicatorText = 'off';
             }
             break;
+        case 'dialogueSpeed':
+            document.getElementById('promptContainer').style.setProperty('--transitionSpeed', ((11-settings.dialogueSpeed)*10) + 'ms');
+            break;
         case 'pointerLock':
+            return;
             if (settings.pointerLock) {
                 indicatorText = 'on';
                 document.getElementById('crossHair').style.display = 'block';
@@ -487,6 +491,9 @@ function updateSetting(setting) {
                 document.getElementById('crossHair').style.display = '';
                 if (pointerLocked) document.exitPointerLock();
             }
+            break;
+        case 'useController':
+            return;
             break;
         case 'chatBackground':
             if (settings.chatBackground) {
@@ -535,57 +542,92 @@ function saveSettings() {
     document.cookie = 'settings=' + cookiestring + '; expires=' + date + ';';
 };
 try {
-    cookiesettings = JSON.parse(document.cookie.replace('settings=', ''));
-    for (var i in cookiesettings) {
-        if (settings[i] != null) settings[i] = cookiesettings[i];
-    }
-    settings.debug = false;
-    document.getElementById('fpsSlider').value = settings.fps;
-    document.getElementById('renderDistanceSlider').value = settings.renderDistance;
-    document.getElementById('renderQualitySlider').value = settings.renderQuality;
-    document.getElementById('particlesToggle').checked = settings.particles;
-    // document.getElementById('pointerLockToggle').checked = settings.pointerLock;
-    document.getElementById('chatBackgroundToggle').checked = settings.chatBackground;
-    document.getElementById('chatSizeSlider').value = settings.chatSize;
-    document.getElementById('highContrastToggle').checked = settings.highContrast;
-    updateSetting('fps');
-    updateSetting('renderDistance');
-    updateSetting('renderQuality');
-    updateSetting('particles');
-    // updateSetting('pointerLock');
-    updateSetting('chatBackground');
-    updateSetting('chatSize');
-    updateSetting('highContrast');
-} catch {}
+    document.cookie.split('; ').forEach(function(cookie) {if (cookie.startsWith('settings=')) {
+        cookiesettings = JSON.parse(cookie.replace('settings=', ''));
+        for (var i in cookiesettings) {
+            if (settings[i] != null) settings[i] = cookiesettings[i];
+        }
+        settings.debug = false;
+        document.getElementById('fpsSlider').value = settings.fps;
+        document.getElementById('renderDistanceSlider').value = settings.renderDistance;
+        document.getElementById('renderQualitySlider').value = settings.renderQuality;
+        document.getElementById('particlesToggle').checked = settings.particles;
+        document.getElementById('dialogueSpeedSlider').value = settings.dialogueSpeed;
+        document.getElementById('useControllerToggle').checked = settings.useController;
+        document.getElementById('chatBackgroundToggle').checked = settings.chatBackground;
+        document.getElementById('chatSizeSlider').value = settings.chatSize;
+        document.getElementById('highContrastToggle').checked = settings.highContrast;
+        for (var i in settings) {
+            updateSetting(i);
+        }
+    }});
+} catch (err) {
+    console.error(err);
+}
 
 // keybinds
-var changingKeyBind = false;
+changingKeyBind = false;
 function changeKeybind(keybind) {
-    changingKeyBind = keybind;
+    if (changingKeyBind == false) {
+        changingKeyBind = keybind;
+        for (var i in keybinds) {
+            updateKeybind(i);
+            document.getElementById('keybind_' + i).style.color = '';
+        }
+        document.getElementById('keybind_' + keybind).style.color = 'yellow';
+    }
 };
 document.addEventListener('keydown', function(e) {
     if (changingKeyBind) {
-        if (e.key == 'Escape') keybinds[changingKeyBind] = null;
-        else if (e.key.length = 1) keybinds[changingKeyBind] = e.key.toLowerCase();
-        else keybinds[changingKeyBind] = e.key;
-        e.preventDefault();
-        updateKeybind(changingKeyBind);
-        changingKeyBind = false;
+        if (e.key != 'Meta' && e.key != 'Alt' && e.key != 'Control' && e.key != 'Shift') {
+            for (var i in keybinds) {
+                document.getElementById('keybind_' + i).style.color = '';
+            }
+            var oldKeyBind = keybinds[changingKeyBind];
+            if (e.key == 'Escape') keybinds[changingKeyBind] = null;
+            else keybinds[changingKeyBind] = e.key.toLowerCase();
+            e.preventDefault();
+            updateKeybind(changingKeyBind);
+            if (e.key != 'Escape') {
+                for (var i in keybinds) {
+                    if (e.key.toLowerCase() == keybinds[i] && typeof e.key.toLowerCase() == typeof keybinds[i] && i != changingKeyBind) {
+                        document.getElementById('keybind_' + i).style.color = 'red';
+                        document.getElementById('keybind_' + changingKeyBind).style.color = 'red';
+                        keybinds[changingKeyBind] = oldKeyBind;
+                        return;
+                    }
+                }
+            }
+            saveKeybinds();
+            changingKeyBind = false;
+        }
     }
 });
 document.addEventListener('mousedown', function(e) {
     if (changingKeyBind) {
+        for (var i in keybinds) {
+            document.getElementById('keybind_' + i).style.color = '';
+        }
+        var oldKeyBind = keybinds[changingKeyBind];
         keybinds[changingKeyBind] = e.button;
         e.preventDefault();
         updateKeybind(changingKeyBind);
+        for (var i in keybinds) {
+            if (e.button == keybinds[i] && typeof e.button == typeof keybinds[i] && i != changingKeyBind) {
+                document.getElementById('keybind_' + i).style.color = 'red';
+                document.getElementById('keybind_' + changingKeyBind).style.color = 'red';
+                keybinds[changingKeyBind] = oldKeyBind;
+                return;
+            }
+        }
+        saveKeybinds();
         changingKeyBind = false;
     }
 });
 function updateKeybind(keybind) {
     var str = keybinds[keybind];
-    if (str) {
-        if (str == ' ') str = 'SPACE';
-        if (isFinite(str)) {
+    if (str != null) {
+        if (typeof str == 'number') {
             switch (str) {
                 case 0:
                     str = 'LMB';
@@ -601,9 +643,30 @@ function updateKeybind(keybind) {
                     break;
             }
         }
+        if (str == ' ') str = 'SPACE';
         str = str.toUpperCase();
     } else {
         str = '&emsp;';
     }
-    document.getElementById('keybind_' + keybind).innerText = str;
+    document.getElementById('keybind_' + keybind).innerHTML = str;
+    document.getElementById('keybind_' + keybind).style.color = '';
 };
+function saveKeybinds() {
+    var cookiestring = JSON.stringify(keybinds);
+    var date = new Date();
+    date.setUTCFullYear(date.getUTCFullYear()+10, date.getUTCMonth(), date.getUTCDate())
+    document.cookie = 'keybinds=' + cookiestring + '; expires=' + date + ';';
+}
+try {
+    document.cookie.split('; ').forEach(function(cookie) {if (cookie.startsWith('keybinds=')) {
+        cookiekeybinds = JSON.parse(cookie.replace('keybinds=', ''));
+        for (var i in cookiekeybinds) {
+            if (keybinds[i] != null) keybinds[i] = cookiekeybinds[i];
+        }
+        for (var i in keybinds) {
+            updateKeybind(i);
+        }
+    }});
+} catch (err) {
+    console.error(err);
+}

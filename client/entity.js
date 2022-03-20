@@ -72,7 +72,8 @@ Entity.draw = function() {
         Particle.list = [];
     }
     for (var i in Particle.list) {
-        entities.push(Particle.list[i]);
+        if (Particle.list[i].map == player.map) entities.push(Particle.list[i]);
+        else Particle.list[i].draw(true);
     }
     for (var i in DroppedItem.list) {
         if (DroppedItem.list[i].map == player.map) entities.push(DroppedItem.list[i]);
@@ -505,7 +506,7 @@ Particle = function(map, x, y, layer, type, value) {
             return;
     }
 
-    self.draw = function() {
+    self.draw = function(nodraw) {
         self.x += self.xspeed;
         self.y += self.yspeed;
         self.chunkx = Math.floor(self.x/(64*MAPS[self.map].chunkwidth));
@@ -516,63 +517,75 @@ Particle = function(map, x, y, layer, type, value) {
         }
         switch (self.type) {
             case 'damage':
-                var opstring = self.opacity.toString(16);
-                if (opstring.length == 1) opstring = 0 + opstring;
-                LAYERS.elayers[self.layer].fillStyle = '#FF0000' + opstring;
-                LAYERS.elayers[self.layer].textAlign = 'center';
-                LAYERS.elayers[self.layer].font = '24px Pixel';
-                LAYERS.elayers[self.layer].fillText(self.value, self.x+OFFSETX, self.y+OFFSETY);
+                if (!nodraw) {
+                    var opstring = self.opacity.toString(16);
+                    if (opstring.length == 1) opstring = 0 + opstring;
+                    LAYERS.elayers[self.layer].fillStyle = '#FF0000' + opstring;
+                    LAYERS.elayers[self.layer].textAlign = 'center';
+                    LAYERS.elayers[self.layer].font = '24px Pixel';
+                    LAYERS.elayers[self.layer].fillText(self.value, self.x+OFFSETX, self.y+OFFSETY);
+                }
                 self.xspeed *= 0.98;
                 self.yspeed += 0.5;
                 self.opacity -= 2;
                 break;
             case 'critdamage':
-                var opstring = self.opacity.toString(16);
-                if (opstring.length == 1) opstring = 0 + opstring;
-                LAYERS.elayers[self.layer].fillStyle = '#FF0000' + opstring;
-                LAYERS.elayers[self.layer].textAlign = 'center';
-                LAYERS.elayers[self.layer].font = 'bold 36px Pixel';
-                LAYERS.elayers[self.layer].fillText(self.value, self.x+OFFSETX, self.y+OFFSETY);
+                if (!nodraw) {
+                    var opstring = self.opacity.toString(16);
+                    if (opstring.length == 1) opstring = 0 + opstring;
+                    LAYERS.elayers[self.layer].fillStyle = '#FF0000' + opstring;
+                    LAYERS.elayers[self.layer].textAlign = 'center';
+                    LAYERS.elayers[self.layer].font = 'bold 36px Pixel';
+                    LAYERS.elayers[self.layer].fillText(self.value, self.x+OFFSETX, self.y+OFFSETY);
+                }
                 self.xspeed *= 0.98;
                 self.yspeed += 0.3;
                 self.opacity -= 2;
                 break;
             case 'heal':
-                var opstring = self.opacity.toString(16);
-                if (opstring.length == 1) opstring = 0 + opstring;
-                LAYERS.elayers[self.layer].fillStyle = '#00FF00' + opstring;
-                LAYERS.elayers[self.layer].textAlign = 'center';
-                LAYERS.elayers[self.layer].font = '24px Pixel';
-                LAYERS.elayers[self.layer].fillText(self.value, self.x+OFFSETX, self.y+OFFSETY);
+                if (!nodraw) {
+                    var opstring = self.opacity.toString(16);
+                    if (opstring.length == 1) opstring = 0 + opstring;
+                    LAYERS.elayers[self.layer].fillStyle = '#00FF00' + opstring;
+                    LAYERS.elayers[self.layer].textAlign = 'center';
+                    LAYERS.elayers[self.layer].font = '24px Pixel';
+                    LAYERS.elayers[self.layer].fillText(self.value, self.x+OFFSETX, self.y+OFFSETY);
+                }
                 self.xspeed *= 0.98;
                 self.yspeed += 0.5;
                 self.opacity -= 2;
                 break;
             case 'teleport':
-                var opstring = self.opacity.toString(16);
-                if (opstring.length == 1) opstring = 0 + opstring;
-                LAYERS.elayers[self.layer].fillStyle = '#9900CC' + opstring;
-                LAYERS.elayers[self.layer].fillRect(self.x-self.size/2+OFFSETX, self.y-self.size/2+OFFSETY, self.size, self.size);
+                if (!nodraw) {
+                    var opstring = self.opacity.toString(16);
+                    if (opstring.length == 1) opstring = 0 + opstring;
+                    LAYERS.elayers[self.layer].fillStyle = '#9900CC' + opstring;
+                    LAYERS.elayers[self.layer].fillRect(self.x-self.size/2+OFFSETX, self.y-self.size/2+OFFSETY, self.size, self.size);
+                }
                 self.xspeed *= 0.95;
                 self.yspeed *= 0.95;
                 self.opacity -= 1;
                 break;
             case 'explosion':
-                var opacity = Math.min(self.opacity, 100);
-                var opstring = opacity.toString(16);
-                if (opstring.length == 1) opstring = 0 + opstring;
-                LAYERS.elayers[self.layer].fillStyle = self.color + opstring;
-                LAYERS.elayers[self.layer].fillRect(self.x-self.size/2+OFFSETX, self.y-self.size/2+OFFSETY, self.size, self.size);
+                if (!nodraw) {
+                    var opacity = Math.min(self.opacity, 100);
+                    var opstring = opacity.toString(16);
+                    if (opstring.length == 1) opstring = 0 + opstring;
+                    LAYERS.elayers[self.layer].fillStyle = self.color + opstring;
+                    LAYERS.elayers[self.layer].fillRect(self.x-self.size/2+OFFSETX, self.y-self.size/2+OFFSETY, self.size, self.size);
+                }
                 self.xspeed *= 0.9;
                 self.yspeed *= 0.9;
                 self.opacity -= 1;
                 break;
             case 'spawn':
-                var opacity = Math.min(self.opacity, 100);
-                var opstring = opacity.toString(16);
-                if (opstring.length == 1) opstring = 0 + opstring;
-                LAYERS.elayers[self.layer].fillStyle = self.color + opstring;
-                LAYERS.elayers[self.layer].fillRect(self.x-self.size/2+OFFSETX, self.y-self.size/2+OFFSETY, self.size, self.size);
+                if (!nodraw) {
+                    var opacity = Math.min(self.opacity, 100);
+                    var opstring = opacity.toString(16);
+                    if (opstring.length == 1) opstring = 0 + opstring;
+                    LAYERS.elayers[self.layer].fillStyle = self.color + opstring;
+                    LAYERS.elayers[self.layer].fillRect(self.x-self.size/2+OFFSETX, self.y-self.size/2+OFFSETY, self.size, self.size);
+                }
                 self.angle += self.rotationspeed;
                 self.x = x+Math.cos(self.angle)*self.radius;
                 self.y = y+Math.sin(self.angle)*self.radius;
@@ -582,20 +595,24 @@ Particle = function(map, x, y, layer, type, value) {
                 self.opacity -= 1;
                 break;
             case 'death':
-                var opacity = Math.min(self.opacity, 100);
-                var opstring = opacity.toString(16);
-                if (opstring.length == 1) opstring = 0 + opstring;
-                LAYERS.elayers[self.layer].fillStyle = self.color + opstring;
-                LAYERS.elayers[self.layer].fillRect(self.x-self.size/2+OFFSETX, self.y-self.size/2+OFFSETY, self.size, self.size);
+                if (!nodraw) {
+                    var opacity = Math.min(self.opacity, 100);
+                    var opstring = opacity.toString(16);
+                    if (opstring.length == 1) opstring = 0 + opstring;
+                    LAYERS.elayers[self.layer].fillStyle = self.color + opstring;
+                    LAYERS.elayers[self.layer].fillRect(self.x-self.size/2+OFFSETX, self.y-self.size/2+OFFSETY, self.size, self.size);
+                }
                 self.yspeed *= 0.95;
                 self.opacity -= 2;
                 break;
             case 'playerdeath':
-                var opacity = Math.min(self.opacity, 100);
-                var opstring = opacity.toString(16);
-                if (opstring.length == 1) opstring = 0 + opstring;
-                LAYERS.elayers[self.layer].fillStyle = self.color + opstring;
-                LAYERS.elayers[self.layer].fillRect(self.x-self.size/2+OFFSETX, self.y-self.size/2+OFFSETY, self.size, self.size);
+                if (!nodraw) {
+                    var opacity = Math.min(self.opacity, 100);
+                    var opstring = opacity.toString(16);
+                    if (opstring.length == 1) opstring = 0 + opstring;
+                    LAYERS.elayers[self.layer].fillStyle = self.color + opstring;
+                    LAYERS.elayers[self.layer].fillRect(self.x-self.size/2+OFFSETX, self.y-self.size/2+OFFSETY, self.size, self.size);
+                }
                 self.xspeed *= 0.98;
                 self.yspeed += 0.2;
                 self.opacity -= 2;
@@ -709,7 +726,7 @@ async function getEntityData() {
     totalassets++;
     await new Promise(async function(resolve, reject) {
         var request = new XMLHttpRequest();
-        request.open('GET', './client/monster.json', true);
+        request.open('GET', '/client/monster.json', true);
         request.onload = async function() {
             if (this.status >= 200 && this.status < 400) {
                 var json = JSON.parse(this.response);
@@ -728,6 +745,7 @@ async function getEntityData() {
         };
         request.onerror = function(){
             console.error('There was a connection error. Please retry');
+            reject();
         };
         request.send();
     });
@@ -735,7 +753,7 @@ async function getEntityData() {
     totalassets++;
     await new Promise(async function(resolve, reject) {
         var request = new XMLHttpRequest();
-        request.open('GET', './client/projectile.json', true);
+        request.open('GET', '/client/projectile.json', true);
         request.onload = async function() {
             if (this.status >= 200 && this.status < 400) {
                 var json = JSON.parse(this.response);
@@ -754,14 +772,15 @@ async function getEntityData() {
         };
         request.onerror = function(){
             console.error('There was a connection error. Please retry');
+            reject();
         };
         request.send();
     });
 };
 async function loadEntityData() {
     // health bars
-    Rig.healthBarG.src = './client/img/player/healthbar_green.png';
-    Rig.healthBarR.src = './client/img/monster/healthbar_red.png';
+    Rig.healthBarG.src = '/client/img/player/healthbar_green.png';
+    Rig.healthBarR.src = '/client/img/monster/healthbar_red.png';
     // players
     for (var i in Player.animations) {
         if (i == 'hair') {
@@ -771,7 +790,7 @@ async function loadEntityData() {
                         loadedassets++;
                         resolve();
                     };
-                    Player.animations[i][j].src = './client/img/player/playermap_' + i + j + '.png';
+                    Player.animations[i][j].src = '/client/img/player/playermap_' + i + j + '.png';
                 });
             }
         } else {
@@ -780,7 +799,7 @@ async function loadEntityData() {
                     loadedassets++;
                     resolve();
                 };
-                Player.animations[i].src = './client/img/player/playermap_' + i + '.png';
+                Player.animations[i].src = '/client/img/player/playermap_' + i + '.png';
             });
         }
     }
@@ -791,7 +810,7 @@ async function loadEntityData() {
                 loadedassets++;
                 resolve();
             };
-            Monster.images[i].src = './client/img/monster/' + i + '.png';
+            Monster.images[i].src = '/client/img/monster/' + i + '.png';
         });
     }
     // projectiles
@@ -801,7 +820,7 @@ async function loadEntityData() {
                 loadedassets++;
                 resolve();
             };
-            Projectile.images[i].src = './client/img/projectile/' + i + '.png';
+            Projectile.images[i].src = '/client/img/projectile/' + i + '.png';
         });
     }
 };

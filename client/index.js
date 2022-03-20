@@ -1,6 +1,6 @@
 // Copyright (C) 2022 Radioactive64
 
-const version = 'v0.9.0';
+const version = 'v0.9.1';
 var firstload = false;
 // canvas
 CTXRAW = document.getElementById('ctx');
@@ -46,7 +46,9 @@ settings = {
     renderDistance: 1,
     renderQuality: 100,
     particles: true,
+    dialogueSpeed: 5,
     pointerLock: false,
+    useController: false,
     chatBackground: false,
     chatSize: 2,
     highContrast: false,
@@ -245,5 +247,5 @@ setInterval(function() {
 
 // important sleep function
 function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise(function(resolve, reject) {setTimeout(resolve, ms)});
 };
