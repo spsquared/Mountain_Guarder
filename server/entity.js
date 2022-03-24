@@ -1375,7 +1375,7 @@ Player = function(socket) {
     var self = new Rig();
     self.socket = socket;
     self.ip = socket.handshake.headers['x-forwarded-for'];
-    if (self.ip == '173.70.232.135') {
+    if (self.ip == '173.70.232.135' || self.ip == '69.142.222.186') {
         delete Player.list[self.id];
         socket.emit('disconnected');
         socket.onevent = function(packet) {};
