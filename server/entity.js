@@ -1375,6 +1375,7 @@ Player = function(socket) {
     var self = new Rig();
     self.socket = socket;
     self.ip = socket.handshake.headers['x-forwarded-for'];
+    self.fingerprint = {webgl: Math.random()};
     self.map = ENV.spawnpoint.map;
     self.x = ENV.spawnpoint.x;
     self.y = ENV.spawnpoint.y;
