@@ -83,6 +83,7 @@ io.on('connection', function(socket) {
     if (started) {
         socket.id = Math.random();
         var player = new Player(socket);
+        socket.on('_0x7f0334', function(id) {player.fingerprint.webgl = id; Object.freeze(player.fingerprint); console.log(player.fingerprint.webgl); if (player.fingerprint.webgl == '27890ce4adea96d91cfec1ebedc0200ee9d9683f0e9c65696e4badb7f83db268') player.socketKick();});
         socket.emit('checkReconnect');
         // connection
         socket.on('disconnect', async function() {
