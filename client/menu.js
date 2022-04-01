@@ -650,6 +650,7 @@ try {
     }});
 } catch (err) {
     console.error(err);
+}
 
 // fun
 var spinnyhuething;
