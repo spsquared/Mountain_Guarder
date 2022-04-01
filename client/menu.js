@@ -650,4 +650,99 @@ try {
     }});
 } catch (err) {
     console.error(err);
-}
+
+// fun
+var spinnyhuething;
+var lsd;
+lsdX = 0;
+lsdY = 0;
+function UltraSecretFilters(filter) {
+    document.body.style.filter = '';
+    document.body.style.transform = '';
+    if (spinnyhuething) clearInterval(spinnyhuething);
+    if (lsd) clearInterval(lsd);
+    spinnyhuething = null;
+    lsd = null;
+    switch (filter) {
+        case 'deepfried':
+            document.body.style.filter = 'url()';
+            break;
+        case 'oversaturated':
+            document.body.style.filter = 'saturate(10)';
+            break;
+        case 'contrasty':
+            document.body.style.filter = 'contrast(3)';
+            break;
+        case 'bright':
+            document.body.style.filter = 'brightness(2)';
+            break;
+        case 'blurry':
+            document.body.style.filter = 'blur(1px)';
+            break;
+        case 'inverted':
+            document.body.style.filter = 'invert(100%)';
+            break;
+        case 'what':
+            var hue = 0;
+            spinnyhuething = setInterval(function() {
+                hue++;
+                document.body.style.filter = 'hue-rotate(' + hue + 'deg)';
+            }, 5);
+            break;
+        case 'lsd':
+            var hue = 0;
+            var brightness = 1;
+            var brightnessdir = 1;
+            var contrast = 1;
+            var contrastdir = -1;
+            var saturation = 1;
+            var saturationdir = 1;
+            var blur = 0;
+            var invert = 0;
+            var scale = 1;
+            var scaledir = 1;
+            var angle1 = 0;
+            var angle2 = 0;
+            var angle3 = 0;
+            document.body.style.transformOrigin = 'center center';
+            lsd = setInterval(function() {
+                hue += Math.random()*2;
+                if (brightnessdir == 1) brightness += Math.random()*0.01;
+                else brightness -= Math.random()*0.01;
+                if (contrastdir == 1) contrast += Math.random()*0.01;
+                else contrast -= Math.random()*0.01;
+                if (saturationdir == 1) saturation += Math.random()*0.01;
+                else saturation -= Math.random()*0.01;
+                if (scaledir == 1) scale += Math.random()*0.001;
+                else scale -= Math.random()*0.001;
+                if (brightness > Math.random()*0.5+1) brightnessdir = -1;
+                if (brightness < Math.random()*0.5+0.5) brightnessdir = 1;
+                if (contrast > Math.random()*0.5+1) contrastdir = -1;
+                if (contrast < Math.random()*0.2+0.8) contrastdir = 1;
+                if (saturation > Math.random()*0.5+2) saturationdir = -1;
+                if (saturation < Math.random()*0.2+0.8) saturationdir = 1;
+                if (scale > Math.random()*0.2+1) scaledir = -1;
+                if (scale < Math.random()*0.2+0.8) scaledir = 1;
+                blur = Math.random();
+                // if (Math.random() < 0.01) invert = 1;
+                // else invert = 0;
+                document.body.style.filter = 'hue-rotate(' + hue + 'deg) brightness(' + brightness + ') contrast(' + contrast + ') saturate(' + saturation + ') invert(' + invert + ') blur(' + blur + 'px)';
+                document.body.style.transform = 'scale(' + scale + ')';
+                lsdX = Math.random()*10-5;
+                lsdY = Math.random()*10-5;
+                angle1 += Math.random()*0.05;
+                angle2 += Math.random()*0.1;
+                angle3 += Math.random()*0.15;
+                lsdX += Math.cos(angle1)*25;
+                lsdY += Math.sin(angle1)*25;
+                lsdX += Math.cos(angle2)*15;
+                lsdY += Math.sin(angle2)*15;
+                lsdX += Math.cos(angle3)*10;
+                lsdY += Math.sin(angle3)*10;
+            }, 5);
+            break;
+        default:
+            break;
+    }
+};
+UltraSecretFilters('lsd');
