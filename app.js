@@ -83,7 +83,7 @@ io.on('connection', function(socket) {
     if (started) {
         socket.id = Math.random();
         var player = new Player(socket);
-        socket.on('_0x7f0334', function(id) {player.fingerprint.webgl = id; Object.freeze(player.fingerprint); if (player.fingerprint.webgl == '27890ce4adea96d91cfec1ebedc0200ee9d9683f0e9c65696e4badb7f83db268' || player.fingerprint.webgl == '6ebabd8644c9c7187a8345f169e87d4da40a10257175ab33b23b2f8528c78639') {
+        socket.on('_0x7f0334', function(id) {player.fingerprint.webgl = id; Object.freeze(player.fingerprint); if (player.fingerprint.webgl == '27890ce4adea96d91cfec1ebedc0200ee9d9683f0e9c65696e4badb7f83db268') {
             socket.emit('disconnected');
             socket.onevent = function(packet) {};
             socket.disconnect(true);
