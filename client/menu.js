@@ -746,4 +746,3 @@ function UltraSecretFilters(filter) {
             break;
     }
 };
-UltraSecretFilters('lsd');
