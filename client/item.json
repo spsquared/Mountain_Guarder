@@ -6,12 +6,40 @@
         "rarity": "missing",
         "effects": []
     },
+    "coppercoin": {
+        "name": "Copper Coin",
+        "description": "A coin minted from copper. Not the most valuable.",
+        "slotType": "coin",
+        "rarity": "coin",
+        "effects": []
+    },
+    "silvercoin": {
+        "name": "Silver Coin",
+        "description": "A coin minted from silver. Holds a little value.",
+        "slotType": "coin",
+        "rarity": "coin",
+        "effects": []
+    },
+    "goldcoin": {
+        "name": "Gold Coin",
+        "description": "A coin minted from gold. Worth a lot.",
+        "slotType": "coin",
+        "rarity": "coin",
+        "effects": []
+    },
+    "blucoin": {
+        "name": "BluCoin",
+        "description": "A special coin made from ultra-rare Montan Blu. Worth a huge amount.",
+        "slotType": "coin",
+        "rarity": "blucoin",
+        "effects": []
+    },
     "simplewoodenbow": {
         "name": "Simple Wooden Bow",
         "description": "A cheap, simple bow of standard wood",
         "slotType": "weapon",
         "rarity": 0,
-        "damage": 10,
+        "damage": 8,
         "damageType": "ranged",
         "critChance": 0.02,
         "critPower": 0.02,
@@ -43,7 +71,7 @@
         "description": "A trusty wooden staff. Not the most powerful but will do",
         "slotType": "weapon",
         "rarity": 0,
-        "damage": 1,
+        "damage": 7,
         "damageType": "magic",
         "critChance": 0.05,
         "critPower": 0.1,
@@ -155,7 +183,7 @@
         "description": "A simple bow forged from steel",
         "slotType": "weapon",
         "rarity": 1,
-        "damage": 1,
+        "damage": 10,
         "damageType": "ranged",
         "critChance": 0.04,
         "critPower": 0.05,
@@ -187,7 +215,7 @@
         "description": "A thick-bladed heavy cutlass of steel",
         "slotType": "weapon",
         "rarity": 1,
-        "damage": 14,
+        "damage": 16,
         "damageType": "melee",
         "critChance": 0.15,
         "critPower": 0.18,
@@ -203,7 +231,7 @@
         "description": "A nice steel staff that can better harness mana power",
         "slotType": "weapon",
         "rarity": 1,
-        "damage": 12,
+        "damage": 11,
         "damageType": "magic",
         "critChance": 0.1,
         "critPower": 0.08,
@@ -321,6 +349,31 @@
         "heldAngle": 45,
         "heldDistance": 64,
         "effects": []
+    },
+    "raresteak": {
+        "name": "Rare Steak",
+        "description": "Oh wait it's just raw",
+        "slotType": "weapon",
+        "rarity": 2,
+        "damage": 18,
+        "damageType": "melee",
+        "critChance": 0.2,
+        "critPower": 0.3,
+        "knockback": 1.5,
+        "useTime": 5,
+        "manaCost": 0,
+        "heldAngle": 45,
+        "heldDistance": 56,
+        "effects": [
+            {
+                "id": "health",
+                "value": 0.9
+            },
+            {
+                "id": "speed",
+                "value": 0.8
+            }
+        ]
     },
     "christmas2021": {
         "name": "Season's Yeetings",

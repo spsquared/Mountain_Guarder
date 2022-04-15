@@ -1,29 +1,34 @@
 {
     "greenbird": {
+        "name": "Green Bird",
         "width": 44,
         "height": 52,
         "rawWidth": 11,
         "rawHeight": 13
     },
     "bluebird": {
+        "name": "Blue Bird",
         "width": 44,
         "height": 52,
         "rawWidth": 11,
         "rawHeight": 13
     },
     "snowbird": {
+        "name": "Snow Bird",
         "width": 44,
         "height": 52,
         "rawWidth": 11,
         "rawHeight": 13
     },
     "cherrybomb": {
+        "name": "Cherry Bomb",
         "width": 64,
         "height": 64,
         "rawWidth": 16,
         "rawHeight": 16
     },
     "snowball": {
+        "name": "Snowball",
         "width": 44,
         "height": 44,
         "rawWidth": 11,

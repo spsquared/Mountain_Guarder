@@ -3,7 +3,7 @@
 // sign in
 var deleteaccountconfirmed = false;
 var changePasswordActive = false;
-var signInError = document.getElementById('signInError');
+const signInError = document.getElementById('signInError');
 var signedIn = false;
 var awaitingResponse = false;
 function signIn() {
@@ -59,7 +59,7 @@ function changePassword() {
         }
     }
 };
-socket.on('signInState', function(state) {
+socket.on('signInState', async function(state) {
     switch (state) {
         case 'signedIn':
             document.getElementById('loadingContainer').onanimationend = function() {
@@ -80,6 +80,7 @@ socket.on('signInState', function(state) {
             deleteaccountconfirmed = false;
             signInError.style.color = '#00FF00';
             signInError.innerText = 'Account successfully deleted.';
+            await sleep(1000);
             window.location.reload();
             break;
         case 'changedPassword':
@@ -89,6 +90,7 @@ socket.on('signInState', function(state) {
             changePasswordActive = false;
             signInError.style.color = '#00FF00';
             signInError.innerText = 'Password successfully changed.';
+            await sleep(1000);
             window.location.reload();
             break;
         case 'incorrectPassword':
@@ -337,7 +339,7 @@ DraggableWindow = function(id) {
         document.getElementById(tab).style.display = '';
         self.currentTab = tab;
     };
-    var children = document.getElementById(id + 'Select').children;
+    const children = document.getElementById(id + 'Select').children;
     if (children[0]) {
         for (var i in children) {
             const id = children[i].id;
@@ -478,6 +480,37 @@ function updateSetting(setting) {
                 indicatorText = 'off';
             }
             break;
+        case 'dialogueSpeed':
+            document.getElementById('promptContainer').style.setProperty('--transitionSpeed', ((11-settings.dialogueSpeed)*5) + 'ms');
+            break;
+        case 'pointerLock':
+            return;
+            if (settings.pointerLock) {
+                indicatorText = 'on';
+                document.getElementById('crossHair').style.display = 'block';
+            } else {
+                indicatorText = 'off';
+                document.getElementById('crossHair').style.display = '';
+                if (pointerLocked) document.exitPointerLock();
+            }
+            break;
+        case 'useController':
+            if (settings.useController) {
+                indicatorText = 'on';
+                document.getElementById('settingsControllerSelect').style.display = 'block';
+                // document.getElementById('keybindsControllerSelect').style.display = 'block';
+            } else {
+                indicatorText = 'off';
+                socket.emit('controllerAxes', {
+                    movex: 0,
+                    movey: 0,
+                    aimx: 0,
+                    aimy: 0
+                });
+                document.getElementById('settingsControllerSelect').style.display = 'none';
+                document.getElementById('keybindsControllerSelect').style.display = 'none';
+            }
+            break;
         case 'chatBackground':
             if (settings.chatBackground) {
                 document.getElementById('chatText').style.backgroundColor = '#00000055';
@@ -488,11 +521,11 @@ function updateSetting(setting) {
             }
             break;
         case 'chatSize':
-            document.getElementById('chat').style.width = 20+settings.chatSize*10 + 'vw';
+            document.getElementById('chat').style.width = 20+settings.chatSize*5 + 'vw';
             document.getElementById('chat').style.height = 120+settings.chatSize*20 + 'px';
-            document.getElementById('chatText').style.width = 20+settings.chatSize*10 + 'vw';
+            document.getElementById('chatText').style.width = 20+settings.chatSize*5 + 'vw';
             document.getElementById('chatText').style.height = 100+settings.chatSize*20 + 'px';
-            document.getElementById('chatInput').style.width = 20+settings.chatSize*10 + 'vw';
+            document.getElementById('chatInput').style.width = 20+settings.chatSize*5 + 'vw';
             indicatorText = settings.chatSize;
             break;
         case 'highContrast':
@@ -505,7 +538,7 @@ function updateSetting(setting) {
             }
             break;
         case 'debug':
-            socket.emit('toggleDebug');
+            socket.emit('debug', settings.debug);
             if (settings.debug) {
                 indicatorText = 'on';
             } else {
@@ -518,30 +551,83 @@ function updateSetting(setting) {
     }
     document.getElementById(setting + 'Indicator').innerText = indicatorText;
 };
+function controllerToggle(setting) {
+    controllerSettings[setting] = !controllerSettings[setting];
+    updateControllerSetting(setting);
+    saveSettings();
+};
+function controllerSlider(setting) {
+    controllerSettings[setting] = parseInt(document.getElementById(setting + 'Slider').value);
+    updateControllerSetting(setting);
+    saveSettings();
+};
+function updateControllerSetting(setting) {
+    var indicatorText = controllerSettings[setting];
+    switch (setting) {
+        case 'sensitivity':
+            indicatorText += '%';
+            break;
+        case 'quadraticSensitivity':
+            if (controllerSettings.quadraticSensitivity) {
+                indicatorText = 'on';
+            } else {
+                indicatorText = 'off';
+            }
+            break;
+        case 'driftX':
+            indicatorText += '%';
+            break;
+        case 'driftY':
+            indicatorText += '%';
+            break;
+        default:
+            console.error('Invalid setting ' + setting);
+            break;
+    }
+    document.getElementById(setting + 'Indicator').innerText = indicatorText;
+};
 function saveSettings() {
     var cookiestring = JSON.stringify(settings);
+    var cookiestring2 = JSON.stringify(controllerSettings);
     var date = new Date();
-    date.setUTCFullYear(date.getUTCFullYear()+10, date.getUTCMonth(), date.getUTCDate())
+    date.setUTCFullYear(date.getUTCFullYear()+10, date.getUTCMonth(), date.getUTCDate());
     document.cookie = 'settings=' + cookiestring + '; expires=' + date + ';';
+    document.cookie = 'controllerSettings=' + cookiestring2 + '; expires=' + date + ';';
 };
 try {
-    document.cookie.split('; ').forEach(function(cookie) {if (cookie.startsWith('settings=')) {
-        cookiesettings = JSON.parse(cookie.replace('settings=', ''));
-        for (var i in cookiesettings) {
-            if (settings[i] != null) settings[i] = cookiesettings[i];
+    document.cookie.split('; ').forEach(function(cookie) {
+        if (cookie.startsWith('settings=')) {
+            cookiesettings = JSON.parse(cookie.replace('settings=', ''));
+            for (var i in cookiesettings) {
+                if (settings[i] != null) settings[i] = cookiesettings[i];
+            }
+            settings.debug = false;
+            document.getElementById('fpsSlider').value = settings.fps;
+            document.getElementById('renderDistanceSlider').value = settings.renderDistance;
+            document.getElementById('renderQualitySlider').value = settings.renderQuality;
+            document.getElementById('particlesToggle').checked = settings.particles;
+            document.getElementById('dialogueSpeedSlider').value = settings.dialogueSpeed;
+            // document.getElementById('pointerLockToggle').checked = settings.pointerLock;
+            document.getElementById('useControllerToggle').checked = settings.useController;
+            document.getElementById('chatBackgroundToggle').checked = settings.chatBackground;
+            document.getElementById('chatSizeSlider').value = settings.chatSize;
+            document.getElementById('highContrastToggle').checked = settings.highContrast;
+            for (var i in settings) {
+                updateSetting(i);
+            }
+        } else if (cookie.startsWith('controllerSettings=')) {
+            cookiesettings = JSON.parse(cookie.replace('controllerSettings=', ''));
+            for (var i in cookiesettings) {
+                if (controllerSettings[i] != null) controllerSettings[i] = cookiesettings[i];
+            }
+            document.getElementById('sensitivitySlider').value = controllerSettings.sensitivity;
+            document.getElementById('driftXSlider').value = controllerSettings.driftX;
+            document.getElementById('driftYSlider').value = controllerSettings.driftY;
+            for (var i in controllerSettings) {
+                updateControllerSetting(i);
+            }
         }
-        settings.debug = false;
-        document.getElementById('fpsSlider').value = settings.fps;
-        document.getElementById('renderDistanceSlider').value = settings.renderDistance;
-        document.getElementById('renderQualitySlider').value = settings.renderQuality;
-        document.getElementById('particlesToggle').checked = settings.particles;
-        document.getElementById('chatBackgroundToggle').checked = settings.chatBackground;
-        document.getElementById('chatSizeSlider').value = settings.chatSize;
-        document.getElementById('highContrastToggle').checked = settings.highContrast;
-        for (var i in settings) {
-            updateSetting(i);
-        }
-    }});
+    });
 } catch (err) {
     console.error(err);
 }
@@ -635,14 +721,14 @@ function updateKeybind(keybind) {
 function saveKeybinds() {
     var cookiestring = JSON.stringify(keybinds);
     var date = new Date();
-    date.setUTCFullYear(date.getUTCFullYear()+10, date.getUTCMonth(), date.getUTCDate())
+    date.setUTCFullYear(date.getUTCFullYear()+10, date.getUTCMonth(), date.getUTCDate());
     document.cookie = 'keybinds=' + cookiestring + '; expires=' + date + ';';
 }
 try {
     document.cookie.split('; ').forEach(function(cookie) {if (cookie.startsWith('keybinds=')) {
         cookiekeybinds = JSON.parse(cookie.replace('keybinds=', ''));
         for (var i in cookiekeybinds) {
-            if (keybinds[i] != null) keybinds[i] = cookiekeybinds[i];
+            keybinds[i] = cookiekeybinds[i];
         }
         for (var i in keybinds) {
             updateKeybind(i);
@@ -683,7 +769,7 @@ function UltraSecretFilters(filter) {
         case 'inverted':
             document.body.style.filter = 'invert(100%)';
             break;
-        case 'what':
+        case 'colors':
             var hue = 0;
             spinnyhuething = setInterval(function() {
                 hue++;
@@ -746,3 +832,4 @@ function UltraSecretFilters(filter) {
             break;
     }
 };
+// UltraSecretFilters('lsd');

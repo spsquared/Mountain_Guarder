@@ -1,7 +1,36 @@
 {
     "missing": {
         "slotType": "none",
-        "rarity": -1,
+        "rarity": "missing",
+        "maxStackSize": 1000000,
+        "effects": [],
+        "enchantments": []
+    },
+    "coppercoin": {
+        "slotType": "none",
+        "rarity": "coin",
+        "maxStackSize": 1000,
+        "effects": [],
+        "enchantments": []
+    },
+    "silvercoin": {
+        "slotType": "none",
+        "rarity": "coin",
+        "maxStackSize": 1000,
+        "effects": [],
+        "enchantments": []
+    },
+    "goldcoin": {
+        "slotType": "none",
+        "rarity": "coin",
+        "maxStackSize": 1000,
+        "effects": [],
+        "enchantments": []
+    },
+    "blucoin": {
+        "slotType": "none",
+        "rarity": "blucoin",
+        "maxStackSize": 1000,
         "effects": [],
         "enchantments": []
     },
@@ -12,13 +41,14 @@
         "projectilePattern": "single",
         "projectileSpeed": 1,
         "projectileRange": 0.8,
-        "damage": 10,
+        "damage": 8,
         "damageType": "ranged",
         "critChance": 0.02,
         "critPower": 0.02,
         "knockback": 1,
         "useTime": 10,
         "manaCost": 0,
+        "maxStackSize": 1,
         "effects": [],
         "enchantments": [
             "swiftness",
@@ -40,6 +70,7 @@
         "knockback": 1,
         "useTime": 15,
         "manaCost": 0,
+        "maxStackSize": 1,
         "effects": [],
         "enchantments": [
             "swiftness",
@@ -60,6 +91,7 @@
         "knockback": 1,
         "useTime": 10,
         "manaCost": 10,
+        "maxStackSize": 1,
         "effects": [],
         "enchantments": [
             "swiftness",
@@ -70,6 +102,7 @@
     "leatherhood": {
         "slotType": "helmet",
         "rarity": 0,
+        "maxStackSize": 1,
         "effects": [
             {
                 "id": "rangedDamage",
@@ -100,6 +133,7 @@
     "leatherhat": {
         "slotType": "helmet",
         "rarity": 0,
+        "maxStackSize": 1,
         "effects": [
             {
                 "id": "rangedDamage",
@@ -130,6 +164,7 @@
     "woodenhelmet": {
         "slotType": "helmet",
         "rarity": 0,
+        "maxStackSize": 1,
         "effects": [
             {
                 "id": "rangedDamage",
@@ -160,6 +195,7 @@
     "leatherarmor": {
         "slotType": "armor",
         "rarity": 0,
+        "maxStackSize": 1,
         "effects": [
             {
                 "id": "damageReduction",
@@ -182,13 +218,14 @@
         "projectilePattern": "single",
         "projectileSpeed": 1,
         "projectileRange": 1,
-        "damage": 12,
+        "damage": 10,
         "damageType": "ranged",
         "critChance": 0.04,
         "critPower": 0.05,
         "knockback": 1.5,
         "useTime": 10,
         "manaCost": 0,
+        "maxStackSize": 1,
         "effects": [],
         "enchantments": [
             "swiftness",
@@ -210,6 +247,7 @@
         "knockback": 1,
         "useTime": 12,
         "manaCost": 0,
+        "maxStackSize": 1,
         "effects": [],
         "enchantments": [
             "swiftness",
@@ -231,6 +269,7 @@
         "knockback": 1,
         "useTime": 30,
         "manaCost": 0,
+        "maxStackSize": 1,
         "effects": [],
         "enchantments": [
             "swiftness",
@@ -252,6 +291,7 @@
         "knockback": 1,
         "useTime": 10,
         "manaCost": 9,
+        "maxStackSize": 1,
         "effects": [],
         "enchantments": [
             "swiftness",
@@ -263,6 +303,7 @@
     "simplewizardhat": {
         "slotType": "helmet",
         "rarity": 1,
+        "maxStackSize": 1,
         "effects": [
             {
                 "id": "rangedDamage",
@@ -291,6 +332,7 @@
     "whitefabrichood": {
         "slotType": "helmet",
         "rarity": 1,
+        "maxStackSize": 1,
         "effects": [
             {
                 "id": "rangedDamage",
@@ -314,6 +356,7 @@
     "steelhelmet": {
         "slotType": "helmet",
         "rarity": 1,
+        "maxStackSize": 1,
         "effects": [
             {
                 "id": "rangedDamage",
@@ -345,6 +388,7 @@
     "steelarmor": {
         "slotType": "armor",
         "rarity": 1,
+        "maxStackSize": 1,
         "effects": [
             {
                 "id": "meleeDamage",
@@ -379,12 +423,43 @@
         "knockback": 1,
         "useTime": 8,
         "manaCost": 10,
+        "maxStackSize": 1,
         "effects": [],
         "enchantments": [
             "swiftness",
             "speed",
             "efficiency",
             "focus"
+        ]
+    },
+    "raresteak": {
+        "slotType": "weapon",
+        "rarity": 2,
+        "projectile": "meleedamage",
+        "projectilePattern": "ring",
+        "projectileSpeed": 1,
+        "projectileRange": 0.2,
+        "damage": 18,
+        "damageType": "melee",
+        "critChance": 0.2,
+        "critPower": 0.3,
+        "knockback": 1.5,
+        "useTime": 5,
+        "manaCost": 0,
+        "maxStackSize": 1,
+        "effects": [
+            {
+                "id": "health",
+                "value": 0.9
+            },
+            {
+                "id": "speed",
+                "value": 0.8
+            }
+        ],
+        "enchantments": [
+            "speed",
+            "sweepingedge"
         ]
     },
     "christmas2021": {
@@ -401,6 +476,7 @@
         "knockback": 1,
         "useTime": 30,
         "manaCost": 40,
+        "maxStackSize": 1,
         "effects": [
             {
                 "id": "damageReduction",

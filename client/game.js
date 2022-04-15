@@ -13,7 +13,7 @@ socket.on('mapData', function(data) {
     load(data);
 });
 var tilesetloaded = false;
-var tileset = new Image();
+const tileset = new Image();
 tileset.onload = function() {
     tilesetloaded = true;
     loadedassets++;
@@ -26,14 +26,19 @@ function load(data) {
         totalassets++;
     }
     setTimeout(async function() {
-        await getEntityData();
-        await getInventoryData();
+        getEntityData();
+        getInventoryData();
+        getQuestData();
+        getNpcDialogues();
         document.getElementById('loadingBar').style.display = 'block';
-        tileset.src = '/client/maps/roguelikeSheet.png';
+        tileset.src = '/client/maps/tiles.png';
+        map.src = '/client/img/World.png';
+        const loadingBarText = document.getElementById('loadingBarText');
+        const loadingBarInner = document.getElementById('loadingBarInner');
         var updateLoadBar = setInterval(function() {
             var percent = Math.round(loadedassets/totalassets*100) + '%';
-            document.getElementById('loadingBarText').innerText = loadedassets + '/' + totalassets + ' (' + percent + ')';
-            document.getElementById('loadingBarInner').style.width = percent;
+            loadingBarText.innerText = loadedassets + '/' + totalassets + ' (' + percent + ')';
+            loadingBarInner.style.width = percent;
             if (loadedassets >= totalassets) {
                 clearInterval(updateLoadBar);
                 document.getElementById('loadingIcon').style.opacity = 0;
@@ -49,6 +54,8 @@ function load(data) {
         }, 5);
         await loadEntityData();
         await loadInventoryData();
+        await loadQuestData();
+        await loadNpcDialogues();
         for (var i in data.maps) {
             await loadMap(data.maps[i]);
         }
@@ -57,86 +64,82 @@ function load(data) {
         loadedassets++;
     }, 500);
 };
-function loadMap(name) {
-    return new Promise(async function(resolve, reject) {
-        if (tilesetloaded) {
-            var request = new XMLHttpRequest();
-            request.open('GET', '/client/maps/' + name + '.json', true);
-            request.onload = async function() {
-                if (this.status >= 200 && this.status < 400) {
-                    var json = JSON.parse(this.response);
-                    MAPS[name] = {
-                        width: 0,
-                        height: 0,
-                        offsetX: 0,
-                        offsetY: 0,
-                        chunkwidth: 0,
-                        chunkheight: 0,
-                        chunks: [],
-                        chunkJSON: [],
-                        layerCount: 0
-                    };
-                    for (var i in json.layers) {
-                        if (json.layers[i].visible) {
-                            if (json.layers[i].name == 'Ground Terrain') {
-                                MAPS[name].width = json.layers[i].width;
-                                MAPS[name].height = json.layers[i].height;
-                                MAPS[name].chunkwidth = json.layers[i].width;
-                                MAPS[name].chunkheight = json.layers[i].height;
-                                if (json.layers[i].chunks) {
-                                    for (var j in json.layers[i].chunks) {
-                                        var rawchunk = json.layers[i].chunks[j];
-                                        MAPS[name].chunkwidth = rawchunk.width;
-                                        MAPS[name].chunkheight = rawchunk.height;
-                                        MAPS[name].offsetX = Math.min(rawchunk.x*64, MAPS[name].offsetX);
-                                        MAPS[name].offsetY = Math.min(rawchunk.y*64, MAPS[name].offsetY);
-                                    }
-                                }
-                            }
+async function loadMap(name) {
+    if (tilesetloaded) {
+        var request = new XMLHttpRequest();
+        request.open('GET', '/client/maps/' + name + '.json', false);
+        request.onload = function() {
+            if (this.status >= 200 && this.status < 400) {
+                var json = JSON.parse(this.response);
+                MAPS[name] = {
+                    width: 0,
+                    height: 0,
+                    offsetX: 0,
+                    offsetY: 0,
+                    chunkwidth: 0,
+                    chunkheight: 0,
+                    chunks: [],
+                    chunkJSON: [],
+                    layerCount: 0
+                };
+                for (var i in json.layers) {
+                    if (json.layers[i].visible) {
+                        if (json.layers[i].name == 'Ground Terrain') {
+                            MAPS[name].width = json.layers[i].width;
+                            MAPS[name].height = json.layers[i].height;
+                            MAPS[name].chunkwidth = json.layers[i].width;
+                            MAPS[name].chunkheight = json.layers[i].height;
                             if (json.layers[i].chunks) {
                                 for (var j in json.layers[i].chunks) {
                                     var rawchunk = json.layers[i].chunks[j];
-                                    if (MAPS[name].chunkJSON[rawchunk.y/rawchunk.width] == null) {
-                                        MAPS[name].chunkJSON[rawchunk.y/rawchunk.width] = [];
-                                    }
-                                    if (MAPS[name].chunkJSON[rawchunk.y/rawchunk.width][rawchunk.x/rawchunk.height] == null) {
-                                        MAPS[name].chunkJSON[rawchunk.y/rawchunk.width][rawchunk.x/rawchunk.height] = [];
-                                    }
-                                    MAPS[name].chunkJSON[rawchunk.y/rawchunk.width][rawchunk.x/rawchunk.width][json.layers[i].name] = rawchunk.data;
-                                    MAPS[name].chunkJSON[rawchunk.y/rawchunk.width][rawchunk.x/rawchunk.width][json.layers[i].name].offsetX = 0;
-                                    MAPS[name].chunkJSON[rawchunk.y/rawchunk.width][rawchunk.x/rawchunk.width][json.layers[i].name].offsetY = 0;
-                                    if (json.layers[i].offsetx) MAPS[name].chunkJSON[rawchunk.y/rawchunk.width][rawchunk.x/rawchunk.width][json.layers[i].name].offsetX = json.layers[i].offsetx;
-                                    if (json.layers[i].offsety) MAPS[name].chunkJSON[rawchunk.y/rawchunk.width][rawchunk.x/rawchunk.width][json.layers[i].name].offsetY = json.layers[i].offsety;
+                                    MAPS[name].chunkwidth = rawchunk.width;
+                                    MAPS[name].chunkheight = rawchunk.height;
+                                    MAPS[name].offsetX = Math.min(rawchunk.x*64, MAPS[name].offsetX);
+                                    MAPS[name].offsetY = Math.min(rawchunk.y*64, MAPS[name].offsetY);
                                 }
-                            } else {
-                                if (MAPS[name].chunkJSON[0] == null) {
-                                    MAPS[name].chunkJSON[0] = [[]];
-                                }
-                                MAPS[name].chunkJSON[0][0][json.layers[i].name] = json.layers[i].data;
-                                MAPS[name].chunkJSON[0][0][json.layers[i].name].offsetX = 0;
-                                MAPS[name].chunkJSON[0][0][json.layers[i].name].offsetY = 0;
-                                if (json.layers[i].offsetx) MAPS[name].chunkJSON[0][0][json.layers[i].name].offsetX = json.layers[i].offsetx;
-                                if (json.layers[i].offsety) MAPS[name].chunkJSON[0][0][json.layers[i].name].offsetY = json.layers[i].offsety;
                             }
-                            if (json.layers[i].name.includes('Variable')) MAPS[name].layerCount++;
                         }
+                        if (json.layers[i].chunks) {
+                            for (var j in json.layers[i].chunks) {
+                                var rawchunk = json.layers[i].chunks[j];
+                                if (MAPS[name].chunkJSON[rawchunk.y/rawchunk.width] == null) {
+                                    MAPS[name].chunkJSON[rawchunk.y/rawchunk.width] = [];
+                                }
+                                if (MAPS[name].chunkJSON[rawchunk.y/rawchunk.width][rawchunk.x/rawchunk.height] == null) {
+                                    MAPS[name].chunkJSON[rawchunk.y/rawchunk.width][rawchunk.x/rawchunk.height] = [];
+                                }
+                                MAPS[name].chunkJSON[rawchunk.y/rawchunk.width][rawchunk.x/rawchunk.width][json.layers[i].name] = rawchunk.data;
+                                MAPS[name].chunkJSON[rawchunk.y/rawchunk.width][rawchunk.x/rawchunk.width][json.layers[i].name].offsetX = 0;
+                                MAPS[name].chunkJSON[rawchunk.y/rawchunk.width][rawchunk.x/rawchunk.width][json.layers[i].name].offsetY = 0;
+                                if (json.layers[i].offsetx) MAPS[name].chunkJSON[rawchunk.y/rawchunk.width][rawchunk.x/rawchunk.width][json.layers[i].name].offsetX = json.layers[i].offsetx;
+                                if (json.layers[i].offsety) MAPS[name].chunkJSON[rawchunk.y/rawchunk.width][rawchunk.x/rawchunk.width][json.layers[i].name].offsetY = json.layers[i].offsety;
+                            }
+                        } else {
+                            if (MAPS[name].chunkJSON[0] == null) {
+                                MAPS[name].chunkJSON[0] = [[]];
+                            }
+                            MAPS[name].chunkJSON[0][0][json.layers[i].name] = json.layers[i].data;
+                            MAPS[name].chunkJSON[0][0][json.layers[i].name].offsetX = 0;
+                            MAPS[name].chunkJSON[0][0][json.layers[i].name].offsetY = 0;
+                            if (json.layers[i].offsetx) MAPS[name].chunkJSON[0][0][json.layers[i].name].offsetX = json.layers[i].offsetx;
+                            if (json.layers[i].offsety) MAPS[name].chunkJSON[0][0][json.layers[i].name].offsetY = json.layers[i].offsety;
+                        }
+                        if (json.layers[i].name.includes('Variable')) MAPS[name].layerCount++;
                     }
-                    loadedassets++;
-                    resolve();
-                } else {
-                    console.error('Error: Server returned status ' + this.status);
                 }
-            };
-            request.onerror = function(){
-                console.error('There was a connection error. Please retry');
-                reject();
-            };
-            request.send();
-        } else {
-            await sleep(100);
-            await loadMap(name);
-        }
-    });
+                loadedassets++;
+            } else {
+                console.error('Error: Server returned status ' + this.status);
+            }
+        };
+        request.onerror = function(){
+            console.error('There was a connection error. Please retry');
+        };
+        request.send();
+    } else {
+        await sleep(500);
+        await loadMap(name);
+    }
 };
 function MGHC() {};
 
@@ -162,7 +165,9 @@ function drawFrame() {
         if (MAPS[player.map].height*64 > window.innerHeight) OFFSETY = -Math.max((window.innerHeight/2) - (player.y - MAPS[player.map].offsetY), Math.min((MAPS[player.map].offsetY + (MAPS[player.map].height*64)) - player.y - (window.innerHeight/2), 0));
         OFFSETX += lsdX;
         OFFSETY += lsdY;
+        updateCameraShake();
         drawMap();
+        DroppedItem.updateHighlight();
         Entity.draw();
         CTX.drawImage(LAYERS.map0, 0, 0, window.innerWidth, window.innerHeight);
         for (var i = 0; i < MAPS[player.map].layerCount+1; i++) {
@@ -176,6 +181,7 @@ function drawFrame() {
             var current = Date.now();
             frameTimeCounter = current-frameStart;
         }
+        if (!controllerConnected) socket.emit('mouseMove', {x: mouseX-OFFSETX, y: mouseY-OFFSETY});
     }
 };
 function drawMap() {
@@ -239,12 +245,12 @@ function drawMap() {
         mapTimeCounter = current-mapStart;
     }
 };
-async function resetRenderedChunks() {
+function resetRenderedChunks() {
     if (player) {
-        MAPS[player.map].chunks = [];
-        LAYERS.mapvariables = [];
-        LAYERS.mvariables = [];
-        await updateRenderedChunks();
+        MAPS[player.map].chunks.length = 0;
+        LAYERS.mapvariables.length = 0;
+        LAYERS.mvariables.length = 0;
+        updateRenderedChunks();
     }
 };
 async function updateRenderedChunks() {
@@ -299,11 +305,11 @@ function renderChunk(x, y, map) {
                 var dx = (j % MAPS[map].chunkwidth)*16+MAPS[player.map].chunkJSON[y][x][i].offsetX;
                 var dy = ~~(j / MAPS[map].chunkwidth)*16+MAPS[player.map].chunkJSON[y][x][i].offsetY;
                 if (above) {
-                    tupper.drawImage(tileset, Math.round(imgx), Math.round(imgy), 16, 16, Math.round(dx*4), Math.round(dy*4), 64, 64);
+                    tupper.drawImage(tileset, imgx, imgy, 16, 16, dx*4, dy*4, 64, 64);
                 } else if (variable != -1) {
-                    tvariables[vindex].drawImage(tileset, Math.round(imgx), Math.round(imgy), 16, 16, Math.round(dx*4), Math.round(dy*4), 64, 64);
+                    tvariables[vindex].drawImage(tileset, imgx, imgy, 16, 16, dx*4, dy*4, 64, 64);
                 } else {
-                    tlower.drawImage(tileset, Math.round(imgx), Math.round(imgy), 16, 16, Math.round(dx*4), Math.round(dy*4), 64, 64);
+                    tlower.drawImage(tileset, imgx, imgy, 16, 16, dx*4, dy*4, 64, 64);
                 }
             }
         }
@@ -548,8 +554,9 @@ function drawDebug() {
 function resetFPS() {
     clearInterval(drawLoop);
     drawLoop = setInterval(function() {
-        window.requestAnimationFrame(function() {
+        if (visible) requestAnimationFrame(function() {
             drawFrame();
+            if (settings.useController) updateControllers();
             fpsCounter++;
         });
     }, 1000/settings.fps);
@@ -562,18 +569,21 @@ socket.on('updateTick', function(data) {
         Entity.update(data);
         player = Player.list[playerid];
         updateRenderedChunks();
+        if (settings.useController) sendControllers();
     }
 });
 socket.on('debugTick', function(debug) {
     debugData = debug.data;
     tpsCounter = debug.tps;
     tickTime = debug.tickTime;
+    serverHeapUsed = debug.heapSize;
+    serverHeapMax = debug.heapMax;
 });
 document.onkeydown = function(e) {
     if (loaded) {
         if (!e.isTrusted) {
             socket.emit('timeout');
-        } else if (!inchat && !indebug) {
+        } else if (!inchat && !indebug && !changingKeyBind) {
             var key = e.key.toLowerCase();
             if (key == keybinds.up) {
                 socket.emit('keyPress', {key:'up', state:true});
@@ -610,6 +620,12 @@ document.onkeydown = function(e) {
                 socket.emit('keyPress', {key:'heal', state:false});
                 socket.emit('click', {button: 'left', x: mouseX, y: mouseY, state: false});
                 socket.emit('click', {button: 'right', x: mouseX, y: mouseY, state: false});
+                socket.emit('controllerAxes', {
+                    movex: 0,
+                    movey: 0,
+                    aimx: 0,
+                    aimy: 0
+                });
             }
         }
     }
@@ -648,7 +664,7 @@ document.onmousedown = function(e) {
             mouseX = e.clientX-window.innerWidth/2;
             mouseY = e.clientY-window.innerHeight/2;
         }
-        if (!document.getElementById('chat').contains(e.target) && !document.getElementById('dropdownMenu').contains(e.target) && !document.getElementById('windows').contains(e.target) && !document.getElementById('deathScreen').contains(e.target)) {
+        if (!changingKeyBind && !document.getElementById('chat').contains(e.target) && !document.getElementById('dropdownMenu').contains(e.target) && !document.getElementById('windows').contains(e.target) && !document.getElementById('deathScreen').contains(e.target)) {
             switch (e.button) {
                 case keybinds.use:
                     socket.emit('click', {button: 'left', x: mouseX-OFFSETX, y: mouseY-OFFSETY, state: true});
@@ -683,7 +699,7 @@ document.onmouseup = function(e) {
     }
 };
 document.onmousemove = function(e) {
-    if (loaded) {
+    if (loaded && visible) {
         if (!e.isTrusted) {
             socket.emit('timeout');
         }
@@ -698,16 +714,8 @@ document.onmousemove = function(e) {
             mouseX = e.clientX-window.innerWidth/2;
             mouseY = e.clientY-window.innerHeight/2;
         }
-        socket.emit('mouseMove', {x: mouseX-OFFSETX, y: mouseY-OFFSETY});
-        DroppedItem.updateHighlight();
     }
 };
-setInterval(function() {
-    if (loaded) {
-        socket.emit('mouseMove', {x: mouseX-OFFSETX, y: mouseY-OFFSETY});
-        DroppedItem.updateHighlight();
-    }
-}, 500);
 socket.on('updateSelf', function(data) {
     playerid = data.id;
     document.getElementById('statsHPvalue').style.width = (data.hp/data.maxHP)*100 + '%';
@@ -752,6 +760,7 @@ socket.on('teleport2', function(pos) {
 socket.on('playerDied', function() {
     document.getElementById('respawnButton').style.display = 'none';
     document.getElementById('deathScreen').style.display = 'block';
+    if (controllerConnected) document.getElementById('respawnButton').innerText = 'Press A to Respawn';
     var time = 5;
     document.getElementById('respawnTimer').innerText = time;
     var timer = setInterval(function() {
@@ -767,20 +776,154 @@ function respawn() {
     socket.emit('respawn');
     document.getElementById('respawnButton').style.display = 'none';
     document.getElementById('deathScreen').style.display = 'none';
+    if (controllerConnected) document.getElementById('respawnButton').innerText = 'Respawn';
 };
 
 // automove prevention
-document.addEventListener("visibilitychange", function() {
+document.onvisibilitychange = function() {
     socket.emit('keyPress', {key:'up', state:false});
     socket.emit('keyPress', {key:'down', state:false});
     socket.emit('keyPress', {key:'left', state:false});
     socket.emit('keyPress', {key:'right', state:false});
     socket.emit('keyPress', {key:'heal', state:false});
+    socket.emit('controllerAxes', {
+        movex: 0,
+        movey: 0,
+        aimx: 0,
+        aimy: 0
+    });
+};
+
+// npc prompts
+const promptContainer = document.getElementById('promptContainer');
+socket.on('prompt', async function(id) {
+    var data = Prompts[id];
+    promptContainer.style.display = 'block';
+    await sleep((11-settings.dialogueSpeed)*10);
+    var optionDivs = [];
+    for (var i in data.options) {
+        const div = document.createElement('div');
+        div.classList.add('promptChoice');
+        div.classList.add('ui-lightbutton');
+        div.option = parseInt(i);
+        div.onclick = function() {
+            socket.emit('promptChoose', this.option);
+            promptContainer.style.display = 'none';
+            promptContainer.innerHTML = '<div id="promptText"></div><div id="promptChoices"></div>';
+        };
+        optionDivs[i] = div;
+    }
+    const textDiv = document.getElementById('promptText');
+    await displayText(data.text, textDiv);
+    for (var i in optionDivs) {
+        document.getElementById('promptChoices').appendChild(optionDivs[i]);
+        await sleep((11-settings.dialogueSpeed)*10);
+        await displayText(data.options[i].text, optionDivs[i]);
+    }
 });
+Prompts = [];
+async function displayText(text, div) {
+    var questLabel = false;
+    for (var i in text) {
+        const letter = document.createElement('span');
+        letter.classList.add('ui-lighttext');
+        letter.classList.add('promptFade');
+        if (text[i] == '`') {
+            questLabel = !questLabel;
+            continue;
+        }
+        if (questLabel) letter.style.color = 'cyan';
+        letter.innerText = text[i];
+        div.appendChild(letter);
+        await sleep((11-settings.dialogueSpeed)*5);
+    }
+};
+function getNpcDialogues() {
+    totalassets++;
+    var request = new XMLHttpRequest();
+    request.open('GET', '/client/prompts.json', false);
+    request.onload = async function() {
+        if (this.status >= 200 && this.status < 400) {
+            var json = JSON.parse(this.response);
+            Prompts = json;
+            loadedassets++;
+        } else {
+            console.error('Error: Server returned status ' + this.status);
+            await sleep(1000);
+            request.send();
+        }
+    };
+    request.onerror = function(){
+        console.error('There was a connection error. Please retry');
+    };
+    request.send();
+};
+async function loadNpcDialogues() {};
+
+// Banners
+const bannerContainer = document.getElementById('bannerContainer');
+Banners = [];
+socket.on('banner', function(data) {
+    new Banner(data.text, {
+        type: 'time',
+        time: 10000
+    });
+});
+Banner = function(html, param) {
+    const div = document.createElement('div');
+    div.classList.add('ui-block');
+    div.classList.add('banner');
+    div.innerHTML = html;
+    bannerContainer.insertBefore(div, bannerContainer.firstChild);
+    if (param) {
+        if (param.type == 'id') div.id2 = param.id;
+        else if (param.type == 'time') {
+            setTimeout(async function() {
+                div.style.animationName = 'banner-out';
+                await sleep(500);
+                div.remove();
+                delete Banners[Banners.indexOf(div)];
+            }, param.time);
+        }
+    }
+
+    Banners.unshift(div);
+    return div;
+};
+
+// camera shake
+var cameraShake = {
+    intensity: 0,
+    x: 0,
+    y: 0,
+    xspeed: 0,
+    yspeed: 0
+}
+function startCameraShake(intensity) {
+    cameraShake.intensity = intensity;
+    var shake = setInterval(function() {
+        cameraShake.xspeed = ((Math.random()*(2*cameraShake.intensity)-cameraShake.intensity)-cameraShake.x)/(settings.fps/40);
+        cameraShake.yspeed = ((Math.random()*(2*cameraShake.intensity)-cameraShake.intensity)-cameraShake.y)/(settings.fps/40);
+        cameraShake.intensity *= 0.9;
+        if (cameraShake.intensity < 0.1) {
+            cameraShake.x = 0;
+            cameraShake.y = 0;
+            cameraShake.xspeed = 0;
+            cameraShake.yspeed = 0;
+            clearInterval(shake);
+        }
+    }, 25);
+};
+function updateCameraShake() {
+    cameraShake.x += cameraShake.xspeed;
+    cameraShake.y += cameraShake.yspeed;
+    OFFSETX += cameraShake.x;
+    OFFSETY += cameraShake.y;
+};
 
 // chat
 var inchat = false;
-var chatInput = document.getElementById('chatInput');
+const chatInput = document.getElementById('chatInput');
 chatInput.onfocus = function() {
     inchat = true;
     socket.emit('keyPress', {key:'up', state:false});
@@ -815,9 +958,8 @@ function insertChat(data) {
     if(minute == '0'){
         minute = '00';
     }
-    var msg = document.createElement('div');
-    msg.style = data.style;
-    msg.innerText = '[' + time.getHours() + ':' + minute + '] ' + data.text;
+    const msg = document.createElement('div');
+    msg.innerHTML = '[' + time.getHours() + ':' + minute + '] <span style="' + data.style + '">' + data.text + '</span>';
     var scroll = false;
     if (document.getElementById('chatText').scrollTop + document.getElementById('chatText').clientHeight >= document.getElementById('chatText').scrollHeight - 5) scroll = true;
     document.getElementById('chatText').appendChild(msg);
@@ -825,7 +967,7 @@ function insertChat(data) {
 };
 
 // world map
-var map = document.getElementById('worldMap');
+const map = document.getElementById('worldMap');
 var worldMap = {
     x: 0,
     y: 0,
@@ -882,7 +1024,9 @@ var debugStart = 0;
 var tickTime = 0;
 var entTime = 0;
 var packetTime = 0;
-setInterval(async function() {
+var serverHeapUsed = 0;
+var serverHeapMax = 0;
+setInterval(function() {
     if (loaded) {
         document.getElementById('fps').innerText = 'FPS: ' + fpsCounter;
         document.getElementById('tps').innerText = 'TPS: ' + tpsCounter;
@@ -906,10 +1050,12 @@ setInterval(async function() {
             document.getElementById('mapdrawTime').innerText = 'Map: ' + mapTimeCounter + 'ms';
             document.getElementById('debugdrawTime').innerText = 'Debug: ' + debugTimeCounter + 'ms';
             document.getElementById('tickTime').innerText = 'Tick: ' + tickTime + 'ms';
+            document.getElementById('serverHeap').innerText = 'Server Heap: ' + serverHeapUsed + '/' + serverHeapMax + 'MB';
+            document.getElementById('clientHeap').innerText = 'Heap: ' + Math.round(performance.memory.usedJSHeapSize/1048576*100)/100 + '/' + Math.round(performance.memory.jsHeapSizeLimit/1048576*100)/100 + 'MB';
         }
     }
 }, 1000);
-socket.on('ping', function() {
+socket.on('pong', function() {
     var current = Date.now();
     pingCounter = current-pingSend;
 });
@@ -920,15 +1066,15 @@ const debugConsoleEnabled = new URLSearchParams(window.location.search).get('con
 if (debugConsoleEnabled) {
     var consoleHistory = [];
     var historyIndex = 0;
-    var consoleInput = document.getElementById('debugInput');
-    var consoleLog = document.getElementById('debugLog');
+    const consoleInput = document.getElementById('debugInput');
+    const consoleLog = document.getElementById('debugLog');
     consoleInput.onkeydown = function(event) {
         if (event.key == 'Enter') {
             if (consoleInput.value != '') {
                 socket.emit('debugInput', consoleInput.value);
                 if (consoleInput.value != consoleHistory[consoleHistory.length-1]) consoleHistory.push(consoleInput.value);
                 historyIndex = consoleHistory.length;
-                log = document.createElement('div');
+                const log = document.createElement('div');
                 log.className = 'ui-darkText';
                 log.innerText = '> ' + consoleInput.value;
                 var scroll = false;
@@ -955,7 +1101,7 @@ if (debugConsoleEnabled) {
         }
     };
     socket.on('debugLog', function(msg) {
-        log = document.createElement('div');
+        const log = document.createElement('div');
         log.className = 'ui-darkText';
         log.style.color = msg.color;
         log.innerText = msg.msg;

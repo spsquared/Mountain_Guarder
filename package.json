@@ -1,6 +1,6 @@
 {
   "name": "mountain_guarder",
-  "version": "0.9.1",
+  "version": "0.10.0",
   "description": "Meadow Guarder's sister game!",
   "main": "app.js",
   "scripts": {
@@ -23,7 +23,7 @@
   "bugs": {
     "url": "https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues"
   },
-  "homepage": "https://github.com/definitely-nobody-is-here/Mountain_Guarder#readme",
+  "homepage": "https://mountainguarder.herokuapp.com/",
   "dependencies": {
     "bcrypt": "^5.0.1",
     "cryptr": "^6.0.2",
@@ -31,6 +31,7 @@
     "express": "^4.17.1",
     "express-rate-limit": "^5.5.1",
     "isolated-vm": "^4.3.6",
+    "lodash": "^4.17.21",
     "object-property-lock": "^1.1.0",
     "pathfinding": "^0.4.18",
     "pg": "^8.7.1",

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="50" height="100" tilewidth="16" tileheight="16" infinite="0" nextlayerid="8" nextobjectid="1">
- <tileset firstgid="1" source="roguelikeSheet.tsx"/>
+ <tileset firstgid="1" source="tiles.tsx"/>
  <layer id="1" name="Ground Terrain" width="50" height="100">
   <data encoding="csv">
 522,522,522,522,523,522,522,523,522,523,523,523,522,522,523,522,523,522,522,522,522,523,523,523,523,523,522,523,522,523,522,522,523,522,523,522,523,523,522,522,523,523,522,522,522,522,522,523,523,522,

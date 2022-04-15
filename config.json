@@ -1,4 +1,9 @@
 {
     "offlineMode": false,
-    "useDiscordWebhook": false
+    "useDiscordWebhook": false,
+    "ops": [
+        "Sampleprovider(sp)",
+        "suvanth",
+        "spuhh"
+    ]
 }

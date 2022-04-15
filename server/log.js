@@ -3,44 +3,40 @@
 const fs = require('fs');
 
 // chat
-insertChat = function(text, textcolor) {
-    var style = '';
-    if (textcolor == 'server') {
+insertChat = function(text, color) {
+    var style = color;
+    if (color == 'server') {
         style = 'color: #FFDD00;';
-    } else if (textcolor == 'death') {
+    } else if (color == 'death') {
         style = 'color: #FF0000;';
-    } else if (textcolor == 'error') {
+    } else if (color == 'error') {
         style = 'color: #FF9900;';
-    } else if (textcolor == 'anticheat') {
+    } else if (color == 'anticheat') {
         style = 'color: #FF0000; font-weight: bold;';
-    } else if (textcolor == 'fun') {
+    } else if (color == 'fun') {
         style = 'animation: special 2s linear infinite;';
-    } else {
-        style = 'color: ' + textcolor + ';';
     }
     logColor(text, '\x1b[36m', 'chat');
     io.emit('insertChat', {text:text, style:style});
-    if (!ENV.offlineMode) try {postDiscord(text);} catch (err) {error(err);}
+    if (!ENV.offlineMode && ENV.useDiscordWebhook) try {postDiscord(text);} catch (err) {error(err);};
 };
-insertSingleChat = function(text, textcolor, username, log) {
+insertSingleChat = function(text, color, username, log) {
     var socket = null;
     for (var i in Player.list) {
         if (Player.list[i].name == username) socket = Player.list[i].socket;
     }
     if (socket) {
-        var style = '';
-        if (textcolor == 'server') {
+        var style = color;
+        if (color == 'server') {
             style = 'color: #FFDD00;';
-        } else if (textcolor == 'death') {
+        } else if (color == 'death') {
             style = 'color: #FF0000;';
-        } else if (textcolor == 'error') {
+        } else if (color == 'error') {
             style = 'color: #FF9900;';
-        } else if (textcolor == 'anticheat') {
+        } else if (color == 'anticheat') {
             style = 'color: #FF0000; font-weight: bold;';
-        } else if (textcolor == 'fun') {
+        } else if (color == 'fun') {
             style = 'animation: special 2s linear infinite;';
-        } else {
-            style = 'color: ' + textcolor + ';';
         }
         if (log) logColor(text, '\x1b[36m', 'chat');
         socket.emit('insertChat', {text:text, style:style});
@@ -76,4 +72,5 @@ appendLog = function(text, type) {
     if (type == 'log') typestring = 'LOG ';
     if (type == 'chat') typestring = 'CHT ';
     fs.appendFileSync('./server/log.txt', typestring + text + '\n', {encoding: 'utf-8'});
+    if (global.ENV) if (!ENV.offlineMode && ENV.useDiscordWebhook && type != 'chat') try {postDebugDiscord(typestring, text.toString());} catch (err) {error(err);};
 };

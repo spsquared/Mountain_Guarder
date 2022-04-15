@@ -149,9 +149,21 @@
         "C:/Users/jacki/Google Drive/Meadow-Guarder/client/maps/roguelikeSheet.tsx": {
             "scaleInDock": 1
         },
+        "C:/Users/jacki/Google Drive/mountainguarder(dev)/coins.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 5.5
+        },
+        "NaN.tmx": {
+            "scale": 1,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 272,
+                "y": 280
+            }
+        },
         "Outpost Cottage 1.tmx": {
             "scale": 5.5,
-            "selectedLayer": 3,
+            "selectedLayer": 4,
             "viewCenter": {
                 "x": 112,
                 "y": 132
@@ -186,24 +198,32 @@
             "selectedLayer": 0,
             "viewCenter": {
                 "x": 248,
-                "y": 255.99999999999997
+                "y": 255.33333333333331
             }
         },
         "World.tmx": {
-            "scale": 3,
-            "selectedLayer": 9,
+            "scale": 1,
+            "selectedLayer": 16,
             "viewCenter": {
-                "x": 77.99999999999997,
-                "y": 171.16666666666666
+                "x": 222,
+                "y": 141.5
             }
         },
         "roguelikeSheet.tsx": {
+            "dynamicWrapping": true,
             "scaleInDock": 3,
-            "scaleInEditor": 4
+            "scaleInEditor": 2
+        },
+        "tiles.tsx": {
+            "dynamicWrapping": false,
+            "scaleInDock": 2,
+            "scaleInEditor": 1
         }
     },
-    "frame.defaultDuration": 200,
+    "frame.defaultDuration": 125,
     "last.exportedFilePath": "C:/Users/jacki/Documents/JS_2021_Jie/rpg thing/maps",
+    "last.externalTilesetPath": "C:/Users/jacki/Google Drive/Mountain_Guarder/client/maps",
+    "last.imagePath": "C:/Users/jacki/Google Drive/Mountain_Guarder/client/maps",
     "map.height": 50,
     "map.lastUsedExportFilter": "JSON map files (*.json)",
     "map.lastUsedFormat": "tmx",
@@ -211,27 +231,28 @@
     "map.tileWidth": 16,
     "map.width": 50,
     "openFiles": [
-        "roguelikeSheet.tsx",
         "The Void.tmx",
         "World.tmx",
         "Outpost Cottage 1.tmx",
         "Outpost Cottage 2.tmx",
-        "Preview.tmx"
+        "Preview.tmx",
+        "NaN.tmx",
+        "tiles.tsx"
     ],
     "project": "maps.tiled-project",
     "recentFiles": [
-        "roguelikeSheet.tsx",
         "The Void.tmx",
+        "tiles.tsx",
+        "NaN.tmx",
         "Preview.tmx",
         "Outpost Cottage 2.tmx",
         "Outpost Cottage 1.tmx",
         "World.tmx",
+        "roguelikeSheet.tsx",
+        "C:/Users/jacki/Google Drive/mountainguarder(dev)/coins.tsx",
         "C:/Users/jacki/Documents/JS_2021_Jie/rpg thing/maps/The River.tmx",
         "C:/Users/jacki/Google Drive/Meadow-Guarder/client/maps/The Village.tmx",
-        "Outpost Cottage.tmx",
-        "C:/Users/jacki/Google Drive/Meadow-Guarder/client/maps/Secret Tunnel Part 2.tmx",
-        "C:/Users/jacki/Google Drive/BattleBoxes Files/Game/Lobby.tmx",
-        "C:/Users/jacki/Google Drive/BattleBoxes Files/Game/Map1.tmx"
+        "Outpost Cottage.tmx"
     ],
     "tileset.lastUsedFormat": "tsx",
     "tileset.tileSize": {

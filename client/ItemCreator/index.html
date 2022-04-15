@@ -7,9 +7,9 @@
         <meta content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=2.0, minimum-scale=1.0, user-scalable=no">
         <meta id="viewport" name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=2.0, minimum-scale=1.0, user-scalable=no">
         <meta charset="utf-8">
-        <link rel="icon" href="./../assets/favicon.ico" type="image/x-icon">
-        <script src="./index.js" defer></script>
-        <link rel="stylesheet" href="./main.css">
+        <link rel="icon" href="/client/assets/favicon.ico" type="image/x-icon">
+        <script src="/client/ItemCreator/index.js" defer></script>
+        <link rel="stylesheet" href="/client/ItemCreator/main.css">
     </head>
     <body>
         <span id="header">
@@ -32,7 +32,7 @@
                 <option value="crystal">Crystal</option>
             </select><br>
             <div id="statsWeapon">
-                &emsp;Projectile:&nbsp;<input type="text" id="projectile" class="text" maxlength="100"><br>
+                &emsp;Projectile:&nbsp;<input type="text" id="projectile" class="text" maxlength="100" value="arrow"><br>
                 &emsp;Projectile Pattern:<select id="projectilePattern" class="select">
                     <option value="single">Single</option>
                     <option value="triple">Triple (V)</option>
@@ -41,15 +41,19 @@
                     <option value="triangle">Triple (△)</option>
                     <option value="ring">Decagon</option>
                 </select><br>
-                &emsp;Projectile Speed:&nbsp;<input type="number" id="projectileSpeed" class="text-small" min="0" max="999999999" step="0.1"><br>
-                &emsp;Projectile Range:&nbsp;<input type="number" id="projectileRange" class="text-small" min="0" max="999999999" step="0.1"><br>
-                &emsp;Damage:&nbsp;<input type="number" id="damage" class="text-small" min="0" max="999999999"><br>
-                &emsp;Damage Type:&nbsp;<input type="text" id="damageType" class="text-small" maxlength="100"><br>
-                &emsp;Crit Chance:&nbsp;<input type="number" id="critChance" class="text-small" min="0" max="1" step="0.01"><br>
-                &emsp;Crit Damage:&nbsp;<input type="number" id="critDamage" class="text-small" min="0" max="1000000" step="0.01"><br>
-                &emsp;Knockback:&nbsp;<input type="number" id="knockback" class="text-small" min="0" max="999999999"><br>
-                &emsp;Usetime (ticks):&nbsp;<input type="number" id="useTime" class="text-small" min="0" max="999999999"><br>
-                &emsp;Manacost:&nbsp;<input type="number" id="manaCost" class="text-small" min="0" max="999999999"><br>
+                &emsp;Projectile Speed:&nbsp;<input type="number" id="projectileSpeed" class="text-small" min="0" max="999999999" step="0.1" value="1"><br>
+                &emsp;Projectile Range:&nbsp;<input type="number" id="projectileRange" class="text-small" min="0" max="999999999" step="0.1" value="1"><br>
+                &emsp;Damage:&nbsp;<input type="number" id="damage" class="text-small" min="0" max="999999999" value="10"><br>
+                &emsp;Damage Type:<select id="damageType" class="select">
+                    <option value="ranged">Ranged</option>
+                    <option value="magic">Purple</option>
+                    <option value="melee">Melee</option>
+                </select><br>
+                &emsp;Crit Chance:&nbsp;<input type="number" id="critChance" class="text-small" min="0" max="1" step="0.01" value="0"><br>
+                &emsp;Crit Damage:&nbsp;<input type="number" id="critPower" class="text-small" min="0" max="1000000" step="0.01" value="0"><br>
+                &emsp;Knockback:&nbsp;<input type="number" id="knockback" class="text-small" min="0" max="999999999" step="0.1" value="1"><br>
+                &emsp;Usetime (ticks):&nbsp;<input type="number" id="useTime" class="text-small" min="0" max="999999999" value="20"><br>
+                &emsp;Manacost:&nbsp;<input type="number" id="manaCost" class="text-small" min="0" max="999999999" value="0"><br>
                 &emsp;Held Angle:&nbsp;<select id="heldAngle" class="select">
                     <option value="-45">-45</option>
                     <option value="45">45</option>
@@ -73,8 +77,8 @@
 };
                 </textarea>
             </div>
-            &emsp;Rarity:&nbsp;<input type="number" id="rarity" class="text-small" min="0" max="999999999"><br>
-            &emsp;Drop Chance:&nbsp;<input type="number" id="dropChance" class="text-small" min="0" max="1" step="0.01"><br><br>
+            &emsp;Rarity:&nbsp;<input type="number" id="rarity" class="text-small" min="0" max="999999999" value="0"><br>
+            &emsp;Maximum Stack Size:&nbsp;<input type="number" id="maxStackSize" class="text-small" min="0" max="1000000" value="1"><br>
             <b>Effects:</b><br>
             &emsp;Health Boost:&nbsp;<input type="number" id="effecthealth" class="text-small" min="0" max="1000" step="0.01"><br>
             &emsp;All Damage Boost:&nbsp;<input type="number" id="effectdamage" class="text-small" min="0" max="1000" step="0.01"><br>
@@ -86,6 +90,7 @@
             &emsp;Crit Damage Increase:&nbsp;<input type="number" id="effectcritDamage" class="text-small" min="0" max="1000" step="0.01"><br>
             &emsp;Damage Reduction:&nbsp;<input type="number" id="effectdamageReduction" class="text-small" min="0" max="1000" step="1"><br>
             &emsp;Defense:&nbsp;<input type="number" id="effectdefense" class="text-small" min="0" max="1" step="0.01"><br>
+            &emsp;Speed:&nbsp;<input type="number" id="effectspeed" class="text-small" min="0" max="1" step="0.1"><br>
         </div>
         <div id="itemPreview">
             <div id="itemPreviewItem">

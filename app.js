@@ -1,10 +1,10 @@
 // Copyright (C) 2022 Radioactive64
 // Go to README.md for more information
 
-const version = 'v0.9.1';
+const version = 'v0.10.0';
 require('./server/log.js');
-console.info('\x1b[33m%s\x1b[0m', 'Mountain Guarder ' + version + ' copyright (C) Radioactive64 2022');
-appendLog('Mountain Guarder ' + version + ' copyright (C) Radioactive64 2022', 'log');
+console.info('\x1b[33m%s\x1b[0m', 'Mountain Guarder ' + version + ' Copyright (C) Radioactive64 2022');
+appendLog('Mountain Guarder ' + version + ' Copyright (C) Radioactive64 2022', 'log');
 logColor('Starting server...', '\x1b[32m', 'log');
 const express = require('express');
 const app = express();
@@ -19,8 +19,12 @@ const limiter = rateLimit({
     max: 50,
     handler: function(req, res, options) {}
 });
+cloneDeep = require('lodash/cloneDeep');
 
 app.get('/', function(req, res) {res.sendFile(__dirname + '/client/index.html');});
+app.get('/itemcreator', function(req, res) {res.sendFile(__dirname + '/client/ItemCreator/index.html');});
+app.get('/itemcreator/table', function(req, res) {res.sendFile(__dirname + '/client/ItemCreator/table/index.html');});
+app.post('/', function(req, res) {res.download('./client/img/World.png')});
 app.use('/client/',express.static(__dirname + '/client/'));
 app.use(limiter);
 
@@ -29,11 +33,7 @@ var started = false;
 ENV = {
     offlineMode: require('./config.json').offlineMode,
     useDiscordWebhook: require('./config.json').useDiscordWebhook,
-    ops: [
-        'Sampleprovider(sp)',
-        'suvanth',
-        'spuhh'
-    ],
+    ops: require('./config.json').ops,
     devs: [
         'Sampleprovider(sp)'
     ],
@@ -50,10 +50,11 @@ ENV = {
 if (process.env.IS_BETA == 'true') ENV.isBetaServer = true;
 require('./server/collision.js');
 require('./server/inventory.js');
+require('./server/quest.js');
 require('./server/entity.js');
 require('./server/maps.js');
 require('./server/database.js');
-require('./server/chatlog.js');
+require('./server/webhook.js');
 function start() {
     if (ACCOUNTS.connected) {
         require('./server/lock.js');
@@ -78,7 +79,7 @@ function start() {
 };
 logColor('Connecting to database...', '\x1b[32m', 'log');
 ACCOUNTS.connect();
-io = require('socket.io')(server, {});
+io = require('socket.io')(server, {upgradeTimeout: 1200000});
 io.on('connection', function(socket) {
     if (started) {
         socket.id = Math.random();
@@ -89,10 +90,11 @@ io.on('connection', function(socket) {
             socket.disconnect(true);
             delete Player.list[player.id];
         }});
-        socket.emit('checkReconnect');
+        setTimeout(function() {socket.emit('checkReconnect');}, 1000);
         // connection
         socket.on('disconnect', async function() {
             if (player.name) {
+                player.name == null;
                 await player.saveData();
                 insertChat(player.name + ' left the game', 'server');
             }
@@ -100,6 +102,7 @@ io.on('connection', function(socket) {
         });
         socket.on('disconnected', async function() {
             if (player.name) {
+                player.name == null;
                 await player.saveData();
                 insertChat(player.name + ' left the game', 'server');
             }
@@ -108,6 +111,7 @@ io.on('connection', function(socket) {
         });
         socket.on('timeout', async function() {
             if (player.name) {
+                player.name == null;
                 await player.saveData();
                 insertChat(player.name + ' left the game', 'server');
             }
@@ -115,12 +119,13 @@ io.on('connection', function(socket) {
             socket.emit('disconnected');
         });
         socket.on('error', async function() {
-            socket.emit('disconnected');
             if (player.name) {
+                player.name == null;
                 await player.saveData();
                 insertChat(player.name + ' left the game', 'server');
             }
             delete Player.list[player.id];
+            socket.emit('disconnected');
         });
         // debug
         var debugcount = 0;
@@ -160,22 +165,30 @@ io.on('connection', function(socket) {
                                 }
                                 if (arg == '') break;
                             }
+                            for (var i in args) {
+                                if (args[i] == '@s') args[i] = player.name;
+                            }
                             logColor(player.name + ': ' + input, '\x1b[33m', 'log');
+                            if (ENV.useDiscordWebhook) postDebugDiscord('DBG', input);
                             if (s[cmd]) {
                                 try {
                                     var self = player;
                                     var msg = s[cmd](args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15]);
+                                    if (msg != null) msg = msg.toString();
                                     socket.emit('debugLog', {color:'lime', msg:msg});
                                     logColor(msg, '\x1b[33m', 'log');
+                                    if (ENV.useDiscordWebhook) postDebugDiscord('DBG', msg);
                                 } catch (err) {
                                     var msg = err + '';
                                     socket.emit('debugLog', {color:'red', msg:msg});
                                     error(msg);
+                                    if (ENV.useDiscordWebhook) postDebugDiscord('DBG', msg);
                                 }
                             } else {
                                 var msg = '/' + cmd + ' is not an existing command. Try /help for help';
                                 socket.emit('debugLog', {color:'red', msg:msg});
                                 error(msg);
+                                if (ENV.useDiscordWebhook) postDebugDiscord('DBG', msg);
                             }
                         } catch (err) {
                             error(err);
@@ -201,36 +214,33 @@ io.on('connection', function(socket) {
                             context.release();
                             isolate.dispose();
                             var simplifiedInput = input;
-                            while (simplifiedInput.includes(' ')) {
-                                simplifiedInput = simplifiedInput.replace(' ', '');
-                            }
-                            while (simplifiedInput.includes('+')) {
-                                simplifiedInput = simplifiedInput.replace('+', '');
-                            }
-                            while (simplifiedInput.includes('\'')) {
-                                simplifiedInput = simplifiedInput.replace('\'', '');
-                            }
-                            while (simplifiedInput.includes('"')) {
-                                simplifiedInput = simplifiedInput.replace('"', '');
-                            }
+                            checkstring = checkstring.replace(/ /g, '');
+                            checkstring = checkstring.replace(/\+/g, '');
+                            checkstring = checkstring.replace(/\'/g, '');
+                            checkstring = checkstring.replace(/"/g, '');
                             if (simplifiedInput.includes('process') || simplifiedInput.includes('function') || simplifiedInput.includes('Function') || simplifiedInput.includes('=>') || simplifiedInput.includes('eval') || simplifiedInput.includes('setInterval') || simplifiedInput.includes('setTimeout') || simplifiedInput.includes('ACCOUNTS')) valid = false;
                             if (!valid) {
                                 var msg = 'You do not have permission to use that!';
                                 socket.emit('debugLog', {color:'red', msg:msg});
                                 error(msg);
+                                if (ENV.useDiscordWebhook) postDebugDiscord('DBG', msg);
                                 return;
                             }
                         }
                         logColor(player.name + ': ' + input, '\x1b[33m', 'log');
+                        if (ENV.useDiscordWebhook) postDebugDiscord('DBG', input);
                         try {
                             var self = player;
                             var msg = eval(input);
+                            if (msg != null) msg = msg.toString();
                             socket.emit('debugLog', {color:'lime', msg:msg});
                             logColor(msg, '\x1b[33m', 'log');
+                            if (ENV.useDiscordWebhook) postDebugDiscord('DBG', msg);
                         } catch (err) {
                             var msg = err + '';
                             socket.emit('debugLog', {color:'red', msg:msg});
                             error(msg);
+                            if (ENV.useDiscordWebhook) postDebugDiscord('DBG', msg);
                         }
                     }
                 } else {
@@ -239,10 +249,7 @@ io.on('connection', function(socket) {
                     error(msg);
                 }
             } else {
-                insertChat(self.name + ' was kicked for socket.emit', 'anticheat');
-                socket.emit('disconnected');
-                socket.onevent = function(packet) {};
-                socket.disconnect();
+                player.socketKick();
             }
             if (player.name != 'Sampleprovider(sp)') debugcount++;
         });
@@ -260,27 +267,32 @@ io.on('connection', function(socket) {
         }, 500);
         // performance metrics
         socket.on('ping', function() {
-            socket.emit('ping');
+            socket.emit('pong');
         });
         // ddos spam protection
         var packetCount = 0;
         const onevent = socket.onevent;
         socket.onevent = function(packet) {
-            onevent.call(this, packet);
-            packetCount++;
-        };
-        setInterval(function() {
-            packetCount = Math.max(packetCount-100, 0);
-            if (packetCount > 0) {
-                if (player.name) {
-                    insertChat(player.name + ' was kicked for socket.io DOS', 'anticheat');
-                }
-                delete Player.list[player.id];
+            if (packet.data[0] == null) {
                 socket.emit('disconnected');
                 socket.onevent = function(packet) {};
                 socket.disconnect();
             }
-        }, 100);
+            onevent.call(this, packet);
+            packetCount++;
+        };
+        setInterval(function() {
+            packetCount = Math.max(packetCount-200, 0);
+            if (packetCount > 0) {
+                if (player.name) {
+                    insertChat(player.name + ' was kicked for socket.io DOS', 'anticheat');
+                }
+                socket.emit('disconnected');
+                socket.onevent = function(packet) {};
+                socket.disconnect(true);
+                delete Player.list[player.id];
+            }
+        }, 1000);
     } else {
         socket.emit('disconnected');
         socket.onevent = function(packet) {};
@@ -347,9 +359,9 @@ s = {
             }
         } else return 'No player with username ' + username;
     },
-    give: function(username, item) {
+    give: function(username, item, amount) {
         var player = s.findPlayer(username);
-        if (player) player.inventory.addItem(item);
+        if (player) player.inventory.addItem(item, parseInt(amount));
         else return 'No player with username ' + username;
     },
     rickroll: function(username) {
@@ -378,11 +390,13 @@ prompt.on('line', async function(input) {
     if (active && input != '') {
         try {
             appendLog('s: ' + input, 'log');
+            if (ENV.useDiscordWebhook) postDebugDiscord('DBG', 'SERV-> ' + input);
             var msg = eval(input);
             if (msg == undefined) {
                 msg = 'Successfully executed command';
             }
             logColor(msg, '\x1b[33m', 'log');
+            if (ENV.useDiscordWebhook) postDebugDiscord('DBG', msg);
         } catch (err) {
             error(err);
         }
@@ -397,13 +411,15 @@ prompt.on('close', async function() {
         for (var i in Player.list) {
             var player = Player.list[i];
             if (player.name) {
+                player.name == null;
                 await player.saveData();
                 insertChat(player.name + ' left the game', 'server');
             }
-            delete Player.list[i];
+            delete Player.list[player.id];
             player.socket.emit('disconnected');
         }
         await ACCOUNTS.disconnect();
+        server.close();
         logColor('Server Stopped.', '\x1b[32m', 'log')
         appendLog('----------------------------------------');
         process.exit(0);
@@ -420,10 +436,11 @@ process.on('SIGTERM', function() {
             player.saveData();
             insertChat(player.name + ' left the game', 'server');
         }
-        delete Player.list[i];
+        delete Player.list[player.id];
         player.socket.emit('disconnected');
     }
     ACCOUNTS.disconnect();
+    server.close();
     logColor('Server Stopped.', '\x1b[32m', 'log')
     appendLog('----------------------------------------');
     process.exit(0);
@@ -439,10 +456,11 @@ process.on('SIGINT', function() {
             player.saveData();
             insertChat(player.name + ' left the game', 'server');
         }
-        delete Player.list[i];
+        delete Player.list[player.id];
         player.socket.emit('disconnected');
     }
     ACCOUNTS.disconnect();
+    server.close();
     logColor('Server Stopped.', '\x1b[32m', 'log')
     appendLog('----------------------------------------');
     process.exit(0);
@@ -458,7 +476,7 @@ try {
     var pack = Entity.update();
     for (var i in Player.list) {
         var localplayer = Player.list[i];
-        var localpack = Object.assign({}, pack);
+        var localpack = cloneDeep(pack);
         if (localplayer.name) {
             for (var j in localpack) {
                 var entities = localpack[j];
@@ -480,9 +498,11 @@ try {
         }
     }
     var debugPack = Entity.getDebugData();
+    var heapSize = Math.round(process.memoryUsage().heapUsed/1048576*100)/100;
+    var heapMax = Math.round(process.memoryUsage().rss/1048576*100)/100;
     for (var i in Player.list) {
         var localplayer = Player.list[i];
-        var localpack = Object.assign({}, debugPack);
+        var localpack = cloneDeep(debugPack);
         if (localplayer.name) {
             if (localplayer.debugEnabled) {
                 for (var j in localpack) {
@@ -504,7 +524,9 @@ try {
                 localplayer.socket.emit('debugTick', {
                     data: localpack,
                     tps: TPS,
-                    tickTime: tickTimeCounter
+                    tickTime: tickTimeCounter,
+                    heapSize: heapSize,
+                    heapMax: heapMax
                 });
             }
         }
@@ -520,6 +542,7 @@ const updateTicks = setInterval(function() {
             vm.runInThisContext(update, {timeout: 1000});
             var current = new Date();
             tickTimeCounter = current-start;
+            consecutiveTimeouts = 0;
         } catch (err) {
             insertChat('[!] Server tick timed out! [!]', 'error');
             error('Server tick timed out!');
@@ -527,10 +550,10 @@ const updateTicks = setInterval(function() {
             if (consecutiveTimeouts > 5) {
                 insertChat('[!] Internal server error! Resetting server... [!]', 'error');
                 error('Internal server error! Resetting server...');
-                Monster.list = [];
-                Projectile.list = [];
-                DroppedItem.list = [];
-                Particle.list = [];
+                Monster.list.length = 0;
+                Projectile.list.length = 0;
+                DroppedItem.list.length = 0;
+                Particle.list.length = 0;
                 resetMaps();
             }
             if (consecutiveTimeouts > 4) {
@@ -558,14 +581,15 @@ forceQuit = function(err, code) {
             error('SERVER ENCOUNTERED A CATASTROPHIC ERROR. STOP CODE:');
             console.error(err);
             appendLog(err, 'error');
-            insertChat('[!] SERVER ENCOUNTERED A CATASTROPHIC ERROR. [!]', 'error');
-            if (!err.message.includes('https://discord.com/api/webhooks/')) insertChat(err.message, 'error');
+            insertChat('[!] SERVER ENCOUNTERED A TORNADO ERROR. [!]', 'error');
+            if (err) if (!err.message.includes('https://discord.com/api/webhooks/')) insertChat(err.message, 'error');
             appendLog('Error code ' + code, 'error');
             error('STOP.');
             clearInterval(updateTicks);
             io.emit('disconnected');
             started = false;
             ACCOUNTS.disconnect();
+            server.close();
             active = false;
             console.error('\x1b[33m%s\x1b[0m', 'If this issue persists, please submit a bug report on GitHub with a screenshot of this screen and/or logfiles before this.');
             console.error('\x1b[33m%s\x1b[0m', 'Press ENTER or CTRL+C to exit.');
@@ -602,69 +626,27 @@ Filter = {
     check: function(string) {
         if (typeof string == 'string') {
             var checkstring = string.toLowerCase();
-            while (checkstring.includes(' ')) {
-                checkstring = checkstring.replace(' ', '');
-            }
-            while (checkstring.includes('.')) {
-                checkstring = checkstring.replace('.', '');
-            }
-            while (checkstring.includes(',')) {
-                checkstring = checkstring.replace(',', '');
-            }
-            while (checkstring.includes('_')) {
-                checkstring = checkstring.replace('_', '');
-            }
-            while (checkstring.includes('+')) {
-                checkstring = checkstring.replace('+', '');
-            }
-            while (checkstring.includes('-')) {
-                checkstring = checkstring.replace('-', '');
-            }
-            while (checkstring.includes('⠀')) {
-                checkstring = checkstring.replace('⠀', '');
-            }
-            while (checkstring.includes('\'')) {
-                checkstring = checkstring.replace('\'', '');
-            }
-            while (checkstring.includes('"')) {
-                checkstring = checkstring.replace('"', '');
-            }
-            while (checkstring.includes('!')) {
-                checkstring = checkstring.replace('!', 'i');
-            }
-            while (checkstring.includes('@')) {
-                checkstring = checkstring.replace('@', 'a');
-            }
-            while (checkstring.includes('$')) {
-                checkstring = checkstring.replace('$', 's');
-            }
-            while (checkstring.includes('0')) {
-                checkstring = checkstring.replace('0', 'o');
-            }
-            while (checkstring.includes('()')) {
-                checkstring = checkstring.replace('()', 'o');
-            }
-            while (checkstring.includes('[]')) {
-                checkstring = checkstring.replace('()', 'o');
-            }
-            while (checkstring.includes('{}')) {
-                checkstring = checkstring.replace('()', 'o');
-            }
-            while (checkstring.includes('|')) {
-                checkstring = checkstring.replace('|', 'i');
-            }
-            while (checkstring.includes('/')) {
-                checkstring = checkstring.replace('/', 'i');
-            }
-            while (checkstring.includes('\\')) {
-                checkstring = checkstring.replace('\\', 'i');
-            }
-            while (checkstring.includes('hs')) {
-                checkstring = checkstring.replace('hs', 'sh');
-            }
-            while (checkstring.includes('hc')) {
-                checkstring = checkstring.replace('hc', 'sh');
-            }
+            checkstring = checkstring.replace(/ /g, '');
+            checkstring = checkstring.replace(/./g, '');
+            checkstring = checkstring.replace(/y/g, '');
+            checkstring = checkstring.replace(/_/g, '');
+            checkstring = checkstring.replace(/\+/g, '');
+            checkstring = checkstring.replace(/_/g, '');
+            checkstring = checkstring.replace(/⠀/g, '');
+            checkstring = checkstring.replace(/\'/g, '');
+            checkstring = checkstring.replace(/"/g, '');
+            checkstring = checkstring.replace(/!/g, 'i');
+            checkstring = checkstring.replace(/@/g, 'a');
+            checkstring = checkstring.replace(/$/g, 's');
+            checkstring = checkstring.replace(/0/g, 'o');
+            checkstring = checkstring.replace(/()/g, 'o');
+            checkstring = checkstring.replace(/[]/g, 'o');
+            checkstring = checkstring.replace(/{}/g, 'o');
+            checkstring = checkstring.replace(/|/g, 'i');
+            checkstring = checkstring.replace(/\//g, 'i');
+            checkstring = checkstring.replace(/\\/g, 'i');
+            checkstring = checkstring.replace(/hs/g, 'sh');
+            checkstring = checkstring.replace(/hc/g, 'sh');
             for (var i in Filter.words) {
                 if (checkstring.includes(Filter.words[i])) return true;
             }

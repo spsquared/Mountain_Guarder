@@ -1,6 +1,6 @@
 // Copyright (C) 2022 Radioactive64
 
-const version = 'v0.9.1';
+const version = 'v0.10.0';
 var firstload = false;
 // canvas
 CTXRAW = document.getElementById('ctx');
@@ -46,10 +46,19 @@ settings = {
     renderDistance: 1,
     renderQuality: 100,
     particles: true,
+    dialogueSpeed: 5,
+    pointerLock: false,
+    useController: false,
     chatBackground: false,
     chatSize: 2,
     highContrast: false,
     debug: false
+};
+controllerSettings = {
+    sensitivity: 100,
+    quadraticSensitivity: true,
+    driftX: 0,
+    driftY: 0
 };
 keybinds = {
     up: 'w',
@@ -59,6 +68,8 @@ keybinds = {
     heal: ' ',
     use: 0,
     second: 2,
+    swap: 'tab',
+    drop: 'q',
     chat: 't',
     settings: null,
     inventory: 'e',
@@ -132,38 +143,35 @@ resetCanvases();
 // right click and highlight prevention
 document.querySelectorAll("input").forEach(function(item) {if (item.type != 'text' && item.type != 'password') {item.addEventListener('focus', function() {this.blur();});}});
 document.querySelectorAll("button").forEach(function(item) {item.addEventListener('focus', function() {this.blur();});});
-document.getElementById('ctx').addEventListener('contextmenu', function(e) {e.preventDefault()});
-document.getElementById('fade').addEventListener('contextmenu', function(e) {e.preventDefault()});
-document.getElementById('deathScreen').addEventListener('contextmenu', function(e) {e.preventDefault()});
-document.getElementById('regionName').addEventListener('contextmenu', function(e) {e.preventDefault()});
-document.getElementById('stats').addEventListener('contextmenu', function(e) {e.preventDefault()});
-document.getElementById('chatText').addEventListener('contextmenu', function(e) {e.preventDefault()});
-document.getElementById('dropdownMenu').addEventListener('contextmenu', function(e) {e.preventDefault()});
-document.getElementById('windows').addEventListener('contextmenu', function(e) {e.preventDefault()});
-document.getElementById('loadingContainer').addEventListener('contextmenu', function(e) {e.preventDefault()});
-document.getElementById('ctx').addEventListener('dblclick', function(e) {e.preventDefault()});
-document.getElementById('fade').addEventListener('dblclick', function(e) {e.preventDefault()});
-document.getElementById('deathScreen').addEventListener('dblclick', function(e) {e.preventDefault()});
-document.getElementById('regionName').addEventListener('dblclick', function(e) {e.preventDefault()});
-document.getElementById('stats').addEventListener('dblclick', function(e) {e.preventDefault()});
-document.getElementById('chatText').addEventListener('dblclick', function(e) {e.preventDefault()});
-document.getElementById('dropdownMenu').addEventListener('dblclick', function(e) {e.preventDefault()});
-document.getElementById('windows').addEventListener('dblclick', function(e) {e.preventDefault()});
-document.getElementById('loadingContainer').addEventListener('dblclick', function(e) {e.preventDefault()});
-document.getElementById('ctx').addEventListener('dragstart', function(e) {e.preventDefault()});
-document.getElementById('fade').addEventListener('dragstart', function(e) {e.preventDefault()});
-document.getElementById('deathScreen').addEventListener('dragstart', function(e) {e.preventDefault()});
-document.getElementById('regionName').addEventListener('dragstart', function(e) {e.preventDefault()});
-document.getElementById('stats').addEventListener('dragstart', function(e) {e.preventDefault()});
-document.getElementById('chatText').addEventListener('dragstart', function(e) {e.preventDefault()});
-document.getElementById('dropdownMenu').addEventListener('dragstart', function(e) {e.preventDefault()});
-document.getElementById('windows').addEventListener('dragstart', function(e) {e.preventDefault()});
-document.getElementById('loadingContainer').addEventListener('dragstart', function(e) {e.preventDefault()});
+function preventDefaults(id) {
+    const element = document.getElementById(id);
+    element.addEventListener('contextmenu', function(e) {e.preventDefault()});
+    element.addEventListener('dblclick', function(e) {e.preventDefault()});
+    element.addEventListener('dragstart', function(e) {e.preventDefault()});
+};
+preventDefaults('ctx');
+preventDefaults('fade');
+preventDefaults('deathScreen');
+preventDefaults('regionName');
+preventDefaults('promptContainer');
+preventDefaults('stats');
+preventDefaults('chatText');
+preventDefaults('dropdownMenu');
+preventDefaults('windows');
+preventDefaults('loadingContainer');
 
 // version
 document.getElementById('version').innerText = version;
 
 // error logging
+const error = console.error;
+console.error = function(msg) {
+    error(msg);
+    insertChat({
+        text: 'An error occurred:\n' + msg,
+        style: 'color: #FF0000;'
+    });
+};
 window.onerror = function(err) {
     insertChat({
         text: 'An error occurred:\n' + err,
@@ -172,6 +180,20 @@ window.onerror = function(err) {
 };
 window.onoffline = function(e){
     socket.emit('timeout');
+};
+
+// visibility
+visible = true;
+document.onvisibilitychange = function(e) {
+    if (document.visibilityState == 'hidden') {
+        visible = false;
+    } else {
+        visible = true;
+    }
+};
+const onevent = socket.onevent;
+socket.onevent = function(packet) {
+    if (visible) onevent.call(this, packet);
 };
 
 // disconnections
@@ -187,24 +209,28 @@ socket.on('disconnect', function() {
 socket.on('disconnected', function() {
     document.getElementById('disconnectedContainer').style.display = 'block';
     socket.emit('disconnected');
+    socket.off('disconnected');
 });
 
 // pointer lock
 var pointerLocked = false;
 setInterval(function() {
-    if (document.pointerLockElement == document.body) pointerLocked = true;
-    else {
-        pointerLocked = false;
-        document.getElementById('crossHair').style.top = '-11px';
-        document.getElementById('crossHair').style.left = '-11px';
+    if (loaded && visible) {
+        if (document.pointerLockElement == document.body) pointerLocked = true;
+        else {
+            pointerLocked = false;
+            if (!controllerConnected) {
+                document.getElementById('crossHair').style.top = '-22px';
+                document.getElementById('crossHair').style.left = '-22px';
+            }
+        }
     }
 }, 50);
 
 // not rickrolling
-const onevent = socket.onevent;
 setInterval(function() {
     socket.onevent = function(packet) {
-        onevent.call(this, packet);
+        if (visible) onevent.call(this, packet);
     };
     socket.off('rickroll');
     socket.on('rickroll', function() {
@@ -225,7 +251,7 @@ setInterval(function() {
     socket.off('loudrickroll');
     socket.on('loudrickroll', function() {
         var rickroll = new Audio();
-        rickroll.src = './client/sound/music/400BeesInsideOfAKnee.mp3';
+        rickroll.src = './client/sound/music/null.mp3';
         rickroll.oncanplay = function() {
             rickroll.play();
         };

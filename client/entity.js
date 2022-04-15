@@ -59,6 +59,9 @@ Entity.update = function(data) {
 Entity.draw = function() {
     if (settings.debug) entStart = Date.now();
     var entities = [];
+    if (!settings.particles) {
+        Particle.list = [];
+    }
     for (var i in Player.list) {
         if (Player.list[i].map == player.map) entities.push(Player.list[i]);
     }
@@ -146,7 +149,7 @@ Rig.healthBarG = new Image();
 Rig.healthBarR = new Image();
 
 // players
-Player = function(id, map, x, y, isNPC, name) {
+Player = function(id, map, x, y, name, isNPC, npcId) {
     var self = new Rig(id, map, x, y);
     self.layer = 0;
     self.animationImage = null;
@@ -166,7 +169,10 @@ Player = function(id, map, x, y, isNPC, name) {
     };
     self.isNPC = false;
     if (isNPC) self.isNPC = true;
+    if (npcId) self.npcId = npcId;
     self.name = name;
+    self.nameColor = '#FF9900';
+    if (self.name == 'Sampleprovider(sp)') self.nameColor = '#3C70FF';
 
     self.update = function(data) {
         if (self.map != data.map) {
@@ -208,7 +214,7 @@ Player = function(id, map, x, y, isNPC, name) {
         }
         LAYERS.eupper.textAlign = 'center';
         LAYERS.eupper.font = '12px Pixel';
-        LAYERS.eupper.fillStyle = '#FF9900';
+        LAYERS.eupper.fillStyle = self.nameColor;
         if (self.isNPC) {
             LAYERS.eupper.fillText(self.name, self.x+OFFSETX, self.y-58+OFFSETY);
         } else {
@@ -255,7 +261,7 @@ Player.update = function(data) {
             Player.list[data[i].id].update(data[i]);
         } else {
             try {
-                new Player(data[i].id, data[i].map, data[i].x, data[i].y, data[i].isNPC, data[i].name);
+                new Player(data[i].id, data[i].map, data[i].x, data[i].y, data[i].name, data[i].isNPC, data[i].npcId);
                 Player.list[data[i].id].updateAnimationCanvas();
                 Player.list[data[i].id].update(data[i]);
             } catch (err) {
@@ -440,6 +446,7 @@ Particle = function(map, x, y, layer, type, value) {
         size: 20,
         chunkx: 0,
         chunky: 0,
+        particle: true
     };
     self.id = Math.random();
     switch (self.type) {
@@ -619,6 +626,7 @@ Particle = function(map, x, y, layer, type, value) {
                 break;
             default:
                 console.error('invalid particle type ' + self.type);
+                delete Particle.list[self.id];
                 break;
         }
         if (self.opacity <= 0) {
@@ -637,7 +645,7 @@ Particle.update = function(data) {
 Particle.list = [];
 
 // dropped items
-DroppedItem = function(id, map, x, y, itemId) {
+DroppedItem = function(id, map, x, y, itemId, stackSize) {
     var self = {
         id: null,
         map: map,
@@ -647,6 +655,7 @@ DroppedItem = function(id, map, x, y, itemId) {
         width: 48,
         height: 48,
         itemId: 'missing',
+        stackSize: stackSize,
         updated: false
     };
     self.id = id;
@@ -655,6 +664,12 @@ DroppedItem = function(id, map, x, y, itemId) {
 
     self.draw = function() {
         LAYERS.elayers[self.layer].drawImage(self.animationImage, self.x-self.width/2+OFFSETX, self.y-self.height/2+OFFSETY, self.width, self.height);
+        if (self.stackSize != 1) {
+            LAYERS.elayers[self.layer].textAlign = 'right';
+            LAYERS.elayers[self.layer].font = '14px Pixel';
+            LAYERS.elayers[self.layer].fillStyle = '#FFFF00';
+            LAYERS.elayers[self.layer].fillText(self.stackSize, self.x+self.width/2+OFFSETX-4, self.y+self.height/2+OFFSETY-4);
+        }
     };
 
     DroppedItem.list[self.id] = self;
@@ -670,7 +685,7 @@ DroppedItem.update = function(data) {
                 DroppedItem.list[data[i].id].updated = true;
             } else {
                 try {
-                    new DroppedItem(data[i].id, data[i].map, data[i].x, data[i].y, data[i].itemId);
+                    new DroppedItem(data[i].id, data[i].map, data[i].x, data[i].y, data[i].itemId, data[i].stackSize);
                     DroppedItem.list[data[i].id].updated = true;
                 } catch (err) {
                     console.error(err);
@@ -688,11 +703,15 @@ DroppedItem.updateHighlight = function() {
     for (var i in DroppedItem.list) {
         DroppedItem.list[i].animationImage = Inventory.itemImages[DroppedItem.list[i].itemId];
     }
+    var x = mouseX+OFFSETX;
+    var y = mouseY+OFFSETY;
+    if (settings.useController) {
+        x = axes.aimx+OFFSETX;
+        y = axes.aimy+OFFSETY
+    }
     for (var i in DroppedItem.list) {
         var localdroppeditem = DroppedItem.list[i];
         if (Math.sqrt(Math.pow(player.x-localdroppeditem.x, 2) + Math.pow(player.y-localdroppeditem.y, 2)) < 512) {
-            var x = mouseX+OFFSETX;
-            var y = mouseY+OFFSETY;
             var left = localdroppeditem.x-player.x-localdroppeditem.width/2;
             var right = localdroppeditem.x-player.x+localdroppeditem.width/2;
             var top = localdroppeditem.y-player.y-localdroppeditem.height/2;
@@ -707,11 +726,9 @@ DroppedItem.updateHighlight = function() {
 DroppedItem.list = [];
 
 // load data
-async function getEntityData() {
+function getEntityData() {
     // health bars
     totalassets += 2;
-    Rig.healthBarG.onload = function() {loadedassets++;};
-    Rig.healthBarR.onload = function() {loadedassets++;};
     // players
     for (var i in Player.animations) {
         if (i == 'hair') {
@@ -724,61 +741,55 @@ async function getEntityData() {
     }
     // monsters
     totalassets++;
-    await new Promise(async function(resolve, reject) {
-        var request = new XMLHttpRequest();
-        request.open('GET', '/client/monster.json', true);
-        request.onload = async function() {
-            if (this.status >= 200 && this.status < 400) {
-                var json = JSON.parse(this.response);
-                Monster.types = json;
-                loadedassets++;
-                for (var i in Monster.types) {
-                    totalassets++;
-                    Monster.images[i] = new Image();
-                }
-                resolve();
-            } else {
-                console.error('Error: Server returned status ' + this.status);
-                await sleep(1000);
-                request.send();
+    var request = new XMLHttpRequest();
+    request.open('GET', '/client/monster.json', false);
+    request.onload = async function() {
+        if (this.status >= 200 && this.status < 400) {
+            var json = JSON.parse(this.response);
+            Monster.types = json;
+            loadedassets++;
+            for (var i in Monster.types) {
+                totalassets++;
+                Monster.images[i] = new Image();
             }
-        };
-        request.onerror = function(){
-            console.error('There was a connection error. Please retry');
-            reject();
-        };
-        request.send();
-    });
-    // projectiles
+        } else {
+            console.error('Error: Server returned status ' + this.status);
+            await sleep(1000);
+            request.send();
+        }
+    };
+    request.onerror = function(){
+        console.error('There was a connection error. Please retry');
+    };
+    request.send();
+    // // projectiles
     totalassets++;
-    await new Promise(async function(resolve, reject) {
-        var request = new XMLHttpRequest();
-        request.open('GET', '/client/projectile.json', true);
-        request.onload = async function() {
-            if (this.status >= 200 && this.status < 400) {
-                var json = JSON.parse(this.response);
-                Projectile.types = json;
-                loadedassets++;
-                for (var i in Projectile.types) {
-                    totalassets++;
-                    Projectile.images[i] = new Image();
-                }
-                resolve();
-            } else {
-                console.error('Error: Server returned status ' + this.status);
-                await sleep(1000);
-                request.send();
+    var request = new XMLHttpRequest();
+    request.open('GET', '/client/projectile.json', false);
+    request.onload = async function() {
+        if (this.status >= 200 && this.status < 400) {
+            var json = JSON.parse(this.response);
+            Projectile.types = json;
+            loadedassets++;
+            for (var i in Projectile.types) {
+                totalassets++;
+                Projectile.images[i] = new Image();
             }
-        };
-        request.onerror = function(){
-            console.error('There was a connection error. Please retry');
-            reject();
-        };
-        request.send();
-    });
+        } else {
+            console.error('Error: Server returned status ' + this.status);
+            await sleep(1000);
+            request.send();
+        }
+    };
+    request.onerror = function(){
+        console.error('There was a connection error. Please retry');
+    };
+    request.send();
 };
 async function loadEntityData() {
     // health bars
+    Rig.healthBarG.onload = function() {loadedassets++;};
+    Rig.healthBarR.onload = function() {loadedassets++;};
     Rig.healthBarG.src = '/client/img/player/healthbar_green.png';
     Rig.healthBarR.src = '/client/img/monster/healthbar_red.png';
     // players
@@ -829,6 +840,7 @@ async function loadEntityData() {
 AnimatedTile = function(map, x, y, id, above) {
     var self = {
         id: id,
+        index: 0,
         map: map,
         x: x*64,
         y: y*64,
@@ -840,4 +852,44 @@ AnimatedTile = function(map, x, y, id, above) {
 
     return self;
 };
-AnimatedTile.ids = [570, 619, 656, 702, 705, 742, 828, 914, 3202, 3288];
+AnimatedTile.animations = [];
+
+// load data
+function getAnimatedTileData() {
+    // totalassets++;
+    // var request = new XMLHttpRequest(); 
+    // request.open('GET', '/client/maps/tiles.tsx', false);
+    // request.onload = async function() {
+    //     if (this.status >= 200 && this.status < 400) {
+    //         var parser = new DOMParser();
+    //         var raw = parser.parseFromString(this.response, 'text/xml');
+    //         for (var i in raw) {
+    //             if (raw[i])
+    //             for (var j in raw) {
+    //                 if (raw[i][j])console.log(raw[i][j])
+    //             }
+    //         }
+    //         loadedassets++;
+    //     } else {
+    //         console.error('Error: Server returned status ' + this.status);
+    //         await sleep(1000);
+    //         request.send();
+    //     }
+    // };
+    // request.onerror = function(){
+    //     console.error('There was a connection error. Please retry');
+    // };
+    // request.send();
+};
+async function loadAnimatedTileData() {
+    // // monsters
+    // for (var i in Monster.types) {
+    //     await new Promise(function(resolve, reject) {
+    //         Monster.images[i].onload = function() {
+    //             loadedassets++;
+    //             resolve();
+    //         };
+    //         Monster.images[i].src = '/client/img/monster/' + i + '.png';
+    //     });
+    // }
+};

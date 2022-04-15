@@ -31,10 +31,17 @@
         "xpDrop": 5,
         "drops": {
             "nothing": 0.4,
-            "simplewoodenbow": 0.8,
-            "simplewoodensword": 0.6,
+            "coins": 4,
+            "simplewoodenbow": 0.7,
+            "simplewoodensword": 0.5,
             "steelbroadsword": 0.1,
             "steelcutlass": 0.1
+        },
+        "coinDrops": {
+            "coppercoin": 10,
+            "silvercoin": 0,
+            "goldcoin": 0,
+            "blucoin": 0
         }
     },
     "bluebird": {
@@ -69,9 +76,16 @@
         "xpDrop": 5,
         "drops": {
             "nothing": 0.4,
-            "simplewoodenbow": 0.6,
-            "simplewoodensword": 0.8,
-            "steelbow": 0.2
+            "coins": 4,
+            "simplewoodenbow": 0.5,
+            "simplewoodensword": 0.7,
+            "steelbow": 0.1
+        },
+        "coinDrops": {
+            "coppercoin": 10,
+            "silvercoin": 0,
+            "goldcoin": 0,
+            "blucoin": 0
         }
     },
     "snowbird": {
@@ -104,11 +118,18 @@
         "animationLength": 1,
         "xpDrop": 10,
         "drops": {
-            "nothing": 0.4,
-            "simplewoodenstaff": 0.9,
+            "nothing": 1,
+            "coins": 6,
+            "simplewoodenstaff": 0.8,
             "leatherarmor": 0.8,
             "steelstaff": 0.3,
             "titaniumstaff": 0.1
+        },
+        "coinDrops": {
+            "coppercoin": 10,
+            "silvercoin": 0,
+            "goldcoin": 0,
+            "blucoin": 0
         }
     },
     "cherrybomb": {
@@ -122,9 +143,9 @@
         "idleMove": "random",
         "circleTarget": false,
         "circleDistance": 0,
-        "hp": 50,
+        "hp": 80,
         "fleeThreshold": 0,
-        "moveSpeed": 10,
+        "moveSpeed": 12,
         "stats": {
             "damageType": "magic",
             "projectileSpeed": 1,
@@ -142,9 +163,16 @@
         "xpDrop": 20,
         "drops": {
             "nothing": 0.1,
-            "woodenhelmet": 0.5,
+            "coins": 6,
+            "woodenhelmet": 0.4,
             "steelhelmet": 0.1,
             "steelarmor": 0.2
+        },
+        "coinDrops": {
+            "coppercoin": 30,
+            "silvercoin": 1,
+            "goldcoin": 0,
+            "blucoin": 0
         }
     },
     "snowball": {
@@ -178,10 +206,17 @@
         "xpDrop": 10,
         "drops": {
             "nothing": 0.2,
+            "coins": 5,
             "leatherhood": 0.3,
             "leatherhat": 0.3,
             "whitefabrichood": 0.1,
             "simplewizardhat": 0.1
+        },
+        "coinDrops": {
+            "coppercoin": 15,
+            "silvercoin": 0,
+            "goldcoin": 0,
+            "blucoin": 0
         }
     }
 }

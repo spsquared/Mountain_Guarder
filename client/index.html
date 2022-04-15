@@ -19,10 +19,12 @@
         <script src="/client/tracker.js"></script>
         <script>socket.emit('_0x7f0334', window._0x2b8cf2._0x442696);</script>
         <script src="/client/index.js" defer></script>
+        <script src="/client/game.js" defer></script>
         <script src="/client/entity.js" defer></script>
         <script src="/client/inventory.js" defer></script>
-        <script src="/client/game.js" defer></script>
+        <script src="/client/quest.js" defer></script>
         <script src="/client/menu.js" defer></script>
+        <script src="/client/controller.js" defer></script>
         <link rel="stylesheet" href="/client/assets/main.css">
         <link rel="stylesheet" href="/client/assets/game.css">
     </head>
@@ -77,6 +79,51 @@
                 </div> -->
                 <div class="stack ui-block ui-lighttext">
                     <div class="ui-lighttext stackHeader">
+                        v0.10.0 - 4/15/22
+                    </div>
+                    <div class="ui-lighttext stackBody">
+                        The Quest update! Bob now gives out a quest! Among that, other additions like experimental controller support, quality-of-life changes, and multiple security patches. As a sneek peak into the roadplan for v1.0.0, we'll just say that we plan on making shops and crafting soon, and using the coins as a currency. Happy Garudering!
+                        <ul>
+                            <li>Added quests</li>
+                            <li>Added Garuder Coins</li>
+                            <li>Some items can now stack</li>
+                            <li>Added tracked stats</li>
+                            <li>Added controller support</li>
+                            <li>Added Rare Steak</li>
+                            <li>Added hot-swapping to offhand item</li>
+                            <li>Walking animations now scale to movement speed</li>
+                            <li>Fixed Player/NPC walking animations</li>
+                            <li>Buffed cherrybombs</li>
+                            <li>Nerfed staffs</li>
+                            <li>Fixed lag while not on tab</li>
+                            <li>Added keybind for dropping items</li>
+                            <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/225" target="_blank">Patched crashes from socket.emit (Issue #225)</a></li>
+                            <li>Fixed `/msg` command</li>
+                            <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/226" target="_blank">Added custom cursor to fade overlay (Issue #226)</a></li>
+                            <li>Rebalanced items for more incentive to use melee</li>
+                            <li>Added JS Heap usage information of debug</li>
+                            <li>Mountain Guarder now tags computers with an id for security</li>
+                            <li>Fixed wierd inventory behavior</li>
+                            <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/224" target="_blank">Fixed missing tree collisions (Issue #224)</a></li>
+                            <li>Added chat colors for devs and ops</li>
+                            <li>Allowed username 'sp'</li>
+                            <li>Updated region locations</li>
+                            <li>Changed monster spawning distributions</li>
+                            <li>Changed offhand to shield</li>
+                            <li>Updated <a href="https://mountainguarder.herokuapp.com/itemcreator" target="_blank">MGIC</a></li>
+                            <li>Fixed "invalid particle type undefined" errors</li>
+                            <li>Changed chat size</li>
+                            <li>Fixed server/client debug desync</li>
+                            <li>Added @s to debug</li>
+                            <li>Changed packet rate limiting</li>
+                            <li>Upgrade database user data column to 1,048,576 characters</li>
+                            <li>Replaced plaintext password chache in player objects with encrypted chache</li>
+                            <li>Multiple small optimizations</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="stack ui-block ui-lighttext">
+                    <div class="ui-lighttext stackHeader">
                         v0.9.1 - 3/19/22
                     </div>
                     <div class="ui-lighttext stackBody">
@@ -101,7 +148,7 @@
                             <li>Rewrote and optimized Rig collisions</li>
                             <li>Added world map</li>
                             <li>Fixed pathfinding and collisions causing server hangs</li>
-                            <li>Added console-editable keybinds</li>
+                            <li>Added editable keybinds</li>
                             <li>Fixed bug involving layering issues with players on different layers</li>
                             <li>Monsters now have a natural heal</li>
                             <li>Added parallax effect to menu screen and shadow to title text</li>
@@ -469,7 +516,7 @@
                         v0.5.1 - 11/4/21
                     </div>
                     <div class="ui-lighttext stackBody">
-                        The new <a href="./client/ItemCreator/" target="_blank">Mountain Guarder Item Creator Tool (MGICTool)</a> is out! Easily create a range of items from weapons to armor! Make custom offhand items using the "offhand" slot type!<br>
+                        The new <a href="./itemcreator/" target="_blank">Mountain Guarder Item Creator Tool (MGICTool)</a> is out! Easily create a range of items from weapons to armor! Make custom offhand items using the "offhand" slot type!<br>
                         In other news, the inventory is now mostly complete, and player and monster stats now apply. Next update will be on the actual effects of items (so don't go spamming the issues about it!).
                         <ul>
                             <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/85" target="_blank">Added the Mountain Guarder Item Creator Tool!</a></li>
@@ -903,8 +950,8 @@
                     </div>
                     <div class="ui-lighttext stackBody">
                         Sampleprovider(sp): Lead Developer<br>
-                        Suvanth: Bug finder & Debugger<br>
-                        spuh: Bug finder<br>
+                        Suvanth: Bug/Vulnerability Finder<br>
+                        spuh: Bug Finder<br>
                         <br>
                         <a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder" target="_blank">GitHub repository</a><br>
                         <a href="https://discord.gg/jKwmKkKmGc" target="_blank">Join our Discord!</a><br>
@@ -950,8 +997,8 @@
                         Dev Tools
                     </div>
                     <div class="ui-lighttext stackBody">
-                        Here are some tools (both internal and external) to help modders create assets easily.
-                        <a href="./client/itemCreator/" target="_blank">Mountain Guarder Item Creator</a>
+                        Here are some tools (both internal and external) to help modders create assets easily.<br>
+                        <a href="./itemcreator/" target="_blank">Mountain Guarder Item Creator</a><br>
                         <a href="https://thorbjorn.itch.io/tiled" target="_blank">Tiled</a>
                     </div>
                 </div>
@@ -966,9 +1013,13 @@
         </div>
         <div id="gameContainer">
             <canvas id="ctx"></canvas>
-            <img id="crossHair" src="./client/img/assets/crosshair.png">
+            <img id="crossHair" src="./client/img/assets/crosshair.png" class="noSelect">
             <div id="bossBars" class="noSelect"></div>
             <div id="regionName" class="ui-lighttext ui-block noSelect"></div>
+            <div id="promptContainer" class=" ui-lighttext ui-block noSelect">
+                <div id="promptText"></div>
+                <div id="promptChoices"></div>
+            </div>
             <div id="fade"></div>
             <div id="stats" class="ui-block noSelect">
                 <div id="statsHP">
@@ -984,6 +1035,7 @@
                     <div id="statsMNtext" class="ui-lighttext">0/200</div>
                 </div>
             </div>
+            <div id="bannerContainer" class="ui-lighttext noSelect"></div>
             <div class="ui-lighttext noSelect">
                 <div id="version">v0.0.0</div>
                 <div id="fps" class="debugOverlay">FPS: 0</div>
@@ -1004,6 +1056,8 @@
                     <!-- <div id="enttickTime">Entity: 0ms</div>
                     <div id="packtickTime">Packet Compile: 0ms</div> -->
                 </div>
+                <div id="serverHeap" class="debugOverlay">Server Heap: 0/0mB</div>
+                <div id="clientHeap" class="debugOverlay">Heap: 0/0mB</div>
                 <div id="position" class="debugOverlay">(0, 0)</div>
                 <div id="mousepos" class="debugOverlay">(0, 0)</div>
                 <div id="entCount" class="debugOverlay">
@@ -1073,7 +1127,7 @@
                     </div>
                     <div class="window-body">
                         <div id="mapContainer">
-                            <img id="worldMap" src="./client/img/World.png">
+                            <img id="worldMap">
                         </div>
                     </div>
                     <div id="mapSelect"></div>
@@ -1153,7 +1207,7 @@
                                     <div id="particlesIndicator" class="ui-lighttext">on</div>
                                 </td>
                             </tr>
-                            <!-- <tr>
+                            <tr>
                                 <td style="text-align: right;">
                                     Dialogue Speed:
                                 </td>
@@ -1163,7 +1217,7 @@
                                 <td>
                                     <div id="dialogueSpeedIndicator" class="ui-lighttext"></div>
                                 </td>
-                            </tr> -->
+                            </tr>
                             <!-- <tr>
                                 <td style="text-align: right;">
                                     Pointer Lock:
@@ -1178,7 +1232,7 @@
                                     <div id="pointerLockIndicator" class="ui-lighttext">off</div>
                                 </td>
                             </tr> -->
-                            <!-- <tr>
+                            <tr>
                                 <td class="experimental" style="text-align: right;">
                                     Use Controller:
                                 </td>
@@ -1191,7 +1245,7 @@
                                 <td>
                                     <div id="useControllerIndicator" class="ui-lighttext">off</div>
                                 </td>
-                            </tr> -->
+                            </tr>
                             <tr>
                                 <td style="text-align: right;">
                                     Chat Background:
@@ -1357,6 +1411,22 @@
                                 </tr>
                                 <tr>
                                     <td>
+                                        Hot-Swap Weapons&nbsp;
+                                    </td>
+                                    <td>
+                                        <button id="keybind_swap" class="ui-lightbutton keyBindButton" onclick="changeKeybind('swap');">TAB</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        Drop Item&nbsp;
+                                    </td>
+                                    <td>
+                                        <button id="keybind_drop" class="ui-lightbutton keyBindButton" onclick="changeKeybind('drop');">Q</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
                                         Open chat&nbsp;
                                     </td>
                                     <td>
@@ -1406,15 +1476,165 @@
                             </tbody>
                         </table>
                     </div>
+                    <div id="settingsController" class="window-body" style="width: 366px; overflow-y: auto; display: none;">
+                        <table><tbody>
+                            <tr>
+                                <td style="text-align: right;">
+                                    Sensitivity:
+                                </td>
+                                <td>
+                                    <input type="range" id="sensitivitySlider" class="ui-slider" min="50" max="200" value="100" step="10" oninput="controllerSlider('sensitivity');">
+                                </td>
+                                <td>
+                                    <div id="sensitivityIndicator" class="ui-lighttext">100%</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: right;">
+                                    Quadratic Sensitivity:
+                                </td>
+                                <td>
+                                    <label class="ui-toggle">
+                                        <input type="checkbox" id="quadraticSensitivityToggle" class="ui-toggleInput" onclick="controllerToggle('quadraticSensitivity');" checked>
+                                        <span class="ui-toggleSlider"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <div id="quadraticSensitivityIndicator" class="ui-lighttext">on</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: right;">
+                                    Drift X:
+                                </td>
+                                <td>
+                                    <input type="range" id="driftXSlider" class="ui-slider" min="-20" max="20" value="0" step="1" oninput="controllerSlider('driftX');">
+                                </td>
+                                <td>
+                                    <div id="driftXIndicator" class="ui-lighttext">0%</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: right;">
+                                    Drift Y:
+                                </td>
+                                <td>
+                                    <input type="range" id="driftYSlider" class="ui-slider" min="-20" max="20" value="0" step="1" oninput="controllerSlider('driftY');">
+                                </td>
+                                <td>
+                                    <div id="driftYIndicator" class="ui-lighttext">0%</div>
+                                </td>
+                            </tr>
+                        </tbody></table>
+                    </div>
+                    <div id="keybindsController" class="window-body" style="width: 366px; overflow-y: auto; display: none;">
+                        <table>
+                            <tbody style="text-align: right;">
+                                <tr>
+                                    <td>
+                                        Move&nbsp;
+                                    </td>
+                                    <td>
+                                        <button id="controllerKeybind_move" class="ui-lightbutton keyBindButton" onclick="changeControllerKeybind('move');">0 1</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        Aim&nbsp;
+                                    </td>
+                                    <td>
+                                        <button id="controllerKeybind_aim" class="ui-lightbutton keyBindButton" onclick="changeControllerKeybind('aim');">2 3</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        Heal&nbsp;
+                                    </td>
+                                    <td>
+                                        <button id="controllerKeybind_heal" class="ui-lightbutton keyBindButton" onclick="changeControllerKeybind('heal');">LS</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        Use Item&nbsp;
+                                    </td>
+                                    <td>
+                                        <button id="controllerKeybind_use" class="ui-lightbutton keyBindButton" onclick="changeControllerKeybind('use');">LT</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        Use Secondary&nbsp;
+                                    </td>
+                                    <td>
+                                        <button id="controllerKeybind_second" class="ui-lightbutton keyBindButton" onclick="changeControllerKeybind('second');">RT</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        Hot-Swap Weapons&nbsp;
+                                    </td>
+                                    <td>
+                                        <button id="controllerKeybind_swap" class="ui-lightbutton keyBindButton" onclick="changeControllerKeybind('swap');">RS</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        Drop Item&nbsp;
+                                    </td>
+                                    <td>
+                                        <button id="controllerKeybind_drop" class="ui-lightbutton keyBindButton" onclick="changeControllerKeybind('drop');">UP</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        Open chat&nbsp;
+                                    </td>
+                                    <td>
+                                        <button id="controllerKeybind_chat" class="ui-lightbutton keyBindButton" onclick="changeControllerKeybind('chat');">X</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        Settings&nbsp;
+                                    </td>
+                                    <td>
+                                        <button id="controllerKeybind_settings" class="ui-lightbutton keyBindButton" onclick="changeControllerKeybind('settings');">&emsp;</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        Toggle Inventory&nbsp;
+                                    </td>
+                                    <td>
+                                        <button id="controllerKeybind_inventory" class="ui-lightbutton keyBindButton" onclick="changeControllerKeybind('inventory');">Y</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        Menu&nbsp;
+                                    </td>
+                                    <td>
+                                        <button id="controllerKeybind_menu" class="ui-lightbutton keyBindButton" onclick="changeControllerKeybind('menu');">MENU</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                     <div id="settingsSelect" class="window-select">
                         <button id="settingsGameSelect" class="window-select-button ui-lightbutton">Settings</button>
                         <button id="settingsPlayerSelect" class="window-select-button ui-lightbutton">Customize</button>
                         <button id="settingsKeybindsSelect" class="window-select-button ui-lightbutton">Keybinds</button>
+                        <button id="settingsControllerSelect" class="window-select-button ui-lightbutton">Controller</button>
+                        <button id="keybindsControllerSelect" class="window-select-button ui-lightbutton">Controllerbinds</button>
                     </div>
                 </div>
             </div>
             <div id="invHoverTooltip" class="ui-block ui-lighttext noSelect">Tooltip</div>
-            <img id="invDragImg" class="invSlotImg noSelect">
+            <div id="invDrag" class="noSelect">
+                <img id="invDragImg" class="invSlotImg noSelect">
+                <div id="invDragStackSize" class="ui-lighttext invSlotStackSize noSelect"></div>
+            </div>
             <div id="deathScreen" class="noSelect">
                 <p id="youdied" class="ui-lighttext">You Died!</p>
                 <p id="respawnTimer" class="ui-lighttext">0</p>
@@ -1429,4 +1649,3 @@
         </div>
     </body>
 </html>
-

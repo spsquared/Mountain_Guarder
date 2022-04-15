@@ -3,7 +3,7 @@
  <editorsettings>
   <export target="Outpost Cottage 2.json" format="json"/>
  </editorsettings>
- <tileset firstgid="1" source="roguelikeSheet.tsx"/>
+ <tileset firstgid="1" source="tiles.tsx"/>
  <layer id="9" name="Teleporter:World,0,8,0,right," width="20" height="12" visible="0" locked="1">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,

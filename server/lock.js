@@ -7,7 +7,7 @@ lock(global, ['setInterval', 'setTimeout', 'setImmediate']);
 lock(ENV, ['ops', 'devs', 'offlineMode']);
 lock(io);
 lock(s);
-lock(global, ['forceQuit']);
+lock(global, ['forceQuit', 'cloneDeep']);
 // database.js
 lock(ACCOUNTS, ['connect', 'disconnect', 'signup', 'login', 'deleteAccount', 'changePassword', 'validateCredentials', 'loadProgress', 'saveProgress']);
 // log.js

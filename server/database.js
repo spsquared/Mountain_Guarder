@@ -2,6 +2,8 @@
 
 const bcrypt = require('bcrypt');
 const salt = 10;
+const Cryptr = require('cryptr');
+const cryptr = new Cryptr('cachePasswordKey');
 const {Client} = require('pg');
 if (process.env.DATABASE_URL) {
     url = process.env.DATABASE_URL;
@@ -22,13 +24,12 @@ ACCOUNTS = {
         if (!ACCOUNTS.connected) {
             if (ENV.offlineMode) {
                 ACCOUNTS.connected = true;
-                warn('');
                 warn('!!! Offline Mode is enabled! Accounts and progress will not load or save! !!!');
-                warn('');
             } else {
                 try {
                     await database.connect();
                     ACCOUNTS.connected = true;
+                    database.query('ALTER TABLE users ALTER COLUMN data TYPE varchar(1048576)');
                 } catch (err) {
                     forceQuit(err, 2);
                 }
@@ -111,7 +112,7 @@ ACCOUNTS = {
     },
     validateCredentials: function(username, password) {
         if (username != '' && username != null) {
-            if (username.length > 3) {
+            if (username.length > 3 || username == 'sp') {
                 if (username.length <= 20) {
                     if (!username.includes(' ')) {
                         if (password != '' && password != null) {
@@ -137,7 +138,7 @@ ACCOUNTS = {
         }
     },
     loadProgress: async function(username, password) {
-        if (ENV.offlineMode) return {};
+        if (ENV.offlineMode) return '{}';
         var progress = await getProgress(username, password);
         if (progress != false) {
             return progress;
@@ -266,7 +267,7 @@ async function updatePassword(username, password) {
 async function getProgress(username, password) {
     var cred = await getCredentials(username);
     if (cred) {
-        if (bcrypt.compareSync(password, cred.password)) {
+        if (bcrypt.compareSync(cryptr.decrypt(password), cred.password)) {
             var data = await database.query('SELECT data FROM users WHERE username=$1;', [username]);
             if (data.rows[0]) {
                 return data.rows[0].data;
@@ -280,7 +281,7 @@ async function getProgress(username, password) {
 async function updateProgress(username, password, data) {
     var cred = await getCredentials(username);
     if (cred) {
-        if (bcrypt.compareSync(password, cred.password)) {
+        if (bcrypt.compareSync(cryptr.decrypt(password), cred.password)) {
             try {
                 await database.query('UPDATE users SET data=$2 WHERE username=$1;', [username, data]);
                 return true;

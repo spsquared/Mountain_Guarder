@@ -1,25 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.5" tiledversion="1.7.2" name="roguelikeSheet" tilewidth="16" tileheight="16" spacing="1" tilecount="5762" columns="86">
- <image source="roguelikeSheet.png" width="1461" height="1138"/>
+<tileset version="1.5" tiledversion="1.7.2" name="Mountain Guarder Tileset" tilewidth="16" tileheight="16" spacing="1" tilecount="5762" columns="86">
+ <image source="tiles.png" width="1461" height="1138"/>
  <tile id="13">
   <animation>
    <frame tileid="13" duration="200"/>
    <frame tileid="14" duration="200"/>
   </animation>
  </tile>
- <tile id="14">
-  <animation>
-   <frame tileid="14" duration="200"/>
-   <frame tileid="13" duration="200"/>
-  </animation>
- </tile>
  <tile id="570">
-  <animation>
-   <frame tileid="570" duration="200"/>
-   <frame tileid="571" duration="200"/>
-  </animation>
- </tile>
- <tile id="571">
   <animation>
    <frame tileid="570" duration="200"/>
    <frame tileid="571" duration="200"/>
@@ -32,12 +20,6 @@
   </animation>
  </tile>
  <tile id="656">
-  <animation>
-   <frame tileid="656" duration="200"/>
-   <frame tileid="657" duration="200"/>
-  </animation>
- </tile>
- <tile id="657">
   <animation>
    <frame tileid="656" duration="200"/>
    <frame tileid="657" duration="200"/>
@@ -61,12 +43,6 @@
    <frame tileid="743" duration="200"/>
   </animation>
  </tile>
- <tile id="743">
-  <animation>
-   <frame tileid="742" duration="200"/>
-   <frame tileid="743" duration="200"/>
-  </animation>
- </tile>
  <tile id="802" probability="0.25"/>
  <tile id="803" probability="0.25"/>
  <tile id="804" probability="0.25"/>
@@ -77,19 +53,7 @@
    <frame tileid="828" duration="200"/>
   </animation>
  </tile>
- <tile id="829">
-  <animation>
-   <frame tileid="829" duration="200"/>
-   <frame tileid="828" duration="200"/>
-  </animation>
- </tile>
  <tile id="914">
-  <animation>
-   <frame tileid="915" duration="200"/>
-   <frame tileid="914" duration="200"/>
-  </animation>
- </tile>
- <tile id="915">
   <animation>
    <frame tileid="915" duration="200"/>
    <frame tileid="914" duration="200"/>
@@ -6039,6 +6003,18 @@
    <frame tileid="5151" duration="500"/>
    <frame tileid="5152" duration="500"/>
    <frame tileid="5153" duration="500"/>
+  </animation>
+ </tile>
+ <tile id="5760">
+  <animation>
+   <frame tileid="5753" duration="250"/>
+   <frame tileid="5760" duration="250"/>
+   <frame tileid="5759" duration="250"/>
+   <frame tileid="5758" duration="250"/>
+   <frame tileid="5757" duration="250"/>
+   <frame tileid="5756" duration="250"/>
+   <frame tileid="5755" duration="250"/>
+   <frame tileid="5754" duration="250"/>
   </animation>
  </tile>
  <wangsets>

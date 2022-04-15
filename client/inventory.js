@@ -1,7 +1,9 @@
 // Copyright (C) 2022 Radioactive64
 
-var inventoryItems = document.getElementById('inventoryItemsBody');
-var inventoryEquips = document.getElementById('inventoryEquipsBody');
+const inventoryItems = document.getElementById('inventoryItemsBody');
+const inventoryEquips = document.getElementById('inventoryEquipsBody');
+const dragDiv = document.getElementById('invDrag');
+const tooltip = document.getElementById('invHoverTooltip');
 
 // inventory structure
 Inventory = {
@@ -12,7 +14,7 @@ Inventory = {
         helmet: null,
         armor: null,
         boots: null,
-        offhand: null,
+        shield: null,
         key: null,
         crystal: null,
     },
@@ -20,13 +22,14 @@ Inventory = {
     dragOffsetX: 0,
     dragOffsetY: 0,
     currentHover: null,
-    maxItems: 0
+    maxItems: 30
 };
-Inventory.Item = function(id, slot) {
-    var self = Inventory.itemTypes[id];
+Inventory.Item = function(id, slot, amount, enchantments) {
+    var self = Object.assign({}, Inventory.itemTypes[id]);
     self.id = id;
     self.slot = slot;
-    self.enchantments = [];
+    self.stackSize = amount || 1;
+    self.enchantments = enchantments || [];
     self.refresh = function() {
         Inventory.items[self.slot].refresh();
     };
@@ -34,7 +37,7 @@ Inventory.Item = function(id, slot) {
         // set enchant html string (<span style="color: #009900">Speed +10%</span>)
     };
 
-    if (isFinite(slot)) {
+    if (typeof slot == 'number') {
         Inventory.items[slot].item = self;
     } else {
         Inventory.equips[slot].item = self;
@@ -54,7 +57,8 @@ Inventory.Slot = function() {
 
     self.refresh = function() {
         if (self.item) {
-            slot.innerHTML = '<img src="/client/img/item/' + self.item.id + '.png" class="invSlotImg noSelect"></img>';
+            if (self.item.stackSize != 1) slot.innerHTML = '<img src="/client/img/item/' + self.item.id + '.png" class="invSlotImg noSelect"></img><div class="invSlotStackSize noSelect">' + self.item.stackSize + '</div>';
+            else slot.innerHTML = '<img src="/client/img/item/' + self.item.id + '.png" class="invSlotImg noSelect"></img>';
         } else {
             slot.innerHTML = '<img src="/client/img/item/empty.png" class="invSlotImgNoGrab noSelect"></img>';
         }
@@ -112,28 +116,29 @@ Inventory.EquipSlot = function(equip) {
     self.refresh();
     return self;
 };
-Inventory.addItem = function(id, slot, enchantments) {
-    var item = new Inventory.Item(id, slot);
-    item.enchant(enchantments);
+Inventory.addItem = function(id, slot, amount, enchantments) {
+    new Inventory.Item(id, slot, amount, enchantments);
     Inventory.refreshSlot(slot);
 };
 Inventory.removeItem = function(slot) {
-    if (isFinite(slot)) {
-        Inventory.items[slot].item = null;
-    } else {
-        Inventory.equips[slot].item = null;
+    if (slot != null) {
+        if (typeof slot == 'number') {
+            Inventory.items[slot].item = null;
+        } else {
+            Inventory.equips[slot].item = null;
+        }
+        Inventory.refreshSlot(slot);
     }
-    Inventory.refreshSlot(slot);
 };
 Inventory.refreshSlot = function(slot) {
-    if (isFinite(slot)) {
+    if (typeof slot == 'number') {
         Inventory.items[slot].refresh();
     } else {
         Inventory.equips[slot].refresh();
     }
 };
 Inventory.enchantSlot = function(slot, enchantments) {
-    if (isFinite(slot)) {
+    if (typeof slot == 'number') {
         Inventory.items[slot].enchant(enchantments);
     } else {
         Inventory.equips[slot].enchant(enchantments);
@@ -142,18 +147,22 @@ Inventory.enchantSlot = function(slot, enchantments) {
 };
 Inventory.startDrag = function(slot) {
     Inventory.currentDrag = slot;
-    document.getElementById('invDragImg').style.display = 'block';
-    if (isFinite(slot)) {
+    dragDiv.style.display = 'block';
+    document.getElementById('invDragStackSize').innerText = '';
+    if (typeof slot == 'number') {
         document.getElementById('invDragImg').src = '/client/img/item/' + Inventory.items[slot].item.id + '.png';
-        Inventory.items[slot].slot.innerHTML = '<img src="/client/img/item/empty.png" class="invSlotImgNoGrab"></img>'
+        if (Inventory.items[slot].item.stackSize != 1) document.getElementById('invDragStackSize').innerText = Inventory.items[slot].item.stackSize;
+        Inventory.items[slot].slot.innerHTML = '<img src="/client/img/item/empty.png" class="invSlotImgNoGrab"></img>';
     } else {
         document.getElementById('invDragImg').src = '/client/img/item/' + Inventory.equips[slot].item.id + '.png';
+        if (Inventory.equips[slot].item.stackSize != 1) document.getElementById('invDragStackSize').innerText = Inventory.equips[slot].item.stackSize;
         Inventory.equips[slot].slot.innerHTML = '<img src="/client/img/item/emptySlot' + Inventory.equips[slot].slotId + '.png" class="invSlotImgNoGrab"></img>';
     }
 };
 Inventory.endDrag = function(slot) {
-    document.getElementById('invDragImg').style.display = '';
+    dragDiv.style.display = '';
     document.getElementById('invDragImg').src = '/client/img/item/empty.png';
+    document.getElementById('invDragStackSize').innerText = '';
     socket.emit('item', {
         action: 'drag',
         data: {
@@ -163,13 +172,15 @@ Inventory.endDrag = function(slot) {
     });
     Inventory.currentDrag = null;
 };
-Inventory.drop = function() {
-    document.getElementById('invDragImg').style.display = '';
+Inventory.drop = function(amount) {
+    dragDiv.style.display = '';
     document.getElementById('invDragImg').src = '/client/img/item/empty.png';
+    document.getElementById('invDragStackSize').innerText = '';
     socket.emit('item', {
         action: 'drop',
         data: {
-            slot: Inventory.currentDrag
+            slot: Inventory.currentDrag,
+            amount: amount || 1
         }
     });
     Inventory.currentDrag = null;
@@ -179,6 +190,12 @@ Inventory.getRarityColor = function(rarity) {
     switch (rarity) {
         case 'missing':
             str = 'color: red;';
+            break;
+        case 'coin':
+            str = 'color: goldenrod;';
+            break;
+        case 'blucoin':
+            str = 'color: #3C70FF;'
             break;
         case -1:
             str = 'animation: christmas 2s infinite;';
@@ -202,20 +219,23 @@ Inventory.generateEffects = function(item) {
             var damageType = 'Damage';
             switch (item.damageType) {
                 case 'ranged':
-                    damageType = ' Ranged Damage';
+                    damageType = ' Ranged damage';
                     break;
                 case 'melee':
-                    damageType = ' Melee Damage';
+                    damageType = ' Melee damage';
                     break;
                 case 'magic':
-                    damageType = ' Purple Damage';
+                    damageType = ' Purple damage';
                     break;
                 default:
                     break;
             }
             str += '<br><span style="color: lime; font-size: 12px;">' + item.damage + damageType + '</span>';
             if (item.critChance != 0) {
-                str += '<br><span style="color: lime; font-size: 12px;">' + Math.round(item.critChance*100) + '% Critical Strike chance</span>';
+                str += '<br><span style="color: lime; font-size: 12px;">' + Math.round(item.critChance*100) + '% Critical hit chance</span>';
+            }
+            if (item.critPower != 0) {
+                str += '<br><span style="color: lime; font-size: 12px;">' + Math.round(item.critPower*100) + '% Critical hit power</span>';
             }
         }
         for (var i in item.effects) {
@@ -233,7 +253,7 @@ Inventory.generateEffects = function(item) {
             switch (localeffect.id) {
                 case 'health':
                     effect = 'HP';
-                    if (localeffect.value < 0) {
+                    if (localeffect.value-1 < 0) {
                         color = 'red';
                         number = Math.round(localeffect.value*100-100) + '%';
                     } else {
@@ -321,6 +341,16 @@ Inventory.generateEffects = function(item) {
                         number = '+' + localeffect.value*100 + '%';
                     }
                     break;
+                case 'speed':
+                    effect = 'Move speed';
+                    if (localeffect.value-1 < 0) {
+                        color = 'red';
+                        number = Math.round(localeffect.value*100-100) + '%';
+                    } else {
+                        color = 'lime';
+                        number = '+' + Math.round(localeffect.value*100-100) + '%';
+                    }
+                    break;
                 default:
                     console.error('Invalid effect id ' + localeffect.id);
                     break;
@@ -328,7 +358,7 @@ Inventory.generateEffects = function(item) {
             str += '<br><span style="color: ' + color + '; font-size: 12px;">' + number + ' ' + effect + '</span>';
         }
     }
-    if (str == '') str = '<span style="font-size: 12px;">No Effects</span>';
+    if (str == '') str = '<br><span style="font-size: 12px;">No Effects</span>';
     return str;
 };
 document.addEventListener('mousedown', function(e) {
@@ -336,16 +366,16 @@ document.addEventListener('mousedown', function(e) {
         if (e.button == 0) {
             for (var i in Inventory.items) {
                 if (Inventory.items[i].mousedOver) {
-                    document.getElementById('invDragImg').style.left = e.clientX-32 + 'px';
-                    document.getElementById('invDragImg').style.top = e.clientY-32 + 'px';
+                    dragDiv.style.left = e.clientX-32 + 'px';
+                    dragDiv.style.top = e.clientY-32 + 'px';
                     if (Inventory.items[i].item) Inventory.startDrag(Inventory.items[i].slotId);
                     return;
                 }
             }
             for (var i in Inventory.equips) {
                 if (Inventory.equips[i].mousedOver) {
-                    document.getElementById('invDragImg').style.left = e.clientX-32 + 'px';
-                    document.getElementById('invDragImg').style.top = e.clientY-32 + 'px';
+                    dragDiv.style.left = e.clientX-32 + 'px';
+                    dragDiv.style.top = e.clientY-32 + 'px';
                     if (Inventory.equips[i].item) Inventory.startDrag(Inventory.equips[i].slotId);
                     return;
                 }
@@ -372,7 +402,8 @@ document.addEventListener('mouseup', function(e) {
                     }
                     Inventory.endDrag(Inventory.currentDrag);
                 } else {
-                    Inventory.drop();
+                    if (typeof Inventory.currentDrag == 'number') Inventory.drop(Inventory.items[Inventory.currentDrag].item.stackSize);
+                    else Inventory.drop(Inventory.equips[Inventory.currentDrag].item.stackSize);
                 }
             }
         }
@@ -381,84 +412,87 @@ document.addEventListener('mouseup', function(e) {
 document.addEventListener('mousemove', function(e) {
     if (loaded) {
         if (Inventory.currentDrag != null) {
-            document.getElementById('invDragImg').style.left = e.clientX-32 + 'px';
-            document.getElementById('invDragImg').style.top = e.clientY-32 + 'px';
+            dragDiv.style.left = e.clientX-32 + 'px';
+            dragDiv.style.top = e.clientY-32 + 'px';
         }
         if (Inventory.currentHover != null && Inventory.currentDrag == null) {
-            document.getElementById('invHoverTooltip').style.opacity = 1;
-            document.getElementById('invHoverTooltip').style.left = e.clientX + 'px';
-            document.getElementById('invHoverTooltip').style.top = e.clientY + 'px';
+            tooltip.style.opacity = 1;
+            tooltip.style.left = e.clientX + 'px';
+            tooltip.style.top = e.clientY + 'px';
         } else {
-            document.getElementById('invHoverTooltip').style.opacity = 0;
+            tooltip.style.opacity = 0;
         }
     }
 });
 document.addEventListener('keydown', function(e) {
     if (loaded) {
         if (!inchat && !indebug) {
-            if (e.key == 'q' || e.key == 'Q') {
+            if (e.key.toLowerCase() == keybinds.drop) {
                 for (var i in Inventory.items) {
-                    if (Inventory.items[i].mousedOver) {
+                    if (Inventory.items[i].item) if (Inventory.items[i].mousedOver) {
                         Inventory.currentDrag = Inventory.items[i].slotId;
-                        Inventory.drop();
-                        document.getElementById('invHoverTooltip').style.opacity = 0;
+                        if (e.getModifierState('Control')) Inventory.drop(Inventory.items[i].item.stackSize);
+                        else Inventory.drop(1);
+                        tooltip.style.opacity = 0;
                         Inventory.currentHover = null;
                     }
                 }
                 for (var i in Inventory.equips) {
-                    if (Inventory.equips[i].mousedOver) {
+                    if (Inventory.equips[i].item) if (Inventory.equips[i].mousedOver) {
                         Inventory.currentDrag = Inventory.equips[i].slotId;
                         Inventory.drop();
-                        document.getElementById('invHoverTooltip').style.opacity = 0;
+                        tooltip.style.opacity = 0;
                         Inventory.currentHover = null;
                     }
                 }
+            } else if (e.key.toLowerCase() == keybinds.swap) {
+                socket.emit('item', {
+                    action: 'swap',
+                    data: {}
+                });
+                e.preventDefault();
             }
         }
     }
 })
 function loadTooltip(slot) {
     var item;
-    if (isFinite(slot)) item = Inventory.items[slot].item;
+    if (typeof slot == 'number') item = Inventory.items[slot].item;
     else item = Inventory.equips[slot].item;
-    document.getElementById('invHoverTooltip').innerHTML = '<span style="font-size: 16px; ' + Inventory.getRarityColor(item.rarity) + '">' + item.name + '</span><br><span style="font-size: 14px;">' + item.slotType + '</span><br><span style="font-size: 12px;">' + item.description + '</span>' + Inventory.generateEffects(item);
+    tooltip.innerHTML = '<span style="font-size: 16px; ' + Inventory.getRarityColor(item.rarity) + '">' + item.name + '</span><br><span style="font-size: 14px;">' + item.slotType.charAt(0).toUpperCase()+item.slotType.slice(1) + '</span><br><span style="font-size: 12px;">' + item.description + '</span>' + Inventory.generateEffects(item);
 };
 Inventory.itemTypes = [];
 Inventory.itemImages = [];
 Inventory.itemHighlightImages = [];
-async function getInventoryData() {
+function getInventoryData() {
     totalassets++;
-    await new Promise(async function(resolve, reject) {
-        var request = new XMLHttpRequest();
-        request.open('GET', '/client/item.json', true);
-        request.onload = async function() {
-            if (this.status >= 200 && this.status < 400) {
-                var json = JSON.parse(this.response);
-                Inventory.itemTypes = json;
-                loadedassets++;
-                for (var i in Inventory.itemTypes) {
-                    totalassets += 2;
-                    Inventory.itemImages[i] = new Image();
-                    Inventory.itemHighlightImages[i] = new Image();
-                }
-                totalassets++;
-                Inventory.itemImages['empty'] = new Image();
-                resolve();
-            } else {
-                console.error('Error: Server returned status ' + this.status);
-                await sleep(1000);
-                request.send();
+    var request = new XMLHttpRequest();
+    request.open('GET', '/client/item.json', false);
+    request.onload = async function() {
+        if (this.status >= 200 && this.status < 400) {
+            var json = JSON.parse(this.response);
+            Inventory.itemTypes = json;
+            loadedassets++;
+            for (var i in Inventory.itemTypes) {
+                totalassets += 2;
+                Inventory.itemImages[i] = new Image();
+                Inventory.itemHighlightImages[i] = new Image();
             }
-        };
-        request.onerror = function(){
-            console.error('There was a connection error. Please retry');
-            reject();
-        };
-        request.send();
-    });
+            totalassets++;
+            Inventory.itemImages['empty'] = new Image();
+        } else {
+            console.error('Error: Server returned status ' + this.status);
+            await sleep(1000);
+            request.send();
+        }
+    };
+    request.onerror = function(){
+        console.error('There was a connection error. Please retry');
+    };
+    request.send();
     for (var i in Inventory.equips) {
-        Inventory.itemImages[i] = new Image();
         totalassets++;
+        Inventory.itemImages[i] = new Image();
     }
 };
 async function loadInventoryData() {
@@ -470,6 +504,8 @@ async function loadInventoryData() {
             };
             Inventory.itemImages[i].src = '/client/img/item/' + i + '.png';
             Inventory.itemImages[i].className = 'invSlotImg noSelect';
+        });
+        await new Promise(function(resolve, reject) {
             Inventory.itemHighlightImages[i].onload = function() {
                 loadedassets++;
                 resolve();
@@ -487,9 +523,14 @@ async function loadInventoryData() {
         Inventory.itemImages['empty'].className = 'invSlotImgNoGrab noSelect';
     });
     for (var i in Inventory.equips) {
-        Inventory.itemImages[i].src = '/client/img/item/emptySlot' + i + '.png';
-        Inventory.itemImages[i].className = 'invSlotImgNoGrab noSelect';
-        loadedassets++;
+        await new Promise(function(resolve, reject) {
+            Inventory.itemImages[i].onload = function() {
+                loadedassets++;
+                resolve();
+            };
+            Inventory.itemImages[i].src = '/client/img/item/emptySlot' + i + '.png';
+            Inventory.itemImages[i].className = 'invSlotImgNoGrab noSelect';
+        });
     }
     for (var i in Inventory.equips) {
         new Inventory.EquipSlot(i);
@@ -506,7 +547,7 @@ socket.on('item', function(data) {
             }
             break;
         case 'add':
-            Inventory.addItem(data.data.id, data.data.slot, data.data.enchantments);
+            Inventory.addItem(data.data.id, data.data.slot, data.data.stackSize, data.data.enchantments);
             break;
         case 'remove':
             Inventory.removeItem(data.data.slot);
