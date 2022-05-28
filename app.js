@@ -84,13 +84,10 @@ io.on('connection', function(socket) {
     if (started) {
         socket.id = Math.random();
         var player = new Player(socket);
-        socket.on('_0x7f0334', function(id) {player.fingerprint.webgl = id; Object.freeze(player.fingerprint); if (player.fingerprint.webgl == '27890ce4adea96d91cfec1ebedc0200ee9d9683f0e9c65696e4badb7f83db268') {
-            socket.emit('disconnected');
-            socket.onevent = function(packet) {};
-            socket.disconnect(true);
-            delete Player.list[player.id];
-        }});
         setTimeout(function() {socket.emit('checkReconnect');}, 1000);
+        socket.on('_0x7f0334', function(id) {
+            player.fingerprint.webgl = id; Object.freeze(player.fingerprint);
+        });
         // connection
         socket.on('disconnect', async function() {
             if (player.name) {
