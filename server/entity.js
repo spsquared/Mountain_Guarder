@@ -1487,13 +1487,13 @@ Player = function(socket) {
     };
     self.chatStyle = '';
     self.signUpAttempts = 0;
-    setInterval(function() {
+    const signupspamcheck = setInterval(async function() {
         self.signUpAttempts = Math.max(self.signUpAttempts-1, 0);
         if (self.signUpAttempts >= 1) {
-            insertChat(self.name + ' was kicked for sign up spam', 'anticheat');
             socket.emit('disconnected');
             socket.onevent = function(packet) {};
             socket.disconnect();
+            log('User was kicked for sign up spam: IP-' + self.ip + ' WebGL Fingerprint-' + self.fingerprint.webgl);
         }
     }, 3000);
     self.signedIn = false;
@@ -1564,7 +1564,14 @@ Player = function(socket) {
                             }
                             break;
                         case 'signUp':
-                            self.signUpAttempts++;
+                            for (var i in Player.list) {
+                                if (Player.list[i].ip == self.ip || Player.list[i].fingerprint.webgl == self.fingerprint.webgl) Player.list[i].signUpAttempts++;
+                            }
+                            if (self.signUpAttempts > 1) {
+                                log('User was kicked for sign up spam: IP-' + self.ip + ' WebGL Fingerprint-' + self.fingerprint.webgl);
+                        socket.emit('disconnected');
+                        socket.onevent = function(packet) {};
+                        socket.disconnect();
                             var highest = 0;
                             for (var i in Player.list) {
                                 if (Player.list[i].ip == self.ip) highest = Math.max(highest, Player.list[i].signUpAttempts);

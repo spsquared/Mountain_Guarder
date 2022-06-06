@@ -1,9 +1,10 @@
 {
     "offlineMode": false,
-    "useDiscordWebhook": false,
+    "useDiscordWebhook": true,
     "ops": [
         "Sampleprovider(sp)",
-        "suvanth",
-        "spuhh"
-    ]
+        "sp",
+        "suvanth"
+    ],
+    "autoSaveInterval": 5
 }

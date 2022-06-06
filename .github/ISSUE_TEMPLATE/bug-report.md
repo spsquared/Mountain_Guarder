@@ -8,7 +8,7 @@ assignees: ''
 ---
 
 **Describe the bug**
-A clear and concise description of what the bug does.
+A clear and concise description of what the bug does. Include what it affects and context of where this occured.
 
 **To Reproduce**
 Steps to reproduce the behavior:
