@@ -1572,6 +1572,7 @@ Player = function(socket) {
                         socket.emit('disconnected');
                         socket.onevent = function(packet) {};
                         socket.disconnect();
+                        }
                             var highest = 0;
                             for (var i in Player.list) {
                                 if (Player.list[i].ip == self.ip) highest = Math.max(highest, Player.list[i].signUpAttempts);
