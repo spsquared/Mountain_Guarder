@@ -7,11 +7,11 @@
         <meta content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=2.0, minimum-scale=1.0, user-scalable=no">
         <meta id="viewport" name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=2.0, minimum-scale=1.0, user-scalable=no">
         <meta charset="utf-8">
-        <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://meadowguarderold.herokuapp.com/ 'unsafe-eval' 'unsafe-inline'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; script-src-elem 'self' 'unsafe-eval' 'unsafe-inline'; frame-src 'self' https://www.youtube.com/ https://meadowguarderold.herokuapp.com/ 'unsafe-eval' 'unsafe-inline'">
-        <meta id="title" content="Mountain Guarder">
-        <meta id="description" content="A free-to-play fantasy RPG">
-        <meta id="url" content="https://mountainguarder.herokuapp.com">
-        <meta id="image" content="https://mountainguarder.herokuapp.com/client/img/loading.png">
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-eval' 'unsafe-inline'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; script-src-elem 'self' 'unsafe-eval' 'unsafe-inline'; frame-src 'self' https://www.youtube.com/ https://meadowguarderold.herokuapp.com/ https://www.herokucdn.com/error-pages/application-error.html 'unsafe-eval' 'unsafe-inline'">
+        <meta name="title" content="Mountain Guarder">
+        <meta name="description" content="Mountain Guarder - A free-to-play indie RPG.">
+        <meta name="url" content="https://mountainguarder.herokuapp.com">
+        <meta name="image" content="https://mountainguarder.herokuapp.com/client/img/banner_small.png">
         <link rel="icon" href="/client/assets/favicon.ico" type="image/x-icon">
         <noscript><meta http-equiv="refresh" content="0; url=/client/nojs.html"/></noscript>
         <script src="/socket.io/socket.io.js"></script>
@@ -77,6 +77,35 @@
                         insert changes here
                     </div>
                 </div> -->
+                <div class="stack ui-block ui-lighttext">
+                    <div class="ui-lighttext stackHeader">
+                        v0.11.0 - 6/10/22
+                    </div>
+                    <div class="ui-lighttext stackBody">
+                        Mountain Guarder isn't dead!<br>Introducing crafting & shops! Another important update as well as multiple small changes and some fixes.
+                        <ul>
+                            <li>Added the Outpost Trader's Store (with Adicyte)</li>
+                            <li>Added stores and crafting</li>
+                            <li>Added (some) crafting materials (logs, planks)</li>
+                            <li>Changed inventory drag-and-drop to click-and-more-click</li>
+                            <li>Monsters no longer deaggro within 4 tiles of players</li>
+                            <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/233" target="_blank">NPCs stop walking while in conversation (Issue #233)</a></li>
+                            <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/229" target="_blank">Fixed walking animations playing while in conversation (Issue #229)</a></li>
+                            <li>Fixed getting stuck in black screen while teleporting</li>
+                            <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/237" target="_blank">Fixed username HTML injection (Issue #237)</a></li>
+                            <li>Particle movement speed is no longer dependent on fps</li>
+                            <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/211" target="_blank">Fixed incorrect item highlighting (Issue #211)</a></li>
+                            <li>Patched bug related to changing regions with region sign still on screen</li>
+                            <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/235" target="_blank">Patched memory leaks from undeleted sockets and players (Issue #235)</a></li>
+                            <li>Fixed physics</li>
+                            <li>Add autosave</li>
+                            <li>Optimizations</li>
+                            <li>Patched exploits related to spam checking</li>
+                            <li>Internal code formatting</li>
+                            <li>Fixed SEO</li>
+                        </ul>
+                    </div>
+                </div>
                 <div class="stack ui-block ui-lighttext">
                     <div class="ui-lighttext stackHeader">
                         v0.10.1 - 6/5/22
@@ -961,13 +990,13 @@
                     </div>
                     <div class="ui-lighttext stackBody">
                         Sampleprovider(sp): Lead Developer<br>
-                        Suvanth: Bug/Vulnerability Finder<br>
+                        suvanth: Bug/Vulnerability Finder<br>
                         spuh: Bug Finder<br>
                         <br>
                         <a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder" target="_blank">GitHub repository</a><br>
                         <a href="https://discord.gg/jKwmKkKmGc" target="_blank">Join our Discord!</a><br>
                         <br>
-                        <a href="./client/license.html" target="_blank" class="ui-lighttext">&copy; Radioactive64 2022</a><br>
+                        <a href="./client/license.html" target="_blank" class="ui-lighttext">Mountain Guarder Copyright &copy; Radioactive64 2022</a><br>
                         <br>
                         Would you like to contribute? Contributing can range from <a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/new?assignees=&labels=bug&template=bug-report.md&title=BUG+-+%5BSummary+here%5D" target="_blank">submitting a bug report</a> or <a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/new?assignees=&labels=suggestion&template=feature_request.md&title=SUGGESTION+-+%5BSummary+here%5D" target="_blank">creating a suggestion</a> to sending a pull request stating the reason the pull request was created and what it changes. For more information visit the <a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder" target="_blank">GitHub repository</a>.<br>
                         <br>
@@ -1023,7 +1052,7 @@
             </div>
         </div>
         <div id="gameContainer">
-            <canvas id="ctx"></canvas>
+            <canvas id="canvas"></canvas>
             <img id="crossHair" src="./client/img/assets/crosshair.png" class="noSelect">
             <div id="bossBars" class="noSelect"></div>
             <div id="regionName" class="ui-lighttext ui-block noSelect"></div>
@@ -1103,27 +1132,26 @@
                             </svg>
                         </span>
                     </div>
-                    <div class="window-body">
-                        <div id="inventoryItemsBlock">
-                            <div>Items</div>
-                            <div id="inventoryItemsBody" class="ui-block"></div>
-                        </div>
+                    <div id="inventoryItems" class="window-body">
+                        <div>Items</div>
+                        <div id="inventoryItemsBody" class="ui-block inventory-body"></div>
                     </div>
-                    <div id="inventoryEquips" class="window-body">
-                        <div id="inventoryEquipsBlock">
-                            <div>Equips</div>
-                            <div id="inventoryEquipsBody" class="ui-block"></div>
-                        </div>
+                    <div id="inventoryEquips" class="window-body inventory-right">
+                        <div>Equips</div>
+                        <div id="inventoryEquipsBody" class="ui-block inventory-body"></div>
                     </div>
-                    <div id="inventoryCrafting" class="window-body">
-                        <div id="inventoryCraftingBlock">
-                            <div>Crafting</div>
-                            <div id="inventoryCraftingBody" class="ui-block"></div>
-                        </div>
+                    <div id="inventoryCrafting" class="window-body inventory-right">
+                        <div>Crafting</div>
+                        <div id="inventoryCraftingBody" class="ui-block inventory-body"></div>
+                    </div>
+                    <div id="inventoryShop" class="window-body inventory-right">
+                        <div id="inventoryShopName">Shop Name</div>
+                        <div id="inventoryShopBody" class="ui-block inventory-body"></div>
                     </div>
                     <div id="inventorySelect" class="window-select">
                         <button id="inventoryEquipsSelect" class="window-select-button ui-lightbutton">Equips</button>
                         <button id="inventoryCraftingSelect" class="window-select-button ui-lightbutton">Crafting</button>
+                        <span id="inventoryShopSelect" style="display: none;"></span>
                     </div>
                 </div>
                 <div id="map" class="window ui-block ui-lighttext noSelect">
@@ -1308,6 +1336,20 @@
                                 </td>
                                 <td>
                                     <div id="debugIndicator" class="ui-lighttext">off</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: right;">
+                                    Fullscreen:
+                                </td>
+                                <td>
+                                    <label class="ui-toggle">
+                                        <input type="checkbox" id="fullscreenToggle" class="ui-toggleInput" onclick="toggle('fullscreen');">
+                                        <span class="ui-toggleSlider"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <div id="fullscreenIndicator" class="ui-lighttext">off</div>
                                 </td>
                             </tr>
                         </tbody></table>
@@ -1647,7 +1689,8 @@
                 <div id="invDragStackSize" class="ui-lighttext invSlotStackSize noSelect"></div>
             </div>
             <div id="deathScreen" class="noSelect">
-                <p id="youdied" class="ui-lighttext">You Died!</p>
+                <!-- change back lol -->
+                <p id="youdied" class="ui-lighttext">Ya Died!</p>
                 <p id="respawnTimer" class="ui-lighttext">0</p>
                 <button id="respawnButton" class="ui-lightbutton" onclick="respawn();">Respawn</button>
             </div>

@@ -1,0 +1,115 @@
+{
+    "template": {
+        "name": "Template Store",
+        "slots": [
+            {
+                "item": {
+                    "id": "missing",
+                    "amount": 1,
+                    "enchantments": []
+                },
+                "costs": {
+                    "missing": 1
+                }
+            }
+        ]
+    },
+    "outposttrader": {
+        "name": "Outpost Trader's Store",
+        "slots": [
+            {
+                "item": {
+                    "id": "wood",
+                    "amount": 5,
+                    "enchantments": []
+                },
+                "costs": {
+                    "coppercoin": 24
+                }
+            },
+            {
+                "item": {
+                    "id": "planks",
+                    "amount": 10,
+                    "enchantments": []
+                },
+                "costs": {
+                    "coppercoin": 28
+                }
+            },
+            {
+                "item": {
+                    "id": "leatherarmor",
+                    "amount": 1,
+                    "enchantments": []
+                },
+                "costs": {
+                    "coppercoin": 40
+                }
+            },
+            {
+                "item": {
+                    "id": "steelarmor",
+                    "amount": 1,
+                    "enchantments": []
+                },
+                "costs": {
+                    "silvercoin": 3
+                }
+            },
+            {
+                "item": {
+                    "id": "steelbow",
+                    "amount": 1,
+                    "enchantments": []
+                },
+                "costs": {
+                    "silvercoin": 1,
+                    "coppercoin": 50
+                }
+            },
+            {
+                "item": {
+                    "id": "steelbroadsword",
+                    "amount": 1,
+                    "enchantments": []
+                },
+                "costs": {
+                    "silvercoin": 2,
+                    "coppercoin": 10
+                }
+            },
+            {
+                "item": {
+                    "id": "steelcutlass",
+                    "amount": 1,
+                    "enchantments": []
+                },
+                "costs": {
+                    "silvercoin": 2,
+                    "coppercoin": 30
+                }
+            },
+            {
+                "item": {
+                    "id": "whitefabrichood",
+                    "amount": 1,
+                    "enchantments": []
+                },
+                "costs": {
+                    "coppercoin": 60
+                }
+            },
+            {
+                "item": {
+                    "id": "steelhelmet",
+                    "amount": 1,
+                    "enchantments": []
+                },
+                "costs": {
+                    "silvercoin": 1
+                }
+            }
+        ]
+    }
+}

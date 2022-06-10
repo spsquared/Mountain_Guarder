@@ -34,6 +34,20 @@
         "rarity": "blucoin",
         "effects": []
     },
+    "wood": {
+        "name": "Wood",
+        "description": "Some raw uncut lumber, ready for crafting",
+        "slotType": "material",
+        "rarity": 0,
+        "effects": []
+    },
+    "planks": {
+        "name": "Planks",
+        "description": "Standard wood planks",
+        "slotType": "material",
+        "rarity": 0,
+        "effects": []
+    },
     "simplewoodenbow": {
         "name": "Simple Wooden Bow",
         "description": "A cheap, simple bow of standard wood",

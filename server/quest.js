@@ -7,7 +7,7 @@ QuestHandler = function(socket, player) {
         current: []
     };
 
-    self.startQuest = function(id) {
+    self.startQuest = function startQuest(id) {
         if (self.qualifiesFor(id)) {
             self.current[id] = new QuestData(id);
             socket.emit('quest', {
@@ -16,7 +16,7 @@ QuestHandler = function(socket, player) {
             });
         }
     };
-    self.advanceQuestStage = function(id) {
+    self.advanceQuestStage = function advanceQuestStage(id) {
         if (self.current[id].advanceStage()) {
             self.endQuest(id, true);
         } else socket.emit('quest', {
@@ -25,7 +25,7 @@ QuestHandler = function(socket, player) {
             stage: self.current[id].stage
         });
     };
-    self.endQuest = function(id, success) {
+    self.endQuest = function endQuest(id, success) {
         var rewards = self.current[id].rewards;
         delete self.current[id];
         if (success) {
@@ -50,12 +50,12 @@ QuestHandler = function(socket, player) {
             });
         }
     };
-    self.updateQuestRequirements = function(data) {
+    self.updateQuestRequirements = function updateQuestRequirements(data) {
         for (var i in self.current) {
             if (self.current[i].checkRequirements(data)) self.advanceQuestStage(i);
         }
     };
-    self.updateClient = function() {
+    self.updateClient = function updateClient() {
         var pack = [];
         for (var i in self.current) {
             pack.push({
@@ -65,7 +65,7 @@ QuestHandler = function(socket, player) {
         }
         socket.emit('questData', pack);
     };
-    self.qualifiesFor = function(id) {
+    self.qualifiesFor = function qualifiesFor(id) {
         var quest = QuestData.quests[id];
         if (quest) {
             if (player.xpLevel < quest.requirements.xpLevel) return false;
@@ -78,7 +78,7 @@ QuestHandler = function(socket, player) {
             return false;
         }
     };
-    self.isInQuest = function(id) {
+    self.isInQuest = function isInQuest(id) {
         for (var i in self.current) {
             if (self.current[i].id == id) {
                 return self.current[i].stage;
@@ -86,21 +86,26 @@ QuestHandler = function(socket, player) {
         }
         return false;
     };
-    self.failQuests = function(reason) {
+    self.failQuests = function failQuests(reason) {
         if (reason == 'death') {
             for (var i in self.current) {
                 if (self.current[i].failOnDeath) self.endQuest(i, false);
             }
         }
     };
-    self.getSaveData = function() {
+    self.getSaveData = function getSaveData() {
         var pack = {
             done: self.done
         };
         return pack;
     };
-    self.loadSaveData = function(data) {
+    self.loadSaveData = function loadSaveData(data) {
         self.done = data.done;
+    };
+    self.quit = function quit() {
+        self = null;
+        player = null;
+        socket = null;
     };
 
     return self;
@@ -128,7 +133,7 @@ QuestData = function(id) {
         }
     }
 
-    self.checkRequirements = function(data) {
+    self.checkRequirements = function checkRequirements(data) {
         var objectives = self.objectivesComplete;
         var goals = self.objectives;
         for (var i in objectives) {
@@ -194,7 +199,7 @@ QuestData = function(id) {
         }
         return completed;
     };
-    self.advanceStage = function() {
+    self.advanceStage = function advanceStage() {
         self.stage++;
         if (self.stages[self.stage] == null) return true;
         self.objectives = cloneDeep(self.stages[self.stage]);
@@ -215,4 +220,4 @@ QuestData = function(id) {
 
     return self;
 };
-QuestData.quests = require('./quests.json');
+QuestData.quests = require('./../client/quests.json');

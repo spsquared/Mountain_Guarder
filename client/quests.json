@@ -30,7 +30,8 @@
             "items": {
                 "missing": 1
             }
-        }
+        },
+        "failOnDeath": false
     },
     "5birds": {
         "name": "Bird Squishing",
@@ -51,8 +52,9 @@
         "rewards": {
             "xp": 100,
             "items": {
-                "silvercoin": 2
+                "silvercoin": 4
             }
-        }
+        },
+        "failOnDeath": true
     }
 }

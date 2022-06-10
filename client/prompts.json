@@ -73,5 +73,10 @@
                 "action": "talkedwith_bob"
             }
         ]
+    },
+    "pingu": {
+        "text": "noot noot",
+        "options": [
+        ]
     }
 }

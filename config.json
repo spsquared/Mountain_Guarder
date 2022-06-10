@@ -1,10 +1,11 @@
 {
     "offlineMode": false,
-    "useDiscordWebhook": true,
+    "useDiscordWebhook": false,
     "ops": [
         "Sampleprovider(sp)",
         "sp",
         "suvanth"
     ],
+    "itemDespawnTime": 5,
     "autoSaveInterval": 5
 }

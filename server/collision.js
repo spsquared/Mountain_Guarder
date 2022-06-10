@@ -1,5 +1,7 @@
 // Copyright (C) 2022 Radioactive64
 
+const PF = require('pathfinding');
+
 Collision = function(map, x, y, layer, type) {
     var coltype = 0;
     switch (type) {
@@ -208,7 +210,7 @@ Collision = function(map, x, y, layer, type) {
     }
     return coltype;
 };
-Collision.getColEntity = function(map, x, y, layer) {
+Collision.getColEntity = function getColEntity(map, x, y, layer) {
     var collision = [];
     var coltype = 0;
     if (Collision.grid[map]) if (Collision.grid[map][layer]) if (Collision.grid[map][layer][y]) if (Collision.grid[map][layer][y][x]) coltype = Collision.grid[map][layer][y][x];
@@ -450,7 +452,7 @@ Layer = function(map, x, y, layer, type) {
     }
     return type;
 };
-Layer.getColEntity = function(map, x, y, layer) {
+Layer.getColEntity = function getColEntity(map, x, y, layer) {
     var collision = [];
     var coltype = 0;
     if (Layer.grid[map]) if (Layer.grid[map][layer]) if (Layer.grid[map][layer][y]) if (Layer.grid[map][layer][y][x]) coltype = Layer.grid[map][layer][y][x];
@@ -524,7 +526,27 @@ Layer.getColEntity = function(map, x, y, layer) {
     
     return collision;
 };
+Layer.getColDir = function getColDir(map, x, y, layer) {
+    var coltype = 0;
+    if (Layer.grid[map]) if (Layer.grid[map][layer]) if (Layer.grid[map][layer][y]) if (Layer.grid[map][layer][y][x]) coltype = Layer.grid[map][layer][y][x];
+    if (coltype > 5) return -1;
+    return 1;
+};
+Layer.generateGraph = function(map) {
+    const pathfinder = new PF.JumpPointFinder(PF.JPFMoveDiagonallyIfNoObstacles);
+    const grid = new PF.Grid()
+    for (var z in Layer.grid[map]) {
+        for (var y in Layer.grid[map][z]) {
+            for (var x in Layer.grid[map][z][y]) {
+                if (Layer.grid[map][z][y][x]) {
+
+                }
+            }
+        }
+    }
+};
 Layer.grid = [];
+Layer.graph = [];
 
 Slowdown = function(map, x, y, type) {
     var coltype = 0;
@@ -551,14 +573,14 @@ Slowdown = function(map, x, y, type) {
             break;
     }
     if (Slowdown.grid[map][parseInt(y)]) {
-        Slowdown.grid[map][parseInt(y)][parseInt(x)] = type;
+        Slowdown.grid[map][parseInt(y)][parseInt(x)] = coltype;
     } else {
         Slowdown.grid[map][parseInt(y)] = [];
-        Slowdown.grid[map][parseInt(y)][parseInt(x)] = type;
+        Slowdown.grid[map][parseInt(y)][parseInt(x)] = coltype;
     }
-    return type;
-}
-Slowdown.getColEntity = function(map, x, y) {
+    return coltype;
+};
+Slowdown.getColEntity = function getColEntity(map, x, y) {
     var collision = [];
     var coltype = 0;
     if (Slowdown.grid[map]) if (Slowdown.grid[map][y]) if (Slowdown.grid[map][y][x]) coltype = Slowdown.grid[map][y][x];
@@ -635,7 +657,7 @@ Spawner = function(map, x, y, layer, types) {
     };
     self.id = Math.random();
 
-    self.spawnMonster = function() {
+    self.spawnMonster = function spawnMonster() {
         try {
             var multiplier = 0;
             for (var i in self.types) {
@@ -659,7 +681,7 @@ Spawner = function(map, x, y, layer, types) {
             var localmonster = new Monster(monstertype, self.x, self.y, self.map, self.layer);
             localmonster.spawnerID = self.id;
             const onDeath = localmonster.onDeath;
-            localmonster.onDeath = function(entity, type) {
+            localmonster.onDeath = function modified_onDeath(entity, type) {
                 try {
                     Spawner.list[localmonster.spawnerID].onMonsterDeath();
                 } catch (err) {
@@ -675,7 +697,7 @@ Spawner = function(map, x, y, layer, types) {
             error(err);
         }
     };
-    self.onMonsterDeath = function() {
+    self.onMonsterDeath = function onMonsterDeath() {
         var time = Math.random()*10000+10000;
         setTimeout(function() {
             self.spawnMonster();

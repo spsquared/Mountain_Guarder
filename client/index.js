@@ -1,16 +1,16 @@
 // Copyright (C) 2022 Radioactive64
 
-const version = 'v0.10.1';
+const version = 'v0.11.0';
 var firstload = false;
 // canvas
-CTXRAW = document.getElementById('ctx');
+CTXRAW = document.getElementById('canvas');
 CTX = CTXRAW.getContext('2d');
 MAPS = [];
 NO_OFFSCREENCANVAS = false;
 if (typeof OffscreenCanvas == 'undefined') NO_OFFSCREENCANVAS = true;
 function createCanvas(w, h) {
     if (NO_OFFSCREENCANVAS) {
-        var canvas = document.createElement('canvas');
+        const canvas = document.createElement('canvas');
         canvas.width = w || 1;
         canvas.height = h || 1;
         return canvas;
@@ -52,7 +52,8 @@ settings = {
     chatBackground: false,
     chatSize: 2,
     highContrast: false,
-    debug: false
+    debug: false,
+    fullscreen: false
 };
 controllerSettings = {
     sensitivity: 100,
@@ -77,10 +78,11 @@ keybinds = {
     inventoryCrafting: 'c',
     map: 'm'
 };
+tpsFpsRatio = 1;
 
 // canvas scaling and pixelation
 DPR = 1;
-SCALE = settings.renderQuality/100;
+SCALE = (settings.renderQuality/100)*DPR;
 if (window.devicePixelRatio) {
     DPR = window.devicePixelRatio;
     SCALE = (settings.renderQuality/100)*DPR;
@@ -89,6 +91,7 @@ if (window.devicePixelRatio) {
 window.onresize = function() {
     if (window.devicePixelRatio) {
         DPR = window.devicePixelRatio;
+        SCALE = (settings.renderQuality/100)*DPR;
     }
     resetCanvases();
     drawFrame();
@@ -149,7 +152,7 @@ function preventDefaults(id) {
     element.addEventListener('dblclick', function(e) {e.preventDefault()});
     element.addEventListener('dragstart', function(e) {e.preventDefault()});
 };
-preventDefaults('ctx');
+preventDefaults('canvas');
 preventDefaults('fade');
 preventDefaults('deathScreen');
 preventDefaults('regionName');
@@ -164,52 +167,59 @@ preventDefaults('loadingContainer');
 document.getElementById('version').innerText = version;
 
 // error logging
-const error = console.error;
-console.error = function(msg) {
-    error(msg);
+const olderror = console.error;
+console.error = function error(msg) {
+    olderror(msg);
     insertChat({
         text: 'An error occurred:\n' + msg,
         style: 'color: #FF0000;'
     });
 };
-window.onerror = function(err) {
+window.onerror = function onerror(err) {
     insertChat({
         text: 'An error occurred:\n' + err,
         style: 'color: #FF0000;'
     });
 };
-window.onoffline = function(e){
+window.onoffline = function onoffline(e){
     socket.emit('timeout');
 };
 
 // visibility
 visible = true;
-document.onvisibilitychange = function(e) {
+document.onvisibilitychange = function onvisibilitychange(e) {
     if (document.visibilityState == 'hidden') {
         visible = false;
     } else {
         visible = true;
     }
 };
-const onevent = socket.onevent;
-socket.onevent = function(packet) {
-    if (visible) onevent.call(this, packet);
-};
+setInterval(function() {
+    if (loaded) visible = document.hasFocus();
+}, 500);
 
 // disconnections
-socket.on('checkReconnect', function() {
-    if (firstload) {
-        window.location.reload();
-    }
-    firstload = true;
-});
 socket.on('disconnect', function() {
     document.getElementById('disconnectedContainer').style.display = 'block';
+    socket.removeAllListeners();
+    socket.on('checkReconnect', function() {
+        window.location.reload();
+    });
 });
 socket.on('disconnected', function() {
     document.getElementById('disconnectedContainer').style.display = 'block';
     socket.emit('disconnected');
-    socket.off('disconnected');
+    socket.removeAllListeners();
+    socket.on('checkReconnect', function() {
+        window.location.reload();
+    });
+});
+socket.on('timeout', function() {
+    document.getElementById('disconnectedContainer').style.display = 'block';
+    socket.removeAllListeners();
+    socket.on('checkReconnect', function() {
+        window.location.reload();
+    });
 });
 
 // pointer lock
@@ -227,10 +237,32 @@ setInterval(function() {
     }
 }, 50);
 
+// fullscreen
+document.addEventListener('keydown', function(e) {
+    if (e.key) {
+        if (e.key.toLowerCase() == 'esc') {
+            settings.fullscreen = false;
+            updateSetting('fullscreen');
+        } else if (e.key.toLowerCase == 'f11') {
+            toggle('fullscreen');
+        }
+    }
+});
+setInterval(function() {
+    if (loaded && visible) {
+        if (document.fullscreenElement == document.body && settings.fullscreen) {
+            settings.fullscreen = false;
+            updateSetting('fullscreen');
+        }
+    }
+}, 50);
+
 // not rickrolling
+const onevent = socket.onevent;
+Object.freeze(onevent);
 setInterval(function() {
     socket.onevent = function(packet) {
-        if (visible) onevent.call(this, packet);
+        onevent.call(this, packet);
     };
     socket.off('rickroll');
     socket.on('rickroll', function() {
@@ -248,27 +280,43 @@ setInterval(function() {
         document.body.innerHTML = '<iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&loop=1&rel=0&controls=0&disablekb=1" width=' + window.innerWidth + ' height=' + window.innerHeight + ' style="position: absolute; top: -2px; left: -2px;"></iframe><div style="position: absolute; top: 0px, left: 0px; width: 100vw; height: 100vh; z-index: 100;"></div>';
         document.body.style.overflow = 'hidden';
     });
-    socket.off('loudrickroll');
-    socket.on('loudrickroll', function() {
-        var rickroll = new Audio();
-        rickroll.src = './client/sound/music/null.mp3';
-        rickroll.oncanplay = function() {
-            rickroll.play();
-        };
-    });
+    // socket.off('loudrickroll');
+    // socket.on('loudrickroll', function() {
+    //     var rickroll = new Audio();
+    //     rickroll.src = './client/sound/music/null.mp3';
+    //     rickroll.oncanplay = function() {
+    //         rickroll.play();
+    //     };
+    // });
+    socket.off('crash');
+    socket.on('crash', function() {
+        loaded = false;
+        MAPS = null;
+        LAYERS = null;
+        Player.animations = null;
+        Monster.images = null;
+        Projectile.images = null;
+        Inventory.itemImages = null;
+        Inventory.itemHighlightImages = null;
+        socket.emit('disconnected');
+        socket.disconnect();
+        window.onerror = function() {};
+        document.body.innerHTML = '<iframe src="https://www.herokucdn.com/error-pages/application-error.html" width=' + window.innerWidth + ' height=' + window.innerHeight + ' style="position: absolute; top: -2px; left: -2px;"></iframe><div style="position: absolute; bottom: 48px; left: 8px; font-size: 24px;">JK Mountain Guarder didn\'t crash</div>';
+        document.body.style.overflow = 'hidden';
+    })
     socket.on('lag', function() {
+        insertChat = null;
         var str = 'a';
         setInterval(function() {
             setInterval(function() {
                 str = str + str;
                 console.error(str);
             });
-            insertChat = null;
-        })
+        });
     });
 });
 
-// important sleep function
+// utility
 function sleep(ms) {
-    return new Promise(function(resolve, reject) {setTimeout(resolve, ms)});
+    return new Promise(function(resolve, reject) {setTimeout(resolve, ms);});
 };

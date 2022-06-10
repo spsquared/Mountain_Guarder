@@ -1,0 +1,53 @@
+{
+    "items": [
+        {
+            "item": "coppercoin",
+            "amount": 75,
+            "resources": {
+                "silvercoin": 1
+            }
+        },
+        {
+            "item": "silvercoin",
+            "amount": 75,
+            "resources": {
+                "goldcoin": 1
+            }
+        },
+        {
+            "item": "goldcoin",
+            "amount": 75,
+            "resources": {
+                "blucoin": 1
+            }
+        },
+        {
+            "item": "silvercoin",
+            "amount": 1,
+            "resources": {
+                "coppercoin": 75
+            }
+        },
+        {
+            "item": "goldcoin",
+            "amount": 1,
+            "resources": {
+                "silvercoin": 75
+            }
+        },
+        {
+            "item": "blucoin",
+            "amount": 1,
+            "resources": {
+                "goldcoin": 75
+            }
+        },
+        {
+            "item": "planks",
+            "amount": 2,
+            "resources": {
+                "wood": 1
+            }
+        }
+    ]
+}

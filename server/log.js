@@ -3,7 +3,7 @@
 const fs = require('fs');
 
 // chat
-insertChat = function(text, color) {
+insertChat = function insertChat(text, color) {
     var style = color;
     if (color == 'server') {
         style = 'color: #FFDD00;';
@@ -20,7 +20,7 @@ insertChat = function(text, color) {
     io.emit('insertChat', {text:text, style:style});
     if (!ENV.offlineMode && ENV.useDiscordWebhook) try {postDiscord(text);} catch (err) {error(err);};
 };
-insertSingleChat = function(text, color, username, log) {
+insertSingleChat = function insertSingleChat(text, color, username, log) {
     var socket = null;
     for (var i in Player.list) {
         if (Player.list[i].name == username) socket = Player.list[i].socket;
@@ -44,7 +44,7 @@ insertSingleChat = function(text, color, username, log) {
 };
 
 // logging
-logColor = function(text, colorstring, type) {
+logColor = function logColor(text, colorstring, type) {
     var time = new Date();
     var minute = '' + time.getUTCMinutes();
     if(minute.length == 1){
@@ -56,16 +56,16 @@ logColor = function(text, colorstring, type) {
     console.log('[' + time.getUTCHours() + ':' + minute + '] ' + colorstring + text + '\x1b[0m');
     appendLog('[' + time.getUTCHours() + ':' + minute + '] ' + text, type);
 };
-log = function(text) {
+log = function log(text) {
     logColor(text, '', 'log');
 };
-warn = function(text) {
+warn = function warn(text) {
     logColor(text, '\x1b[33m', 'warn');
 };
-error = function(text) {
+error = function error(text) {
     logColor(text, '\x1b[31m', 'error');
 };
-appendLog = function(text, type) {
+appendLog = function appendLog(text, type) {
     var typestring = '--- ';
     if (type == 'error') typestring = 'ERR ';
     if (type == 'warn') typestring = '!WN ';

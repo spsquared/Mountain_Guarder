@@ -165,24 +165,28 @@ socket.on('questData', function(data) {
     }
 });
 Quests = [];
-function getQuestData() {
-    totalassets++;
-    var request = new XMLHttpRequest();
-    request.open('GET', '/client/quests.json', false);
-    request.onload = async function() {
-        if (this.status >= 200 && this.status < 400) {
-            var json = JSON.parse(this.response);
-            Quests = json;
-            loadedassets++;
-        } else {
-            console.error('Error: Server returned status ' + this.status);
-            await sleep(1000);
-            request.send();
-        }
-    };
-    request.onerror = function(){
-        console.error('There was a connection error. Please retry');
-    };
-    request.send();
+async function getQuestData() {
+    await new Promise(async function(resolve, reject) {
+        totalassets++;
+        var request = new XMLHttpRequest();
+        request.open('GET', '/client/quests.json', true);
+        request.onload = async function() {
+            if (this.status >= 200 && this.status < 400) {
+                var json = JSON.parse(this.response);
+                Quests = json;
+                loadedassets++;
+                resolve();
+            } else {
+                console.error('Error: Server returned status ' + this.status);
+                await sleep(1000);
+                request.send();
+            }
+        };
+        request.onerror = function(){
+            console.error('There was a connection error. Please retry');
+            reject();
+        };
+        request.send();
+    });
 };
 async function loadQuestData() {};

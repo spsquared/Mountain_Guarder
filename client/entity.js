@@ -17,22 +17,23 @@ Entity = function(id, map, x, y) {
         rotation: 0,
         interpolationStage: 0,
         animationImage: new Image(),
+        animationImage2: null,
         updated: true
     };
 
-    self.update = function(data) {
+    self.update = function update(data) {
         if (self.map != data.map) {
             self.x = data.x;
             self.y = data.y;
         }
         self.map = data.map;
         self.layer = data.layer;
-        self.xspeed = (data.x-self.x)/(settings.fps/20);
-        self.yspeed = (data.y-self.y)/(settings.fps/20);
+        self.xspeed = (data.x-self.x)/tpsFpsRatio;
+        self.yspeed = (data.y-self.y)/tpsFpsRatio;
         self.interpolationStage = 0;
         self.updated = true;
     };
-    self.draw = function() {
+    self.draw = function draw() {
         if (inRenderDistance(self)) {
             LAYERS.elayers[self.layer].fillText('MISSING TEXTURE', self.x+OFFSETX, self.y+OFFSETY);
         }
@@ -47,7 +48,7 @@ Entity = function(id, map, x, y) {
 
     return self;
 };
-Entity.update = function(data) {
+Entity.update = function update(data) {
     Player.update(data.players);
     Monster.update(data.monsters);
     Projectile.update(data.projectiles);
@@ -56,40 +57,44 @@ Entity.update = function(data) {
     }
     DroppedItem.update(data.droppedItems);
 };
-Entity.draw = function() {
+Entity.draw = function draw() {
     if (settings.debug) entStart = Date.now();
-    var entities = [];
     if (!settings.particles) {
         Particle.list = [];
     }
+    var entities = [];
     for (var i in Player.list) {
-        if (Player.list[i].map == player.map) entities.push(Player.list[i]);
+        entities.push(Player.list[i]);
     }
     for (var i in Monster.list) {
-        if (Monster.list[i].map == player.map) entities.push(Monster.list[i]);
+        entities.push(Monster.list[i]);
     }
     for (var i in Projectile.list) {
-        if (Projectile.list[i].map == player.map) entities.push(Projectile.list[i]);
-    }
-    if (!settings.particles) {
-        Particle.list = [];
+        entities.push(Projectile.list[i]);
     }
     for (var i in Particle.list) {
-        if (Particle.list[i].map == player.map) entities.push(Particle.list[i]);
-        else Particle.list[i].draw(true);
+        entities.push(Particle.list[i]);
     }
     for (var i in DroppedItem.list) {
-        if (DroppedItem.list[i].map == player.map) entities.push(DroppedItem.list[i]);
+        entities.push(DroppedItem.list[i]);
     }
+    for (var i in Particle.list) {
+        if (Particle.list[i].map != player.map) Particle.list[i].draw(true);
+    }
+    entities = entities.filter(function(entity) {
+        return entity.map == player.map;
+    });
+    var translatex = (window.innerWidth/2)-player.x;
+    var translatey = (window.innerHeight/2)-player.y;
     LAYERS.eupper.clearRect(0, 0, window.innerWidth, window.innerHeight);
     for (var i in LAYERS.elayers) {
         LAYERS.elayers[i].clearRect(0, 0, window.innerWidth, window.innerHeight);
     }
     LAYERS.eupper.save();
-    LAYERS.eupper.translate((window.innerWidth/2)-player.x,(window.innerHeight/2)-player.y);
+    LAYERS.eupper.translate(translatex, translatey);
     for (var i in LAYERS.elayers) {
         LAYERS.elayers[i].save();
-        LAYERS.elayers[i].translate((window.innerWidth/2)-player.x,(window.innerHeight/2)-player.y);
+        LAYERS.elayers[i].translate(translatex, translatey);
     }
     entities = entities.sort(function(a, b) {return a.y - b.y;});
     for (var i in entities) {
@@ -108,6 +113,14 @@ Entity.draw = function() {
 // rigs
 Rig = function(id, map, x, y) {
     var self = new Entity(id, map, x, y);
+    self.characterStyle = {
+        hair: 1,
+        hairColor: '#000000',
+        bodyColor: '#FFF0B4',
+        shirtColor: '#FF3232',
+        pantsColor: '#6464FF',
+        texture: null
+    };
     self.rawWidth = 0;
     self.rawHeight = 0;
     self.hp = 0;
@@ -122,16 +135,27 @@ Rig = function(id, map, x, y) {
         }
         self.map = data.map;
         self.layer = data.layer;
-        self.xspeed = (data.x-self.x)/(settings.fps/20);
-        self.yspeed = (data.y-self.y)/(settings.fps/20);
+        self.xspeed = (data.x-self.x)/tpsFpsRatio;
+        self.yspeed = (data.y-self.y)/tpsFpsRatio;
         self.interpolationStage = 0;
         self.animationStage = data.animationStage;
+        if (data.characterStyle.hair != self.characterStyle.hair || data.characterStyle.hairColor != self.characterStyle.hairColor || data.characterStyle.bodyColor != self.characterStyle.bodyColor || data.characterStyle.shirtColor != self.characterStyle.shirtColor || data.characterStyle.pantsColor != self.characterStyle.pantsColor || data.characterStyle.texture != self.characterStyle.texture) {
+            self.characterStyle = data.characterStyle;
+            if (self.characterStyle.texture) {
+                self.animationImage2 = self.animationImage;
+                self.animationImage = new Image();
+                self.animationImage.src = '/client/img' + self.characterStyle.texture;
+            } else {
+                if (self.animationImage2) self.animationImage = self.animationImage2;
+                self.animationImage2 = null;
+            }
+        }
         self.hp = data.hp;
         self.maxHP = data.maxHP;
         self.updated = true;
     };
     self.draw = function() {
-        LAYERS.elayers[self.layer].fillText('MISSING TEXTURE', self.x+OFFSETX, self.y+OFFSETY);
+        LAYERS.elayers[self.layer].drawImage(self.animationImage, self.x-self.animationImage.width*2+OFFSETX, self.y-self.animationImage.height*2+OFFSETY, self.animationImage.width*4, self.animationImage.height*4);
         LAYERS.eupper.drawImage(Rig.healthBarR, 0, 0, 42, 5, self.x-63+OFFSETX, self.y-52+OFFSETY, 126, 15);
         LAYERS.eupper.drawImage(Rig.healthBarR, 1, 5, (self.hp/self.maxHP)*40, 5, self.x-60+OFFSETX, self.y-52+OFFSETY, (self.hp/self.maxHP)*120, 15);
         if (self.interpolationStage < (settings.fps/20)) {
@@ -153,15 +177,8 @@ Player = function(id, map, x, y, name, isNPC, npcId) {
     var self = new Rig(id, map, x, y);
     self.layer = 0;
     self.animationImage = null;
-    self.animationsCanvas = createCanvas(48, 128);
-    self.animationsContext = self.animationsCanvas.getContext('2d');
-    self.characterStyle = {
-        hair: 1,
-        hairColor: '#000000',
-        bodyColor: '#FFF0B4',
-        shirtColor: '#FF3232',
-        pantsColor: '#6464FF'
-    };
+    self.animationCanvas = createCanvas(48, 128);
+    self.animationContext = self.animationCanvas.getContext('2d');
     self.heldItem = {
         id: null,
         angle: 0,
@@ -174,20 +191,27 @@ Player = function(id, map, x, y, name, isNPC, npcId) {
     self.nameColor = '#FF9900';
     if (self.name == 'Sampleprovider(sp)') self.nameColor = '#3C70FF';
 
-    self.update = function(data) {
+    self.update = function update(data) {
         if (self.map != data.map) {
             self.x = data.x;
             self.y = data.y;
         }
         self.map = data.map;
-        self.xspeed = (data.x-self.x)/(settings.fps/20);
-        self.yspeed = (data.y-self.y)/(settings.fps/20);
+        self.xspeed = (data.x-self.x)/tpsFpsRatio;
+        self.yspeed = (data.y-self.y)/tpsFpsRatio;
         self.layer = data.layer;
         self.interpolationStage = 0;
         self.animationStage = data.animationStage;
-        if (data.characterStyle.hair != self.characterStyle.hair || data.characterStyle.hairColor != self.characterStyle.hairColor || data.characterStyle.bodyColor != self.characterStyle.bodyColor || data.characterStyle.shirtColor != self.characterStyle.shirtColor || data.characterStyle.pantsColor != self.characterStyle.pantsColor) {
+        if (data.characterStyle.hair != self.characterStyle.hair || data.characterStyle.hairColor != self.characterStyle.hairColor || data.characterStyle.bodyColor != self.characterStyle.bodyColor || data.characterStyle.shirtColor != self.characterStyle.shirtColor || data.characterStyle.pantsColor != self.characterStyle.pantsColor || data.characterStyle.texture != self.characterStyle.texture) {
             self.characterStyle = data.characterStyle;
-            self.updateAnimationCanvas();
+            if (self.characterStyle.texture) {
+                self.animationImage = new Image();
+                self.animationImage.src = '/client/img' + self.characterStyle.texture;
+            } else {
+                self.animationImage = null;
+                self.updateAnimationCanvas();
+            }
+            
         }
         self.hp = data.hp;
         self.maxHP = data.maxHP;
@@ -195,7 +219,7 @@ Player = function(id, map, x, y, name, isNPC, npcId) {
         if (self.heldItem) self.heldItem.image = Inventory.itemImages[self.heldItem.id];
         self.updated = true;
     };
-    self.draw = function () {
+    self.draw = function draw() {
         if (isNPC == false) {
             if (self.heldItem) if (self.heldItem.image) {
                 LAYERS.elayers[self.layer].save();
@@ -207,7 +231,8 @@ Player = function(id, map, x, y, name, isNPC, npcId) {
                 LAYERS.elayers[self.layer].restore();
             }
         }
-        LAYERS.elayers[self.layer].drawImage(self.animationsCanvas, (self.animationStage % 6)*8, (~~(self.animationStage / 6))*16, 8, 16, self.x-16+OFFSETX, self.y-52+OFFSETY, 32, 64);
+        if (self.animationImage) LAYERS.elayers[self.layer].drawImage(self.animationImage, self.x-self.animationImage.width*2+OFFSETX, self.y-self.animationImage.height*2+OFFSETY, self.animationImage.width*4, self.animationImage.height*4);
+        else LAYERS.elayers[self.layer].drawImage(self.animationCanvas, (self.animationStage % 6)*8, (~~(self.animationStage / 6))*16, 8, 16, self.x-16+OFFSETX, self.y-52+OFFSETY, 32, 64);
         if (self.isNPC == false) {
             LAYERS.eupper.drawImage(Rig.healthBarG, 0, 0, 42, 5, self.x-63+OFFSETX, self.y-72+OFFSETY, 126, 15);
             LAYERS.eupper.drawImage(Rig.healthBarG, 1, 5, (self.hp/self.maxHP)*40, 5, self.x-60+OFFSETX, self.y-72+OFFSETY, (self.hp/self.maxHP)*120, 15);
@@ -228,14 +253,14 @@ Player = function(id, map, x, y, name, isNPC, npcId) {
             self.interpolationStage++;
         }
     };
-    self.updateAnimationCanvas = async function() {
-        self.animationsContext.clearRect(0, 0, 48, 128);
-        self.animationsContext.drawImage(self.drawTintedCanvas('body'), 0, 0);
-        self.animationsContext.drawImage(self.drawTintedCanvas('shirt'), 0, 0);
-        self.animationsContext.drawImage(self.drawTintedCanvas('pants'), 0, 0);
-        self.animationsContext.drawImage(self.drawTintedCanvas('hair'), 0, 0);
+    self.updateAnimationCanvas = async function updateAnimationCanvas() {
+        self.animationContext.clearRect(0, 0, 48, 128);
+        self.animationContext.drawImage(self.drawTintedCanvas('body'), 0, 0);
+        self.animationContext.drawImage(self.drawTintedCanvas('shirt'), 0, 0);
+        self.animationContext.drawImage(self.drawTintedCanvas('pants'), 0, 0);
+        self.animationContext.drawImage(self.drawTintedCanvas('hair'), 0, 0);
     };
-    self.drawTintedCanvas = function(asset) {
+    self.drawTintedCanvas = function drawTintedCanvas(asset) {
         var buffer = createCanvas(48, 128);
         var btx = buffer.getContext('2d');
         if (asset == 'hair') btx.drawImage(Player.animations[asset][self.characterStyle.hair], 0, 0);
@@ -252,7 +277,7 @@ Player = function(id, map, x, y, name, isNPC, npcId) {
     Player.list[self.id] = self;
     return self;
 };
-Player.update = function(data) {
+Player.update = function update(data) {
     for (var i in Player.list) {
         Player.list[i].updated = false;
     }
@@ -302,7 +327,7 @@ Monster = function(id, map, x, y, type) {
     self.rawHeight = tempmonster.rawHeight;
     self.animationImage = Monster.images[type];
 
-    self.draw = function () {
+    self.draw = function draw() {
         LAYERS.elayers[self.layer].drawImage(self.animationImage, self.animationStage*self.rawWidth, 0, self.rawWidth, self.rawHeight, self.x-self.width/2+OFFSETX, self.y-self.height/2+OFFSETY, self.width, self.height);
         LAYERS.eupper.drawImage(Rig.healthBarR, 0, 0, 42, 5, self.x-63+OFFSETX, self.y-self.height/2-20+OFFSETY, 126, 15);
         LAYERS.eupper.drawImage(Rig.healthBarR, 1, 5, (self.hp/self.maxHP)*40, 5, self.x-60+OFFSETX, self.y-self.height/2-20+OFFSETY, (self.hp/self.maxHP)*120, 15);
@@ -318,7 +343,7 @@ Monster = function(id, map, x, y, type) {
     Monster.list[self.id] = self;
     return self;
 };
-Monster.update = function(data) {
+Monster.update = function update(data) {
     for (var i in Monster.list) {
         Monster.list[i].updated = false;
     }
@@ -361,20 +386,20 @@ Projectile = function(id, map, x, y, angle, type) {
     self.animationImage = Projectile.images[type];
     self.animationStage = 0;
 
-    self.update = function(data) {
+    self.update = function update(data) {
         if (self.map != data.map) {
             self.x = data.x;
             self.y = data.y;
         }
         self.map = data.map;
         self.layer = data.layer;
-        self.xspeed = (data.x-self.x)/(settings.fps/20);
-        self.yspeed = (data.y-self.y)/(settings.fps/20);
+        self.xspeed = (data.x-self.x)/tpsFpsRatio;
+        self.yspeed = (data.y-self.y)/tpsFpsRatio;
         self.interpolationStage = 0;
-        self.rotationspeed = (data.angle-self.angle)/(settings.fps/20);
+        self.rotationspeed = (data.angle-self.angle)/tpsFpsRatio;
         self.updated = true;
     };
-    self.draw = function() {
+    self.draw = function draw() {
         if (self.above) {
             LAYERS.eupper.save();
             LAYERS.eupper.translate(self.x+OFFSETX, self.y+OFFSETY);
@@ -401,7 +426,7 @@ Projectile = function(id, map, x, y, angle, type) {
     Projectile.list[self.id] = self;
     return self;
 };
-Projectile.update = function(data) {
+Projectile.update = function update(data) {
     for (var i in Projectile.list) {
         Projectile.list[i].updated = false;
     }
@@ -513,7 +538,7 @@ Particle = function(map, x, y, layer, type, value) {
             return;
     }
 
-    self.draw = function(nodraw) {
+    self.draw = function draw(nodraw) {
         self.x += self.xspeed;
         self.y += self.yspeed;
         self.chunkx = Math.floor(self.x/(64*MAPS[self.map].chunkwidth));
@@ -625,7 +650,6 @@ Particle = function(map, x, y, layer, type, value) {
                 self.opacity -= 2;
                 break;
             default:
-                console.error('invalid particle type ' + self.type);
                 delete Particle.list[self.id];
                 break;
         }
@@ -637,7 +661,7 @@ Particle = function(map, x, y, layer, type, value) {
     Particle.list[self.id] = self;
     return self;
 };
-Particle.update = function(data) {
+Particle.update = function update(data) {
     for (var i in data) {
         if (data[i]) new Particle(data[i].map, data[i].x, data[i].y, data[i].layer, data[i].type, data[i].value);
     }
@@ -662,7 +686,7 @@ DroppedItem = function(id, map, x, y, itemId, stackSize) {
     if (itemId) self.itemId = itemId;
     self.animationImage = Inventory.itemImages[itemId];
 
-    self.draw = function() {
+    self.draw = function draw() {
         LAYERS.elayers[self.layer].drawImage(self.animationImage, self.x-self.width/2+OFFSETX, self.y-self.height/2+OFFSETY, self.width, self.height);
         if (self.stackSize != 1) {
             LAYERS.elayers[self.layer].textAlign = 'right';
@@ -675,7 +699,7 @@ DroppedItem = function(id, map, x, y, itemId, stackSize) {
     DroppedItem.list[self.id] = self;
     return self;
 };
-DroppedItem.update = function(data) {
+DroppedItem.update = function update(data) {
     for (var i in DroppedItem.list) {
         DroppedItem.list[i].updated = false;
     }
@@ -699,15 +723,15 @@ DroppedItem.update = function(data) {
         }
     }
 };
-DroppedItem.updateHighlight = function() {
+DroppedItem.updateHighlight = function updateHighlight() {
     for (var i in DroppedItem.list) {
         DroppedItem.list[i].animationImage = Inventory.itemImages[DroppedItem.list[i].itemId];
     }
-    var x = mouseX+OFFSETX;
-    var y = mouseY+OFFSETY;
+    var x = mouseX-OFFSETX;
+    var y = mouseY-OFFSETY;
     if (settings.useController) {
-        x = axes.aimx+OFFSETX;
-        y = axes.aimy+OFFSETY
+        x = axes.aimx-OFFSETX;
+        y = axes.aimy-OFFSETY
     }
     for (var i in DroppedItem.list) {
         var localdroppeditem = DroppedItem.list[i];
@@ -722,69 +746,80 @@ DroppedItem.updateHighlight = function() {
             }
         }
     }
-}
+};
 DroppedItem.list = [];
 
 // load data
-function getEntityData() {
-    // health bars
-    totalassets += 2;
-    // players
-    for (var i in Player.animations) {
-        if (i == 'hair') {
-            for (var j in Player.animations[i]) {
+async function getEntityData() {
+    await new Promise(async function(resolve, reject) {
+        // health bars
+        totalassets += 2;
+        // players
+        for (var i in Player.animations) {
+            if (i == 'hair') {
+                for (var j in Player.animations[i]) {
+                    totalassets++;
+                }
+            } else {
                 totalassets++;
             }
-        } else {
-            totalassets++;
         }
-    }
-    // monsters
-    totalassets++;
-    var request = new XMLHttpRequest();
-    request.open('GET', '/client/monster.json', false);
-    request.onload = async function() {
-        if (this.status >= 200 && this.status < 400) {
-            var json = JSON.parse(this.response);
-            Monster.types = json;
-            loadedassets++;
-            for (var i in Monster.types) {
-                totalassets++;
-                Monster.images[i] = new Image();
-            }
-        } else {
-            console.error('Error: Server returned status ' + this.status);
-            await sleep(1000);
+        // monsters
+        totalassets++;
+        await new Promise(async function(resolve, reject) {
+            var request = new XMLHttpRequest();
+            request.open('GET', '/client/monster.json', true);
+            request.onload = async function() {
+                if (this.status >= 200 && this.status < 400) {
+                    var json = JSON.parse(this.response);
+                    Monster.types = json;
+                    loadedassets++;
+                    for (var i in Monster.types) {
+                        totalassets++;
+                        Monster.images[i] = new Image();
+                    }
+                    resolve();
+                } else {
+                    console.error('Error: Server returned status ' + this.status);
+                    await sleep(1000);
+                    request.send();
+                }
+            };
+            request.onerror = function() {
+                console.error('There was a connection error. Please retry');
+                reject();
+            };
             request.send();
-        }
-    };
-    request.onerror = function(){
-        console.error('There was a connection error. Please retry');
-    };
-    request.send();
-    // // projectiles
-    totalassets++;
-    var request = new XMLHttpRequest();
-    request.open('GET', '/client/projectile.json', false);
-    request.onload = async function() {
-        if (this.status >= 200 && this.status < 400) {
-            var json = JSON.parse(this.response);
-            Projectile.types = json;
-            loadedassets++;
-            for (var i in Projectile.types) {
-                totalassets++;
-                Projectile.images[i] = new Image();
-            }
-        } else {
-            console.error('Error: Server returned status ' + this.status);
-            await sleep(1000);
+        });
+        // // projectiles
+        totalassets++;
+        await new Promise(async function(resolve, reject) {
+            var request = new XMLHttpRequest();
+            request.open('GET', '/client/projectile.json', true);
+            request.onload = async function() {
+                if (this.status >= 200 && this.status < 400) {
+                    var json = JSON.parse(this.response);
+                    Projectile.types = json;
+                    loadedassets++;
+                    for (var i in Projectile.types) {
+                        totalassets++;
+                        Projectile.images[i] = new Image();
+                    }
+                    resolve();
+                } else {
+                    console.error('Error: Server returned status ' + this.status);
+                    await sleep(1000);
+                    request.send();
+                }
+            };
+            request.onerror = function() {
+                console.error('There was a connection error. Please retry');
+                reject();
+            };
             request.send();
-        }
-    };
-    request.onerror = function(){
-        console.error('There was a connection error. Please retry');
-    };
-    request.send();
+        });
+        resolve();
+    });
 };
 async function loadEntityData() {
     // health bars
@@ -855,7 +890,7 @@ AnimatedTile = function(map, x, y, id, above) {
 AnimatedTile.animations = [];
 
 // load data
-function getAnimatedTileData() {
+async function getAnimatedTileData() {
     // totalassets++;
     // var request = new XMLHttpRequest(); 
     // request.open('GET', '/client/maps/tiles.tsx', false);
@@ -876,7 +911,7 @@ function getAnimatedTileData() {
     //         request.send();
     //     }
     // };
-    // request.onerror = function(){
+    // request.onerror = function() {
     //     console.error('There was a connection error. Please retry');
     // };
     // request.send();

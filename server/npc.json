@@ -15,7 +15,7 @@
     },
     "bob": {
         "type": "waypoint",
-        "rightClickEvent": "function(player, self) {var temp = player.quests.isInQuest('5birds'); if (temp == 1) {player.prompt('bob6');} else if (temp === 0) {player.prompt('bob5');} else {player.prompt('bob1');}};",
+        "rightClickEvent": "function(player, self) {var temp = player.quests.isInQuest('5birds'); if (temp == 1) {self.startConversation(player, 'bob6');} else if (temp === 0) {self.startConversation(player, 'bob5');} else {self.startConversation(player, 'bob1');}};",
         "data": {
             "name": "Bob",
             "characterStyle": {
@@ -23,7 +23,38 @@
                 "hairColor": "#0000AA",
                 "bodyColor": "#FFF0B4",
                 "shirtColor": "#8040FF",
-                "pantsColor": "#000000"
+                "pantsColor": "#000000",
+                "texture": null
+            }
+        }
+    },
+    "adicyte": {
+        "type": "static",
+        "rightClickEvent": "function(player, self) {self.openShop('outposttrader', player);};",
+        "data": {
+            "name": "Adicyte",
+            "characterStyle": {
+                "hair": 1,
+                "hairColor": "#000000",
+                "bodyColor": "#FFF0B4",
+                "shirtColor": "#FFAE00",
+                "pantsColor": "#005A9E",
+                "texture": null
+            }
+        }
+    },
+    "pingu": {
+        "type": "static",
+        "rightClickEvent": "function(player, self) {self.startConversation(player, 'pingu'); setTimeout(function() {player.socket.emit('cameraShake', 50); player.onDeath(); player.teleport(ENV.spawnpoint.map, ENV.spawnpoint.x, ENV.spawnpoint.y, ENV.spawnpoint.layer);}, 5000)};",
+        "data": {
+            "name": "Pingu",
+            "characterStyle": {
+                "hair": 1,
+                "hairColor": "#000000",
+                "bodyColor": "#FFF0B4",
+                "shirtColor": "#FF3232",
+                "pantsColor": "#6464FF",
+                "texture": "/misc/pingu.png"
             }
         }
     }

@@ -30,10 +30,10 @@
         "animationLength": 1,
         "xpDrop": 5,
         "drops": {
-            "nothing": 0.4,
-            "coins": 4,
-            "simplewoodenbow": 0.7,
-            "simplewoodensword": 0.5,
+            "nothing": 0.8,
+            "coins": 5,
+            "simplewoodenbow": 0.9,
+            "simplewoodensword": 0.7,
             "steelbroadsword": 0.1,
             "steelcutlass": 0.1
         },
@@ -75,11 +75,11 @@
         "animationLength": 1,
         "xpDrop": 5,
         "drops": {
-            "nothing": 0.4,
-            "coins": 4,
-            "simplewoodenbow": 0.5,
-            "simplewoodensword": 0.7,
-            "steelbow": 0.1
+            "nothing": 0.8,
+            "coins": 5,
+            "simplewoodenbow": 0.7,
+            "simplewoodensword": 0.9,
+            "steelbow": 0.2
         },
         "coinDrops": {
             "coppercoin": 10,
@@ -118,15 +118,15 @@
         "animationLength": 1,
         "xpDrop": 10,
         "drops": {
-            "nothing": 1,
-            "coins": 6,
-            "simplewoodenstaff": 0.8,
-            "leatherarmor": 0.8,
-            "steelstaff": 0.3,
+            "nothing": 2,
+            "coins": 12,
+            "simplewoodenstaff": 1,
+            "leatherarmor": 0.9,
+            "steelstaff": 0.4,
             "titaniumstaff": 0.1
         },
         "coinDrops": {
-            "coppercoin": 10,
+            "coppercoin": 30,
             "silvercoin": 0,
             "goldcoin": 0,
             "blucoin": 0
@@ -162,14 +162,14 @@
         "animationLength": 1,
         "xpDrop": 20,
         "drops": {
-            "nothing": 0.1,
-            "coins": 6,
+            "nothing": 0.2,
+            "coins": 8,
             "woodenhelmet": 0.4,
             "steelhelmet": 0.1,
-            "steelarmor": 0.2
+            "steelarmor": 0.1
         },
         "coinDrops": {
-            "coppercoin": 30,
+            "coppercoin": 10,
             "silvercoin": 1,
             "goldcoin": 0,
             "blucoin": 0
@@ -205,15 +205,15 @@
         "animationLength": 0,
         "xpDrop": 10,
         "drops": {
-            "nothing": 0.2,
-            "coins": 5,
+            "nothing": 0.5,
+            "coins": 10,
             "leatherhood": 0.3,
             "leatherhat": 0.3,
             "whitefabrichood": 0.1,
             "simplewizardhat": 0.1
         },
         "coinDrops": {
-            "coppercoin": 15,
+            "coppercoin": 50,
             "silvercoin": 0,
             "goldcoin": 0,
             "blucoin": 0

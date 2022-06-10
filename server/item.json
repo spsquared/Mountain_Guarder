@@ -34,6 +34,20 @@
         "effects": [],
         "enchantments": []
     },
+    "wood": {
+        "slotType": "none",
+        "rarity": 0,
+        "maxStackSize": 200,
+        "effects": [],
+        "enchantments": []
+    },
+    "planks": {
+        "slotType": "none",
+        "rarity": 0,
+        "maxStackSize": 400,
+        "effects": [],
+        "enchantments": []
+    },
     "simplewoodenbow": {
         "slotType": "weapon",
         "rarity": 0,

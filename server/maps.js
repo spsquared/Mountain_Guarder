@@ -55,8 +55,7 @@ function loadMap(name) {
         if (raw.layers[i].name.includes('Npc:')) {
             var rawlayer = raw.layers[i];
             if (rawlayer.name.includes(':waypoints')) {
-                var npcId = rawlayer.name.replace('Npc:', '');
-                npcId = npcId.replace(':waypoints', '');
+                var npcId = rawlayer.name.replace('Npc:', '').replace(':waypoints', '');
                 var waypoints = [];
                 if (rawlayer.chunks) {
                     for (var j in rawlayer.chunks) {
@@ -100,6 +99,7 @@ function loadMap(name) {
                     npcWaypoints[npcId] = waypoints;
                 }
             } else {
+                var npcId = rawlayer.name.replace('Npc:', '');
                 if (rawlayer.chunks) {
                     for (var j in rawlayer.chunks) {
                         var rawchunk = rawlayer.chunks[j];
@@ -260,21 +260,23 @@ function loadAll() {
     loadMap('The Void')
     loadMap('Outpost Cottage 1');
     loadMap('Outpost Cottage 2');
+    loadMap('Outpost Trader\'s Store');
+    loadMap('Pingu\'s Cave');
 };
 loadAll();
 
-resetMaps = function() {
+resetMaps = function resetMaps() {
     insertChat('[!] Reloading all maps [!]', 'server');
     logColor('Reloading all maps', '\x1b[33m', 'error');
-    Npc.list.length = 0;
-    Monster.list.length = 0;
-    Projectile.list.length = 0;
-    Collision.grid.length = 0;
-    Layer.grid.length = 0;
-    Slowdown.grid.length = 0;
-    Spawner.list.length = 0;
-    Region.grid.length = 0;
-    Teleporter.grid.length = 0;
+    Npc.list = [];
+    Monster.list = [];
+    Projectile.list = [];
+    Collision.grid = [];
+    Layer.grid = [];
+    Slowdown.grid = [];
+    Spawner.list = [];
+    Region.grid = [];
+    Teleporter.grid = [];
     loadAll();
 };
 

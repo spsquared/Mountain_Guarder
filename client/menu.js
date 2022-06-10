@@ -288,7 +288,7 @@ DraggableWindow = function(id) {
         tabs: [],
         currentTab: null
     };
-    self.renderWindow = function() {
+    self.renderWindow = function renderWindow() {
         self.x = Math.min(Math.max(self.x, 0), window.innerWidth-self.width-2);
         self.y = Math.min(Math.max(self.y, 0), window.innerHeight-self.height-3);
         self.window.style.left = self.x + 'px';
@@ -315,24 +315,24 @@ DraggableWindow = function(id) {
         self.hide();
     };
 
-    self.hide = function() {
+    self.hide = function hide() {
         self.window.style.display = 'none';
         self.open = false;
     };
-    self.show = function() {
+    self.show = function show() {
         self.window.style.display = 'block';
         resetZIndex();
         self.window.style.zIndex = 6;
         self.open = true;
     };
-    self.toggle = function() {
+    self.toggle = function toggle() {
         if (self.open) {
             self.hide();
         } else {
             self.show();
         }
     }
-    self.changeTab = function(tab) {
+    self.changeTab = function changeTab(tab) {
         for (var i in self.tabs) {
             document.getElementById(self.tabs[i]).style.display = 'none';
         }
@@ -372,11 +372,11 @@ function toggleDropdown() {
         menuopen = true;
     }
 };
-var inventoryWindow = new DraggableWindow('inventory');
-var mapWindow = new DraggableWindow('map');
-var settingsWindow = new DraggableWindow('settings');
-debugConsoleWindow = new DraggableWindow('debugConsole');
-inventoryWindow.hide = function() {
+const inventoryWindow = new DraggableWindow('inventory');
+const mapWindow = new DraggableWindow('map');
+const settingsWindow = new DraggableWindow('settings');
+const debugConsoleWindow = new DraggableWindow('debugConsole');
+inventoryWindow.hide = function hide() {
     inventoryWindow.window.style.display = 'none';
     inventoryWindow.open = false;
     document.getElementById('invHoverTooltip').style.opacity = 0;
@@ -386,9 +386,23 @@ inventoryWindow.hide = function() {
     for (var i in Inventory.equips) {
         Inventory.equips[i].mousedOver = false;
     }
-    if (Inventory.currentDrag) Inventory.endDrag(Inventory.currentDrag);
+    if (Inventory.currentDrag) Inventory.dropItem(null, Inventory.currentDrag.stackSize);
     Inventory.currentDrag = null;
     Inventory.currentHover = null;
+    if (Shop.currentShop) Shop.currentShop.close();
+};
+inventoryWindow.changeTab = function changeTab(tab) {
+    for (var i in inventoryWindow.tabs) {
+        document.getElementById(inventoryWindow.tabs[i]).style.display = 'none';
+    }
+    document.getElementById(tab).style.display = '';
+    inventoryWindow.currentTab = tab;
+    if (Shop.currentShop) Shop.currentShop.close();
+    if (tab == 'inventoryCrafting') {
+        for (var i in Crafting.slots) {
+            Crafting.loadMaterials(Crafting.slots[i].resources, Crafting.slots[i].divs.image);
+        }
+    }
 };
 mapWindow.width = mapWindow.height;
 settingsWindow.width = 500;
@@ -460,6 +474,7 @@ function updateSetting(setting) {
     switch (setting) {
         case 'fps':
             resetFPS();
+            tpsFpsRatio = settings.fps/20;
             indicatorText += 'fps';
             break;
         case 'renderDistance':
@@ -491,7 +506,7 @@ function updateSetting(setting) {
             } else {
                 indicatorText = 'off';
                 document.getElementById('crossHair').style.display = '';
-                if (pointerLocked) document.exitPointerLock();
+                document.exitPointerLock();
             }
             break;
         case 'useController':
@@ -542,6 +557,15 @@ function updateSetting(setting) {
             if (settings.debug) {
                 indicatorText = 'on';
             } else {
+                indicatorText = 'off';
+            }
+            break;
+        case 'fullscreen':
+            if (settings.fullscreen) {
+                if (document.hasFocus()) document.getElementById('gameContainer').requestFullscreen();
+                indicatorText = 'on';
+            } else {
+                if (document.hasFocus()) document.exitFullscreen();
                 indicatorText = 'off';
             }
             break;
@@ -602,6 +626,7 @@ try {
                 if (settings[i] != null) settings[i] = cookiesettings[i];
             }
             settings.debug = false;
+            settings.fullscreen = false;
             document.getElementById('fpsSlider').value = settings.fps;
             document.getElementById('renderDistanceSlider').value = settings.renderDistance;
             document.getElementById('renderQualitySlider').value = settings.renderQuality;
@@ -613,7 +638,7 @@ try {
             document.getElementById('chatSizeSlider').value = settings.chatSize;
             document.getElementById('highContrastToggle').checked = settings.highContrast;
             for (var i in settings) {
-                updateSetting(i);
+                if (i != 'fullscreen') try {updateSetting(i);} catch (err) {console.error(err);}
             }
         } else if (cookie.startsWith('controllerSettings=')) {
             cookiesettings = JSON.parse(cookie.replace('controllerSettings=', ''));
@@ -693,28 +718,25 @@ document.addEventListener('mousedown', function(e) {
 });
 function updateKeybind(keybind) {
     var str = keybinds[keybind];
-    if (str != null) {
-        if (typeof str == 'number') {
-            switch (str) {
-                case 0:
-                    str = 'LMB';
-                    break;
-                case 1:
-                    str = 'CMB';
-                    break;
-                case 2:
-                    str = 'RMB';
-                    break;
-                default:
-                    str = 'MB' + str;
-                    break;
-            }
+    if (typeof str == 'number') {
+        switch (str) {
+            case 0:
+                str = 'LMB';
+                break;
+            case 1:
+                str = 'CMB';
+                break;
+            case 2:
+                str = 'RMB';
+                break;
+            default:
+                str = 'MB' + str;
+                break;
         }
-        if (str == ' ') str = 'SPACE';
-        str = str.toUpperCase();
-    } else {
-        str = '&emsp;';
     }
+    if (str === ' ') str = 'SPACE';
+    str = str.toUpperCase();
+    if (str === null) str = '&emsp;';
     document.getElementById('keybind_' + keybind).innerHTML = str;
     document.getElementById('keybind_' + keybind).style.color = '';
 };
