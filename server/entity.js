@@ -37,53 +37,73 @@ Entity = function() {
     self.updatePos = function updatePos() {
         self.collide();
     };
+    // self.collide = function collide() {
+    //     if (self.xspeed != 0 || self.yspeed != 0) {
+    //         try {
+    //             if (!self.noCollision) {
+    //                 var move = {
+    //                     steps: 1,
+    //                     stepsMoved: 0
+    //                 };
+    //                 function recursive(move, i) {
+    //                     self.lastx = self.x;
+    //                     self.lasty = self.y;
+    //                     var chunk = 2**i;
+    //                     self.x += self.xspeed/chunk;
+    //                     self.y += self.yspeed/chunk;
+    //                     self.gridx = Math.floor(self.x/64);
+    //                     self.gridy = Math.floor(self.y/64);
+    //                     move.stepsMoved++;
+    //                     if (Math.abs(self.lastx-self.x) < 1 && Math.abs(self.lasty-self.y) < 1) {
+    //                         !self.noCollision && self.doPointCollision();
+    //                         self.checkLayer();
+    //                         self.checkSlowdown();
+    //                     } else if (!self.noCollision && ((self.xspeed/chunk > self.width*2 && self.yspeed/chunk > self.height*2 && self.checkLargeSpannedCollision()) || self.checkSpannedCollision())) {
+    //                         self.x = self.lastx;
+    //                         self.y = self.lasty;
+    //                         move.steps++;
+    //                         move.stepsMoved--;
+    //                         recursive(move, i+1);
+    //                         recursive(move, i+1);
+    //                     }
+    //                 };
+    //                 recursive(move, 0);
+    //                 self.x = Math.round(self.x);
+    //                 self.y = Math.round(self.y);
+    //                 self.gridx = Math.floor(self.x/64);
+    //                 self.gridy = Math.floor(self.y/64);
+    //                 self.chunkx = Math.floor(self.gridx/Collision.grid[self.map].chunkWidth);
+    //                 self.chunky = Math.floor(self.gridy/Collision.grid[self.map].chunkHeight);
+    //             }
+    //         } catch (err) {
+    //             error(err);
+    //         }
+    //     }
+    // };
     self.collide = function collide() {
-        if (self.xspeed != 0 || self.yspeed != 0) {
-            try {
-                if (!self.noCollision) {
-                    var move = {
-                        steps: 1,
-                        stepsMoved: 0
-                    };
-                    function recursive(move, i) {
-                        self.lastx = self.x;
-                        self.lasty = self.y;
-                        var chunk = 2**i;
-                        self.x += self.xspeed/chunk;
-                        self.y += self.yspeed/chunk;
-                        self.gridx = Math.floor(self.x/64);
-                        self.gridy = Math.floor(self.y/64);
-                        move.stepsMoved++;
-                        if (Math.abs(self.lastx-self.x) < 1 && Math.abs(self.lasty-self.y) < 1) {
-                            !self.noCollision && self.doPointCollision();
-                            self.checkLayer();
-                            self.checkSlowdown();
-                        } else if (!self.noCollision && ((self.xspeed/chunk > self.width*2 && self.yspeed/chunk > self.height*2 && self.checkLargeSpannedCollision()) || self.checkSpannedCollision())) {
-                            self.x = self.lastx;
-                            self.y = self.lasty;
-                            move.steps++;
-                            move.stepsMoved--;
-                            recursive(move, i+1);
-                            recursive(move, i+1);
-                        }
-                    };
-                    recursive(move, 0);
-                    if (Collision.grid[self.map]) {
-                        if (self.x-self.width/2 < Collision.grid[self.map].offsetX*64) self.x = Collision.grid[self.map].offsetX*64+self.width/2;
-                        if (self.x+self.width/2 > Collision.grid[self.map].offsetX*64+Collision.grid[self.map].width*64) self.x = Collision.grid[self.map].offsetX*64+Collision.grid[self.map].width*64-self.width/2;
-                        if (self.y-self.height/2 < Collision.grid[self.map].offsetY*64) self.y = Collision.grid[self.map].offsetY*64+self.height/2;
-                        if (self.y+self.height/2 > Collision.grid[self.map].offsetY*64+Collision.grid[self.map].height*64) self.y = Collision.grid[self.map].offsetY*64+Collision.grid[self.map].height*64-self.height/2;
-                    }
-                    self.x = Math.round(self.x);
-                    self.y = Math.round(self.y);
+        try {
+            if (self.xspeed != 0 || self.yspeed != 0) {
+                var max = Math.max(Math.abs(self.xspeed), Math.abs(self.yspeed));
+                for (var i = 0; i < max; i++) {
+                    self.lastx = self.x;
+                    self.lasty = self.y;
+                    self.x += self.xspeed/max || 0;
+                    self.y += self.yspeed/max || 0;
                     self.gridx = Math.floor(self.x/64);
                     self.gridy = Math.floor(self.y/64);
-                    self.chunkx = Math.floor(self.gridx/Collision.grid[self.map].chunkWidth);
-                    self.chunky = Math.floor(self.gridy/Collision.grid[self.map].chunkHeight);
+                    !self.noCollision && self.doPointCollision();
+                    self.checkLayer();
+                    self.checkSlowdown();
                 }
-            } catch (err) {
-                error(err);
+                self.x = Math.round(self.x);
+                self.y = Math.round(self.y);
+                self.gridx = Math.floor(self.x/64);
+                self.gridy = Math.floor(self.y/64);
+                self.chunkx = Math.floor(self.gridx/Collision.grid[self.map].chunkWidth);
+                self.chunky = Math.floor(self.gridy/Collision.grid[self.map].chunkHeight);
             }
+        } catch (err) {
+            error(err);
         }
     };
     self.checkCollisionLine = function checkCollisionLine(x1, y1, x2, y2) {
@@ -573,93 +593,93 @@ Rig = function() {
             }
         }
     };
-    self.collide = function collide() {
-        if (self.xspeed != 0 || self.yspeed != 0 || self.aiControlled) {
-            try {
-                if (!self.noCollision || self.aiControlled) {
-                    var move = {
-                        steps: 1,
-                        stepsMoved: 0
-                    };
-                    function recursive(move, i) {
-                        self.lastx = self.x;
-                        self.lasty = self.y;
-                        var chunk = 2**i;
-                        self.x += self.xspeed/chunk;
-                        self.y += self.yspeed/chunk;
-                        self.gridx = Math.floor(self.x/64);
-                        self.gridy = Math.floor(self.y/64);
-                        move.stepsMoved++;
-                        if (self.aiControlled && Math.abs(self.lastx-self.x) < 1 && Math.abs(self.lasty-self.y) < 1 && self.aiControl()) {
-                            self.x = self.lastx;
-                            self.y = self.lasty;
-                            move.stepsMoved--;
-                            recursive(move, i);
-                        } else if (Math.abs(self.lastx-self.x) < 1 && Math.abs(self.lasty-self.y) < 1) {
-                            !self.noCollision && self.doPointCollision();
-                            self.checkLayer();
-                            self.checkSlowdown();
-                        } else if ((self.aiControlled && self.aiControl()) || !self.noCollision && ((self.xspeed/chunk > self.width*2 && self.yspeed/chunk > self.height*2 && self.checkLargeSpannedCollision()) || self.checkSpannedCollision())) {
-                            self.x = self.lastx;
-                            self.y = self.lasty;
-                            move.steps++;
-                            move.stepsMoved--;
-                            recursive(move, i+1);
-                            recursive(move, i+1);
-                        }
-                    };
-                    recursive(move, 0);
-                    if (Collision.grid[self.map]) {
-                        if (self.x-self.width/2 < Collision.grid[self.map].offsetX*64) self.x = Collision.grid[self.map].offsetX*64+self.width/2;
-                        if (self.x+self.width/2 > Collision.grid[self.map].offsetX*64+Collision.grid[self.map].width*64) self.x = Collision.grid[self.map].offsetX*64+Collision.grid[self.map].width*64-self.width/2;
-                        if (self.y-self.height/2 < Collision.grid[self.map].offsetY*64) self.y = Collision.grid[self.map].offsetY*64+self.height/2;
-                        if (self.y+self.height/2 > Collision.grid[self.map].offsetY*64+Collision.grid[self.map].height*64) self.y = Collision.grid[self.map].offsetY*64+Collision.grid[self.map].height*64-self.height/2;
-                    }
-                    self.x = Math.round(self.x);
-                    self.y = Math.round(self.y);
-                    self.gridx = Math.floor(self.x/64);
-                    self.gridy = Math.floor(self.y/64);
-                    self.chunkx = Math.floor(self.gridx/Collision.grid[self.map].chunkWidth);
-                    self.chunky = Math.floor(self.gridy/Collision.grid[self.map].chunkHeight);
-                }
-            } catch (err) {
-                error(err);
-            }
-        }
-    };
     // self.collide = function collide() {
-    //     try {
-    //         if (self.xspeed != 0 || self.yspeed != 0 || self.aiControlled) {
-    //             self.aiControlled && self.aiControl();
-    //             for (var i = 0; i < Math.max(Math.abs(self.xspeed), Math.abs(self.yspeed)); i++) {
-    //                 self.aiControlled && self.aiControl();
-    //                 self.lastx = self.x;
-    //                 self.lasty = self.y;
-    //                 self.x += self.xspeed/Math.max(Math.abs(self.xspeed), Math.abs(self.yspeed)) || 0;
-    //                 self.y += self.yspeed/Math.max(Math.abs(self.xspeed), Math.abs(self.yspeed)) || 0;
+    //     if (self.xspeed != 0 || self.yspeed != 0 || self.aiControlled) {
+    //         try {
+    //             if (!self.noCollision || self.aiControlled) {
+    //                 var move = {
+    //                     steps: 1,
+    //                     stepsMoved: 0
+    //                 };
+    //                 function recursive(move, i) {
+    //                     self.lastx = self.x;
+    //                     self.lasty = self.y;
+    //                     var chunk = 2**i;
+    //                     self.x += self.xspeed/chunk;
+    //                     self.y += self.yspeed/chunk;
+    //                     self.gridx = Math.floor(self.x/64);
+    //                     self.gridy = Math.floor(self.y/64);
+    //                     move.stepsMoved++;
+    //                     if (self.aiControlled && Math.abs(self.lastx-self.x) < 1 && Math.abs(self.lasty-self.y) < 1 && self.aiControl()) {
+    //                         self.x = self.lastx;
+    //                         self.y = self.lasty;
+    //                         move.stepsMoved--;
+    //                         recursive(move, i);
+    //                     } else if (Math.abs(self.lastx-self.x) < 1 && Math.abs(self.lasty-self.y) < 1) {
+    //                         !self.noCollision && self.doPointCollision();
+    //                         self.checkLayer();
+    //                         self.checkSlowdown();
+    //                     } else if ((self.aiControlled && self.aiControl()) || !self.noCollision && ((self.xspeed/chunk > self.width*2 && self.yspeed/chunk > self.height*2 && self.checkLargeSpannedCollision()) || self.checkSpannedCollision())) {
+    //                         self.x = self.lastx;
+    //                         self.y = self.lasty;
+    //                         move.steps++;
+    //                         move.stepsMoved--;
+    //                         recursive(move, i+1);
+    //                         recursive(move, i+1);
+    //                     }
+    //                 };
+    //                 recursive(move, 0);
+    //                 if (Collision.grid[self.map]) {
+    //                     if (self.x-self.width/2 < Collision.grid[self.map].offsetX*64) self.x = Collision.grid[self.map].offsetX*64+self.width/2;
+    //                     if (self.x+self.width/2 > Collision.grid[self.map].offsetX*64+Collision.grid[self.map].width*64) self.x = Collision.grid[self.map].offsetX*64+Collision.grid[self.map].width*64-self.width/2;
+    //                     if (self.y-self.height/2 < Collision.grid[self.map].offsetY*64) self.y = Collision.grid[self.map].offsetY*64+self.height/2;
+    //                     if (self.y+self.height/2 > Collision.grid[self.map].offsetY*64+Collision.grid[self.map].height*64) self.y = Collision.grid[self.map].offsetY*64+Collision.grid[self.map].height*64-self.height/2;
+    //                 }
+    //                 self.x = Math.round(self.x);
+    //                 self.y = Math.round(self.y);
     //                 self.gridx = Math.floor(self.x/64);
     //                 self.gridy = Math.floor(self.y/64);
-    //                 !self.noCollision && self.doPointCollision();
-    //                 self.checkLayer();
-    //                 self.checkSlowdown();
+    //                 self.chunkx = Math.floor(self.gridx/Collision.grid[self.map].chunkWidth);
+    //                 self.chunky = Math.floor(self.gridy/Collision.grid[self.map].chunkHeight);
     //             }
-    //             if (Collision.grid[self.map]) {
-    //                 if (self.x-self.width/2 < Collision.grid[self.map].offsetX*64) self.x = Collision.grid[self.map].offsetX*64+self.width/2;
-    //                 if (self.x+self.width/2 > Collision.grid[self.map].offsetX*64+Collision.grid[self.map].width*64) self.x = Collision.grid[self.map].offsetX*64+Collision.grid[self.map].width*64-self.width/2;
-    //                 if (self.y-self.height/2 < Collision.grid[self.map].offsetY*64) self.y = Collision.grid[self.map].offsetY*64+self.height/2;
-    //                 if (self.y+self.height/2 > Collision.grid[self.map].offsetY*64+Collision.grid[self.map].height*64) self.y = Collision.grid[self.map].offsetY*64+Collision.grid[self.map].height*64-self.height/2;
-    //             }
-    //             self.x = Math.round(self.x);
-    //             self.y = Math.round(self.y);
-    //             self.gridx = Math.floor(self.x/64);
-    //             self.gridy = Math.floor(self.y/64);
-    //             self.chunkx = Math.floor(self.gridx/Collision.grid[self.map].chunkWidth);
-    //             self.chunky = Math.floor(self.gridy/Collision.grid[self.map].chunkHeight);
+    //         } catch (err) {
+    //             error(err);
     //         }
-    //     } catch (err) {
-    //         error(err);
     //     }
     // };
+    self.collide = function collide() {
+        try {
+            if (self.xspeed != 0 || self.yspeed != 0 || self.aiControlled) {
+                self.aiControlled && self.aiControl();
+                for (var i = 0; i < Math.max(Math.abs(self.xspeed), Math.abs(self.yspeed)); i++) {
+                    self.aiControlled && self.aiControl();
+                    self.lastx = self.x;
+                    self.lasty = self.y;
+                    self.x += self.xspeed/Math.max(Math.abs(self.xspeed), Math.abs(self.yspeed)) || 0;
+                    self.y += self.yspeed/Math.max(Math.abs(self.xspeed), Math.abs(self.yspeed)) || 0;
+                    self.gridx = Math.floor(self.x/64);
+                    self.gridy = Math.floor(self.y/64);
+                    !self.noCollision && self.doPointCollision();
+                    self.checkLayer();
+                    self.checkSlowdown();
+                }
+                if (Collision.grid[self.map]) {
+                    if (self.x-self.width/2 < Collision.grid[self.map].offsetX*64) self.x = Collision.grid[self.map].offsetX*64+self.width/2;
+                    if (self.x+self.width/2 > Collision.grid[self.map].offsetX*64+Collision.grid[self.map].width*64) self.x = Collision.grid[self.map].offsetX*64+Collision.grid[self.map].width*64-self.width/2;
+                    if (self.y-self.height/2 < Collision.grid[self.map].offsetY*64) self.y = Collision.grid[self.map].offsetY*64+self.height/2;
+                    if (self.y+self.height/2 > Collision.grid[self.map].offsetY*64+Collision.grid[self.map].height*64) self.y = Collision.grid[self.map].offsetY*64+Collision.grid[self.map].height*64-self.height/2;
+                }
+                self.x = Math.round(self.x);
+                self.y = Math.round(self.y);
+                self.gridx = Math.floor(self.x/64);
+                self.gridy = Math.floor(self.y/64);
+                self.chunkx = Math.floor(self.gridx/Collision.grid[self.map].chunkWidth);
+                self.chunky = Math.floor(self.gridy/Collision.grid[self.map].chunkHeight);
+            }
+        } catch (err) {
+            error(err);
+        }
+    };
     self.aiControl = function aiControl() {
         var oldcontrols = self.controls;
         self.controls = {
@@ -893,7 +913,7 @@ Rig = function() {
                         for (var writex = 0; writex < size; writex++) {
                             var checkx = writex+offsetx;
                             var checky = writey+offsety;
-                            if (Collision.grid[self.map][self.layer] != null && Collision.grid[self.map][self.layer][checky] != null && Collision.grid[self.map][self.layer][checky][checkx] != null) {
+                            if (Collision.grid[self.map][self.layer] && Collision.grid[self.map][self.layer][checky] && Collision.grid[self.map][self.layer][checky][checkx]) {
                                 self.ai.grid.setWalkableAt(writex, writey, false);
                             }
                         }
@@ -911,7 +931,7 @@ Rig = function() {
                 error(err);
             }
         }
-        return self.ai.path;
+        return [];
     };
     self.ai.pathIdle = function pathIdle() {
         // self.ai.path = [];
