@@ -355,7 +355,7 @@ Inventory = function(socket, player) {
         else if (typeof slot == 'string') item = self.equips[slot];
         else item = self.cachedItem;
         if (item) {
-            if (amount > item.stackSize || amount < 0) {
+            if (amount > item.stackSize || amount < 1) {
                 player.socketKick();
                 return;
             }

@@ -67,7 +67,7 @@ for (var i in config) {
     ENV[i] = config[i];
 }
 if (process.env.IS_BETA == 'true') ENV.isBetaServer = true;
-if (process.env.WEBHOOK_TOKEN == 'true') ENV.useDiscordWebhook = true;
+if (process.env.WEBHOOK_TOKEN) ENV.useDiscordWebhook = true;
 require('./server/collision.js');
 require('./server/inventory.js');
 require('./server/quest.js');
