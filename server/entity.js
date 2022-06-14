@@ -1283,7 +1283,7 @@ Player = function(socket) {
     self.entType = 'player';
     self.socket = socket;
     self.ip = socket.handshake.headers['x-forwarded-for'];
-    self.fingerprint = {webgl: Math.random()};
+    self.fingerprint = {fpjs: Math.random(), webgl: Math.random()};
     self.map = ENV.spawnpoint.map;
     self.x = ENV.spawnpoint.x;
     self.y = ENV.spawnpoint.y;
@@ -1395,7 +1395,7 @@ Player = function(socket) {
     const signupspamcheck = setInterval(async function() {
         self.signUpAttempts = Math.max(self.signUpAttempts-1, 0);
         if (self.signUpAttempts >= 1) {
-            log('User was kicked for sign up spam: IP-' + self.ip + ' WebGL Fingerprint-' + self.fingerprint.webgl);
+            log('User was kicked for sign up spam: IP:' + self.ip + ' FPJS Fingerprint:' + self.fingerprint.fpjs + ' WebGL Fingerprint:' + self.fingerprint.webgl);
             await self.disconnect();
         }
     }, 10000);
@@ -1468,10 +1468,10 @@ Player = function(socket) {
                             break;
                         case 'signUp':
                             for (var i in Player.list) {
-                                if (Player.list[i].ip == self.ip || Player.list[i].fingerprint.webgl == self.fingerprint.webgl) Player.list[i].signUpAttempts++;
+                                if (Player.list[i].ip == self.ip || Player.list[i].fingerprint.fpjs == self.fingerprint.fpjs || Player.list[i].fingerprint.webgl == self.fingerprint.webgl) Player.list[i].signUpAttempts++;
                             }
                             if (self.signUpAttempts > 1) {
-                                log('User was kicked for sign up spam: IP-' + self.ip + ' WebGL Fingerprint-' + self.fingerprint.webgl);
+                                log('User was kicked for sign up spam: IP:' + self.ip + ' FPJS Fingerprint:' + self.fingerprint.fpjs + ' WebGL Fingerprint:' + self.fingerprint.webgl);
                                 await self.disconnect();
                                 return;
                             }
