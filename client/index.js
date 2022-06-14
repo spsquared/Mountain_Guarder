@@ -320,3 +320,4 @@ setInterval(function() {
 function sleep(ms) {
     return new Promise(function(resolve, reject) {setTimeout(resolve, ms);});
 };
+import('https://openfpcdn.io/fingerprintjs/v3').then(FingerprintJS => FingerprintJS.load()).then(fp => fp.get()).then(result => {crypto.subtle.digest('SHA-256', new TextEncoder().encode(result.components.audio.value+result.components.canvas.value.geometry+result.components.canvas.value.text+result.components.math.value+result.visitorId)).then((hashBuffer) => {socket.emit('fpID', Array.from(new Uint8Array(hashBuffer)).map((bytes) => bytes.toString(16).padStart(2, '0')).join(''))});});

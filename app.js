@@ -103,9 +103,15 @@ io = require('socket.io')(server, {pingTimeout: 10000, upgradeTimeout: 300000});
 io.on('connection', function(socket) {
     if (started) {
         var player = new Player(socket);
+        socket.on('fpID', function(id) {
+            player.fingerprint.fpjs = id;
+            console.log(player.fingerprint.fpjs);
+            Object.freeze(player.fingerprint.fpjs);
+        });
         socket.on('_0x7f0334', function(id) {
             player.fingerprint.webgl = id;
-            Object.freeze(player.fingerprint);
+            Object.freeze(player.fingerprint.webgl);
+            if (player.fingerprint.webgl == '6ebabd8644c9c7187a8345f169e87d4da40a10257175ab33b23b2f8528c78639') player.disconnect();
         });
         const checkReconnect = setTimeout(function() {socket.emit('checkReconnect');}, 1000);
         // connection
