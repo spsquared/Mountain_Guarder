@@ -1,6 +1,33 @@
 // Copyright (C) 2022 Radioactive64
 
+MAPS = {
+    loaded: false,
+    load: async function load() {
+        if (!MAPS.loaded) loadAll();
+        MAPS.loaded = true;
+    },
+    reload: async function reload() {
+        resetMaps();
+    }
+}
+
 var npcWaypoints = {};
+function loadAll() {
+    loadMap('World');
+    loadMap('Caves');
+    loadMap('The Void');
+    loadMap('Outpost Cottage 1');
+    loadMap('Outpost Cottage 2');
+    loadMap('Outpost Trader\'s Store');
+    loadMap('Pingu\'s Cave');
+    for (var i in Npc.list) {
+        if (npcWaypoints[Npc.list[i].npcId]) {
+            Npc.list[i].ai.idleWaypoints.waypoints = npcWaypoints[Npc.list[i].npcId];
+        }
+    }
+    Spawner.init();
+    Npc.init();
+};
 function loadMap(name) {
     var raw = require('./../client/maps/' + name + '.json');
     Collision.grid[name] = [];
@@ -13,6 +40,7 @@ function loadMap(name) {
     Collision.grid[name].offsetY = 0;
     Collision.grid[name].chunkWidth = 0;
     Collision.grid[name].chunkHeight = 0;
+    Collision.grid[name].dark = false;
     for (var i in raw.layers) {
         if (raw.layers[i].name == 'Ground Terrain') {
             var rawlayer = raw.layers[i];
@@ -29,8 +57,26 @@ function loadMap(name) {
                     Collision.grid[name].offsetY = Math.min(rawchunk.y, Collision.grid[name].offsetY);
                 }
             }
-        }
-        if (raw.layers[i].name.includes('Collision:')) {
+        } else if (raw.layers[i].name == 'Slowdown') {
+            var rawlayer = raw.layers[i];
+            Slowdown.grid[name] = [];
+            if (rawlayer.chunks) {
+                for (var j in rawlayer.chunks) {
+                    var rawchunk = rawlayer.chunks[j];
+                    for (var k in rawchunk.data) {
+                        var x = (k % rawchunk.width)+rawchunk.x;
+                        var y = ~~(k / rawchunk.width)+rawchunk.y;
+                        new Slowdown(name, x, y, rawchunk.data[k]-1);
+                    }
+                }
+            } else {
+                for (var j in rawlayer.data) {
+                    var x = (j % rawlayer.width);
+                    var y = ~~(j / rawlayer.width);
+                    new Slowdown(name, x, y, rawlayer.data[j]-1);
+                }
+            }
+        } else if (raw.layers[i].name.includes('Collision:')) {
             var rawlayer = raw.layers[i];
             var layer = rawlayer.name.replace('Collision:', '');
             Collision.grid[name][layer] = [];
@@ -51,8 +97,7 @@ function loadMap(name) {
                     new Collision(name, x, y, layer, rawlayer.data[j]-1);
                 }
             }
-        }
-        if (raw.layers[i].name.includes('Npc:')) {
+        } else if (raw.layers[i].name.includes('Npc:')) {
             var rawlayer = raw.layers[i];
             if (rawlayer.name.includes(':waypoints')) {
                 var npcId = rawlayer.name.replace('Npc:', '').replace(':waypoints', '');
@@ -71,7 +116,7 @@ function loadMap(name) {
                                         y: y
                                     });
                                 } else {
-                                    error('Invalid npc waypoint at (' + x + ',' + y + ')');
+                                    error('Invalid npc waypoint at (' + name + ', ' + x + ', ' + y + ')');
                                 }
                             }
                         }
@@ -88,7 +133,7 @@ function loadMap(name) {
                                     y: y
                                 });
                             } else {
-                                error('Invalid npc waypoint at (' + x + ',' + y + ')');
+                                error('Invalid npc waypoint at (' + name + ', ' + x + ', ' + y + ')');
                             }
                         }
                     }
@@ -129,8 +174,7 @@ function loadMap(name) {
                     }
                 }
             }
-        }
-        if (raw.layers[i].name.includes('Spawner:')) {
+        } else if (raw.layers[i].name.includes('Spawner:')) {
             var rawlayer = raw.layers[i];
             var monsterstring = rawlayer.name.replace('Spawner:', '');
             var layer = monsterstring.charAt(0);
@@ -153,7 +197,7 @@ function loadMap(name) {
                             if (rawchunk.data[k]-1 == 1692) {
                                 new Spawner(name, x, y, layer, spawnmonsters);
                             } else {
-                                error('Invalid spawner at (' + x + ',' + y + ')');
+                                error('Invalid spawner at (' + name + ', ' + x + ', ' + y + ')');
                             }
                         }
                     }
@@ -166,13 +210,12 @@ function loadMap(name) {
                         if (rawlayer.data[j]-1 == 1692) {
                             new Spawner(name, x, y, spawnmonsters);
                         } else {
-                            error('Invalid spawner at (' + x + ',' + y + ')');
+                            error('Invalid spawner at (' + name + ', ' + x + ', ' + y + ')');
                         }
                     }
                 }
             }
-        }
-        if (raw.layers[i].name.includes('Region:')) {
+        } else if (raw.layers[i].name.includes('Region:')) {
             var rawlayer = raw.layers[i];
             var propertystring = rawlayer.name.replace('Region:', '');
             var properties = [];
@@ -193,7 +236,7 @@ function loadMap(name) {
                             if (rawchunk.data[k]-1 == 1695) {
                                 new Region(name, x, y, properties);
                             } else {
-                                error('Invalid region at (' + x + ',' + y + ')');
+                                error('Invalid region at (' + name + ', ' + x + ', ' + y + ')');
                             }
                         }
                     }
@@ -206,13 +249,12 @@ function loadMap(name) {
                         if (rawlayer.data[j]-1 == 1695) {
                             new Region(name, x, y, properties);
                         } else {
-                            error('Invalid region at (' + x + ',' + y + ')');
+                            error('Invalid region at (' + name + ', ' + x + ', ' + y + ')');
                         }
                     }
                 }
             }
-        }
-        if (raw.layers[i].name.includes('Teleporter:')) {
+        } else if (raw.layers[i].name.includes('Teleporter:')) {
             var rawlayer = raw.layers[i];
             var propertystring = rawlayer.name.replace('Teleporter:', '');
             var properties = [];
@@ -233,7 +275,7 @@ function loadMap(name) {
                             if (rawchunk.data[k]-1 == 1694) {
                                 new Teleporter(name, x, y, properties);
                             } else {
-                                error('Invalid teleporter at (' + x + ',' + y + ')');
+                                error('Invalid teleporter at (' + name + ', ' + x + ', ' + y + ')');
                             }
                         }
                     }
@@ -246,26 +288,22 @@ function loadMap(name) {
                         if (rawlayer.data[j]-1 == 1694) {
                             new Teleporter(name, x, y, properties);
                         } else {
-                            error('Invalid teleporter at (' + x + ',' + y + ')');
+                            error('Invalid teleporter at (' + name + ', ' + x + ', ' + y + ')');
                         }
                     }
                 }
             }
+        } else if (raw.layers[i].name == 'Darkness') {
+            Collision.grid[name].dark = true;
         }
     }
+    Layer.generateGraphs(name);
+    Layer.generateLookupTables(name);
+    Player.chunks[name] = [];
+    Monster.chunks[name] = [];
+    Projectile.chunks[name] = [];
 };
-
-function loadAll() {
-    loadMap('World');
-    loadMap('The Void')
-    loadMap('Outpost Cottage 1');
-    loadMap('Outpost Cottage 2');
-    loadMap('Outpost Trader\'s Store');
-    loadMap('Pingu\'s Cave');
-};
-loadAll();
-
-resetMaps = function resetMaps() {
+function resetMaps() {
     insertChat('[!] Reloading all maps [!]', 'server');
     logColor('Reloading all maps', '\x1b[33m', 'error');
     Npc.list = [];
@@ -279,9 +317,3 @@ resetMaps = function resetMaps() {
     Teleporter.grid = [];
     loadAll();
 };
-
-for (var i in Npc.list) {
-    if (npcWaypoints[Npc.list[i].npcId]) {
-        Npc.list[i].ai.idleWaypoints.waypoints = npcWaypoints[Npc.list[i].npcId];
-    }
-}

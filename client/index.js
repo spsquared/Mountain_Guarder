@@ -1,6 +1,6 @@
 // Copyright (C) 2022 Radioactive64
 
-const version = 'v0.11.1';
+const version = 'v0.12.0';
 var firstload = false;
 // canvas
 CTXRAW = document.getElementById('canvas');
@@ -25,16 +25,19 @@ LAYERS = {
     entitylayers: [],
     map1: createCanvas(),
     entity1: createCanvas(),
+    lightCanvas: createCanvas(),
     mlower: null,
     elower: null,
     mvariables: [],
     elayers: [],
     mupper: null,
-    eupper: null
+    eupper: null,
+    lights: null,
 };
 LAYERS.mlower = LAYERS.map0.getContext('2d');
 LAYERS.mupper = LAYERS.map1.getContext('2d');
 LAYERS.eupper = LAYERS.entity1.getContext('2d');
+LAYERS.lights = LAYERS.lightCanvas.getContext('2d');
 OFFSETX = 0;
 OFFSETY = 0;
 // global
@@ -45,7 +48,10 @@ settings = {
     fps: 60,
     renderDistance: 1,
     renderQuality: 100,
+    optimizedParticles: false,
     particles: true,
+    coloredLights: true,
+    lights: true,
     dialogueSpeed: 5,
     pointerLock: false,
     useController: false,
@@ -69,6 +75,7 @@ keybinds = {
     heal: ' ',
     use: 0,
     second: 2,
+    disableSecond: 'shift',
     swap: 'tab',
     drop: 'q',
     chat: 't',
@@ -94,8 +101,10 @@ window.onresize = function() {
         SCALE = (settings.renderQuality/100)*DPR;
     }
     resetCanvases();
-    drawFrame();
-    snapWindows();
+    if (loaded) {
+        drawFrame();
+        snapWindows();
+    }
 };
 function resetCanvas(ctx) {
     ctx.getContext('2d').imageSmoothingEnabled = false;
@@ -128,6 +137,10 @@ function resetCanvases() {
     LAYERS.entity1.height = window.innerHeight*SCALE;
     LAYERS.eupper.scale(SCALE, SCALE);
     resetCanvas(LAYERS.entity1);
+    LAYERS.lightCanvas.width = window.innerWidth*SCALE;
+    LAYERS.lightCanvas.height = window.innerHeight*SCALE;
+    LAYERS.lights.scale(SCALE, SCALE);
+    resetCanvas(LAYERS.lightCanvas);
     CTXRAW.width = window.innerWidth*SCALE;
     CTXRAW.height = window.innerHeight*SCALE;
     CTX.scale(SCALE, SCALE);
@@ -194,8 +207,25 @@ document.onvisibilitychange = function onvisibilitychange(e) {
         visible = true;
     }
 };
+// automove prevention
+var hasFocus = false;
 setInterval(function() {
-    if (loaded) visible = document.hasFocus();
+    if (loaded) {
+        if (hasFocus && !document.hasFocus()) {
+            socket.emit('keyPress', {key:'up', state:false});
+            socket.emit('keyPress', {key:'down', state:false});
+            socket.emit('keyPress', {key:'left', state:false});
+            socket.emit('keyPress', {key:'right', state:false});
+            socket.emit('keyPress', {key:'heal', state:false});
+            socket.emit('controllerAxes', {
+                movex: 0,
+                movey: 0,
+                aimx: 0,
+                aimy: 0
+            });
+        }
+        hasFocus = document.hasFocus();
+    }
 }, 500);
 
 // disconnections
@@ -240,11 +270,10 @@ setInterval(function() {
 // fullscreen
 document.addEventListener('keydown', function(e) {
     if (e.key) {
-        if (e.key.toLowerCase() == 'esc') {
+        if (e.key == 'Escape' && settings.fullscreen) {
             settings.fullscreen = false;
+            document.getElementById('fullscreenToggle').checked = false;
             updateSetting('fullscreen');
-        } else if (e.key.toLowerCase == 'f11') {
-            toggle('fullscreen');
         }
     }
 });
@@ -277,7 +306,7 @@ setInterval(function() {
         socket.emit('disconnected');
         socket.disconnect();
         window.onerror = function() {};
-        document.body.innerHTML = '<iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&loop=1&rel=0&controls=0&disablekb=1" width=' + window.innerWidth + ' height=' + window.innerHeight + ' style="position: absolute; top: -2px; left: -2px;"></iframe><div style="position: absolute; top: 0px, left: 0px; width: 100vw; height: 100vh; z-index: 100;"></div>';
+        document.body.innerHTML = '<iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&loop=1&rel=0&controls=0&disablekb=1" width=' + window.innerWidth + ' height=' + window.innerHeight + ' style="position: absolute; top: -2px; left: -2px; pointer-events: none;"></iframe><div style="position: absolute; top: 0px, left: 0px; width: 100vw; height: 100vh; z-index: 100;"></div>';
         document.body.style.overflow = 'hidden';
     });
     // socket.off('loudrickroll');

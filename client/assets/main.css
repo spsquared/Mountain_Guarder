@@ -343,3 +343,19 @@ a:focus {
 #disconnected:active {
     background-color: rgb(255, 0, 0);
 }
+
+/* dark mode for whatever reason */
+@media (prefers-color-scheme: light) {
+    #loadingContainer {
+        background-color: white;
+    }
+    #fade {
+        background-color: white;
+    }
+    .window {
+        background-color: white;
+    }
+    .window-body {
+        background-color: white;
+    }
+}

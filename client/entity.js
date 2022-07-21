@@ -34,9 +34,7 @@ Entity = function(id, map, x, y) {
         self.updated = true;
     };
     self.draw = function draw() {
-        if (inRenderDistance(self)) {
-            LAYERS.elayers[self.layer].fillText('MISSING TEXTURE', self.x+OFFSETX, self.y+OFFSETY);
-        }
+        LAYERS.elayers[self.layer].fillText('MISSING TEXTURE', self.x+OFFSETX, self.y+OFFSETY);
         if (self.interpolationStage < (settings.fps/20)) {
             self.x += self.xspeed;
             self.y += self.yspeed;
@@ -58,10 +56,11 @@ Entity.update = function update(data) {
     DroppedItem.update(data.droppedItems);
 };
 Entity.draw = function draw() {
-    if (settings.debug) entStart = Date.now();
+    if (settings.debug) entStart = performance.now();
     if (!settings.particles) {
         Particle.list = [];
     }
+    Light.draw();
     var entities = [];
     for (var i in Player.list) {
         entities.push(Player.list[i]);
@@ -72,41 +71,37 @@ Entity.draw = function draw() {
     for (var i in Projectile.list) {
         entities.push(Projectile.list[i]);
     }
-    for (var i in Particle.list) {
-        entities.push(Particle.list[i]);
-    }
     for (var i in DroppedItem.list) {
         entities.push(DroppedItem.list[i]);
-    }
-    for (var i in Particle.list) {
-        if (Particle.list[i].map != player.map) Particle.list[i].draw(true);
     }
     entities = entities.filter(function(entity) {
         return entity.map == player.map;
     });
     var translatex = (window.innerWidth/2)-player.x;
     var translatey = (window.innerHeight/2)-player.y;
-    LAYERS.eupper.clearRect(0, 0, window.innerWidth, window.innerHeight);
     for (var i in LAYERS.elayers) {
         LAYERS.elayers[i].clearRect(0, 0, window.innerWidth, window.innerHeight);
-    }
-    LAYERS.eupper.save();
-    LAYERS.eupper.translate(translatex, translatey);
-    for (var i in LAYERS.elayers) {
         LAYERS.elayers[i].save();
         LAYERS.elayers[i].translate(translatex, translatey);
     }
-    entities = entities.sort(function(a, b) {return a.y - b.y;});
+    LAYERS.eupper.clearRect(0, 0, window.innerWidth, window.innerHeight);
+    LAYERS.eupper.save();
+    LAYERS.eupper.translate(translatex, translatey);
+    entities = entities.sort(function(a, b) {return a.y-b.y;});
     for (var i in entities) {
         entities[i].draw();
     }
-    LAYERS.eupper.restore();
+    for (var i in Particle.list) {
+        Particle.list[i] && Particle.list[i].map == player.map && Particle.list[i].draw();
+        Particle.list[i] && Particle.list[i].map != player.map && Particle.list[i].draw(true);
+    }
     for (var i in LAYERS.elayers) {
         LAYERS.elayers[i].restore();
     }
+    LAYERS.eupper.restore();
     if (settings.debug) {
-        var current = Date.now();
-        entTimeCounter = current-entStart;
+        var current = performance.now();
+        entTimeCounter = Math.round((current-entStart)*100)/100;
     }
 };
 
@@ -176,9 +171,6 @@ Rig.healthBarR = new Image();
 Player = function(id, map, x, y, name, isNPC, npcId) {
     var self = new Rig(id, map, x, y);
     self.layer = 0;
-    self.animationImage = null;
-    self.animationCanvas = createCanvas(48, 128);
-    self.animationContext = self.animationCanvas.getContext('2d');
     self.heldItem = {
         id: null,
         angle: 0,
@@ -190,6 +182,7 @@ Player = function(id, map, x, y, name, isNPC, npcId) {
     self.name = name;
     self.nameColor = '#FF9900';
     if (self.name == 'Sampleprovider(sp)') self.nameColor = '#3C70FF';
+    self.light = new Light(self.x, self.y, self.map, 320, 0, 0, 0, 1, self, false);
 
     self.update = function update(data) {
         if (self.map != data.map) {
@@ -205,11 +198,9 @@ Player = function(id, map, x, y, name, isNPC, npcId) {
         if (data.characterStyle.hair != self.characterStyle.hair || data.characterStyle.hairColor != self.characterStyle.hairColor || data.characterStyle.bodyColor != self.characterStyle.bodyColor || data.characterStyle.shirtColor != self.characterStyle.shirtColor || data.characterStyle.pantsColor != self.characterStyle.pantsColor || data.characterStyle.texture != self.characterStyle.texture) {
             self.characterStyle = data.characterStyle;
             if (self.characterStyle.texture) {
-                self.animationImage = new Image();
                 self.animationImage.src = '/client/img' + self.characterStyle.texture;
             } else {
-                self.animationImage = null;
-                self.updateAnimationCanvas();
+                self.updateAnimationImage();
             }
             
         }
@@ -220,31 +211,26 @@ Player = function(id, map, x, y, name, isNPC, npcId) {
         self.updated = true;
     };
     self.draw = function draw() {
-        if (isNPC == false) {
-            if (self.heldItem) if (self.heldItem.image) {
-                LAYERS.elayers[self.layer].save();
-                LAYERS.elayers[self.layer].translate(self.x+OFFSETX, self.y+OFFSETY);
-                LAYERS.elayers[self.layer].rotate(self.heldItem.angle);
-                LAYERS.elayers[self.layer].translate(Inventory.itemTypes[self.heldItem.id].heldDistance, 0);
-                LAYERS.elayers[self.layer].rotate(Inventory.itemTypes[self.heldItem.id].heldAngle*(Math.PI/180));
-                LAYERS.elayers[self.layer].drawImage(self.heldItem.image, -32, -32, 64, 64);
-                LAYERS.elayers[self.layer].restore();
-            }
+        if (!self.isNPC && self.heldItem && self.heldItem.image) {
+            LAYERS.elayers[self.layer].save();
+            LAYERS.elayers[self.layer].translate(self.x+OFFSETX, self.y+OFFSETY);
+            LAYERS.elayers[self.layer].rotate(self.heldItem.angle);
+            LAYERS.elayers[self.layer].translate(Inventory.itemTypes[self.heldItem.id].heldDistance, 0);
+            LAYERS.elayers[self.layer].rotate(Inventory.itemTypes[self.heldItem.id].heldAngle*(Math.PI/180));
+            LAYERS.elayers[self.layer].drawImage(self.heldItem.image, -32, -32, 64, 64);
+            LAYERS.elayers[self.layer].restore();
         }
-        if (self.animationImage) LAYERS.elayers[self.layer].drawImage(self.animationImage, self.x-self.animationImage.width*2+OFFSETX, self.y-self.animationImage.height*2+OFFSETY, self.animationImage.width*4, self.animationImage.height*4);
-        else LAYERS.elayers[self.layer].drawImage(self.animationCanvas, (self.animationStage % 6)*8, (~~(self.animationStage / 6))*16, 8, 16, self.x-16+OFFSETX, self.y-52+OFFSETY, 32, 64);
-        if (self.isNPC == false) {
+        if (self.characterStyle.texture) LAYERS.elayers[self.layer].drawImage(self.animationImage, self.x-self.animationImage.width*2+OFFSETX, self.y-self.animationImage.height*2+OFFSETY, self.animationImage.width*4, self.animationImage.height*4);
+        else LAYERS.elayers[self.layer].drawImage(self.animationImage, (self.animationStage % 6)*8, (~~(self.animationStage / 6))*16, 8, 16, self.x-16+OFFSETX, self.y-52+OFFSETY, 32, 64);
+        if (!self.isNPC) {
             LAYERS.eupper.drawImage(Rig.healthBarG, 0, 0, 42, 5, self.x-63+OFFSETX, self.y-72+OFFSETY, 126, 15);
             LAYERS.eupper.drawImage(Rig.healthBarG, 1, 5, (self.hp/self.maxHP)*40, 5, self.x-60+OFFSETX, self.y-72+OFFSETY, (self.hp/self.maxHP)*120, 15);
         }
         LAYERS.eupper.textAlign = 'center';
         LAYERS.eupper.font = '12px Pixel';
         LAYERS.eupper.fillStyle = self.nameColor;
-        if (self.isNPC) {
-            LAYERS.eupper.fillText(self.name, self.x+OFFSETX, self.y-58+OFFSETY);
-        } else {
-            LAYERS.eupper.fillText(self.name, self.x+OFFSETX, self.y-80+OFFSETY);
-        }
+        self.isNPC && LAYERS.eupper.fillText(self.name, self.x+OFFSETX, self.y-58+OFFSETY);
+        !self.isNPC && LAYERS.eupper.fillText(self.name, self.x+OFFSETX, self.y-80+OFFSETY);
         if (self.interpolationStage < (settings.fps/20)) {
             self.x += self.xspeed;
             self.y += self.yspeed;
@@ -253,16 +239,20 @@ Player = function(id, map, x, y, name, isNPC, npcId) {
             self.interpolationStage++;
         }
     };
-    self.updateAnimationCanvas = async function updateAnimationCanvas() {
-        self.animationContext.clearRect(0, 0, 48, 128);
-        self.animationContext.drawImage(self.drawTintedCanvas('body'), 0, 0);
-        self.animationContext.drawImage(self.drawTintedCanvas('shirt'), 0, 0);
-        self.animationContext.drawImage(self.drawTintedCanvas('pants'), 0, 0);
-        self.animationContext.drawImage(self.drawTintedCanvas('hair'), 0, 0);
+    self.updateAnimationImage = async function updateAnimationImage() {
+        const canvas = document.createElement('canvas');
+        canvas.width = 48;
+        canvas.height = 128;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(self.drawTintedCanvas('body'), 0, 0);
+        ctx.drawImage(self.drawTintedCanvas('shirt'), 0, 0);
+        ctx.drawImage(self.drawTintedCanvas('pants'), 0, 0);
+        ctx.drawImage(self.drawTintedCanvas('hair'), 0, 0);
+        self.animationImage.src = canvas.toDataURL('image/png');
     };
     self.drawTintedCanvas = function drawTintedCanvas(asset) {
-        var buffer = createCanvas(48, 128);
-        var btx = buffer.getContext('2d');
+        const buffer = createCanvas(48, 128);
+        const btx = buffer.getContext('2d');
         if (asset == 'hair') btx.drawImage(Player.animations[asset][self.characterStyle.hair], 0, 0);
         else btx.drawImage(Player.animations[asset], 0, 0);
         btx.fillStyle = self.characterStyle[asset + 'Color'];
@@ -272,6 +262,10 @@ Player = function(id, map, x, y, name, isNPC, npcId) {
         if (asset == 'hair') btx.drawImage(Player.animations[asset][self.characterStyle.hair], 0, 0);
         else btx.drawImage(Player.animations[asset], 0, 0);
         return buffer;
+    };
+    self.remove = function remove() {
+        self.light.remove();
+        delete Player.list[self.id];
     };
 
     Player.list[self.id] = self;
@@ -287,7 +281,7 @@ Player.update = function update(data) {
         } else {
             try {
                 new Player(data[i].id, data[i].map, data[i].x, data[i].y, data[i].name, data[i].isNPC, data[i].npcId);
-                Player.list[data[i].id].updateAnimationCanvas();
+                Player.list[data[i].id].updateAnimationImage();
                 Player.list[data[i].id].update(data[i]);
             } catch (err) {
                 console.error(err);
@@ -295,9 +289,7 @@ Player.update = function update(data) {
         }
     }
     for (var i in Player.list) {
-        if (Player.list[i].updated == false) {
-            delete Player.list[i];
-        }
+        !Player.list[i].updated && Player.list[i].remove();
     }
 };
 Player.list = [];
@@ -328,7 +320,8 @@ Monster = function(id, map, x, y, type) {
     self.animationImage = Monster.images[type];
 
     self.draw = function draw() {
-        LAYERS.elayers[self.layer].drawImage(self.animationImage, self.animationStage*self.rawWidth, 0, self.rawWidth, self.rawHeight, self.x-self.width/2+OFFSETX, self.y-self.height/2+OFFSETY, self.width, self.height);
+        if (self.characterStyle.texture) LAYERS.elayers[self.layer].drawImage(self.animationImage, self.x-self.animationImage.width*2+OFFSETX, self.y-self.animationImage.height*2+OFFSETY, self.animationImage.width*4, self.animationImage.height*4);
+        else LAYERS.elayers[self.layer].drawImage(self.animationImage, self.animationStage*self.rawWidth, 0, self.rawWidth, self.rawHeight, self.x-self.width/2+OFFSETX, self.y-self.height/2+OFFSETY, self.width, self.height);
         LAYERS.eupper.drawImage(Rig.healthBarR, 0, 0, 42, 5, self.x-63+OFFSETX, self.y-self.height/2-20+OFFSETY, 126, 15);
         LAYERS.eupper.drawImage(Rig.healthBarR, 1, 5, (self.hp/self.maxHP)*40, 5, self.x-60+OFFSETX, self.y-self.height/2-20+OFFSETY, (self.hp/self.maxHP)*120, 15);
         if (self.interpolationStage < (settings.fps/20)) {
@@ -338,6 +331,9 @@ Monster = function(id, map, x, y, type) {
             self.chunky = Math.floor(self.y/(64*MAPS[self.map].chunkheight));
             self.interpolationStage++;
         }
+    };
+    self.remove = function remove() {
+        delete Monster.list[self.id];
     };
 
     Monster.list[self.id] = self;
@@ -362,9 +358,7 @@ Monster.update = function update(data) {
         }
     }
     for (var i in Monster.list) {
-        if (Monster.list[i].updated == false) {
-            delete Monster.list[i];
-        }
+        !Monster.list[i].updated && Monster.list[i].remove();
     }
 };
 Monster.list = [];
@@ -385,6 +379,7 @@ Projectile = function(id, map, x, y, angle, type) {
     self.above = tempprojectile.above;
     self.animationImage = Projectile.images[type];
     self.animationStage = 0;
+    if (tempprojectile.glow) self.light = new Light(self.x, self.y, self.map, tempprojectile.glow.radius, tempprojectile.glow.color.r, tempprojectile.glow.color.g, tempprojectile.glow.color.b, tempprojectile.glow.intensity, self, self.above);
 
     self.update = function update(data) {
         if (self.map != data.map) {
@@ -422,6 +417,10 @@ Projectile = function(id, map, x, y, angle, type) {
             self.interpolationStage++;
         }
     };
+    self.remove = function remove() {
+        self.light && self.light.remove();
+        delete Projectile.list[self.id];
+    };
 
     Projectile.list[self.id] = self;
     return self;
@@ -445,9 +444,7 @@ Projectile.update = function update(data) {
         }
     }
     for (var i in Projectile.list) {
-        if (Projectile.list[i].updated == false) {
-            delete Projectile.list[i];
-        }
+        !Projectile.list[i].updated && Projectile.list[i].remove();
     }
 };
 Projectile.list = [];
@@ -455,22 +452,21 @@ Projectile.types = [];
 Projectile.images = [];
 
 // particles
-Particle = function(map, x, y, layer, type, value) {
+Particle = function(map, x, y, type, value) {
     var self = {
         id: null,
         map: map,
         x: x,
         y: y,
-        layer: layer,
         xspeed: 0,
         yspeed: 0,
-        color: '#000000',
         opacity: 120,
         type: type,
         value: value,
         size: 20,
         chunkx: 0,
         chunky: 0,
+        identifier: 0,
         particle: true
     };
     self.id = Math.random();
@@ -478,14 +474,17 @@ Particle = function(map, x, y, layer, type, value) {
         case 'damage':
             self.xspeed = Math.random()*4-2;
             self.yspeed = -10;
+            self.identifier = 1;
             break;
         case 'critdamage':
             self.xspeed = Math.random()*4-2;
             self.yspeed = -6;
+            self.identifier = 2;
             break;
         case 'heal':
             self.xspeed = Math.random()*4-2;
             self.yspeed = -10;
+            self.identifier = 3;
             break;
         case 'teleport':
             var angle = Math.random()*360*(Math.PI/180);
@@ -493,24 +492,26 @@ Particle = function(map, x, y, layer, type, value) {
             self.yspeed = Math.cos(angle)*Math.random()*2;
             self.opacity = Math.round(Math.random()*50)+100;
             self.size = Math.random()*10+10;
+            self.identifier = 4;
             break;
         case 'explosion':
             var random = Math.random();
             if (random <= 0.2) {
-                self.color = '#FFFFFF';
+                self.color = 'rgba(255, 255, 255, ';
             } else if (random <= 0.4) {
-                self.color = '#999999';
+                self.color = 'rgba(150, 150, 150, ';
             } else {
-                self.color = '#222222';
+                self.color = 'rgba(50, 50, 50, ';
             }
             var angle = Math.random()*360*(Math.PI/180);
-            self.xspeed = Math.sin(angle)*Math.random()*10;
-            self.yspeed = Math.cos(angle)*Math.random()*10;
+            var speed = Math.random()*10;
+            self.xspeed = Math.sin(angle)*speed;
+            self.yspeed = Math.cos(angle)*speed;
             self.opacity = Math.round(Math.random()*100)+100;
             self.size = Math.random()*10+20;
+            self.identifier = 5;
             break;
         case 'spawn':
-            self.color = '#0000FF';
             self.angle = Math.random()*360*(Math.PI/180);
             self.radius = Math.random()*80;
             self.rotationspeed = Math.random()*0.1;
@@ -518,20 +519,21 @@ Particle = function(map, x, y, layer, type, value) {
             self.y = y+Math.sin(self.angle)*self.radius;
             self.opacity = Math.round(Math.random()*50)+100;
             self.size = Math.random()*10+10;
+            self.identifier = 6;
             break;
         case 'death':
-            self.color = '#FF0000';
             self.yspeed = -5;
             self.opacity = Math.round(Math.random()*50)+100;
             self.size = Math.random()*5+15;
+            self.identifier = 7;
             break;
         case 'playerdeath':
-            self.color = '#FF0000';
             var angle = Math.random()*360*(Math.PI/180);
             self.xspeed = Math.sin(angle)*Math.random()*3;
             self.yspeed = Math.cos(angle)*Math.random()*3-5;
             self.opacity = Math.round(Math.random()*50)+100;
             self.size = Math.random()*5+15;
+            self.identifier = 8;
             break;
         default:
             console.error('invalid particle type ' + self.type);
@@ -550,12 +552,11 @@ Particle = function(map, x, y, layer, type, value) {
         switch (self.type) {
             case 'damage':
                 if (!nodraw) {
-                    var opstring = self.opacity.toString(16);
-                    if (opstring.length == 1) opstring = 0 + opstring;
-                    LAYERS.elayers[self.layer].fillStyle = '#FF0000' + opstring;
-                    LAYERS.elayers[self.layer].textAlign = 'center';
-                    LAYERS.elayers[self.layer].font = '24px Pixel';
-                    LAYERS.elayers[self.layer].fillText(self.value, self.x+OFFSETX, self.y+OFFSETY);
+                    // #FF0000
+                    LAYERS.eupper.fillStyle = 'rgba(255, 0, 0, ' + Math.max(settings.optimizedParticles, Math.min(self.opacity, 100)/100) + ')';
+                    LAYERS.eupper.textAlign = 'center';
+                    LAYERS.eupper.font = '24px Pixel';
+                    LAYERS.eupper.fillText(self.value, self.x+OFFSETX, self.y+OFFSETY);
                 }
                 self.xspeed *= 0.98;
                 self.yspeed += 0.5;
@@ -563,12 +564,11 @@ Particle = function(map, x, y, layer, type, value) {
                 break;
             case 'critdamage':
                 if (!nodraw) {
-                    var opstring = self.opacity.toString(16);
-                    if (opstring.length == 1) opstring = 0 + opstring;
-                    LAYERS.elayers[self.layer].fillStyle = '#FF0000' + opstring;
-                    LAYERS.elayers[self.layer].textAlign = 'center';
-                    LAYERS.elayers[self.layer].font = 'bold 36px Pixel';
-                    LAYERS.elayers[self.layer].fillText(self.value, self.x+OFFSETX, self.y+OFFSETY);
+                    // #FF0000
+                    LAYERS.eupper.fillStyle = 'rgba(255, 0, 0, ' + Math.max(settings.optimizedParticles, Math.min(self.opacity, 100)/100) + ')';
+                    LAYERS.eupper.textAlign = 'center';
+                    LAYERS.eupper.font = 'bold 36px Pixel';
+                    LAYERS.eupper.fillText(self.value, self.x+OFFSETX, self.y+OFFSETY);
                 }
                 self.xspeed *= 0.98;
                 self.yspeed += 0.3;
@@ -576,12 +576,11 @@ Particle = function(map, x, y, layer, type, value) {
                 break;
             case 'heal':
                 if (!nodraw) {
-                    var opstring = self.opacity.toString(16);
-                    if (opstring.length == 1) opstring = 0 + opstring;
-                    LAYERS.elayers[self.layer].fillStyle = '#00FF00' + opstring;
-                    LAYERS.elayers[self.layer].textAlign = 'center';
-                    LAYERS.elayers[self.layer].font = '24px Pixel';
-                    LAYERS.elayers[self.layer].fillText(self.value, self.x+OFFSETX, self.y+OFFSETY);
+                    // #00FF00
+                    LAYERS.eupper.fillStyle = 'rgba(0, 255, 0, ' + Math.max(settings.optimizedParticles, Math.min(self.opacity, 100)/100) + ')';
+                    LAYERS.eupper.textAlign = 'center';
+                    LAYERS.eupper.font = '24px Pixel';
+                    LAYERS.eupper.fillText(self.value, self.x+OFFSETX, self.y+OFFSETY);
                 }
                 self.xspeed *= 0.98;
                 self.yspeed += 0.5;
@@ -589,10 +588,9 @@ Particle = function(map, x, y, layer, type, value) {
                 break;
             case 'teleport':
                 if (!nodraw) {
-                    var opstring = self.opacity.toString(16);
-                    if (opstring.length == 1) opstring = 0 + opstring;
-                    LAYERS.elayers[self.layer].fillStyle = '#9900CC' + opstring;
-                    LAYERS.elayers[self.layer].fillRect(self.x-self.size/2+OFFSETX, self.y-self.size/2+OFFSETY, self.size, self.size);
+                    // #9900CC
+                    LAYERS.eupper.fillStyle = 'rgba(153, 0, 204, ' + Math.max(settings.optimizedParticles, Math.min(self.opacity, 50)/100) + ')';
+                    LAYERS.eupper.fillRect(self.x-self.size/2+OFFSETX, self.y-self.size/2+OFFSETY, self.size, self.size);
                 }
                 self.xspeed *= 0.95;
                 self.yspeed *= 0.95;
@@ -600,11 +598,8 @@ Particle = function(map, x, y, layer, type, value) {
                 break;
             case 'explosion':
                 if (!nodraw) {
-                    var opacity = Math.min(self.opacity, 100);
-                    var opstring = opacity.toString(16);
-                    if (opstring.length == 1) opstring = 0 + opstring;
-                    LAYERS.elayers[self.layer].fillStyle = self.color + opstring;
-                    LAYERS.elayers[self.layer].fillRect(self.x-self.size/2+OFFSETX, self.y-self.size/2+OFFSETY, self.size, self.size);
+                    LAYERS.eupper.fillStyle = self.color + Math.max(settings.optimizedParticles, Math.min(self.opacity, 50)/100) + ')';
+                    LAYERS.eupper.fillRect(self.x-self.size/2+OFFSETX, self.y-self.size/2+OFFSETY, self.size, self.size);
                 }
                 self.xspeed *= 0.9;
                 self.yspeed *= 0.9;
@@ -612,11 +607,9 @@ Particle = function(map, x, y, layer, type, value) {
                 break;
             case 'spawn':
                 if (!nodraw) {
-                    var opacity = Math.min(self.opacity, 100);
-                    var opstring = opacity.toString(16);
-                    if (opstring.length == 1) opstring = 0 + opstring;
-                    LAYERS.elayers[self.layer].fillStyle = self.color + opstring;
-                    LAYERS.elayers[self.layer].fillRect(self.x-self.size/2+OFFSETX, self.y-self.size/2+OFFSETY, self.size, self.size);
+                    // #0000FF
+                    LAYERS.eupper.fillStyle = 'rgba(0, 0, 255, ' + Math.max(settings.optimizedParticles, Math.min(self.opacity, 50)/100) + ')';
+                    LAYERS.eupper.fillRect(self.x-self.size/2+OFFSETX, self.y-self.size/2+OFFSETY, self.size, self.size);
                 }
                 self.angle += self.rotationspeed;
                 self.x = x+Math.cos(self.angle)*self.radius;
@@ -628,22 +621,16 @@ Particle = function(map, x, y, layer, type, value) {
                 break;
             case 'death':
                 if (!nodraw) {
-                    var opacity = Math.min(self.opacity, 100);
-                    var opstring = opacity.toString(16);
-                    if (opstring.length == 1) opstring = 0 + opstring;
-                    LAYERS.elayers[self.layer].fillStyle = self.color + opstring;
-                    LAYERS.elayers[self.layer].fillRect(self.x-self.size/2+OFFSETX, self.y-self.size/2+OFFSETY, self.size, self.size);
+                    LAYERS.eupper.fillStyle = 'rgba(255, 0, 0, ' + Math.max(settings.optimizedParticles, Math.min(self.opacity, 50)/100) + ')';
+                    LAYERS.eupper.fillRect(self.x-self.size/2+OFFSETX, self.y-self.size/2+OFFSETY, self.size, self.size);
                 }
                 self.yspeed *= 0.95;
                 self.opacity -= 2;
                 break;
             case 'playerdeath':
                 if (!nodraw) {
-                    var opacity = Math.min(self.opacity, 100);
-                    var opstring = opacity.toString(16);
-                    if (opstring.length == 1) opstring = 0 + opstring;
-                    LAYERS.elayers[self.layer].fillStyle = self.color + opstring;
-                    LAYERS.elayers[self.layer].fillRect(self.x-self.size/2+OFFSETX, self.y-self.size/2+OFFSETY, self.size, self.size);
+                    LAYERS.eupper.fillStyle = 'rgba(255, 0, 0, ' + Math.max(settings.optimizedParticles, Math.min(self.opacity, 50)/100) + ')';
+                    LAYERS.eupper.fillRect(self.x-self.size/2+OFFSETX, self.y-self.size/2+OFFSETY, self.size, self.size);
                 }
                 self.xspeed *= 0.98;
                 self.yspeed += 0.2;
@@ -653,9 +640,6 @@ Particle = function(map, x, y, layer, type, value) {
                 delete Particle.list[self.id];
                 break;
         }
-        if (self.opacity <= 0) {
-            delete Particle.list[self.id];
-        }
     };
 
     Particle.list[self.id] = self;
@@ -663,7 +647,7 @@ Particle = function(map, x, y, layer, type, value) {
 };
 Particle.update = function update(data) {
     for (var i in data) {
-        if (data[i]) new Particle(data[i].map, data[i].x, data[i].y, data[i].layer, data[i].type, data[i].value);
+        if (data[i]) new Particle(data[i].map, data[i].x, data[i].y, data[i].type, data[i].value);
     }
 };
 Particle.list = [];
@@ -731,7 +715,7 @@ DroppedItem.updateHighlight = function updateHighlight() {
     var y = mouseY-OFFSETY;
     if (settings.useController) {
         x = axes.aimx-OFFSETX;
-        y = axes.aimy-OFFSETY
+        y = axes.aimy-OFFSETY;
     }
     for (var i in DroppedItem.list) {
         var localdroppeditem = DroppedItem.list[i];
@@ -748,6 +732,94 @@ DroppedItem.updateHighlight = function updateHighlight() {
     }
 };
 DroppedItem.list = [];
+
+// lights
+Light = function(x, y, map, radius, r, g, b, a, parent, above) {
+    var self = {
+        id: Math.random(),
+        x: x,
+        y: y,
+        map: map,
+        radius: radius,
+        radius2: radius,
+        r: r,
+        g: g,
+        b: b,
+        a: a,
+        hasColor: true,
+        parent: parent,
+        above: above
+    };
+    self.hasColor = self.r != 0 || self.g != 0 || self.b != 0;
+    
+    self.update = function update() {
+        if (self.parent) {
+            self.x = self.parent.x;
+            self.y = self.parent.y;
+            self.map = self.parent.map;
+        }
+        if (self.map == player.map) self.radius = Math.round(Math.max(self.radius2-20, Math.min(self.radius+Math.random()*2-1, self.radius2+20)));
+    };
+    self.drawAlpha = function drawAlpha() {
+        var gradient = LAYERS.lights.createRadialGradient(self.x+OFFSETX, self.y+OFFSETY, 0, self.x+OFFSETX, self.y+OFFSETY, self.radius);
+        gradient.addColorStop(0, 'rgba(0, 0, 0, ' + self.a + ')');
+        gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        LAYERS.lights.fillStyle = gradient;
+        LAYERS.lights.fillRect(self.x-self.radius+OFFSETX, self.y-self.radius+OFFSETY, self.radius*2, self.radius*2);
+    };
+    self.drawColor = function drawColor() {
+        if (self.hasColor) {
+            var gradient = LAYERS.lights.createRadialGradient(self.x+OFFSETX, self.y+OFFSETY, self.radius/5, self.x+OFFSETX, self.y+OFFSETY, self.radius);
+            gradient.addColorStop(0, 'rgba(' + self.r + ', ' + self.g + ', ' + self.b + ', ' + self.a + ')');
+            gradient.addColorStop(1, 'rgba(' + self.r + ', ' + self.g + ', ' + self.b + ', 0)');
+            LAYERS.lights.fillStyle = gradient;
+            LAYERS.lights.fillRect(self.x-self.radius+OFFSETX, self.y-self.radius+OFFSETY, self.radius*2, self.radius*2);
+        }
+    };
+    self.remove = function remove() {
+        delete Light.list[self.id];
+    };
+
+    Light.list[self.id] = self;
+    return self;
+};
+Light.draw = function draw() {
+    if (settings.debug) lightStart = performance.now();
+    for (var i in Light.list) {
+        Light.list[i].update();
+    }
+    var translatex = (window.innerWidth/2)-player.x;
+    var translatey = (window.innerHeight/2)-player.y;
+    LAYERS.lights.clearRect(0, 0, window.innerWidth, window.innerHeight);
+    if (settings.lights) {
+        LAYERS.lights.save();
+        LAYERS.lights.translate(translatex, translatey);
+        if (MAPS[player.map].lights) {
+            LAYERS.lights.globalCompositeOperation = 'darken';
+            for (var i in Light.list) {
+                Light.list[i].map == player.map && Light.list[i].drawAlpha();
+            }
+            LAYERS.lights.restore();
+            LAYERS.lights.globalCompositeOperation = 'xor';
+            LAYERS.lights.fillStyle = 'rgba(0, 0, 0, 1)';
+            LAYERS.lights.fillRect(0, 0, window.innerWidth, window.innerHeight);
+            LAYERS.lights.save();
+            LAYERS.lights.translate(translatex, translatey);
+        }
+        if (settings.coloredLights) {
+            LAYERS.lights.globalCompositeOperation = 'source-over';
+            for (var i in Light.list) {
+                Light.list[i].map == player.map && Light.list[i].drawColor();
+            }
+        }
+        LAYERS.lights.restore();
+    }
+    if (settings.debug) {
+        var current = performance.now();
+        lightTimeCounter = Math.round((current-lightStart)*100)/100;
+    }
+};
+Light.list = [];
 
 // load data
 async function getEntityData() {
@@ -882,7 +954,7 @@ AnimatedTile = function(map, x, y, id, above) {
         above: above,
         chunkx: 0,
         chunky: 0,
-        animationCanvas: null
+        animationImage: null
     };
 
     return self;

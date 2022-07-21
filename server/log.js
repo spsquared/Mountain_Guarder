@@ -53,7 +53,8 @@ logColor = function logColor(text, colorstring, type) {
     if(minute == '0'){
         minute = '00';
     }
-    console.log('[' + time.getUTCHours() + ':' + minute + '] ' + colorstring + text + '\x1b[0m');
+    if (process.env.DATABASE_URL) console.log('[' + time.getUTCHours() + ':' + minute + '] ' + colorstring + text + '\x1b[0m');
+    else console.log('\r[' + time.getUTCHours() + ':' + minute + '] ' + colorstring + text + '\x1b[0m');
     appendLog('[' + time.getUTCHours() + ':' + minute + '] ' + text, type);
 };
 log = function log(text) {
@@ -72,5 +73,5 @@ appendLog = function appendLog(text, type) {
     if (type == 'log') typestring = 'LOG ';
     if (type == 'chat') typestring = 'CHT ';
     fs.appendFileSync('./server/log.txt', typestring + text + '\n', {encoding: 'utf-8'});
-    if (global.ENV) if (!ENV.offlineMode && ENV.useDiscordWebhook && type != 'chat') try {postDebugDiscord(typestring, text.toString());} catch (err) {error(err);};
+    if (global.ENV && !ENV.offlineMode && ENV.useDiscordWebhook && type != 'chat') try {postDebugDiscord(typestring, text.toString());} catch (err) {error(err);};
 };

@@ -16,7 +16,7 @@ hacks.innerHTML = `
 <button id="autorespawn" class="ui-lightbutton" style="background-color: #FFFFFFAA; color: black;" onclick="toggleRespawn();">Auto Respawn</button>
 </div>
 <div>
-<button id="rickroll" class="ui-lightbutton" style="background-color: #FFFFFFAA; color: black;" onclick="disableRickrolls();">Disable Rickrolls</button>
+<button id="unlockcrafts" class="ui-lightbutton" style="background-color: #FFFFFFAA; color: black;" onclick="unlockCrafts();">Unlock All Crafts</button>
 </div>
 </div>`;
 document.getElementById('gameContainer').appendChild(hacks);
@@ -116,12 +116,12 @@ function toggleRespawn() {
         autorespawn = true;
     }
 };
-function disableRickrolls() {
-    insertChat({
-        text: "Rick Astley - Never Gonna Give You Up (full) - Lyrics\nWe're no strangers to love\nYou know the rules and so do I\nA full commitment's what I'm thinking of\nYou wouldn't get this from any other guy\nI just wanna tell you how I'm feelin\nGotta make you understand\nNever gonna give you up\nNever gonna let you down\nNever gonna run around and desert you\nNever gonna make you cry\nNever gonna say goodbye\nNever gonna tell a lie and hurt you\n We've known each other for so long\nYour heart's been achin but you're too shy to say it\nInside we both know what's been goin on\nYou know the game and we're gonna play it\nAnd if you ask me how I'm feelin\nDon't you tell me you're too blind to see\nNever gonna give you up\nNever gonna let you down\nNever gonna run around and desert you\nNever gonna make you cry\nNever gonna say goodbye\nNever gonna tell a lie and hurt you\nOooOoooooOOOOo\n(Give you up)\nNever gonna\nNever gonna\n(Give you up)\nNever gonna\nNever gonna\n(Give you up)\nWe've known each other for so long\nYour heart's been aching but you're too shy to say it\nInside we both know what's been going on\nYou know the game and we're gonna play it\nGotta make you understand\nNever gonna give you up\nNever gonna let you down\nNever gonna run around and desert you\nNever gonna make you cry\nNever gonna say goodbye\nNever gonna tell a lie and hurt you",
-        style: 'font-size: 18px; color: yellow;'
-    });
-    UltraSecretFilters('colors');
+function unlockCrafts() {
+    for (var i in Crafting.slots) {
+        Crafting.slots[i].showWhenCraftable = false;
+        Crafting.slots[i].updateMaterials();
+    }
+    document.getElementById('unlockcrafts').remove();
 };
 MGHC = function () {
     if (mTracers) {

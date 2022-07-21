@@ -3,7 +3,7 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "World.tmx",
+    "activeFile": "Caves.tmx",
     "expandedProjectPaths": [
     ],
     "exportAsImage.useCurrentScale": false,
@@ -153,6 +153,14 @@
             "scaleInDock": 1,
             "scaleInEditor": 5.5
         },
+        "Caves.tmx": {
+            "scale": 3,
+            "selectedLayer": 6,
+            "viewCenter": {
+                "x": 594,
+                "y": 69.83333333333333
+            }
+        },
         "NaN.tmx": {
             "scale": 1.5,
             "selectedLayer": 1,
@@ -162,16 +170,16 @@
             }
         },
         "Outpost Cottage 1.tmx": {
-            "scale": 3,
-            "selectedLayer": 4,
+            "scale": 5.5,
+            "selectedLayer": 3,
             "viewCenter": {
                 "x": 112,
                 "y": 132
             }
         },
         "Outpost Cottage 2.tmx": {
-            "scale": 5.5,
-            "selectedLayer": 6,
+            "scale": 3,
+            "selectedLayer": 3,
             "viewCenter": {
                 "x": 152,
                 "y": 100
@@ -186,7 +194,7 @@
             }
         },
         "Outpost Trader's Store.tmx": {
-            "scale": 8,
+            "scale": 3,
             "selectedLayer": 3,
             "viewCenter": {
                 "x": 160,
@@ -202,7 +210,7 @@
             }
         },
         "Preview.tmx": {
-            "scale": 0.75,
+            "scale": 0.5,
             "selectedLayer": 2,
             "viewCenter": {
                 "x": 400,
@@ -218,11 +226,11 @@
             }
         },
         "World.tmx": {
-            "scale": 0.5,
-            "selectedLayer": 18,
+            "scale": 4,
+            "selectedLayer": 21,
             "viewCenter": {
-                "x": 522,
-                "y": 419
+                "x": 112.25,
+                "y": 241.375
             }
         },
         "roguelikeSheet.tsx": {
@@ -232,14 +240,15 @@
         },
         "tiles.tsx": {
             "dynamicWrapping": false,
-            "scaleInDock": 3,
-            "scaleInEditor": 1
+            "scaleInDock": 2,
+            "scaleInEditor": 1.5
         }
     },
     "frame.defaultDuration": 125,
     "last.exportedFilePath": "C:/Users/jacki/Google Drive/Mountain_Guarder/client/maps",
     "last.externalTilesetPath": "C:/Users/jacki/Google Drive/Mountain_Guarder/client/maps",
     "last.imagePath": "C:/Users/jacki/Google Drive/Mountain_Guarder/client/maps",
+    "map.fixedSize": false,
     "map.height": 9,
     "map.lastUsedExportFilter": "JSON map files (*.json)",
     "map.lastUsedFormat": "tmx",
@@ -250,6 +259,7 @@
         "tiles.tsx",
         "The Void.tmx",
         "World.tmx",
+        "Caves.tmx",
         "Outpost Cottage 1.tmx",
         "Outpost Cottage 2.tmx",
         "Outpost Trader's Store.tmx",
@@ -261,16 +271,16 @@
     "recentFiles": [
         "tiles.tsx",
         "The Void.tmx",
+        "World.tmx",
         "Pingu's Cave.tmx",
         "Preview.tmx",
         "NaN.tmx",
         "Outpost Trader's Store.tmx",
         "Outpost Cottage 2.tmx",
         "Outpost Cottage 1.tmx",
-        "World.tmx",
+        "Caves.tmx",
         "roguelikeSheet.tsx",
-        "C:/Users/jacki/Google Drive/mountainguarder(dev)/coins.tsx",
-        "C:/Users/jacki/Documents/JS_2021_Jie/rpg thing/maps/The River.tmx"
+        "C:/Users/jacki/Google Drive/mountainguarder(dev)/coins.tsx"
     ],
     "tileset.lastUsedFormat": "tsx",
     "tileset.tileSize": {

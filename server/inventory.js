@@ -23,7 +23,7 @@ Inventory = function(socket, player) {
 
     socket.on('item', function(data) {
         var valid = false;
-        if (typeof data == 'object' && data != null) if (data.action != null) valid = true;
+        if (typeof data == 'object' && data != null && data.action != null) valid = true;
         if (valid) {
             switch (data.action) {
                 case 'takeItem':
@@ -54,10 +54,10 @@ Inventory = function(socket, player) {
                     break;
             }
         } else {
-            player.socketKick();
+            player.kick();
         }
     });
-    self.addItem = function addItem(id, amount, enchantments) {
+    self.addItem = function addItem(id, amount, enchantments, banner) {
         if (!self.full()) {
             var newitem = new Inventory.Item(id, self.items, amount ?? 1, enchantments ?? []);
             if (newitem.overflow) {
@@ -70,6 +70,13 @@ Inventory = function(socket, player) {
             for (var i in newitem.modifiedSlots) {
                 self.refreshItem(newitem.modifiedSlots[i]);
             }
+            if (banner) socket.emit('item', {
+                action: 'banner',
+                data: {
+                    id: id,
+                    amount: amount-(newitem.overflow ?? 0),
+                }
+            });
             if (newitem.overflow) return newitem.overflow;
             return newitem.modifiedSlots;
         } else {
@@ -84,7 +91,7 @@ Inventory = function(socket, player) {
         amount = amount ?? 1;
         var modifiedSlots = [];
         for (var i in self.items) {
-            if (self.items[i]) if (self.items[i].id == id) {
+            if (self.items[i] && self.items[i].id == id) {
                 var removed = self.items[i].stackSize-Math.max(self.items[i].stackSize-amount);
                 self.items[i].stackSize -= removed;
                 amount -= removed;
@@ -127,7 +134,7 @@ Inventory = function(socket, player) {
     self.contains = function contains(id, amount) {
         var count = 0;
         for (var i in self.items) {
-            if (self.items[i]) if (self.items[i].id == id) count += self.items[i].stackSize;
+            if (self.items[i] && self.items[i].id == id) count += self.items[i].stackSize;
         }
         return count >= amount;
     };
@@ -206,7 +213,7 @@ Inventory = function(socket, player) {
                 if (slot === parseInt(i)) valid = true;
             }
             if (!valid) {
-                player.socketKick();
+                player.kick();
                 return;
             }
         }
@@ -217,14 +224,14 @@ Inventory = function(socket, player) {
                 if (slot === i) valid = true;
             }
             if (!valid) {
-                player.socketKick();
+                player.kick();
                 return;
             }
         }
-        else player.socketKick();
+        else player.kick();
         if (item) {
-            if (amount > item.stackSize) {
-                player.socketKick();
+            if (amount > item.stackSize || amount < 1) {
+                player.kick();
                 return;
             }
             self.cachedItem = cloneDeep(item);
@@ -252,7 +259,7 @@ Inventory = function(socket, player) {
                 if (slot === parseInt(i)) valid = true;
             }
             if (!valid) {
-                player.socketKick();
+                player.kick();
                 return;
             }
         } else if (typeof slot == 'string') {
@@ -262,16 +269,16 @@ Inventory = function(socket, player) {
                 if (slot === i) valid = true;
             }
             if (!valid) {
-                player.socketKick();
+                player.kick();
                 return;
             }
         } else {
-            player.socketKick();
+            player.kick();
             return;
         }
         if (self.cachedItem) {
-            if (amount > self.cachedItem.stackSize || amount < 0) {
-                player.socketKick();
+            if (amount > self.cachedItem.stackSize || amount < 1) {
+                player.kick();
                 return;
             }
             if (item) {
@@ -356,7 +363,7 @@ Inventory = function(socket, player) {
         else item = self.cachedItem;
         if (item) {
             if (amount > item.stackSize || amount < 1) {
-                player.socketKick();
+                player.kick();
                 return;
             }
             var attempts = 0;
@@ -370,7 +377,7 @@ Inventory = function(socket, player) {
                 if (Collision.grid[self.map]) {
                     for (var checkx = self.gridx-1; checkx <= self.gridx+1; checkx++) {
                         for (var checky = self.gridy-1; checky <= self.gridy+1; checky++) {
-                            if (Collision.grid[self.map][checky]) if (Collision.grid[self.map][checky][checkx])
+                            if (Collision.grid[self.map][checky] && Collision.grid[self.map][checky][checkx])
                             collisions.push(Collision.getColEntity(self.map, checkx, checky));
                         }
                     }
@@ -436,7 +443,7 @@ Inventory = function(socket, player) {
                 }
             }
         } else {
-            player.socketKick();
+            player.kick();
         }
     };
     self.isSameItem = function isSameItem(item1, item2) {
@@ -510,11 +517,6 @@ Inventory = function(socket, player) {
             }
         }
     };
-    self.quit = function quit() {
-        self = null;
-        player = null;
-        socket = null;
-    };
 
     return self;
 };
@@ -533,12 +535,12 @@ Inventory.Item = function Item(id, list, amount, enchantments) {
     }
     self.modifiedSlots = [];
     for (var i in list) {
-        if (list[i]) if (list[i].id == self.id && list[i].stackSize < list[i].maxStackSize) {
+        if (list[i] && list[i].id == self.id && list[i].stackSize < list[i].maxStackSize) {
             var enchantsSame = true;
             for (var j in list[i].enchantments) {
                 var enchantfound = false;
                 for (var k in enchantments) {
-                    if (list[i].enchantments[j].id == enchantments[k].id) if (list[i].enchantments[j].level == enchantments[k].level) enchantfound = true;
+                    if (list[i].enchantments[j].id == enchantments[k].id && list[i].enchantments[j].level == enchantments[k].level) enchantfound = true;
                 }
                 if (enchantfound == false) enchantsSame = false;
             }
@@ -630,7 +632,7 @@ Shop = function(id, socket, inventory, player) {
     
     socket.once('shop', function listener(data) {
         var valid = false;
-        if (typeof data == 'object' && data != null) if (data.action != null) valid = true;
+        if (typeof data == 'object' && data != null && data.action != null) valid = true;
         if (valid) {
             switch (data.action) {
                 case 'close':
@@ -644,7 +646,7 @@ Shop = function(id, socket, inventory, player) {
                     break;
             }
         } else {
-            player.socketKick();
+            player.kick();
         }
         socket.once('shop', listener);
     });
@@ -675,7 +677,7 @@ Shop = function(id, socket, inventory, player) {
                 }
             }
         } else {
-            player.socketKick();
+            player.kick();
         }
     };
     self.close = function close() {

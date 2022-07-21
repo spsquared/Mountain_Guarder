@@ -62,6 +62,7 @@
  <tile id="1350" probability="0.125"/>
  <tile id="1436" probability="0.125"/>
  <tile id="1578" type="fad"/>
+ <tile id="1954" probability="0.1"/>
  <tile id="3202">
   <animation>
    <frame tileid="3202" duration="200"/>
@@ -6482,6 +6483,22 @@
    <wangtile tileid="1224" wangid="3,0,0,0,0,0,0,0"/>
    <wangtile tileid="1231" wangid="2,0,0,0,0,0,0,0"/>
    <wangtile tileid="1238" wangid="1,0,0,0,0,0,0,0"/>
+  </wangset>
+  <wangset name="Misc" type="corner" tile="-1">
+   <wangcolor name="Darkness" color="#ff0000" tile="-1" probability="1"/>
+   <wangtile tileid="2816" wangid="0,1,0,0,0,1,0,1"/>
+   <wangtile tileid="2817" wangid="0,1,0,0,0,0,0,1"/>
+   <wangtile tileid="2818" wangid="0,1,0,1,0,0,0,1"/>
+   <wangtile tileid="2902" wangid="0,0,0,0,0,1,0,1"/>
+   <wangtile tileid="2903" wangid="0,1,0,1,0,1,0,1"/>
+   <wangtile tileid="2904" wangid="0,1,0,1,0,0,0,0"/>
+   <wangtile tileid="2988" wangid="0,0,0,1,0,1,0,1"/>
+   <wangtile tileid="2989" wangid="0,0,0,1,0,1,0,0"/>
+   <wangtile tileid="2990" wangid="0,1,0,1,0,1,0,0"/>
+   <wangtile tileid="3077" wangid="0,0,0,1,0,0,0,0"/>
+   <wangtile tileid="3078" wangid="0,0,0,0,0,1,0,0"/>
+   <wangtile tileid="3163" wangid="0,1,0,0,0,0,0,0"/>
+   <wangtile tileid="3164" wangid="0,0,0,0,0,0,0,1"/>
   </wangset>
  </wangsets>
 </tileset>

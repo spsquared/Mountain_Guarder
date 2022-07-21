@@ -54,7 +54,7 @@
                     "enchantments": []
                 },
                 "costs": {
-                    "silvercoin": 3
+                    "silvercoin": 7
                 }
             },
             {
@@ -64,40 +64,8 @@
                     "enchantments": []
                 },
                 "costs": {
-                    "silvercoin": 1,
+                    "silvercoin": 4,
                     "coppercoin": 50
-                }
-            },
-            {
-                "item": {
-                    "id": "steelbroadsword",
-                    "amount": 1,
-                    "enchantments": []
-                },
-                "costs": {
-                    "silvercoin": 2,
-                    "coppercoin": 10
-                }
-            },
-            {
-                "item": {
-                    "id": "steelcutlass",
-                    "amount": 1,
-                    "enchantments": []
-                },
-                "costs": {
-                    "silvercoin": 2,
-                    "coppercoin": 30
-                }
-            },
-            {
-                "item": {
-                    "id": "whitefabrichood",
-                    "amount": 1,
-                    "enchantments": []
-                },
-                "costs": {
-                    "coppercoin": 60
                 }
             },
             {
@@ -107,7 +75,78 @@
                     "enchantments": []
                 },
                 "costs": {
-                    "silvercoin": 1
+                    "silvercoin": 3
+                }
+            }
+        ]
+    },
+    "bobsforge": {
+        "name": "Bob's Forge",
+        "slots": [
+            {
+                "item": {
+                    "id": "iron",
+                    "amount": 2,
+                    "enchantments": []
+                },
+                "costs": {
+                    "coal": 2,
+                    "ironore": 5
+                }
+            },
+            {
+                "item": {
+                    "id": "steelarmor",
+                    "amount": 1,
+                    "enchantments": []
+                },
+                "costs": {
+                    "coal": 2,
+                    "iron": 2
+                }
+            },
+            {
+                "item": {
+                    "id": "steelhelmet",
+                    "amount": 1,
+                    "enchantments": []
+                },
+                "costs": {
+                    "coal": 1,
+                    "iron": 2
+                }
+            },
+            {
+                "item": {
+                    "id": "steelbow",
+                    "amount": 1,
+                    "enchantments": []
+                },
+                "costs": {
+                    "coal": 1,
+                    "iron": 1
+                }
+            },
+            {
+                "item": {
+                    "id": "steelbroadsword",
+                    "amount": 1,
+                    "enchantments": []
+                },
+                "costs": {
+                    "coal": 1,
+                    "iron": 1
+                }
+            },
+            {
+                "item": {
+                    "id": "steelcutlass",
+                    "amount": 1,
+                    "enchantments": []
+                },
+                "costs": {
+                    "coal": 1,
+                    "iron": 2
                 }
             }
         ]

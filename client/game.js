@@ -5,6 +5,9 @@ var playerid = 0;
 var mapnameFade, mapnameWait;
 var lastmap;
 var debugData = {};
+const debug = document.getElementById('debug');
+const mousepos = document.getElementById('mousepos');
+const position = document.getElementById('position');
 
 // loading
 var loadedassets = 0;
@@ -65,8 +68,6 @@ function load(data) {
         for (var i in data.maps) {
             await loadMap(data.maps[i]);
         }
-        player = {map: data.self};
-        await updateRenderedChunks();
         loadedassets++;
     }, 500);
 };
@@ -75,7 +76,7 @@ async function loadMap(name) {
         await new Promise(async function(resolve, reject) {
             var request = new XMLHttpRequest();
             request.open('GET', '/client/maps/' + name + '.json', true);
-            request.onload = function() {
+            request.onload = function() {   
                 if (this.status >= 200 && this.status < 400) {
                     var json = JSON.parse(this.response);
                     MAPS[name] = {
@@ -87,7 +88,8 @@ async function loadMap(name) {
                         chunkheight: 0,
                         chunks: [],
                         chunkJSON: [],
-                        layerCount: 0
+                        layerCount: 0,
+                        lights: false,
                     };
                     for (var i in json.layers) {
                         if (json.layers[i].visible) {
@@ -132,6 +134,47 @@ async function loadMap(name) {
                                 if (json.layers[i].offsety) MAPS[name].chunkJSON[0][0][json.layers[i].name].offsetY = json.layers[i].offsety;
                             }
                             if (json.layers[i].name.includes('Variable')) MAPS[name].layerCount++;
+                        } else if (json.layers[i].name == 'Darkness') {
+                            MAPS[name].lights = true;
+                        } else if (json.layers[i].name.includes('Light:')) {
+                            var rawlayer = json.layers[i];
+                            var propertystring = rawlayer.name.replace('Light:', '');
+                            var properties = [];
+                            var lastl = 0;
+                            for (var l in propertystring) {
+                                if (propertystring[l] == ',') {
+                                    properties.push(parseFloat(propertystring.slice(lastl, l)));
+                                    lastl = parseInt(l)+1;
+                                }
+                            }
+                            if (rawlayer.chunks) {
+                                for (var j in rawlayer.chunks) {
+                                    var rawchunk = rawlayer.chunks[j];
+                                    for (var k in rawchunk.data) {
+                                        if (rawchunk.data[k] != 0) {
+                                            var x = ((k % rawchunk.width)+rawchunk.x)*64+32;
+                                            var y = (~~(k / rawchunk.width)+rawchunk.y)*64+32;
+                                            if (rawchunk.data[k]-1 == 1867) {
+                                                new Light(x, y, name, properties[4], properties[0], properties[1], properties[2], properties[3]);
+                                            } else {
+                                                console.error('Invalid region at (' + name + ', ' + x + ', ' + y + ')');
+                                            }
+                                        }
+                                    }
+                                }
+                            } else {
+                                for (var j in rawlayer.data) {
+                                    if (rawlayer.data[j] != 0) {
+                                        var x = (j % rawlayer.width)*64+32;
+                                        var y = ~~(j / rawlayer.width)*64+32;
+                                        if (rawlayer.data[j]-1 == 1867) {
+                                            new Light(x, y, name, properties[4], properties[0], properties[1], properties[2], properties[3]);
+                                        } else {
+                                            console.error('Invalid region at (' + name + ', ' + x + ', ' + y + ')');
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                     loadedassets++;
@@ -157,7 +200,7 @@ function MGHC() {};
 var drawLoop = null;
 function drawFrame() {
     if (loaded && player) {
-        if (settings.debug) frameStart = Date.now();
+        if (settings.debug) frameStart = performance.now();
         for (var i = 0; i < MAPS[player.map].layerCount; i++) {
             if (LAYERS.entitylayers[i] == null) {
                 LAYERS.entitylayers[i] = createCanvas();
@@ -171,92 +214,35 @@ function drawFrame() {
         CTX.clearRect(0, 0, window.innerWidth, window.innerHeight);
         OFFSETX = 0;
         OFFSETY = 0;
-        if (MAPS[player.map].width*64 > window.innerWidth) OFFSETX = -Math.max((window.innerWidth/2)-(player.x-MAPS[player.map].offsetX), Math.min((MAPS[player.map].offsetX+(MAPS[player.map].width*64))-player.x-(window.innerWidth/2), 0));
-        if (MAPS[player.map].height*64 > window.innerHeight) OFFSETY = -Math.max((window.innerHeight/2)-(player.y-MAPS[player.map].offsetY), Math.min((MAPS[player.map].offsetY+(MAPS[player.map].height*64))-player.y-(window.innerHeight/2), 0));
+        if (MAPS[player.map].width*64 > window.innerWidth) {
+            OFFSETX = -Math.max((window.innerWidth/2)-(player.x-MAPS[player.map].offsetX), Math.min((MAPS[player.map].offsetX+(MAPS[player.map].width*64))-player.x-(window.innerWidth/2), 0));
+            OFFSETY = -Math.max((window.innerHeight/2)-(player.y-MAPS[player.map].offsetY), Math.min((MAPS[player.map].offsetY+(MAPS[player.map].height*64))-player.y-(window.innerHeight/2), 0));
+        }
         OFFSETX += lsdX;
         OFFSETY += lsdY;
-        // CTX.save();
-        // CTX.translate((window.innerWidth/2)-player.x, (window.innerHeight/2)-player.y);
-        // var width = MAPS[player.map].chunkwidth*64;
-        // var height = MAPS[player.map].chunkheight*64;
-        // for (var y in MAPS[player.map].chunks) {
-        //     for (var x in MAPS[player.map].chunks[y]) {
-        //         CTX.drawImage(MAPS[player.map].chunks[y][x].lower, (x*width)+OFFSETX, (y*height)+OFFSETY, width, height);
-        //     }
-        // }
-        // var entities = [];
-        // if (!settings.particles) {
-        //     Particle.list = [];
-        // }
-        // for (var i in Player.list) {
-        //     if (Player.list[i].map == player.map) entities.push(Player.list[i]);
-        // }
-        // for (var i in Monster.list) {
-        //     if (Monster.list[i].map == player.map) entities.push(Monster.list[i]);
-        // }
-        // for (var i in Projectile.list) {
-        //     if (Projectile.list[i].map == player.map) entities.push(Projectile.list[i]);
-        // }
-        // if (!settings.particles) {
-        //     Particle.list = [];
-        // }
-        // for (var i in Particle.list) {
-        //     if (Particle.list[i].map == player.map) entities.push(Particle.list[i]);
-        //     else Particle.list[i].draw(true);
-        // }
-        // for (var i in DroppedItem.list) {
-        //     if (DroppedItem.list[i].map == player.map) entities.push(DroppedItem.list[i]);
-        // }
-        // for (var i = 0; i < MAPS[player.map].layerCount+1; i++) {
-        //     var entities2 = entities.filter(function(entity) {
-        //         return entity.layer == i;
-        //     });
-        //     for (var j in entities2) {
-        //         entities2[j].draw();
-        //     }
-        //     for (var y in MAPS[player.map].chunks) {
-        //         for (var x in MAPS[player.map].chunks[y]) {
-        //             if (MAPS[player.map].chunks[y][x].variables[i] != null) CTX.drawImage(MAPS[player.map].chunks[y][x].variables[i], (x*width)+OFFSETX, (y*height)+OFFSETY, width, height);
-        //         }
-        //     }
-        // }
-        // for (var y in MAPS[player.map].chunks) {
-        //     for (var x in MAPS[player.map].chunks[y]) {
-        //         CTX.drawImage(MAPS[player.map].chunks[y][x].upper, (x*width)+OFFSETX, (y*height)+OFFSETY, width, height);
-        //     }
-        // }
-        // CTX.fillStyle = '#000000';
-        // var mwidth = MAPS[player.map].width*64;
-        // var mheight = MAPS[player.map].height*64;
-        // var offsetX = MAPS[player.map].offsetX;
-        // var offsetY = MAPS[player.map].offsetY;
-        // CTX.fillRect(-1024+offsetX+OFFSETX, -1024+offsetY+OFFSETY, mwidth+2048, 1024);
-        // CTX.fillRect(-1024+offsetX+OFFSETX, mheight+offsetY+OFFSETY, mwidth+2048, 1024);
-        // CTX.fillRect(-1024+offsetX+OFFSETX, -1024+offsetY+OFFSETY, 1024, mheight+2048);
-        // CTX.fillRect(mwidth+offsetX+OFFSETX, offsetY+OFFSETY, 1024, mheight+2048);
-        // CTX.restore();
         updateCameraShake();
         drawMap();
         DroppedItem.updateHighlight();
         Entity.draw();
         CTX.drawImage(LAYERS.map0, 0, 0, window.innerWidth, window.innerHeight);
         for (var i = 0; i < MAPS[player.map].layerCount+1; i++) {
-            if (LAYERS.entitylayers[i]) CTX.drawImage(LAYERS.entitylayers[i], 0, 0, window.innerWidth, window.innerHeight);
-            if (LAYERS.mapvariables[i]) CTX.drawImage(LAYERS.mapvariables[i], 0, 0, window.innerWidth, window.innerHeight);
+            LAYERS.entitylayers[i] != null && CTX.drawImage(LAYERS.entitylayers[i], 0, 0, window.innerWidth, window.innerHeight);
+            LAYERS.mapvariables[i] != null && CTX.drawImage(LAYERS.mapvariables[i], 0, 0, window.innerWidth, window.innerHeight);
         }
         CTX.drawImage(LAYERS.map1, 0, 0, window.innerWidth, window.innerHeight);
         CTX.drawImage(LAYERS.entity1, 0, 0, window.innerWidth, window.innerHeight);
+        CTX.drawImage(LAYERS.lightCanvas, 0, 0, window.innerWidth, window.innerHeight);
         drawDebug();
-        lastmap = player.map
+        lastmap = player.map;
         if (settings.debug) {
-            var current = Date.now();
-            frameTimeCounter = current-frameStart;
+            var current = performance.now();
+            frameTimeCounter = Math.round((current-frameStart)*100)/100;
         }
         if (!controllerConnected) socket.emit('mouseMove', {x: mouseX-OFFSETX, y: mouseY-OFFSETY});
     }
 };
 function drawMap() {
-    if (settings.debug) mapStart = Date.now();
+    if (settings.debug) mapStart = performance.now();
     for (var i = 0; i < MAPS[player.map].layerCount+1; i++) {
         if (LAYERS.mapvariables[i] == null) {
             LAYERS.mapvariables[i] = createCanvas();
@@ -267,21 +253,19 @@ function drawMap() {
             resetCanvas(LAYERS.mapvariables[i]);
         }
     }
-    LAYERS.mlower.clearRect(0, 0, window.innerWidth, window.innerHeight);
-    LAYERS.mupper.clearRect(0, 0, window.innerWidth, window.innerHeight);
-    for (var i in LAYERS.mvariables) {
-        LAYERS.mvariables[i].clearRect(0, 0, window.innerWidth, window.innerHeight);
-    }
     var translatex = (window.innerWidth/2)-player.x;
     var translatey = (window.innerHeight/2)-player.y;
+    LAYERS.mlower.clearRect(0, 0, window.innerWidth, window.innerHeight);
     LAYERS.mlower.save();
     LAYERS.mlower.translate(translatex, translatey);
-    LAYERS.mupper.save();
-    LAYERS.mupper.translate(translatex, translatey);
     for (var i in LAYERS.mvariables) {
+        LAYERS.mvariables[i].clearRect(0, 0, window.innerWidth, window.innerHeight);
         LAYERS.mvariables[i].save();
         LAYERS.mvariables[i].translate(translatex, translatey);
     }
+    LAYERS.mupper.clearRect(0, 0, window.innerWidth, window.innerHeight);
+    LAYERS.mupper.save();
+    LAYERS.mupper.translate(translatex, translatey);
     var width = MAPS[player.map].chunkwidth*64;
     var height = MAPS[player.map].chunkheight*64;
     for (var y in MAPS[player.map].chunks) {
@@ -303,13 +287,13 @@ function drawMap() {
     LAYERS.mupper.fillRect(-1024+offsetX+OFFSETX, -1024+offsetY+OFFSETY, 1024, mheight+2048);
     LAYERS.mupper.fillRect(mwidth+offsetX+OFFSETX, offsetY+OFFSETY, 1024, mheight+2048);
     LAYERS.mlower.restore();
-    LAYERS.mupper.restore();
     for (var i in LAYERS.mvariables) {
         LAYERS.mvariables[i].restore();
     }
+    LAYERS.mupper.restore();
     if (settings.debug) {
-        var current = Date.now();
-        mapTimeCounter = current-mapStart;
+        var current = performance.now();
+        mapTimeCounter = Math.round((current-mapStart)*100)/100;
     }
 };
 function resetRenderedChunks() {
@@ -331,11 +315,11 @@ async function updateRenderedChunks() {
     for (var y = player.chunky-settings.renderDistance; y <= player.chunky+settings.renderDistance; y++) {
         for (var x = player.chunkx-settings.renderDistance; x <= player.chunkx+settings.renderDistance; x++) {
             if (MAPS[player.map].chunks[y] == undefined) {
-                if (MAPS[player.map].chunkJSON[y]) if (MAPS[player.map].chunkJSON[y][x]) {
+                if (MAPS[player.map].chunkJSON[y] && MAPS[player.map].chunkJSON[y][x]) {
                     renderChunk(x, y, player.map);
                 }
             } else if (MAPS[player.map].chunks[y][x] == undefined) {
-                if (MAPS[player.map].chunkJSON[y]) if (MAPS[player.map].chunkJSON[y][x]) {
+                if (MAPS[player.map].chunkJSON[y] && MAPS[player.map].chunkJSON[y][x]) {
                     renderChunk(x, y, player.map);
                 }
             }
@@ -354,14 +338,12 @@ function renderChunk(x, y, map) {
     for (var i in MAPS[player.map].chunkJSON[y][x]) {
         var above = false;
         var variable = -1;
-        var vindex = 0;
         if (i.includes('Above')) above = true;
         if (i.includes('Variable')) {
             variable = parseInt(i.replace('Variable', ''));
-            vindex = tempvariables.length;
-            tempvariables.push(createCanvas(MAPS[map].chunkwidth * 64, MAPS[map].chunkheight * 64));
-            tvariables.push(tempvariables[vindex].getContext('2d'));
-            resetCanvas(tempvariables[vindex]);
+            tempvariables[variable] = createCanvas(MAPS[map].chunkwidth * 64, MAPS[map].chunkheight * 64);
+            tvariables[variable] = tempvariables[variable].getContext('2d');
+            resetCanvas(tempvariables[variable]);
         }
         for (var j in MAPS[player.map].chunkJSON[y][x][i]) {
             var tileid = MAPS[player.map].chunkJSON[y][x][i][j];
@@ -374,7 +356,7 @@ function renderChunk(x, y, map) {
                 if (above) {
                     tupper.drawImage(tileset, imgx, imgy, 16, 16, dx*4, dy*4, 64, 64);
                 } else if (variable != -1) {
-                    tvariables[vindex].drawImage(tileset, imgx, imgy, 16, 16, dx*4, dy*4, 64, 64);
+                    tvariables[variable].drawImage(tileset, imgx, imgy, 16, 16, dx*4, dy*4, 64, 64);
                 } else {
                     tlower.drawImage(tileset, imgx, imgy, 16, 16, dx*4, dy*4, 64, 64);
                 }
@@ -392,7 +374,7 @@ function renderChunk(x, y, map) {
 };
 function drawDebug() {
     if (debugData && settings.debug) {
-        debugStart = Date.now();
+        debugStart = performance.now();
         var temp = new createCanvas(window.innerWidth, window.innerHeight);
         var tempctx = temp.getContext('2d');
         function getManhattanDistance(entity) {
@@ -416,190 +398,237 @@ function drawDebug() {
         }
         tempctx.stroke();
         // players/npcs
+        // hitbox
+        tempctx.beginPath();
+        tempctx.strokeStyle = '#FF9900';
+        tempctx.lineWidth = 2;
         for (var i in debugData.players) {
             var localplayer = debugData.players[i];
             if (localplayer.map == player.map && getManhattanDistance(localplayer) < settings.renderDistance*2*MAPS[player.map].chunkwidth*64) {
-                // control vectors
-                tempctx.beginPath();
-                tempctx.strokeStyle = '#000000';
-                tempctx.lineWidth = 2;
+                tempctx.moveTo(localplayer.x-localplayer.width/2+OFFSETX, localplayer.y-localplayer.height/2+OFFSETY);
+                tempctx.lineTo(localplayer.x-localplayer.width/2+OFFSETX, localplayer.y+localplayer.height/2+OFFSETY);
+                tempctx.lineTo(localplayer.x+localplayer.width/2+OFFSETX, localplayer.y+localplayer.height/2+OFFSETY);
+                tempctx.lineTo(localplayer.x+localplayer.width/2+OFFSETX, localplayer.y-localplayer.height/2+OFFSETY);
+                tempctx.lineTo(localplayer.x-localplayer.width/2+OFFSETX, localplayer.y-localplayer.height/2+OFFSETY);
+                tempctx.moveTo(localplayer.x-localplayer.collisionBoxSize/2+OFFSETX, localplayer.y-localplayer.collisionBoxSize/2+OFFSETY);
+                tempctx.lineTo(localplayer.x-localplayer.collisionBoxSize/2+OFFSETX, localplayer.y+localplayer.collisionBoxSize/2+OFFSETY);
+                tempctx.lineTo(localplayer.x+localplayer.collisionBoxSize/2+OFFSETX, localplayer.y+localplayer.collisionBoxSize/2+OFFSETY);
+                tempctx.lineTo(localplayer.x+localplayer.collisionBoxSize/2+OFFSETX, localplayer.y-localplayer.collisionBoxSize/2+OFFSETY);
+                tempctx.lineTo(localplayer.x-localplayer.collisionBoxSize/2+OFFSETX, localplayer.y-localplayer.collisionBoxSize/2+OFFSETY);
+            }
+        }
+        tempctx.stroke();
+        // control vectors
+        tempctx.beginPath();
+        tempctx.strokeStyle = '#000000';
+        tempctx.lineWidth = 2;
+        for (var i in debugData.players) {
+            var localplayer = debugData.players[i];
+            if (localplayer.map == player.map && getManhattanDistance(localplayer) < settings.renderDistance*2*MAPS[player.map].chunkwidth*64) {
                 tempctx.moveTo(localplayer.x+OFFSETX, localplayer.y+OFFSETY);
                 tempctx.lineTo(localplayer.x+localplayer.controls.x*20+OFFSETX, localplayer.y+OFFSETY);
                 tempctx.moveTo(localplayer.x+OFFSETX, localplayer.y+OFFSETY);
                 tempctx.lineTo(localplayer.x+OFFSETX, localplayer.y+localplayer.controls.y*20+OFFSETY);
                 tempctx.moveTo(localplayer.x+OFFSETX, localplayer.y+OFFSETY);
                 tempctx.lineTo(localplayer.x+localplayer.controls.x*20+OFFSETX, localplayer.y+localplayer.controls.y*20+OFFSETY);
-                tempctx.stroke();
-                // hitbox
-                tempctx.beginPath();
-                tempctx.strokeStyle = '#FF9900';
-                tempctx.lineWidth = 4;
-                tempctx.moveTo(localplayer.x-localplayer.width/2+OFFSETX, localplayer.y-localplayer.height/2+OFFSETY);
-                tempctx.lineTo(localplayer.x-localplayer.width/2+OFFSETX, localplayer.y+localplayer.height/2+OFFSETY);
-                tempctx.lineTo(localplayer.x+localplayer.width/2+OFFSETX, localplayer.y+localplayer.height/2+OFFSETY);
-                tempctx.lineTo(localplayer.x+localplayer.width/2+OFFSETX, localplayer.y-localplayer.height/2+OFFSETY);
-                tempctx.lineTo(localplayer.x-localplayer.width/2+OFFSETX, localplayer.y-localplayer.height/2+OFFSETY);
-                tempctx.lineWidth = 2;
-                tempctx.moveTo(localplayer.x-localplayer.collisionBoxSize/2+OFFSETX, localplayer.y-localplayer.collisionBoxSize/2+OFFSETY);
-                tempctx.lineTo(localplayer.x-localplayer.collisionBoxSize/2+OFFSETX, localplayer.y+localplayer.collisionBoxSize/2+OFFSETY);
-                tempctx.lineTo(localplayer.x+localplayer.collisionBoxSize/2+OFFSETX, localplayer.y+localplayer.collisionBoxSize/2+OFFSETY);
-                tempctx.lineTo(localplayer.x+localplayer.collisionBoxSize/2+OFFSETX, localplayer.y-localplayer.collisionBoxSize/2+OFFSETY);
-                tempctx.lineTo(localplayer.x-localplayer.collisionBoxSize/2+OFFSETX, localplayer.y-localplayer.collisionBoxSize/2+OFFSETY);
-                tempctx.stroke();
-                if (localplayer.path) {
-                    if (localplayer.path[0]) {
-                        tempctx.beginPath();
-                        tempctx.strokeStyle = '#0000FF';
-                        tempctx.lineWidth = 4;
-                        tempctx.moveTo(localplayer.x+OFFSETX, localplayer.y+OFFSETY);
-                        for (var j in localplayer.path) {
-                            tempctx.lineTo(localplayer.path[j][0]*64+32+OFFSETX, localplayer.path[j][1]*64+32+OFFSETY);
+            }
+        }
+        tempctx.stroke();
+        // waypoints
+        tempctx.beginPath();
+        tempctx.strokeStyle = '#FFFF00';
+        tempctx.lineWidth = 4;
+        tempctx.textAlign = 'left';
+        tempctx.font = '10px Pixel';
+        tempctx.fillStyle = '#FFFF00';
+        for (var i in debugData.players) {
+            var localplayer = debugData.players[i];
+            if (localplayer.map == player.map && getManhattanDistance(localplayer) < settings.renderDistance*2*MAPS[player.map].chunkwidth*64 && localplayer.idleWaypoints) {
+                var waypoints = localplayer.idleWaypoints.waypoints;
+                if (waypoints && waypoints[0]) {
+                    for (var j in waypoints) {
+                        if (waypoints[j].map == player.map) {
+                            tempctx.moveTo(waypoints[j].x*64+OFFSETX, waypoints[j].y*64+OFFSETY);
+                            tempctx.lineTo(waypoints[j].x*64+64+OFFSETX, waypoints[j].y*64+OFFSETY);
+                            tempctx.lineTo(waypoints[j].x*64+64+OFFSETX, waypoints[j].y*64+64+OFFSETY);
+                            tempctx.lineTo(waypoints[j].x*64+OFFSETX, waypoints[j].y*64+64+OFFSETY);
+                            tempctx.lineTo(waypoints[j].x*64+OFFSETX, waypoints[j].y*64+OFFSETY);
+                            tempctx.fillText(localplayer.name, waypoints[j].x*64+OFFSETX, waypoints[j].y*64+OFFSETY);
                         }
-                        tempctx.stroke();
-                    }
-                }
-                if (localplayer.idleWaypoints) {
-                    var waypoints = localplayer.idleWaypoints.waypoints;
-                    var lastWaypoints = localplayer.idleWaypoints.lastWaypoints;
-                    if (waypoints) if (waypoints[0]) {
-                        tempctx.beginPath();
-                        tempctx.strokeStyle = '#FFFF00';
-                        tempctx.lineWidth = 4;
-                        tempctx.textAlign = 'center';
-                        tempctx.font = '10px Pixel';
-                        tempctx.fillStyle = '#FFFF00';
-                        for (var j in waypoints) {
-                            if (waypoints[j].map == player.map) {
-                                tempctx.moveTo(waypoints[j].x*64+OFFSETX, waypoints[j].y*64+OFFSETY);
-                                tempctx.lineTo(waypoints[j].x*64+64+OFFSETX, waypoints[j].y*64+OFFSETY);
-                                tempctx.lineTo(waypoints[j].x*64+64+OFFSETX, waypoints[j].y*64+64+OFFSETY);
-                                tempctx.lineTo(waypoints[j].x*64+OFFSETX, waypoints[j].y*64+64+OFFSETY);
-                                tempctx.lineTo(waypoints[j].x*64+OFFSETX, waypoints[j].y*64+OFFSETY);
-                                tempctx.fillText(localplayer.name, waypoints[j].x*64+OFFSETX, waypoints[j].y*64+OFFSETY);
-                            }
-                        }
-                        tempctx.stroke();
-                    }
-                    if (lastWaypoints) if (lastWaypoints[0]) {
-                        tempctx.beginPath();
-                        tempctx.strokeStyle = '#00FFFF';
-                        tempctx.lineWidth = 4;
-                        tempctx.textAlign = 'center';
-                        tempctx.font = '10px Pixel';
-                        tempctx.fillStyle = '#FFFF00';
-                        for (var j in lastWaypoints) {
-                            if (lastWaypoints[j].map == player.map) {
-                                tempctx.moveTo(lastWaypoints[j].x*64+OFFSETX, lastWaypoints[j].y*64+OFFSETY);
-                                tempctx.lineTo(lastWaypoints[j].x*64+64+OFFSETX, lastWaypoints[j].y*64+OFFSETY);
-                                tempctx.lineTo(lastWaypoints[j].x*64+64+OFFSETX, lastWaypoints[j].y*64+64+OFFSETY);
-                                tempctx.lineTo(lastWaypoints[j].x*64+OFFSETX, lastWaypoints[j].y*64+64+OFFSETY);
-                                tempctx.lineTo(lastWaypoints[j].x*64+OFFSETX, lastWaypoints[j].y*64+OFFSETY);
-                                tempctx.fillText(localplayer.name, waypoints[j].x+OFFSETX, waypoints[j].y+OFFSETY);
-                            }
-                        }
-                        tempctx.stroke();
                     }
                 }
             }
         }
+        tempctx.stroke();
+        // pastwaypoints
+        tempctx.beginPath();
+        tempctx.strokeStyle = '#00FFFF';
+        tempctx.lineWidth = 4;
+        tempctx.textAlign = 'center';
+        tempctx.font = '10px Pixel';
+        tempctx.fillStyle = '#FFFF00';
+        for (var i in debugData.players) {
+            var localplayer = debugData.players[i];
+            if (localplayer.map == player.map && getManhattanDistance(localplayer) < settings.renderDistance*2*MAPS[player.map].chunkwidth*64 && localplayer.idleWaypoints) {
+                var lastWaypoints = localplayer.idleWaypoints.lastWaypoints;
+                if (lastWaypoints && lastWaypoints[0]) {
+                    for (var j in lastWaypoints) {
+                        if (lastWaypoints[j].map == player.map) {
+                            tempctx.moveTo(lastWaypoints[j].x*64+OFFSETX, lastWaypoints[j].y*64+OFFSETY);
+                            tempctx.lineTo(lastWaypoints[j].x*64+64+OFFSETX, lastWaypoints[j].y*64+OFFSETY);
+                            tempctx.lineTo(lastWaypoints[j].x*64+64+OFFSETX, lastWaypoints[j].y*64+64+OFFSETY);
+                            tempctx.lineTo(lastWaypoints[j].x*64+OFFSETX, lastWaypoints[j].y*64+64+OFFSETY);
+                            tempctx.lineTo(lastWaypoints[j].x*64+OFFSETX, lastWaypoints[j].y*64+OFFSETY);
+                            tempctx.fillText(localplayer.name, lastWaypoints[j].x+OFFSETX, lastWaypoints[j].y+OFFSETY);
+                        }
+                    }
+                }
+            }
+        }
+        tempctx.stroke();
+        // paths
+        tempctx.beginPath();
+        tempctx.strokeStyle = '#0000FF';
+        tempctx.lineWidth = 4;
+        for (var i in debugData.players) {
+            var localplayer = debugData.players[i];
+            if (localplayer.map == player.map && getManhattanDistance(localplayer) < settings.renderDistance*2*MAPS[player.map].chunkwidth*64) {
+                if (localplayer.path && localplayer.path[0]) {
+                    tempctx.moveTo(localplayer.x+OFFSETX, localplayer.y+OFFSETY);
+                    for (var j in localplayer.path) {
+                        tempctx.lineTo(localplayer.path[j][0]*64+32+OFFSETX, localplayer.path[j][1]*64+32+OFFSETY);
+                    }
+                }
+            }
+        }
+        tempctx.stroke();
         // monsters
+        // hitbox
+        tempctx.beginPath();
+        tempctx.strokeStyle = '#FF9900';
+        tempctx.lineWidth = 2;
         for (var i in debugData.monsters) {
             var localmonster = debugData.monsters[i];
-            if (localmonster) if (localmonster.map == player.map) {
-                // keys
-                tempctx.beginPath();
-                tempctx.strokeStyle = '#000000';
-                tempctx.lineWidth = 2;
+            if (localmonster && localmonster.map == player.map) {
+                tempctx.moveTo(localmonster.x-localmonster.width/2+OFFSETX, localmonster.y-localmonster.height/2+OFFSETY);
+                tempctx.lineTo(localmonster.x-localmonster.width/2+OFFSETX, localmonster.y+localmonster.height/2+OFFSETY);
+                tempctx.lineTo(localmonster.x+localmonster.width/2+OFFSETX, localmonster.y+localmonster.height/2+OFFSETY);
+                tempctx.lineTo(localmonster.x+localmonster.width/2+OFFSETX, localmonster.y-localmonster.height/2+OFFSETY);
+                tempctx.lineTo(localmonster.x-localmonster.width/2+OFFSETX, localmonster.y-localmonster.height/2+OFFSETY);
+                tempctx.moveTo(localmonster.x-localmonster.collisionBoxSize/2+OFFSETX, localmonster.y-localmonster.collisionBoxSize/2+OFFSETY);
+                tempctx.lineTo(localmonster.x-localmonster.collisionBoxSize/2+OFFSETX, localmonster.y+localmonster.collisionBoxSize/2+OFFSETY);
+                tempctx.lineTo(localmonster.x+localmonster.collisionBoxSize/2+OFFSETX, localmonster.y+localmonster.collisionBoxSize/2+OFFSETY);
+                tempctx.lineTo(localmonster.x+localmonster.collisionBoxSize/2+OFFSETX, localmonster.y-localmonster.collisionBoxSize/2+OFFSETY);
+                tempctx.lineTo(localmonster.x-localmonster.collisionBoxSize/2+OFFSETX, localmonster.y-localmonster.collisionBoxSize/2+OFFSETY);
+            }
+        }
+        tempctx.stroke();
+        // keys
+        tempctx.beginPath();
+        tempctx.strokeStyle = '#000000';
+        tempctx.lineWidth = 2;
+        for (var i in debugData.monsters) {
+            var localmonster = debugData.monsters[i];
+            if (localmonster && localmonster.map == player.map) {
                 tempctx.moveTo(localmonster.x+OFFSETX, localmonster.y+OFFSETY);
                 tempctx.lineTo(localmonster.x+localmonster.controls.x*20+OFFSETX, localmonster.y+OFFSETY);
                 tempctx.moveTo(localmonster.x+OFFSETX, localmonster.y+OFFSETY);
                 tempctx.lineTo(localmonster.x+OFFSETX, localmonster.y+localmonster.controls.y*20+OFFSETY);
                 tempctx.moveTo(localmonster.x+OFFSETX, localmonster.y+OFFSETY);
                 tempctx.lineTo(localmonster.x+localmonster.controls.x*20+OFFSETX, localmonster.y+localmonster.controls.y*20+OFFSETY);
-                tempctx.stroke();
-                // hitbox
-                tempctx.beginPath();
-                tempctx.strokeStyle = '#FF9900';
-                tempctx.lineWidth = 4;
-                tempctx.moveTo(localmonster.x-localmonster.width/2+OFFSETX, localmonster.y-localmonster.height/2+OFFSETY);
-                tempctx.lineTo(localmonster.x-localmonster.width/2+OFFSETX, localmonster.y+localmonster.height/2+OFFSETY);
-                tempctx.lineTo(localmonster.x+localmonster.width/2+OFFSETX, localmonster.y+localmonster.height/2+OFFSETY);
-                tempctx.lineTo(localmonster.x+localmonster.width/2+OFFSETX, localmonster.y-localmonster.height/2+OFFSETY);
-                tempctx.lineTo(localmonster.x-localmonster.width/2+OFFSETX, localmonster.y-localmonster.height/2+OFFSETY);
-                tempctx.lineWidth = 2;
-                tempctx.moveTo(localmonster.x-localmonster.collisionBoxSize/2+OFFSETX, localmonster.y-localmonster.collisionBoxSize/2+OFFSETY);
-                tempctx.lineTo(localmonster.x-localmonster.collisionBoxSize/2+OFFSETX, localmonster.y+localmonster.collisionBoxSize/2+OFFSETY);
-                tempctx.lineTo(localmonster.x+localmonster.collisionBoxSize/2+OFFSETX, localmonster.y+localmonster.collisionBoxSize/2+OFFSETY);
-                tempctx.lineTo(localmonster.x+localmonster.collisionBoxSize/2+OFFSETX, localmonster.y-localmonster.collisionBoxSize/2+OFFSETY);
-                tempctx.lineTo(localmonster.x-localmonster.collisionBoxSize/2+OFFSETX, localmonster.y-localmonster.collisionBoxSize/2+OFFSETY);
-                tempctx.stroke();
-                // aggro range
-                tempctx.beginPath();
-                tempctx.strokeStyle = '#FF0000';
-                tempctx.fillStyle = '#FF00000A';
-                tempctx.lineWidth = 4;
-                tempctx.arc(localmonster.x+OFFSETX, localmonster.y+OFFSETY, localmonster.aggroRange*64, 0, 2*Math.PI, false);
-                tempctx.fill();
-                tempctx.stroke();
-                // aggro target
-                if (Player.list[localmonster.aggroTarget]) {
-                    tempctx.beginPath();
-                    tempctx.strokeStyle = '#FF0000';
-                    tempctx.lineWidth = 2;
-                    tempctx.moveTo(localmonster.x+OFFSETX, localmonster.y+OFFSETY);
-                    tempctx.lineTo(Player.list[localmonster.aggroTarget].x+OFFSETX, Player.list[localmonster.aggroTarget].y+OFFSETY);
-                    tempctx.stroke();
-                }
-                // path
+            }
+        }
+        tempctx.stroke();
+        // path
+        tempctx.beginPath();
+        tempctx.strokeStyle = '#0000FF';
+        tempctx.lineWidth = 4;
+        for (var i in debugData.monsters) {
+            var localmonster = debugData.monsters[i];
+            if (localmonster && localmonster.map == player.map) {
                 if (localmonster.path[0]) {
-                    tempctx.beginPath();
-                    tempctx.strokeStyle = '#0000FF';
-                    tempctx.lineWidth = 4;
                     tempctx.moveTo(localmonster.x+OFFSETX, localmonster.y+OFFSETY);
                     for (var j in localmonster.path) {
                         tempctx.lineTo(localmonster.path[j][0]*64+32+OFFSETX, localmonster.path[j][1]*64+32+OFFSETY);
                     }
-                    tempctx.stroke();
                 }
             }
         }
+        tempctx.stroke();
+        // aggro target
+        tempctx.beginPath();
+        tempctx.strokeStyle = '#FF0000';
+        tempctx.lineWidth = 2;
+        for (var i in debugData.monsters) {
+            var localmonster = debugData.monsters[i];
+            if (localmonster && localmonster.map == player.map) {
+                if (Player.list[localmonster.aggroTarget]) {
+                    tempctx.moveTo(localmonster.x+OFFSETX, localmonster.y+OFFSETY);
+                    tempctx.lineTo(Player.list[localmonster.aggroTarget].x+OFFSETX, Player.list[localmonster.aggroTarget].y+OFFSETY);
+                }
+            }
+        }
+        tempctx.stroke();
+        // aggro range
+        tempctx.beginPath();
+        tempctx.strokeStyle = '#FF0000';
+        // tempctx.fillStyle = '#FF00000A';
+        tempctx.lineWidth = 4;
+        for (var i in debugData.monsters) {
+            var localmonster = debugData.monsters[i];
+            if (localmonster && localmonster.map == player.map) {
+                // tempctx.beginPath();
+                tempctx.moveTo(localmonster.x+OFFSETX+localmonster.aggroRange*64, localmonster.y+OFFSETY);
+                tempctx.arc(localmonster.x+OFFSETX, localmonster.y+OFFSETY, localmonster.aggroRange*64, 0, 2*Math.PI, false);
+                // tempctx.fill();
+                // tempctx.stroke();
+            }
+        }
+        tempctx.stroke();
         // projectiles
+        // hitbox
+        tempctx.beginPath();
+        tempctx.strokeStyle = '#FF9900';
+        tempctx.lineWidth = 2;
         for (var i in debugData.projectiles) {
             var localprojectile = debugData.projectiles[i];
-            if (localprojectile) if (localprojectile.map == player.map) {
+            if (localprojectile && localprojectile.map == player.map) {
                 var sinAngle = Math.sin(localprojectile.angle);
                 var cosAngle = Math.cos(localprojectile.angle);
-                // hitbox
-                tempctx.beginPath();
-                tempctx.strokeStyle = '#FF9900';
-                tempctx.lineWidth = 4;
                 tempctx.moveTo(((localprojectile.width/2)*cosAngle)-((localprojectile.height/2)*sinAngle)+localprojectile.x+OFFSETX, ((localprojectile.width/2)*sinAngle)+((localprojectile.height/2)*cosAngle)+localprojectile.y+OFFSETY);
                 tempctx.lineTo(((localprojectile.width/2)*cosAngle)-((-localprojectile.height/2)*sinAngle)+localprojectile.x+OFFSETX, ((localprojectile.width/2)*sinAngle)+((-localprojectile.height/2)*cosAngle)+localprojectile.y+OFFSETY);
                 tempctx.lineTo(((-localprojectile.width/2)*cosAngle)-((-localprojectile.height/2)*sinAngle)+localprojectile.x+OFFSETX, ((-localprojectile.width/2)*sinAngle)+((-localprojectile.height/2)*cosAngle)+localprojectile.y+OFFSETY);
                 tempctx.lineTo(((-localprojectile.width/2)*cosAngle)-((localprojectile.height/2)*sinAngle)+localprojectile.x+OFFSETX, ((-localprojectile.width/2)*sinAngle)+((localprojectile.height/2)*cosAngle)+localprojectile.y+OFFSETY);
                 tempctx.lineTo(((localprojectile.width/2)*cosAngle)-((localprojectile.height/2)*sinAngle)+localprojectile.x+OFFSETX, ((localprojectile.width/2)*sinAngle)+((localprojectile.height/2)*cosAngle)+localprojectile.y+OFFSETY);
-                tempctx.lineWidth = 2;
                 tempctx.moveTo(localprojectile.x-localprojectile.collisionBoxSize/2+OFFSETX, localprojectile.y-localprojectile.collisionBoxSize/2+OFFSETY);
                 tempctx.lineTo(localprojectile.x-localprojectile.collisionBoxSize/2+OFFSETX, localprojectile.y+localprojectile.collisionBoxSize/2+OFFSETY);
                 tempctx.lineTo(localprojectile.x+localprojectile.collisionBoxSize/2+OFFSETX, localprojectile.y+localprojectile.collisionBoxSize/2+OFFSETY);
                 tempctx.lineTo(localprojectile.x+localprojectile.collisionBoxSize/2+OFFSETX, localprojectile.y-localprojectile.collisionBoxSize/2+OFFSETY);
                 tempctx.lineTo(localprojectile.x-localprojectile.collisionBoxSize/2+OFFSETX, localprojectile.y-localprojectile.collisionBoxSize/2+OFFSETY);
-                tempctx.stroke();
-                // angle
-                tempctx.beginPath();
-                tempctx.strokeStyle = '#000000';
-                tempctx.lineWidth = 2;
-                tempctx.moveTo(localprojectile.x+OFFSETX, localprojectile.y+OFFSETY);
-                tempctx.lineTo(((localprojectile.width/2)*cosAngle)+localprojectile.x+OFFSETX, ((localprojectile.width/2)*sinAngle)+localprojectile.y+OFFSETY);
-                tempctx.stroke();
             }
         }
+        tempctx.stroke();
+        // angle
+        tempctx.beginPath();
+        tempctx.strokeStyle = '#000000';
+        tempctx.lineWidth = 2;
+        for (var i in debugData.projectiles) {
+            var localprojectile = debugData.projectiles[i];
+            if (localprojectile && localprojectile.map == player.map) {
+                var sinAngle = Math.sin(localprojectile.angle);
+                var cosAngle = Math.cos(localprojectile.angle);
+                tempctx.moveTo(localprojectile.x+OFFSETX, localprojectile.y+OFFSETY);
+                tempctx.lineTo(((localprojectile.width/2)*cosAngle)+localprojectile.x+OFFSETX, ((localprojectile.width/2)*sinAngle)+localprojectile.y+OFFSETY);
+            }
+        }
+        tempctx.stroke();
         // dropped items
+        tempctx.beginPath();
+        tempctx.strokeStyle = '#FF9900';
+        tempctx.lineWidth = 2;
         for (var i in debugData.droppedItems) {
             var localdroppeditem = debugData.droppedItems[i];
-            if (localdroppeditem) if (localdroppeditem.map == player.map) {
-                tempctx.strokeStyle = '#FF9900';
-                tempctx.lineWidth = 2;
+            if (localdroppeditem && localdroppeditem.map == player.map) {
                 tempctx.moveTo(localdroppeditem.x-24+OFFSETX, localdroppeditem.y-24+OFFSETY);
                 tempctx.lineTo(localdroppeditem.x-24+OFFSETX, localdroppeditem.y+24+OFFSETY);
                 tempctx.lineTo(localdroppeditem.x+24+OFFSETX, localdroppeditem.y+24+OFFSETY);
@@ -607,15 +636,16 @@ function drawDebug() {
                 tempctx.lineTo(localdroppeditem.x-24+OFFSETX, localdroppeditem.y-24+OFFSETY);
             }
         }
+        tempctx.stroke();
         tempctx.restore();
         CTX.drawImage(temp, 0, 0);
-        document.getElementById('debug').style.display = 'block';
-        document.getElementById('mousepos').innerText = 'Mouse: (' + Math.floor((player.x+mouseX-OFFSETX)/64) + ', ' + Math.floor((player.y+mouseY-OFFSETY)/64) + ')';
-        document.getElementById('position').innerText = 'Player: (' + Math.floor(player.x/64) + ', ' + Math.floor(player.y/64) + ')';
-        var current = Date.now();
-        debugTimeCounter = current-debugStart;
+        debug.style.display = 'block';
+        mousepos.innerText = 'Mouse: (' + Math.floor((player.x+mouseX-OFFSETX)/64) + ', ' + Math.floor((player.y+mouseY-OFFSETY)/64) + ')';
+        position.innerText = 'Player: (' + Math.floor(player.x/64) + ', ' + Math.floor(player.y/64) + ')';
+        var current = performance.now();
+        debugTimeCounter = Math.round((current-debugStart)*100)/100;
     } else {
-        document.getElementById('debug').style.display = '';
+        debug.style.display = '';
     }
 };
 function resetFPS() {
@@ -627,6 +657,70 @@ function resetFPS() {
             fpsCounter++;
         });
     }, 1000/settings.fps);
+};
+
+function testLights() {
+    var lights = [
+        {
+            x: 200,
+            y: 200,
+            radius: 500,
+            r: 255,
+            g: 0,
+            b: 0,
+            a: 0.5
+        },
+        {
+            x: 250,
+            y: 300,
+            radius: 100,
+            r: 0,
+            g: 0,
+            b: 255,
+            a: 0.2
+        },
+        {
+            x: 700,
+            y: 400,
+            radius: 200,
+            r: 0,
+            g: 255,
+            b: 0,
+            a: 0.5
+        },
+        {
+            x: 700,
+            y: 400,
+            radius: 200,
+            r: 0,
+            g: 0,
+            b: 0,
+            a: 1
+        },
+    ];
+    LAYERS.lights.clearRect(0, 0, window.innerWidth*SCALE, window.innerHeight*SCALE);
+    LAYERS.lights.globalCompositeOperation = 'lighten';
+    for (var i in lights) {
+        var light = lights[i];
+        var gradient = LAYERS.lights.createRadialGradient(light.x, light.y, 0, light.x, light.y, light.radius);
+        gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+        gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+        LAYERS.lights.fillStyle = gradient;
+        LAYERS.lights.fillRect(light.x-light.radius, light.y-light.radius, light.radius*2, light.radius*2);
+    }
+    LAYERS.lights.globalCompositeOperation = 'xor';
+    LAYERS.lights.fillStyle = 'rgba(0, 0, 0, 1)';
+    LAYERS.lights.fillRect(0, 0, window.innerWidth*SCALE, window.innerHeight*SCALE);
+    LAYERS.lights.globalCompositeOperation = 'source-over';
+    for (var i in lights) {
+        var light = lights[i];
+        var gradient = LAYERS.lights.createRadialGradient(light.x, light.y, light.radius/5, light.x, light.y, light.radius);
+        gradient.addColorStop(0, 'rgba(' + light.r + ', ' + light.g + ', ' + light.b + ', ' + light.a + ')');
+        gradient.addColorStop(1, 'rgba(' + light.r + ', ' + light.g + ', ' + light.b + ', 0)');
+        LAYERS.lights.fillStyle = gradient;
+        LAYERS.lights.fillRect(light.x-light.radius, light.y-light.radius, light.radius*2, light.radius*2);
+    }
+    CTX.drawImage(LAYERS.lightCanvas, 0, 0, window.innerWidth, window.innerHeight);
 };
 
 // io
@@ -656,19 +750,22 @@ document.onkeydown = function onkeydown(e) {
             var key = e.key.toLowerCase();
             switch (key) {
                 case keybinds.up:
-                    socket.emit('keyPress', {key:'up', state:true});
+                    socket.emit('keyPress', {key: 'up', state: true});
                     break;
                 case keybinds.down:
-                    socket.emit('keyPress', {key:'down', state:true});
+                    socket.emit('keyPress', {key: 'down', state: true});
                     break;
                 case keybinds.left:
-                    socket.emit('keyPress', {key:'left', state:true});
+                    socket.emit('keyPress', {key: 'left', state: true});
                     break;
                 case keybinds.right:
-                    socket.emit('keyPress', {key:'right', state:true});
+                    socket.emit('keyPress', {key: 'right', state: true});
                     break;
                 case keybinds.heal:
-                    socket.emit('keyPress', {key:'heal', state:true});
+                    socket.emit('keyPress', {key: 'heal', state: true});
+                    break;
+                case keybinds.disableSecond:
+                    socket.emit('keyPress', {key: 'disableSecond', state: true});
                     break;
                 case keybinds.chat:
                     document.getElementById('chatInput').focus();
@@ -722,19 +819,22 @@ document.onkeyup = function onkeyup(e) {
         } else {
             switch (key) {
                 case keybinds.up:
-                    socket.emit('keyPress', {key:'up', state:false});
+                    socket.emit('keyPress', {key: 'up', state: false});
                     break;
                 case keybinds.down:
-                    socket.emit('keyPress', {key:'down', state:false});
+                    socket.emit('keyPress', {key: 'down', state: false});
                     break;
                 case keybinds.left:
-                    socket.emit('keyPress', {key:'left', state:false});
+                    socket.emit('keyPress', {key: 'left', state: false});
                     break;
                 case keybinds.right:
-                    socket.emit('keyPress', {key:'right', state:false});
+                    socket.emit('keyPress', {key: 'right', state: false});
                     break;
                 case keybinds.heal:
-                    socket.emit('keyPress', {key:'heal', state:false});
+                    socket.emit('keyPress', {key: 'heal', state: false});
+                    break;
+                case keybinds.disableSecond:
+                    socket.emit('keyPress', {key: 'disableSecond', state: false});
                     break;
                 case '\\':
                     if (!inchat) {
@@ -915,8 +1015,8 @@ document.onvisibilitychange = function() {
 
 // npc prompts
 const promptContainer = document.getElementById('promptContainer');
-socket.on('prompt', async function(id) {
-    var data = Prompts[id];
+socket.on('prompt', async function(conversation) {
+    var data = Prompts[conversation.id][conversation.i];
     promptContainer.style.display = 'block';
     await sleep((11-settings.dialogueSpeed)*10);
     var optionDivs = [];
@@ -987,9 +1087,9 @@ async function loadNpcDialogues() {};
 const bannerContainer = document.getElementById('bannerContainer');
 Banners = [];
 socket.on('banner', function(data) {
-    new Banner(data.text, {
+    new Banner(data.html, {
         type: 'time',
-        time: 10000
+        time: data.time
     });
 });
 Banner = function(html, param) {
@@ -1006,7 +1106,9 @@ Banner = function(html, param) {
                 await sleep(500);
                 div.remove();
                 delete Banners[Banners.indexOf(div)];
-            }, param.time);
+            }, param.time ?? 10000);
+        } else {
+            console.error('invalid banner type ' + param.type);
         }
     }
 
@@ -1127,14 +1229,14 @@ map.onmousemove = function(e) {
         updateWorldMap();
     }
 };
-map.onwheel = function(e) {
+map.addEventListener('wheel', function(e) {
     worldMap.scale -= e.deltaY/5000;
     worldMap.scale = Math.max(0.1, Math.min(worldMap.scale, 2));
     worldMap.x += ((mouseX+window.innerWidth/2)-worldMap.x)/(map.width*worldMap.scale)*(-e.deltaY/5000);
     worldMap.y += ((mouseY+window.innerHeight/2)-worldMap.y)/(map.height*worldMap.scale)*(-e.deltaY/5000);
     console.log(((mouseX+window.innerWidth/2)-worldMap.x)/(map.width*worldMap.scale))
     updateWorldMap();
-};
+}, {passive: true});
 updateWorldMap();
 
 // performance metrics
@@ -1146,6 +1248,8 @@ var frameTimeCounter = 0;
 var frameStart = 0;
 var entTimeCounter = 0;
 var entStart = 0;
+var lightTimeCounter = 0;
+var lightStart = 0;
 var mapTimeCounter = 0;
 var mapStart = 0;
 var debugTimeCounter = 0;
@@ -1161,7 +1265,7 @@ setInterval(function() {
         document.getElementById('tps').innerText = 'TPS: ' + tpsCounter;
         document.getElementById('ping').innerText = 'Ping: ' + pingCounter + 'ms';
         fpsCounter = 0;
-        pingSend = Date.now();
+        pingSend = performance.now();
         socket.emit('ping');
         if (settings.debug) {
             var entities = 0, monsters = 0, projectiles = 0, particles = 0;
@@ -1185,8 +1289,8 @@ setInterval(function() {
     }
 }, 1000);
 socket.on('pong', function() {
-    var current = Date.now();
-    pingCounter = current-pingSend;
+    var current = performance.now();
+    pingCounter = Math.round((current-pingSend)*100)/100;
 });
 
 // debug console

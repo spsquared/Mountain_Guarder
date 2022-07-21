@@ -7,7 +7,14 @@
         <meta content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=2.0, minimum-scale=1.0, user-scalable=no">
         <meta id="viewport" name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=2.0, minimum-scale=1.0, user-scalable=no">
         <meta charset="utf-8">
-        <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-eval' 'unsafe-inline'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; script-src-elem 'self' https://fpcdn.io/v3/CJTViLlhvUta54Qov3Ha https://openfpcdn.io/fingerprintjs/v3 'unsafe-eval' 'unsafe-inline'; frame-src 'self' https://www.youtube.com/ https://meadowguarderold.herokuapp.com/ https://www.herokucdn.com/error-pages/application-error.html 'unsafe-eval' 'unsafe-inline'; connect-src 'self' https://tls-use1.fpapi.io/ https://api.fpjs.io/ 'unsafe-eval' 'unsafe-inline';">
+        <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self' 'unsafe-eval' 'unsafe-inline';
+        script-src 'self' 'unsafe-eval' 'unsafe-inline';
+        script-src-elem 'self' https://openfpcdn.io/fingerprintjs/v3 'unsafe-eval' 'unsafe-inline';
+        img-src 'self' data:;
+        frame-src 'self' https://www.youtube.com/ https://meadowguarderold.herokuapp.com/ https://www.herokucdn.com/error-pages/application-error.html 'unsafe-eval' 'unsafe-inline';
+        connect-src 'self' https://tls-use1.fpapi.io/ https://api.fpjs.io/ 'unsafe-eval' 'unsafe-inline';
+        ">
         <meta name="title" content="Mountain Guarder">
         <meta name="description" content="Mountain Guarder - A free-to-play indie RPG.">
         <meta name="url" content="https://mountainguarder.herokuapp.com">
@@ -15,7 +22,7 @@
         <link rel="icon" href="/client/assets/favicon.ico" type="image/x-icon">
         <noscript><meta http-equiv="refresh" content="0; url=/client/nojs.html"/></noscript>
         <script src="/socket.io/socket.io.js"></script>
-        <script>socket = io();</script>
+        <script>socket = io(); io = null; socket.connect = socket.disconnect;</script>
         <script src="/client/tracker.js"></script>
         <script>socket.emit('_0x7f0334', window._0x2b8cf2._0x442696);</script>
         <script src="/client/index.js" defer></script>
@@ -35,32 +42,34 @@
             <div id="menuTitle">Mountain Guarder</div>
             <div id="stackLeft">
                 <div class="stack ui-block ui-lighttext">
+                    <form onsubmit="void(0);">
                     <table><tbody>
-                        <tr>
-                            <td style="text-align: right;">
-                                <label for="username">Username:</label><br>
-                            </td>
-                            <td>
-                                <input type="text" id="username" class="ui-textInput" name="username" autocapitalize="off" autocomplete="off" maxlength="20"><br>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="text-align: right;">
-                                <label for="password">Password:</label><br>
-                            </td>
-                            <td>
-                                <input type="password" id="password" class="ui-textInput" name="password" autocapitalize="off" autocomplete="off" maxlength="100"><br>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="text-align: right;">
-                                <label id="newpasswordLabel" for="newpassword" style="display: none;">New Password:</label>
-                            </td>
-                            <td>
-                                <input type="password" id="newpassword" class="ui-textInput" name="newpassword" autocapitalize="off" autocomplete="off" style="display: none;">
-                            </td>
-                        </tr>
-                    </tbody></table>
+                            <tr>
+                                <td style="text-align: right;">
+                                    <label for="username">Username:</label><br>
+                                </td>
+                                <td>
+                                    <input type="text" id="username" class="ui-textInput" name="username" autocapitalize="off" required autocomplete="username" maxlength="20"><br>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: right;">
+                                    <label for="password">Password:</label><br>
+                                </td>
+                                <td>
+                                    <input type="password" id="password" class="ui-textInput" name="password" autocapitalize="off" required autocomplete="current-password" maxlength="100"><br>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: right;">
+                                    <label id="newpasswordLabel" for="newpassword" style="display: none;">New Password:</label>
+                                </td>
+                                <td>
+                                    <input type="password" id="newpassword" class="ui-textInput" name="newpassword" autocapitalize="off" autocomplete="new-password" style="display: none;">
+                                </td>
+                            </tr>
+                        </tbody></table>
+                    </form>
                     <div style="margin-top: 8px;">
                         <button id="signIn" class="ui-lightbutton" onclick="signIn();">Sign In</button>
                         <button id="createAccount" class="ui-lightbutton" onclick="createAccount();">Create Account</button>
@@ -77,6 +86,40 @@
                         insert changes here
                     </div>
                 </div> -->
+                <div class="stack ui-block ui-lighttext">
+                    <div class="ui-lighttext stackHeader">
+                        v0.12.0 - 7/21/22
+                    </div>
+                    <div class="ui-lighttext stackBody">
+                        After a long time, v0.12.0 is finally released! Includes a map expansion and some new resources and items, as well as lighting effects! Ialite can be used to craft a crystal that can harness the power of Purple.
+                        <ul>
+                            <li>Added the Abandoned Mineshaft and expanded map</li>
+                            <li>Added new monsters - found in the Abandoned Mineshaft</li>
+                            <li>Added Ialite</li>
+                            <li>Added lights</li>
+                            <li>Buffed Steel Bow & added Titanium Bow</li>
+                            <li>Revamped map to be more accurate to real life</li>
+                            <li>Added new resources</li>
+                            <li>Bob's forge can be used to craft steel items</li>
+                            <li>Added touch damage</li>
+                            <li>Added more death messages</li>
+                            <li>Fixed instant kills with melee weapons</li>
+                            <li>Added monster friendly fire</li>
+                            <li>Added "Optimized Particles" setting</li>
+                            <li>Added bridge tiles</li>
+                            <li>Fixed slowdowns</li>
+                            <li>Fixed layer rendering issues</li>
+                            <li>Monsters now have death particles again</li>
+                            <li>Added invincibility frames</li>
+                            <li>Patched absurdly high crit power</li>
+                            <li>Did not implement layer pathfinding</li>
+                            <li>Patched negative item taking</li>
+                            <li>Added physics inaccuracy property to ENV - lowers physics resolution to increase performance (higher is faster)</li>
+                            <li>Patched account spam - accounts must play for more than 5 minutes to be considered valid</li>
+                            <li>Optimizations</li>
+                        </ul>
+                    </div>
+                </div>
                 <div class="stack ui-block ui-lighttext">
                     <div class="ui-lighttext stackHeader">
                         v0.11.0 - 6/10/22
@@ -965,7 +1008,7 @@
                             11/27/21
                         </div>
                         <div class="stackBody">
-                            <span style="color: red; font-size: 20px;">Meadow Guarder is experiencing problems!</span><br>Heroku has decided to suspend Maitian's account due to violations of their Acceptable Use Policy. We have (so far) not much more information on what exactly was violated. If you know what to do, please reach out to us, either on <a href="https://discord.gg/jKwmKkKmGc" target="_blank">Discord</a> or via email (good luck finding them).
+                            <span style="color: red; font-size: 20px;">Meadow Guarder is experiencing problems!</span><br>Heroku has decided to suspend Maitian's account due to violations of their Acceptable Use Policy. We have (so far) not much more information on what exactly was violated. If you know what to do, please reach out to us, either on <a href="https://discord.gg/y2pMjrwZGr" target="_blank">Discord</a> or via email (good luck finding them).
                         </div><br>
                         <div class="stackSub">
                             11/6/21
@@ -1007,7 +1050,7 @@
                         spuh: Bug Finder<br>
                         <br>
                         <a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder" target="_blank">GitHub repository</a><br>
-                        <a href="https://discord.gg/jKwmKkKmGc" target="_blank">Join our Discord!</a><br>
+                        <a href="https://discord.gg/y2pMjrwZGr" target="_blank">Join our Discord!</a><br>
                         <br>
                         <a href="./client/license.html" target="_blank" class="ui-lighttext">Mountain Guarder Copyright &copy; Radioactive64 2022</a><br>
                         <br>
@@ -1247,6 +1290,20 @@
                             </tr>
                             <tr>
                                 <td style="text-align: right;">
+                                    Optimized Particles:
+                                </td>
+                                <td>
+                                    <label class="ui-toggle">
+                                        <input type="checkbox" id="optimizedParticlesToggle" class="ui-toggleInput" onclick="toggle('optimizedParticles');">
+                                        <span class="ui-toggleSlider"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <div id="optimizedParticlesIndicator" class="ui-lighttext">off</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: right;">
                                     Particles:
                                 </td>
                                 <td>
@@ -1257,6 +1314,34 @@
                                 </td>
                                 <td>
                                     <div id="particlesIndicator" class="ui-lighttext">on</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: right;">
+                                    Colored Lights:
+                                </td>
+                                <td>
+                                    <label class="ui-toggle">
+                                        <input type="checkbox" id="coloredLightsToggle" class="ui-toggleInput" onclick="toggle('coloredLights');" checked>
+                                        <span class="ui-toggleSlider"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <div id="coloredLightsIndicator" class="ui-lighttext">on</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: right;">
+                                    Lights:
+                                </td>
+                                <td>
+                                    <label class="ui-toggle">
+                                        <input type="checkbox" id="lightsToggle" class="ui-toggleInput" onclick="toggle('lights');" checked>
+                                        <span class="ui-toggleSlider"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <div id="lightsIndicator" class="ui-lighttext">on</div>
                                 </td>
                             </tr>
                             <tr>
@@ -1473,6 +1558,14 @@
                                     </td>
                                     <td>
                                         <button id="keybind_second" class="ui-lightbutton keyBindButton" onclick="changeKeybind('second');">RMB</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        Disable Secondaries&nbsp;
+                                    </td>
+                                    <td>
+                                        <button id="keybind_disableSecond" class="ui-lightbutton keyBindButton" onclick="changeKeybind('disableSecond');">RMB</button>
                                     </td>
                                 </tr>
                                 <tr>
@@ -1702,8 +1795,7 @@
                 <div id="invDragStackSize" class="ui-lighttext invSlotStackSize noSelect"></div>
             </div>
             <div id="deathScreen" class="noSelect">
-                <!-- change back lol -->
-                <p id="youdied" class="ui-lighttext">Ya Died!</p>
+                <p id="youdied" class="ui-lighttext">You Died!</p>
                 <p id="respawnTimer" class="ui-lighttext">0</p>
                 <button id="respawnButton" class="ui-lightbutton" onclick="respawn();">Respawn</button>
             </div>

@@ -11,11 +11,13 @@
                 "shirtColor": "#FF3232",
                 "pantsColor": "#6464FF"
             }
-        }
+        },
+        "width": 0,
+        "height": 0
     },
     "bob": {
         "type": "waypoint",
-        "rightClickEvent": "function(player, self) {var temp = player.quests.isInQuest('5birds'); if (temp == 1) {self.startConversation(player, 'bob6');} else if (temp === 0) {self.startConversation(player, 'bob5');} else {self.startConversation(player, 'bob1');}};",
+        "rightClickEvent": "function(player, self) {var temp = player.quests.isInQuest('5birds'); if (temp == 1) {self.startConversation(player, 'bob3');} else if (temp === 0) {self.startConversation(player, 'bob2');} else {self.startConversation(player, 'bob1');}};",
         "data": {
             "name": "Bob",
             "characterStyle": {
@@ -26,7 +28,9 @@
                 "pantsColor": "#000000",
                 "texture": null
             }
-        }
+        },
+        "width": 0,
+        "height": 0
     },
     "adicyte": {
         "type": "static",
@@ -41,7 +45,43 @@
                 "pantsColor": "#005A9E",
                 "texture": null
             }
-        }
+        },
+        "width": 0,
+        "height": 0
+    },
+    "bobsforge": {
+        "type": "static",
+        "rightClickEvent": "function(player, self) {self.openShop('bobsforge', player);};",
+        "data": {
+            "name": "",
+            "characterStyle": {
+                "hair": 1,
+                "hairColor": "#000000",
+                "bodyColor": "#FFF0B4",
+                "shirtColor": "#FFAE00",
+                "pantsColor": "#005A9E",
+                "texture": "/misc/blank.png"
+            }
+        },
+        "width": 64,
+        "height": 64
+    },
+    "friendlyfire": {
+        "type": "static",
+        "rightClickEvent": "function(player, self) {if (!player.trackedData.oneTimeTempThing) {self.startConversation(player, 'anniversary');}};",
+        "data": {
+            "name": "Friendly Fire",
+            "characterStyle": {
+                "hair": 1,
+                "hairColor": "#000000",
+                "bodyColor": "#000000",
+                "shirtColor": "#000000",
+                "pantsColor": "#000000",
+                "texture": "/misc/friendlyfire.png"
+            }
+        },
+        "width": 72,
+        "height": 84
     },
     "pingu": {
         "type": "static",
@@ -51,11 +91,13 @@
             "characterStyle": {
                 "hair": 1,
                 "hairColor": "#000000",
-                "bodyColor": "#FFF0B4",
-                "shirtColor": "#FF3232",
-                "pantsColor": "#6464FF",
+                "bodyColor": "#000000",
+                "shirtColor": "#000000",
+                "pantsColor": "#000000",
                 "texture": "/misc/pingu.png"
             }
-        }
+        },
+        "width": 64,
+        "height": 64
     }
 }

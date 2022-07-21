@@ -151,7 +151,7 @@ Inventory.enchantSlot = function enchantSlot(slot, enchantments) {
 Inventory.contains = function contains(id, amount) {
     var count = 0;
     for (var i in Inventory.items) {
-        if (Inventory.items[i].item) if (Inventory.items[i].item.id == id) count += Inventory.items[i].item.stackSize;
+        if (Inventory.items[i].item && Inventory.items[i].item.id == id) count += Inventory.items[i].item.stackSize;
     }
     return count >= amount;
 };
@@ -206,13 +206,14 @@ Inventory.loadEffects = function loadEffects(item) {
                 default:
                     break;
             }
-            str += '<br><span style="color: lime;">' + item.damage + damageType + '</span>';
+            str += '<span style="color: lime;">' + item.damage + damageType + '</span>';
             if (item.critChance != 0) {
                 str += '<br><span style="color: lime;">' + Math.round(item.critChance*100) + '% Critical hit chance</span>';
             }
             if (item.critPower != 0) {
                 str += '<br><span style="color: lime;">' + Math.round(item.critPower*100) + '% Critical hit power</span>';
             }
+            str += '<br>';
         }
         for (var i in item.effects) {
             var color = '';
@@ -331,7 +332,7 @@ Inventory.loadEffects = function loadEffects(item) {
                     console.error('Invalid effect id ' + localeffect.id);
                     break;
             }
-            str += '<br><span style="color: ' + color + ';">' + number + ' ' + effect + '</span>';
+            str += '<span style="color: ' + color + ';">' + number + ' ' + effect + '</span><br>';
         }
     }
     if (str == '<div style="font-size: 12px; line-height: 12px;">') str = '<br><div style="font-size: 12px; line-height: 12px;">No Effects';
@@ -393,7 +394,7 @@ document.addEventListener('keydown', function(e) {
         if (!inchat && !indebug) {
             if (e.key.toLowerCase() == keybinds.drop) {
                 for (var i in Inventory.items) {
-                    if (Inventory.items[i].item) if (Inventory.items[i].mousedOver) {
+                    if (Inventory.items[i].item && Inventory.items[i].mousedOver) {
                         if (e.getModifierState('Control')) Inventory.dropItem(parseInt(i), Inventory.items[i].item.stackSize);
                         else Inventory.dropItem(parseInt(i), 1);
                         tooltip.style.opacity = 0;
@@ -401,7 +402,7 @@ document.addEventListener('keydown', function(e) {
                     }
                 }
                 for (var i in Inventory.equips) {
-                    if (Inventory.equips[i].item) if (Inventory.equips[i].mousedOver) {
+                    if (Inventory.equips[i].item && Inventory.equips[i].mousedOver) {
                         Inventory.dropItem(parseInt(i), Inventory.equips[i].item.stackSize);
                         tooltip.style.opacity = 0;
                         Inventory.hovering = false;
@@ -473,6 +474,13 @@ socket.on('item', function(data) {
         case 'remove':
             Inventory.removeItem(data.data.slot);
             break;
+        case 'banner':
+            var str = '<span style="' + Inventory.getRarityColor(Inventory.itemTypes[data.data.id].rarity) + ';">+' + data.data.amount + ' ' + Inventory.itemTypes[data.data.id].name + '</span>';
+            new Banner(str, {
+                type: 'time',
+                time: 3000
+            });
+            break;
         default:
             console.error('Invalid item action ' + data.action);
             break;
@@ -480,7 +488,7 @@ socket.on('item', function(data) {
     if (Shop.currentShop) Shop.currentShop.updateAffordability();
     if (inventoryWindow.currentTab == 'inventoryCrafting') {
         for (var i in Crafting.slots) {
-            Crafting.loadMaterials(Crafting.slots[i].resources, Crafting.slots[i].divs.image);
+            Crafting.slots[i].updateMaterials();
         }
     }
 });
@@ -593,7 +601,7 @@ Crafting.slot = function(slot) {
     inventoryCrafting.appendChild(tile);
     block.onmouseover = function onmouseover(e) {
         Inventory.hovering = true;
-        tooltip.innerHTML = popupItemText + Crafting.loadMaterials(craft.resources, image);
+        tooltip.innerHTML = popupItemText + craft.updateMaterials();
     };
     block.onmouseout = function onmouseout(e) {
         Inventory.hovering = false;
@@ -606,32 +614,37 @@ Crafting.slot = function(slot) {
         });
     };
     craft.divs = {
+        block: block,
         image: image
     };
+    craft.updateMaterials = function updateMaterials() {
+        var str = '<span style="font-size: 14px;">Requires:</span><br><div style="font-size: 12px; line-height: 12px;">';
+        var hasAllResources = true;
+        for (var i in craft.resources) {
+            if (Inventory.contains(i, craft.resources[i])) {
+                str += '<div style="color: lime;">x' + craft.resources[i] + ' ' + Inventory.itemTypes[i].name + '</div><br>';
+            } else {
+                str += '<div style="color: red;">x' + craft.resources[i] + ' ' + Inventory.itemTypes[i].name + '</div><br>';
+                hasAllResources = false;
+            }
+        }
+        if (craft.resources.length != 0) str = str.slice(0, -4);
+        str += '</div>';
+        if (hasAllResources) {
+            image.style.filter = '';
+            image.style.cursor = '';
+        } else {
+            image.style.filter = 'saturate(0)';
+            image.style.cursor = 'not-allowed';
+        }
+        if (craft.showWhenCraftable) {
+            if (hasAllResources) tile.style.display = '';
+            else tile.style.display = 'none';
+        }
+        return str;
+    }
 
     return craft;
-};
-Crafting.loadMaterials = function loadMaterials(resources, img) {
-    var str = '<span style="font-size: 14px;">Requires:</span><br><div style="font-size: 12px; line-height: 12px;">';
-    var hasAllResources = true;
-    for (var i in resources) {
-        if (Inventory.contains(i, resources[i])) {
-            str += '<div style="color: lime;">x' + resources[i] + ' ' + Inventory.itemTypes[i].name + '</div><br>';
-        } else {
-            str += '<div style="color: red;">x' + resources[i] + ' ' + Inventory.itemTypes[i].name + '</div><br>';
-            hasAllResources = false;
-        }
-    }
-    if (resources.length != 0) str = str.slice(0, -4);
-    str += '</div>';
-    if (hasAllResources) {
-        img.style.filter = '';
-        img.style.cursor = '';
-    } else {
-        img.style.filter = 'saturate(0)';
-        img.style.cursor = 'not-allowed';
-    }
-    return str;
 };
 
 // loading

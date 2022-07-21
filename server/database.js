@@ -3,7 +3,6 @@
 const bcrypt = require('bcrypt');
 const salt = 10;
 const Cryptr = require('cryptr');
-const { last } = require('lodash');
 const cryptr = new Cryptr('cachePasswordKey');
 const {Client} = require('pg');
 if (process.env.DATABASE_URL) {
@@ -31,8 +30,8 @@ ACCOUNTS = {
             } else {
                 try {
                     await database.connect();
+                    // 69.142.222.186
                     ACCOUNTS.connected = true;
-                    database.query('ALTER TABLE users ALTER COLUMN data TYPE varchar(1048576)');
                 } catch (err) {
                     forceQuit(err, 2);
                 }
@@ -73,6 +72,9 @@ ACCOUNTS = {
         var cred = await getCredentials(username);
         if (cred) {
             if (bcrypt.compareSync(password, cred.password)) {
+                if (await getBanned(username)) {
+                    return 3;
+                }
                 return 0;
             }
             return 1;
@@ -84,15 +86,14 @@ ACCOUNTS = {
         var cred = await getCredentials(username);
         if (cred) {
             if (bcrypt.compareSync(password, cred.password)) {
+                if (await getBanned(username)) return 1;
                 var status = await deleteCredentials(username);
                 if (status) {
                     return 0;
-                } else {
-                    return 3;
                 }
-            } else {
-                return 1;
+                return 3;
             }
+            return 1;
         }
         return 2;
     },
@@ -156,6 +157,42 @@ ACCOUNTS = {
         }
         warn('Failed to save progress!');
         return false;
+    },
+    ban: async function ban(username) {
+        if (ENV.offlineMode) return true;
+        var status = await setBanned(username, true);
+        if (status) {
+            return true;
+        }
+        warn('Failed to ban user!');
+        return false;
+    },
+    unban: async function unban(username) {
+        if (ENV.offlineMode) return true;
+        var status = await setBanned(username, false);
+        if (status) {
+            return true;
+        }
+        warn('Failed to ban user!');
+        return false;
+    },
+    ipban: async function ban(ip) {
+        if (ENV.offlineMode) return true;
+        var status = await setIPBanned(ip, true);
+        if (status) {
+            return true;
+        }
+        warn('Failed to ban user!');
+        return false;
+    },
+    ipunban: async function unban(ip) {
+        if (ENV.offlineMode) return true;
+        var status = await setIPBanned(ip, false);
+        if (status) {
+            return true;
+        }
+        warn('Failed to ban user!');
+        return false;
     }
 };
 // /*
@@ -164,7 +201,9 @@ dbDebug = {
         try {
             database.query('SELECT username FROM users;', async function(err, res) {
                 if (err) forceQuit(err);
-                console.log(res.rows);
+                for (var i in res.rows) {
+                    console.log(res.rows[i].username);
+                }
             });
         } catch (err) {
             forceQuit(err, 2);
@@ -276,26 +315,26 @@ dbDebug = {
     removeOld: function() {
         try {
             database.query('SELECT username, data FROM users;', async function(err, res) {
-                logColor('Purging old (>1 year no login) and unused (no data) accounts... This may take a while.', '\x1b[33m', 'log');
+                logColor('Purging old (>1 year no login) and unused (no data / <10 minutes playtime) accounts... This may take a while.', '\x1b[33m', 'log');
                 var purged = 0;
                 if (err) forceQuit(err);
                 var updates = setInterval(function() {
                     logColor('Purged ' + purged + ' accounts', '\x1b[33m', 'log');
+                    purged = 0;
                 }, 10000);
                 for (var i in res.rows) {
                     var toremove = false;
-                    console.log(res.rows[i].data)
                     if (res.rows[i].data == null) toremove = true;
                     var data = JSON.parse(res.rows[i].data);
                     if (data) {
                         var lastLogin = data.lastLogin;
-                        if (lastLogin == null) {if (Date.now()-1652043631075 > 31536000) toremove = true;}
-                        if (Date.now()-lastLogin > 31536000) toremove = true;
+                        if (Date.now()-lastLogin > 31536000000) toremove = true;
+                        if (data.playTime < 600000 || data.playTime == null) toremove = true;
                     }
                     if (toremove) {
                         purged++;
                         try {
-                            await database.query('DELETE FROM users WHERE username=$1;', [res.rows[i].username]);
+                            // await database.query('DELETE FROM users WHERE username=$1;', [res.rows[i].username]);
                         } catch (err) {
                             error(err);
                         }
@@ -304,6 +343,7 @@ dbDebug = {
                 }
                 logColor('Purged ' + purged + ' accounts', '\x1b[33m', 'log');
                 clearInterval(updates);
+                logColor('Done', '\x1b[33m', 'log');
             });
         } catch (err) {
             forceQuit(err, 2);
@@ -389,6 +429,52 @@ async function updateProgress(username, password, data) {
         } else {
             warn('WARNING: Unauthorized attempt to change user data!');
         }
+    }
+    return false;
+};
+async function getBanned(username) {
+    try {
+        var data = await database.query('SELECT banned FROM users WHERE username=$1;', [username]);
+        if (data.rows[0]) {
+            if (data.rows[0].banned) return true;
+        }
+    } catch (err) {
+        forceQuit(err, 2);
+    }
+    return false;
+};
+async function setBanned(username, banned) {
+    try {
+        await database.query('UPDATE users SET banned=$2 WHERE username=$1;', [username, banned.toString()]);
+        return true;
+    } catch (err) {
+        forceQuit(err, 2);
+    }
+    return false;
+};
+async function getIPBanned(ip) {
+    try {
+        var data = await database.query('SELECT banned FROM ipbans WHERE ip=$1;', [ip]);
+        if (data.rows[0]) {
+            if (data.rows[0].banned) return true;
+        }
+    } catch (err) {
+        forceQuit(err, 2);
+    }
+    return false;
+};
+async function setIPBanned(ip, banned) {
+    try {
+        if (banned) {
+            if (!getIPBanned(ip)) {
+                await database.query('INSERT INTO ipbans (ip, banned) VALUES ($1, $2);', [ip, true]);
+            }
+        } else {
+            await database.query('DELETE FROM ipbans WHERE ip=$1', [ip]);
+        }
+        return true;
+    } catch (err) {
+        forceQuit(err, 2);
     }
     return false;
 };

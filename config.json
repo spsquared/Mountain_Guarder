@@ -6,6 +6,10 @@
         "sp",
         "suvanth"
     ],
+    "monsterFriendlyFire": true,
+    "physicsInaccuracy": 1,
+    "maxPathfindRange": 32,
+    "pathfindBuffer": 6,
     "itemDespawnTime": 5,
     "autoSaveInterval": 5
 }

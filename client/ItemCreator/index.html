@@ -19,7 +19,7 @@
         </span>
         <div id="stackLeft">
             <b>Description:</b><br>
-            <input type="text" id="description" class="text"><br><br>
+            <input type="text" id="description" class="text" style="width: 100%"><br><br>
             <b>Base stats:</b><br>
             &emsp;Slot Type:<select id="slotType" class="select" oninput="updateItemBaseStats();">
                 <option value="none">Unequippable</option>
@@ -73,10 +73,10 @@
             </div>
             <div id="statsOffhand">
                 &emsp;Custom Effect:<br>
-                <textarea id="offhandEffect">self.updateOffhand = function() {
+                <textarea id="offhandEffect">function() {
     
 };
-                </textarea>
+</textarea>
             </div>
             &emsp;Rarity:&nbsp;<input type="number" id="rarity" class="text-small" min="0" max="999999999" value="0"><br>
             &emsp;Maximum Stack Size:&nbsp;<input type="number" id="maxStackSize" class="text-small" min="0" max="1000000" value="1"><br>
@@ -88,7 +88,7 @@
             &emsp;Magic Damage Boost:&nbsp;<input type="number" id="effectmagicDamage" class="text-small" min="0" max="1000" step="0.01"><br>
             &emsp;Range Boost:&nbsp;<input type="number" id="range" class="text-small" min="0" max="10" step="0.01"><br>
             &emsp;Crit Chance Increase:&nbsp;<input type="number" id="effectcritChance" class="text-small" min="0" max="1" step="0.01"><br>
-            &emsp;Crit Damage Increase:&nbsp;<input type="number" id="effectcritDamage" class="text-small" min="0" max="1000" step="0.01"><br>
+            &emsp;Crit Power Increase:&nbsp;<input type="number" id="effectcritPower" class="text-small" min="0" max="1000" step="0.01"><br>
             &emsp;Damage Reduction:&nbsp;<input type="number" id="effectdamageReduction" class="text-small" min="0" max="1000" step="1"><br>
             &emsp;Defense:&nbsp;<input type="number" id="effectdefense" class="text-small" min="0" max="1" step="0.01"><br>
             &emsp;Speed:&nbsp;<input type="number" id="effectspeed" class="text-small" min="0" max="1" step="0.1"><br>
@@ -111,6 +111,7 @@
                 &emsp;&emsp;<input type="checkbox" id="range" class="checkBox">Range (range)<br>
                 &emsp;&emsp;<input type="checkbox" id="accuracy" class="checkBox">Accuracy (crit chance)<br>
                 &emsp;&emsp;<input type="checkbox" id="power" class="checkBox">Power (damage)<br>
+                &emsp;&emsp;<input type="checkbox" id="piercing" class="checkBox">Piercing (max entities)<br>
                 &emsp;<b>Melee</b><br>
                 &emsp;&emsp;<input type="checkbox" id="sharpness" class="checkBox">Sharpness (damage)<br>
                 &emsp;&emsp;<input type="checkbox" id="sweepingedge" class="checkBox">Sweeping Edge (crit damage)<br>
