@@ -10,6 +10,7 @@ var axes = {
 var buttons = {
     attack: false,
     second: false,
+    disableSecond: false,
     clicking: false,
 };
 async function updateControllers() {
@@ -32,6 +33,7 @@ async function updateControllers() {
             document.getElementById('crossHair').style.top = axes.aimy + window.innerHeight/2-11 + 'px';
             buttons.attack = controller.buttons[6].value > 0.5;
             buttons.second = controller.buttons[4].value > 0.5;
+            buttons.disableSecond = controller.buttons[5].value > 0.5;
             buttons.clicking = controller.buttons[0].pressed;
             buttons.interacting = controller.buttons[3].pressed;
             break;
@@ -48,6 +50,7 @@ async function sendControllers() {
         aimy: axes.aimy,
         attack: buttons.attack,
         second: buttons.second,
+        disableSecond: buttons.disableSecond,
         clicking: buttons.clicking,
         interacting: buttons.interacting
     });

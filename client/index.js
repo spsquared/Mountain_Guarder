@@ -1,6 +1,6 @@
 // Copyright (C) 2022 Radioactive64
 
-const version = 'v0.12.0';
+const version = 'v0.12.1';
 var firstload = false;
 // canvas
 CTXRAW = document.getElementById('canvas');
@@ -85,7 +85,7 @@ keybinds = {
     inventoryCrafting: 'c',
     map: 'm'
 };
-tpsFpsRatio = 1;
+tpsFpsRatio = 3;
 
 // canvas scaling and pixelation
 DPR = 1;

@@ -400,6 +400,7 @@ Rig = function() {
     self.maxMana = 200;
     self.lastManaUse = 0;
     self.lastManaRegen = 0;
+    self.effectTimers = {};
     self.alive = true;
     self.invincible = false;
     self.bcDeaths = false;
@@ -1003,16 +1004,16 @@ Rig = function() {
                     } else spawnParticles = false;
                     var rand = 0.5+Math.random();
                     var angle = Math.atan2(self.y-entity.y, self.x-entity.x);
-                    self.xknockback += (angle*rand*10+entity.xspeed*rand)*(1-self.stats.knockbackResistance);
-                    self.yknockback += (angle*rand*10+entity.yspeed*rand)*(1-self.stats.knockbackResistance);
+                    self.xknockback += (Math.cos(angle)*rand*10+entity.xspeed*rand)*(1-self.stats.knockbackResistance);
+                    self.yknockback += (Math.cos(angle)*rand*10+entity.yspeed*rand)*(1-self.stats.knockbackResistance);
                     if (self.hp < 0) self.onDeath(entity, 'killed');
                     break;
                 case 'cherrybomb':
                     self.hp -= Math.max(Math.round((500*(1-self.stats.defense))-self.stats.damageReduction), 0);
                     var rand = 0.5+Math.random();
                     var angle = Math.atan2(self.y-entity.y, self.x-entity.x);
-                    self.xknockback += angle*rand*40*(1-self.stats.knockbackResistance);
-                    self.yknockback += angle*rand*40*(1-self.stats.knockbackResistance);
+                    self.xknockback += Math.cos(angle)*rand*40*(1-self.stats.knockbackResistance);
+                    self.yknockback += Math.cos(angle)*rand*40*(1-self.stats.knockbackResistance);
                     if (self.hp < 0) self.onDeath(entity, 'killed', 'blown up');
                     break;
                 default:
@@ -1254,7 +1255,7 @@ Player = function(socket) {
     self.facingDirection = 'down';
     self.attacking = false;
     self.secondary = false;
-    self.controls.disableSecond = false;
+    self.disableSecond = false;
     self.lastHeal = 0;
     self.stats.heal = 8;
     self.stats.maxPierce = 0;
@@ -1603,6 +1604,7 @@ Player = function(socket) {
                 self.mouseY = inputs.aimy;
                 self.attacking = inputs.attack;
                 self.secondary = inputs.second;
+                self.disableSecond = inputs.disableSecond;
                 if (inputs.interacting) self.interact(self.mouseX, self.mouseY);
             }
         } else {
@@ -1798,7 +1800,7 @@ Player = function(socket) {
     };
     self.updateUse = function updateUse(attack, stats) {
         attack.lastUse++;
-        if (self.attacking && !(attack.second && self.controls.disableSecond) && attack.lastUse > attack.useTime && !self.region.noattack && attack.projectile != null && self.mana >= attack.manaCost && self.alive) {
+        if (self.attacking && !(attack.second && self.disableSecond) && attack.lastUse > attack.useTime && !self.region.noattack && attack.projectile != null && self.mana >= attack.manaCost && self.alive) {
             attack.lastUse = 0;
             var angle = Math.atan2(self.mouseY, self.mouseX);
             switch (attack.projectilePattern) {
@@ -2899,7 +2901,7 @@ Monster = function(type, x, y, map, layer) {
         var parent;
         if (entity.parentIsPlayer) parent = Player.list[entity.parentID];
         else parent = Monster.list[entity.parentID];
-        if (parent && !self.invincible && type == 'projectile') {
+        if (parent && !self.invincible) {
             self.ai.entityTarget = parent;
             self.ai.lastTracked = 0;
         }

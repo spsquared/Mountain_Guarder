@@ -8,14 +8,14 @@ The database URL will not be disclosed, since it contains sensitive information 
 
 Supported Versions are stable versions that can run without breaking the format of accounts. Run non-supported versions at your own risk. ("risk" meaning a near-guaranteed inventory loss)
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 0.12.0  | :white_check_mark: |
-| 0.11.1  | :white_check_mark: |
-| 0.11.0  | :x:                |
-| 0.10.x  | :x:                |
-| 0.9.x   | :x:                |
-| < 0.9.0 | :x:                |
+| Version  | Supported          |
+| -------  | ------------------ |
+| 0.12.1   | :white_check_mark: |
+| 0.12.0   | :white_check_mark: |
+| 0.11.1   | :white_check_mark: |
+| 0.11.0   | :x:                |
+| 0.10.x   | :x:                |
+| < 0.10.0 | :x:                |
 
 ## Reporting a Vulnerability
 

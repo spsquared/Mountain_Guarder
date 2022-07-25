@@ -110,3 +110,4 @@ dist
 # Private database URI & Discord webhook URI
 server/url.js
 server/token.js
+*.tiled-session

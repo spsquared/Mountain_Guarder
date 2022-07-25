@@ -154,11 +154,11 @@
             "scaleInEditor": 5.5
         },
         "Caves.tmx": {
-            "scale": 3,
+            "scale": 1.5,
             "selectedLayer": 6,
             "viewCenter": {
-                "x": 594,
-                "y": 69.83333333333333
+                "x": 794.6666666666667,
+                "y": -162.33333333333331
             }
         },
         "NaN.tmx": {
@@ -170,7 +170,7 @@
             }
         },
         "Outpost Cottage 1.tmx": {
-            "scale": 5.5,
+            "scale": 2,
             "selectedLayer": 3,
             "viewCenter": {
                 "x": 112,
@@ -197,8 +197,8 @@
             "scale": 3,
             "selectedLayer": 3,
             "viewCenter": {
-                "x": 160,
-                "y": 100
+                "x": 159.99999999999997,
+                "y": 100.16666666666666
             }
         },
         "Pingu's Cave.tmx": {
@@ -226,11 +226,11 @@
             }
         },
         "World.tmx": {
-            "scale": 4,
-            "selectedLayer": 21,
+            "scale": 2,
+            "selectedLayer": 29,
             "viewCenter": {
-                "x": 112.25,
-                "y": 241.375
+                "x": 201.5,
+                "y": 191.75
             }
         },
         "roguelikeSheet.tsx": {

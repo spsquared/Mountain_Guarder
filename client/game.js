@@ -1152,6 +1152,7 @@ socket.on('cameraShake', function(intensity) {
 // chat
 var inchat = false;
 var messages = [];
+const chat = document.getElementById('chatText');
 const chatInput = document.getElementById('chatInput');
 chatInput.onfocus = function() {
     inchat = true;
@@ -1190,9 +1191,9 @@ function insertChat(data) {
     const msg = document.createElement('div');
     msg.innerHTML = '[' + time.getHours() + ':' + minute + '] <span style="' + data.style + '">' + data.text + '</span>';
     var scroll = false;
-    if (document.getElementById('chatText').scrollTop + document.getElementById('chatText').clientHeight >= document.getElementById('chatText').scrollHeight - 5) scroll = true;
-    document.getElementById('chatText').appendChild(msg);
-    if (scroll) document.getElementById('chatText').scrollTop = document.getElementById('chatText').scrollHeight;
+    if (chat.scrollTop + chat.clientHeight >= chat.scrollHeight - 5) scroll = true;
+    chat.appendChild(msg);
+    if (scroll) chat.scrollTop = chat.scrollHeight;
     messages.unshift(msg);
     if (messages.length >= 100) messages.pop().remove();
 };
