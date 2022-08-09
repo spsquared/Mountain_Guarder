@@ -7,12 +7,12 @@ function updateItemPreviewImage(e) {
 function updateItemBaseStats() {
     var slotType = document.getElementById('slotType').value;
     document.getElementById('statsWeapon').style.display = 'none';
-    document.getElementById('statsKey').style.display = 'none';
+    document.getElementById('statsShield').style.display = 'none';
     document.getElementById('statsOffhand').style.display = 'none';
     if (slotType == 'weapon' || slotType == 'crystal') {
         document.getElementById('statsWeapon').style.display = '';
-    } else if (slotType == 'key') {
-        document.getElementById('statsKey').style.display = '';
+    } else if (slotType == 'shield') {
+        document.getElementById('statsShield').style.display = '';
     } else if (slotType == 'offhand') {
         document.getElementById('statsOffhand').style.display = '';
     }
@@ -38,8 +38,10 @@ function generateServerItem() {
         item.knockback = null;
         item.useTime = null;
         item.manaCost = null;
-    } else if (slotType == 'key') {
-        item.color = null;
+    } else if (slotType == 'shield') {
+        item.knockbackResistance = null;
+        item.blockAngle = null;
+        item.projectileReflectChance = null;
     } else if (slotType == 'offHand') {
         item.offhandEffect = null;
     }
@@ -68,7 +70,7 @@ function generateServerItem() {
             });
         }
     }
-    var enchantments = ['swiftness', 'speed', 'range', 'accuracy', 'power', 'piercing', 'sharpness', 'sweepingedge', 'efficiency', 'sorcery', 'focus', 'witchcraft', 'protection', 'smashing', 'unlocking'];
+    var enchantments = ['swiftness', 'speed', 'range', 'accuracy', 'power', 'piercing', 'sharpness', 'sweepingedge', 'efficiency', 'sorcery', 'focus', 'witchcraft', 'protection', 'smashing', 'toughness', 'mirroring'];
     item.enchantments = [];
     for (var i in enchantments) {
         var checked = document.getElementById(enchantments[i]).checked;

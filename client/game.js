@@ -650,77 +650,15 @@ function drawDebug() {
 };
 function resetFPS() {
     clearInterval(drawLoop);
+    fpsTimes = [];
     drawLoop = setInterval(function() {
         if (visible) requestAnimationFrame(function() {
             drawFrame();
             if (settings.useController) updateControllers();
-            fpsCounter++;
+            fpsTimes.push(performance.now());
+            performance.now()-fpsTimes[0] > 1000 && fpsTimes.shift();
         });
     }, 1000/settings.fps);
-};
-
-function testLights() {
-    var lights = [
-        {
-            x: 200,
-            y: 200,
-            radius: 500,
-            r: 255,
-            g: 0,
-            b: 0,
-            a: 0.5
-        },
-        {
-            x: 250,
-            y: 300,
-            radius: 100,
-            r: 0,
-            g: 0,
-            b: 255,
-            a: 0.2
-        },
-        {
-            x: 700,
-            y: 400,
-            radius: 200,
-            r: 0,
-            g: 255,
-            b: 0,
-            a: 0.5
-        },
-        {
-            x: 700,
-            y: 400,
-            radius: 200,
-            r: 0,
-            g: 0,
-            b: 0,
-            a: 1
-        },
-    ];
-    LAYERS.lights.clearRect(0, 0, window.innerWidth*SCALE, window.innerHeight*SCALE);
-    LAYERS.lights.globalCompositeOperation = 'lighten';
-    for (var i in lights) {
-        var light = lights[i];
-        var gradient = LAYERS.lights.createRadialGradient(light.x, light.y, 0, light.x, light.y, light.radius);
-        gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
-        gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
-        LAYERS.lights.fillStyle = gradient;
-        LAYERS.lights.fillRect(light.x-light.radius, light.y-light.radius, light.radius*2, light.radius*2);
-    }
-    LAYERS.lights.globalCompositeOperation = 'xor';
-    LAYERS.lights.fillStyle = 'rgba(0, 0, 0, 1)';
-    LAYERS.lights.fillRect(0, 0, window.innerWidth*SCALE, window.innerHeight*SCALE);
-    LAYERS.lights.globalCompositeOperation = 'source-over';
-    for (var i in lights) {
-        var light = lights[i];
-        var gradient = LAYERS.lights.createRadialGradient(light.x, light.y, light.radius/5, light.x, light.y, light.radius);
-        gradient.addColorStop(0, 'rgba(' + light.r + ', ' + light.g + ', ' + light.b + ', ' + light.a + ')');
-        gradient.addColorStop(1, 'rgba(' + light.r + ', ' + light.g + ', ' + light.b + ', 0)');
-        LAYERS.lights.fillStyle = gradient;
-        LAYERS.lights.fillRect(light.x-light.radius, light.y-light.radius, light.radius*2, light.radius*2);
-    }
-    CTX.drawImage(LAYERS.lightCanvas, 0, 0, window.innerWidth, window.innerHeight);
 };
 
 // io
@@ -1241,7 +1179,7 @@ map.addEventListener('wheel', function(e) {
 updateWorldMap();
 
 // performance metrics
-var fpsCounter = 0;
+var fpsTimes = [];
 var tpsCounter = 0;
 var pingCounter = 0;
 var pingSend = 0;
@@ -1262,10 +1200,9 @@ var serverHeapUsed = 0;
 var serverHeapMax = 0;
 setInterval(function() {
     if (loaded && visible) {
-        document.getElementById('fps').innerText = 'FPS: ' + fpsCounter;
+        document.getElementById('fps').innerText = 'FPS: ' + fpsTimes.length;
         document.getElementById('tps').innerText = 'TPS: ' + tpsCounter;
         document.getElementById('ping').innerText = 'Ping: ' + pingCounter + 'ms';
-        fpsCounter = 0;
         pingSend = performance.now();
         socket.emit('ping');
         if (settings.debug) {
@@ -1288,7 +1225,7 @@ setInterval(function() {
             document.getElementById('clientHeap').innerText = 'Heap: ' + Math.round(performance.memory.usedJSHeapSize/1048576*100)/100 + '/' + Math.round(performance.memory.jsHeapSizeLimit/1048576*100)/100 + 'MB';
         }
     }
-}, 1000);
+}, 500);
 socket.on('pong', function() {
     var current = performance.now();
     pingCounter = Math.round((current-pingSend)*100)/100;

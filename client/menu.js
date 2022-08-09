@@ -690,7 +690,10 @@ try {
             document.getElementById('fpsSlider').value = settings.fps;
             document.getElementById('renderDistanceSlider').value = settings.renderDistance;
             document.getElementById('renderQualitySlider').value = settings.renderQuality;
+            document.getElementById('optimizedParticlesToggle').checked = settings.optimizedParticles;
             document.getElementById('particlesToggle').checked = settings.particles;
+            document.getElementById('coloredLightsToggle').checked = settings.coloredLights;
+            document.getElementById('lightsToggle').checked = settings.lights;
             document.getElementById('dialogueSpeedSlider').value = settings.dialogueSpeed;
             // document.getElementById('pointerLockToggle').checked = settings.pointerLock;
             document.getElementById('useControllerToggle').checked = settings.useController;

@@ -9,7 +9,7 @@
                 },
                 {
                     "text": "*End conversation*",
-                    "action": "close_"
+                    "action": "close"
                 }
             ]
         },
@@ -40,7 +40,7 @@
             "options": [
                 {
                     "text": "*End conversation*",
-                    "action": "close_"
+                    "action": "close"
                 }
             ]
         }
@@ -51,7 +51,7 @@
             "options": [
                 {
                     "text": "Ok.",
-                    "action": "close_"
+                    "action": "close"
                 }
             ]
         }
@@ -94,7 +94,7 @@
                 },
                 {
                     "text": "*End conversation*",
-                    "action": "close_"
+                    "action": "close"
                 }
             ]
         },
@@ -103,7 +103,7 @@
             "options": [
                 {
                     "text": "Oh, thanks!",
-                    "action": "item_anniversarygift:1"
+                    "action": "continue"
                 }
             ]
         },
@@ -112,7 +112,7 @@
             "options": [
                 {
                     "text": "*End conversation*",
-                    "action": "script-end_function(self) {self.trackedData.oneTimeTempThing = true; setTimeout(function() {self.onDeath(null, 'fire'); insertChat('Friendly Fire: oops', 'color: #FF5500;');}, 3000);}"
+                    "action": "script-end_function(self) {if (self.trackedData.events.indexOf('anniversary1') == -1) {self.trackedData.events.push('anniversary1'); self.inventory.addItem('anniversary'); setTimeout(function() {self.onDeath(null, 'fire'); insertChat('Friendly Fire: oops', 'color: #FF5500;');}, 3000);}}"
                 }
             ]
         }

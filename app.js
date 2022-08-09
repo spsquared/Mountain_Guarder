@@ -14,7 +14,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-const version = 'v0.12.1';
+const version = 'v0.13.0';
 console.info('\x1b[?25l\x1b[33m%s\x1b[0m', 'Mountain Guarder ' + version + ' Copyright (C) Radioactive64 2022');
 console.info('For more information, type "copyright-details".');
 require('./server/log.js');
@@ -578,7 +578,7 @@ process.on('SIGINT', function() {
 
 // Tickrate
 TPS = 0;
-var tpscounter = 0;
+var tpsTimes = [];
 var consecutiveTimeouts = 0;
 TICKTIME = 0;
 // change to chunk-based pack for more efficiency and then convert back to list
@@ -657,7 +657,7 @@ const updateTicks = setInterval(function() {
             insertChat('[!] Server tick timed out! [!]', 'error');
             error('Server tick timed out!');
             consecutiveTimeouts++;
-            if (consecutiveTimeouts > 5) {
+            if (consecutiveTimeouts > 6) {
                 insertChat('[!] Internal server error! Resetting server... [!]', 'error');
                 error('Internal server error! Resetting server...');
                 Monster.list = [];
@@ -665,6 +665,14 @@ const updateTicks = setInterval(function() {
                 DroppedItem.list = [];
                 Particle.list = [];
                 MAPS.reload();
+            }
+            if (consecutiveTimeouts > 5) {
+                insertChat('[!] Internal server error! Removing projectiles... [!]', 'error');
+                error('Internal server error! Removing projectiles...');
+                Projectile.list = [];
+                for (var map in Projectile.chunks) {
+                    Projectile.chunks[map] = [];
+                }
             }
             if (consecutiveTimeouts > 4) {
                 insertChat('[!] Internal server error! Killing all monsters... [!]', 'error');
@@ -674,13 +682,11 @@ const updateTicks = setInterval(function() {
                 }
             }
         }
-        tpscounter++;
+        tpsTimes.push(performance.now());
+        performance.now()-tpsTimes[0] > 1000 && tpsTimes.shift();
+        TPS = tpsTimes.length;
     }
 }, 1000/20);
-setInterval(async function() {
-    TPS = tpscounter;
-    tpscounter = 0;
-}, 1000);
 
 // autosave
 const autoSave = setInterval(function() {

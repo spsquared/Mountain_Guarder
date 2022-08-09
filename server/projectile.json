@@ -7,11 +7,13 @@
         "damage": 1,
         "range": 3,
         "knockback": 0.2,
+        "contactEvents": [],
         "damageType": "ranged",
         "invincibilityFrame": 0,
         "deathMessage": "shot",
         "piercing": false,
-        "noCollision": false
+        "noCollision": false,
+        "patternUpdateSpeed": 0
     },
     "piercingarrow": {
         "width": 120,
@@ -20,12 +22,14 @@
         "pattern": "none",
         "damage": 1,
         "range": 3,
+        "contactEvents": [],
         "knockback": 0.1,
         "damageType": "ranged",
         "invincibilityFrame": 2,
         "deathMessage": "shot",
         "piercing": true,
-        "noCollision": false
+        "noCollision": false,
+        "patternUpdateSpeed": 0
     },
     "magicball": {
         "width": 40,
@@ -35,11 +39,13 @@
         "damage": 1,
         "range": 5,
         "knockback": 0,
+        "contactEvents": [],
         "damageType": "magic",
         "invincibilityFrame": 0,
         "deathMessage": "purpled to death",
         "piercing": false,
-        "noCollision": false
+        "noCollision": false,
+        "patternUpdateSpeed": 0
     },
     "magicballnoclip": {
         "width": 40,
@@ -49,39 +55,45 @@
         "damage": 1,
         "range": 5,
         "knockback": 0,
+        "contactEvents": [],
         "damageType": "magic",
         "invincibilityFrame": 0,
         "deathMessage": "purpled to death",
         "piercing": false,
-        "noCollision": true
+        "noCollision": true,
+        "patternUpdateSpeed": 0
     },
     "homingmagicball": {
         "width": 40,
         "height": 40,
         "speed": 20,
-        "pattern": "spin",
+        "pattern": "homing",
         "damage": 1,
         "range": 5,
         "knockback": 0,
+        "contactEvents": [],
         "damageType": "magic",
         "invincibilityFrame": 0,
         "deathMessage": "purpled to death",
         "piercing": false,
-        "noCollision": false
+        "noCollision": false,
+        "patternUpdateSpeed": 1
     },
     "homingmagicballnoclip": {
         "width": 40,
         "height": 40,
         "speed": 20,
-        "pattern": "spin",
+        "pattern": "homing",
         "damage": 1,
         "range": 5,
         "knockback": 0,
+        "contactEvents": [],
         "damageType": "magic",
         "invincibilityFrame": 0,
         "deathMessage": "purpled to death",
         "piercing": false,
-        "noCollision": true
+        "noCollision": true,
+        "patternUpdateSpeed": 1
     },
     "meleedamage": {
         "width": 100,
@@ -91,11 +103,52 @@
         "damage": 1,
         "range": 1,
         "knockback": 0.8,
+        "contactEvents": [],
         "damageType": "melee",
         "invincibilityFrame": 5,
         "deathMessage": "slain",
         "piercing": true,
-        "noCollision": true
+        "noCollision": true,
+        "patternUpdateSpeed": 0
+    },
+    "spike": {
+        "width": 36,
+        "height": 36,
+        "speed": 0,
+        "pattern": "none",
+        "damage": 1,
+        "range": 1,
+        "knockback": 0,
+        "contactEvents": [],
+        "damageType": "melee",
+        "invincibilityFrame": 8,
+        "deathMessage": "impaled",
+        "piercing": true,
+        "noCollision": true,
+        "patternUpdateSpeed": 0
+    },
+    "explosive": {
+        "width": 40,
+        "height": 40,
+        "speed": 20,
+        "pattern": "spin",
+        "damage": 1,
+        "range": 1,
+        "knockback": 1,
+        "contactEvents": [
+            {
+                "type": "explosion",
+                "data": {
+                    "size": 2
+                }
+            }
+        ],
+        "damageType": "melee",
+        "invincibilityFrame": 5,
+        "deathMessage": "impaled",
+        "piercing": false,
+        "noCollision": false,
+        "patternUpdateSpeed": 0
     },
     "ninjastar": {
         "width": 18,
@@ -105,11 +158,13 @@
         "damage": 5,
         "range": 4,
         "knockback": 0.2,
+        "contactEvents": [],
         "damageType": "ranged",
         "invincibilityFrame": 1,
         "deathMessage": "shurikened",
         "piercing": false,
-        "noCollision": false
+        "noCollision": false,
+        "patternUpdateSpeed": 0
     },
     "snowball": {
         "width": 18,
@@ -119,11 +174,13 @@
         "damage": 6,
         "range": 3,
         "knockback": 0.2,
+        "contactEvents": [],
         "damageType": "ranged",
         "invincibilityFrame": 1,
         "deathMessage": "snowballed",
         "piercing": false,
-        "noCollision": false
+        "noCollision": false,
+        "patternUpdateSpeed": 1
     },
     "fastsnowball": {
         "width": 18,
@@ -133,11 +190,13 @@
         "damage": 10,
         "range": 4,
         "knockback": 0.2,
+        "contactEvents": [],
         "damageType": "ranged",
         "invincibilityFrame": 1,
         "deathMessage": "snowballed",
         "piercing": false,
-        "noCollision": false
+        "noCollision": false,
+        "patternUpdateSpeed": 0
     },
     "rock": {
         "width": 24,
@@ -147,11 +206,13 @@
         "damage": 14,
         "range": 3,
         "knockback": 0.3,
+        "contactEvents": [],
         "damageType": "ranged",
         "invincibilityFrame": 2,
         "deathMessage": "pelted with rocks",
         "piercing": false,
-        "noCollision": false
+        "noCollision": false,
+        "patternUpdateSpeed": 1
     },
     "christmas2021": {
         "width": 60,
@@ -161,10 +222,12 @@
         "damage": 8,
         "range": 10,
         "knockback": 0.5,
+        "contactEvents": [],
         "damageType": "ranged",
         "invincibilityFrame": 1,
-        "deathMessage": "not festive enough",
+        "deathMessage": "made festive",
         "piercing": false,
-        "noCollision": true
+        "noCollision": true,
+        "patternUpdateSpeed": 1
     }
 }

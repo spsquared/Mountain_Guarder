@@ -171,7 +171,10 @@ Inventory.getRarityColor = function getRarityColor(rarity) {
             str = 'color: goldenrod;';
             break;
         case 'blucoin':
-            str = 'color: #3C70FF;'
+            str = 'color: #3C70FF;';
+            break;
+        case -2:
+            str = 'color: #3C70FF;';
             break;
         case -1:
             str = 'animation: christmas 2s infinite;';
@@ -184,6 +187,12 @@ Inventory.getRarityColor = function getRarityColor(rarity) {
             break;
         case 2:
             str = 'color: gold;';
+            break;
+        case 3:
+            str = 'color: #CDE6FA;';
+            break;
+        case 4:
+            str = 'color: #7E32C2;';
             break;
     }
     return str;
@@ -714,6 +723,9 @@ Shop = function(id) {
             costs.appendChild(costblock);
             counts[j] = costcount;
         }
+        costs.onwheel = function onwheel(e) {
+            console.log(e.deltaX, e.deltaY)
+        };
         const arrow = document.createElement('div');
         arrow.className = 'shopArrow';
         block.appendChild(arrow);

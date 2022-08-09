@@ -2,21 +2,9 @@
 
 const PF = require('pathfinding');
 const Cryptr = require('cryptr');
-// const { generateKeypairSync, privateDecrypt } = require('crypto');
 const { cloneDeep } = require('lodash');
 const { lock } = require('object-property-lock');
 const cryptr = new Cryptr('cachePasswordKey');
-// const { publicKey, privateKey } = generateKeypairSync('rsa', {
-//     modulusLength: 2048,
-//     publicKeyEncoding: {
-//         type: 'spki',
-//         format: 'pem'
-//     },
-//     privateKeyEncoding: {
-//         type: 'pkcs8',
-//         format: 'pem'
-//     }
-// });
 
 // entities
 Entity = function() {
@@ -388,6 +376,13 @@ Rig = function() {
         critPower: 1,
         knockback: 0
     };
+    self.shieldStats = {
+        knockbackResistance: 0,
+        blockAngle: 0,
+        reflectProjectileChance: 0
+    };
+    self.shield = false;
+    self.shieldAngle = 0;
     self.invincibilityFrames = {};
     self.hp = 100;
     self.maxHP = 100;
@@ -477,11 +472,10 @@ Rig = function() {
         }
         self.lastManaRegen++;
         self.lastManaUse++;
-        if (self.lastAutoManaRegen >= seconds(0.5) && self.lastManaUse < seconds(1.5) && self.alive) {
+        if (self.lastManaUse >= seconds(1.5) && self.alive) {
             self.mana = Math.min(self.mana+1, self.maxMana);
             self.lastManaRegen = 0;
-        }
-        if (self.lastManaUse >= seconds(1.5) && self.alive) {
+        } else if (self.lastManaRegen >= seconds(0.5) && self.alive) {
             self.mana = Math.min(self.mana+1, self.maxMana);
             self.lastManaRegen = 0;
         }
@@ -988,33 +982,52 @@ Rig = function() {
         if (!self.invincible) {
             switch (type) {
                 case 'projectile':
-                    if (self.invincibilityFrames[entity.type] == null) {
+                    var blocked = self.shield && Math.abs(self.shieldAngle-Math.atan2(-entity.yspeed, -entity.xspeed)) < degrees(self.shieldStats.blockAngle);
+                    if (self.invincibilityFrames[entity.type] == null && !blocked) {
                         self.hp -= Math.max(Math.round(((entity.damage+critHp)*(1-self.stats.defense))-self.stats.damageReduction), 0);
                         self.invincibilityFrames[entity.type] = entity.invincibilityFrame+1;
                     } else spawnParticles = false;
                     var rand = 0.5+Math.random();
-                    self.xknockback += entity.xspeed*entity.knockback*rand*(1-self.stats.knockbackResistance);
-                    self.yknockback += entity.yspeed*entity.knockback*rand*(1-self.stats.knockbackResistance);
+                    var multiplier = entity.knockback*rand*Math.max(0, 1-self.stats.knockbackResistance-(blocked?self.shieldStats.knockbackResistance:0));
+                    self.xknockback += entity.xspeed*multiplier;
+                    self.yknockback += entity.yspeed*multiplier;
+                    for (var i in entity.contactEvents) {
+                        if (Projectile.contactEvents[entity.contactEvents[i].type]) {
+                            Projectile.contactEvents[entity.contactEvents[i].type](entity, self, entity.contactEvents[i].data);
+                        }
+                    }
                     if (self.hp < 0) self.onDeath(parent, 'killed', entity.deathMessage);
                     break;
                 case 'touch':
-                    if (self.invincibilityFrames['touch'] == null) {
+                    var blocked = self.shield && Math.abs(self.shieldAngle-Math.atan2(self.y-entity.lasty, self.x-entity.lastx)) < degrees(self.shieldStats.blockAngle);
+                    if (self.invincibilityFrames['touch'] == null && !blocked) {
                         self.hp -= Math.max(Math.round(Math.floor((Math.random()*(entity.touchDamage/2))+(entity.touchDamage/2)+1)*(1-self.stats.defense))-self.stats.damageReduction, 0);
                         self.invincibilityFrames['touch'] = 2;
                     } else spawnParticles = false;
                     var rand = 0.5+Math.random();
-                    var angle = Math.atan2(self.y-entity.y, self.x-entity.x);
-                    self.xknockback += (Math.cos(angle)*rand*10+entity.xspeed*rand)*(1-self.stats.knockbackResistance);
-                    self.yknockback += (Math.cos(angle)*rand*10+entity.yspeed*rand)*(1-self.stats.knockbackResistance);
+                    var angle = Math.atan2(self.y-entity.y-entity.yspeed, self.x-entity.x-entity.xspeed);
+                    var multiplier = Math.max(0, 1-self.stats.knockbackResistance-(blocked?self.shieldStats.knockbackResistance:0));
+                    self.xknockback += (Math.cos(angle)*rand*10+entity.xspeed*rand)*multiplier;
+                    self.yknockback += (Math.sin(angle)*rand*10+entity.yspeed*rand)*multiplier;
                     if (self.hp < 0) self.onDeath(entity, 'killed');
                     break;
                 case 'cherrybomb':
-                    self.hp -= Math.max(Math.round((500*(1-self.stats.defense))-self.stats.damageReduction), 0);
+                    var blocked = self.shield && Math.abs(self.shieldAngle-Math.atan2(self.y-entity.lasty, self.x-entity.lastx)) < degrees(self.shieldStats.blockAngle);
+                    if (!blocked) self.hp -= Math.max(Math.round((500*(1-self.stats.defense))-self.stats.damageReduction), 0);
                     var rand = 0.5+Math.random();
-                    var angle = Math.atan2(self.y-entity.y, self.x-entity.x);
+                    var angle = Math.atan2(self.y-entity.y-entity.yspeed, self.x-entity.x-entity.xspeed);
                     self.xknockback += Math.cos(angle)*rand*40*(1-self.stats.knockbackResistance);
-                    self.yknockback += Math.cos(angle)*rand*40*(1-self.stats.knockbackResistance);
-                    if (self.hp < 0) self.onDeath(entity, 'killed', 'blown up');
+                    self.yknockback += Math.sin(angle)*rand*40*(1-self.stats.knockbackResistance);
+                    if (self.hp < 0) self.onDeath(entity, 'explosion');
+                    break;
+                case 'explosion':
+                    var blocked = self.shield && Math.abs(self.shieldAngle-Math.atan2(self.y-entity.lasty, self.x-entity.lastx)) < degrees(self.shieldStats.blockAngle);
+                    if (!blocked) self.hp -= Math.max(Math.round((80*entity.explosionSize*(1-self.stats.defense))-self.stats.damageReduction), 0);
+                    var rand = 0.5+Math.random();
+                    var angle = Math.atan2(self.y-entity.y-entity.yspeed, self.x-entity.x-entity.xspeed);
+                    self.xknockback += Math.cos(angle)*rand*10*entity.explosionSize*(1-self.stats.knockbackResistance);
+                    self.yknockback += Math.sin(angle)*rand*10*entity.explosionSize*(1-self.stats.knockbackResistance);
+                    if (self.hp < 0) self.onDeath(parent, 'explosion');
                     break;
                 default:
                     error('Invalid Entity type: ' + type);
@@ -1150,6 +1163,8 @@ Npc = function(id, x, y, map) {
         error(err);
         return false;
     }
+    self.conversationCount = 0;
+    self.shopCount = 0;
     self.aiControlled = true;
     self.collisionBoxSize = Math.max(self.width, self.height);
 
@@ -1159,18 +1174,26 @@ Npc = function(id, x, y, map) {
         self.updateAnimation();
     };
     self.startConversation = function startConversation(player, id) {
-        self.ai.frozen = true;
-        player.prompt(id, self.id);
+        if (!player.talking) {
+            self.ai.frozen = true;
+            self.conversationCount++;
+            player.prompt(id, self.id);
+        }
     };
     self.endConversation = function endConversation() {
-        self.ai.frozen = false;
+        self.conversationCount--;
+        if (self.conversationCount <= 0 && self.shopCount <= 0) self.ai.frozen = false;
     };
     self.openShop = function openShop(id, player) {
-        self.ai.frozen = true;
-        new Shop(id, player.socket, player.inventory, player);
+        if (!player.inShop) {
+            self.ai.frozen = true;
+            self.shopCount++;
+            new Shop(id, player.socket, player.inventory, player);
+        }
     };
-    self.closeShop = function closeShop(player) {
-        self.ai.frozen = false;
+    self.closeShop = function closeShop() {
+        self.shopCount--;
+        if (self.conversationCount <= 0 && self.shopCount <= 0) self.ai.frozen = false;
     };
     self.onDeath = function onDeath() {};
 
@@ -1254,7 +1277,6 @@ Player = function(socket) {
     self.animationDirection = 'facing';
     self.facingDirection = 'down';
     self.attacking = false;
-    self.secondary = false;
     self.disableSecond = false;
     self.lastHeal = 0;
     self.stats.heal = 8;
@@ -1293,6 +1315,8 @@ Player = function(socket) {
     };
     self.heldItem = {
         id: null,
+        shield: null,
+        usingShield: false,
         angle: 0
     };
     self.teleportLocation = {
@@ -1305,6 +1329,7 @@ Player = function(socket) {
     self.bcDeaths = true;
     self.canMove = false;
     self.talking = false;
+    self.inShop = false;
     self.currentConversation = {
         id: null,
         i: 0
@@ -1322,6 +1347,7 @@ Player = function(socket) {
         dps: 0,
         maxDPS: 0,
         bossesSlain: 0,
+        events: [],
         last: {},
         updateTrackers: function() {
             var delta = {
@@ -1559,7 +1585,8 @@ Player = function(socket) {
     socket.on('keyPress', async function(data) {
         if (typeof data == 'object' && data != null) {
             if (self.alive) {
-                self.controls[data.key] = data.state;
+                if (data.key == 'disableSecond') self.disableSecond = data.state;
+                else self.controls[data.key] = data.state;
             }
         } else {
             self.kick();
@@ -1573,10 +1600,9 @@ Player = function(socket) {
                     self.mouseX = data.x;
                     self.mouseY = data.y; 
                 } else if (data.button == 'right') {
-                    if (data.state) {
-                        self.interact(data.x, data.y);
-                    }
-                    self.secondary = data.state;
+                    data.state && self.interact(data.x, data.y);
+                    self.shield = data.state;
+                    self.heldItem.usingShield = data.state && self.inventory.equips.shield;
                     self.mouseX = data.x;
                     self.mouseY = data.y; 
                 }
@@ -1596,6 +1622,7 @@ Player = function(socket) {
     socket.on('controllerInput', async function(inputs) {
         if (typeof inputs == 'object' && inputs != null) {
             if (self.alive) {
+                if (Math.abs(inputs.movex) > 1 || Math.abs(inputs.movey) > 1) self.kick();
                 self.controls.xaxis = Math.round(inputs.movex*10)/10;
                 self.controls.yaxis = Math.round(inputs.movey*10)/10;
                 if (Math.abs(self.controls.xaxis) == 0.1) self.controls.xaxis = 0;
@@ -1603,7 +1630,7 @@ Player = function(socket) {
                 self.mouseX = inputs.aimx;
                 self.mouseY = inputs.aimy;
                 self.attacking = inputs.attack;
-                self.secondary = inputs.second;
+                self.shield = inputs.second;
                 self.disableSecond = inputs.disableSecond;
                 if (inputs.interacting) self.interact(self.mouseX, self.mouseY);
             }
@@ -1747,11 +1774,10 @@ Player = function(socket) {
         }
         self.lastManaRegen++;
         self.lastManaUse++;
-        if (self.lastAutoManaRegen >= seconds(0.5) && self.lastManaUse < seconds(1.5) && self.alive) {
+        if (self.lastManaUse >= seconds(1.5) && self.alive) {
             self.mana = Math.min(self.mana+1, self.maxMana);
             self.lastManaRegen = 0;
-        }
-        if (self.lastManaUse >= seconds(1.5) && self.alive) {
+        } else if (self.lastManaRegen >= seconds(0.5) && self.alive) {
             self.mana = Math.min(self.mana+1, self.maxMana);
             self.lastManaRegen = 0;
         }
@@ -1800,48 +1826,11 @@ Player = function(socket) {
     };
     self.updateUse = function updateUse(attack, stats) {
         attack.lastUse++;
-        if (self.attacking && !(attack.second && self.disableSecond) && attack.lastUse > attack.useTime && !self.region.noattack && attack.projectile != null && self.mana >= attack.manaCost && self.alive) {
+        if (self.attacking && !self.shield && !(attack.second && self.disableSecond) && attack.lastUse > attack.useTime && !self.region.noattack && attack.projectile != null && self.mana >= attack.manaCost && self.alive) {
             attack.lastUse = 0;
             var angle = Math.atan2(self.mouseY, self.mouseX);
-            switch (attack.projectilePattern) {
-                case 'single':
-                    new Projectile(attack.projectile, angle, stats, self.id);
-                    break;
-                case 'triple':
-                    new Projectile(attack.projectile, angle-degrees(20), stats, self.id);
-                    new Projectile(attack.projectile, angle, stats, self.id);
-                    new Projectile(attack.projectile, angle+degrees(20), stats, self.id);
-                    break;
-                case 'spray':
-                    for (var i = 0; i < 5; i++) {
-                        new Projectile(attack.projectile, angle+Math.random()*0.2-0.1, stats, self.id);
-                    }
-                    break;
-                case 'line':
-                    new Projectile(attack.projectile, angle, stats, self.id);
-                    new Projectile(attack.projectile, angle-degrees(180), stats, self.id);
-                    break;
-                case 'triangle':
-                    new Projectile(attack.projectile, angle-degrees(120), stats, self.id);
-                    new Projectile(attack.projectile, angle, stats, self.id);
-                    new Projectile(attack.projectile, angle+degrees(120), stats, self.id);
-                    break;
-                case 'ring':
-                    new Projectile(attack.projectile, angle, stats, self.id);
-                    new Projectile(attack.projectile, angle-degrees(36), stats, self.id);
-                    new Projectile(attack.projectile, angle-degrees(72), stats, self.id);
-                    new Projectile(attack.projectile, angle-degrees(108), stats, self.id);
-                    new Projectile(attack.projectile, angle-degrees(144), stats, self.id);
-                    new Projectile(attack.projectile, angle-degrees(180), stats, self.id);
-                    new Projectile(attack.projectile, angle-degrees(216), stats, self.id);
-                    new Projectile(attack.projectile, angle-degrees(252), stats, self.id);
-                    new Projectile(attack.projectile, angle-degrees(288), stats, self.id);
-                    new Projectile(attack.projectile, angle-degrees(324), stats, self.id);
-                    break;
-                default:
-                    error('Invalid projectilePattern ' + attack.projectilePattern);
-                    break;
-            }
+            typeof Player.usePatterns[attack.projectilePattern] == 'function' && Player.usePatterns[attack.projectilePattern](self, attack, stats, angle);
+            typeof Player.usePatterns[attack.projectilePattern] != 'function' && error('Invalid projectilePattern ' + attack.projectilePattern);
             self.mana -= attack.manaCost;
             if (attack.manaCost != 0) self.lastManaUse = 0;
         }
@@ -1969,6 +1958,11 @@ Player = function(socket) {
             knockback: 0,
             maxPierce: 0
         };
+        self.shieldStats = {
+            knockbackResistance: 0,
+            blockAngle: 0,
+            reflectProjectileChance: 0
+        };
         self.attack = {
             projectile: null,
             projectilePattern: 'single',
@@ -1986,6 +1980,7 @@ Player = function(socket) {
             second: true
         };
         self.heldItem.id = null;
+        self.heldItem.shield = null;
         self.maxHP = 100;
         self.moveSpeed = 15;
         if (self.inventory.equips.weapon) {
@@ -2018,6 +2013,13 @@ Player = function(socket) {
             self.crystalStats.range = item.projectileRange;
             self.crystal.useTime = item.useTime;
             self.crystal.manaCost = item.manaCost;
+        }
+        if (self.inventory.equips.shield) {
+            var item = self.inventory.equips.shield;
+            self.shieldStats.knockbackResistance = item.knockbackResistance;
+            self.shieldStats.blockAngle = item.blockAngle;
+            self.shieldStats.reflectProjectileChance = item.projectileReflectChance;
+            self.heldItem.shield = item.id;
         }
         for (var i in self.inventory.equips) {
             var localitem = self.inventory.equips[i];
@@ -2126,6 +2128,7 @@ Player = function(socket) {
     };
     self.prompt = function prompt(id, npcId) {
         self.attacking = false;
+        self.shield = false;
         self.canMove = false;
         self.invincible = true;
         self.controls = {
@@ -2143,6 +2146,7 @@ Player = function(socket) {
         self.currentConversation.id = id;
         socket.emit('prompt', self.currentConversation);
         self.talkingWith = npcId;
+        self.talking = true;
     };
     socket.on('promptChoose', function(choice) {
         if (self.currentConversation.id) {
@@ -2152,13 +2156,14 @@ Player = function(socket) {
                 if (action == 'continue') {
                     self.currentConversation.i++;
                     self.prompt(self.currentConversation.id, self.talkingWith);
-                } else if (action.startsWith('close_')) {
+                } else if (action == 'close') {
                     self.canMove = true;
                     self.invincible = false;
                     self.currentConversation.id = null;
                     self.currentConversation.i = 0;
                     if (Npc.list[self.talkingWith]) Npc.list[self.talkingWith].endConversation();
                     self.talkingWith = null;
+                    self.talking = false;
                 } else if (action.startsWith('prompt_')) {
                     self.prompt(action.replace('prompt_', ''), self.talkingWith);
                 } else if (action.startsWith('quest_')) {
@@ -2170,6 +2175,7 @@ Player = function(socket) {
                     if (self.quests.qualifiesFor(id)) self.quests.startQuest(id);
                     if (Npc.list[self.talkingWith]) Npc.list[self.talkingWith].endConversation();
                     self.talkingWith = null;
+                    self.talking = false;
                 } else if (action.startsWith('item_')) {
                     self.inventory.addItem(action.replace('item_', '').replace(action.substring(action.indexOf(':'), action.length), ''), action.substring(action.indexOf(':')+1, action.length));
                     self.currentConversation.i++;
@@ -2186,6 +2192,7 @@ Player = function(socket) {
                     self.currentConversation.i = 0;
                     if (Npc.list[self.talkingWith]) Npc.list[self.talkingWith].endConversation();
                     self.talkingWith = null;
+                    self.talking = false;
                 } else if (action.startsWith('talkedwith_')) {
                     self.canMove = true;
                     self.invincible = false;
@@ -2193,6 +2200,7 @@ Player = function(socket) {
                     self.currentConversation.i = 0;
                     self.talkedWith = action.replace('talkedwith_', '');
                     self.talkingWith = null;
+                    self.talking = false;
                 }
             } else {
                 self.kick();
@@ -2446,6 +2454,66 @@ Player.getDebugData = function getDebugData() {
 };
 Player.list = [];
 Player.chunks = [];
+Player.usePatterns = {
+    single: function(self, attack, stats, angle) {
+        new Projectile(attack.projectile, angle, stats, self.id);
+    },
+    triple: function(self, attack, stats, angle) {
+        new Projectile(attack.projectile, angle-degrees(20), stats, self.id);
+        new Projectile(attack.projectile, angle, stats, self.id);
+        new Projectile(attack.projectile, angle+degrees(20), stats, self.id);
+    },
+    spray: function(self, attack, stats, angle) {
+        for (var i = 0; i < 3; i++) {
+            new Projectile(attack.projectile, angle+Math.random()*0.2-0.1, stats, self.id);
+        }
+    },
+    spray2: function(self, attack, stats, angle) {
+        for (var i = 0; i < 5; i++) {
+            new Projectile(attack.projectile, angle+Math.random()*0.3-0.15, stats, self.id);
+        }
+    },
+    line: function(self, attack, stats, angle) {
+        new Projectile(attack.projectile, angle, stats, self.id);
+        new Projectile(attack.projectile, angle-degrees(180), stats, self.id);
+    },
+    triangle: function(self, attack, stats, angle) {
+        new Projectile(attack.projectile, angle-degrees(120), stats, self.id);
+        new Projectile(attack.projectile, angle, stats, self.id);
+        new Projectile(attack.projectile, angle+degrees(120), stats, self.id);
+    },
+    ring: function(self, attack, stats, angle) {
+        new Projectile(attack.projectile, angle, stats, self.id);
+        new Projectile(attack.projectile, angle-degrees(36), stats, self.id);
+        new Projectile(attack.projectile, angle-degrees(72), stats, self.id);
+        new Projectile(attack.projectile, angle-degrees(108), stats, self.id);
+        new Projectile(attack.projectile, angle-degrees(144), stats, self.id);
+        new Projectile(attack.projectile, angle-degrees(180), stats, self.id);
+        new Projectile(attack.projectile, angle-degrees(216), stats, self.id);
+        new Projectile(attack.projectile, angle-degrees(252), stats, self.id);
+        new Projectile(attack.projectile, angle-degrees(288), stats, self.id);
+        new Projectile(attack.projectile, angle-degrees(324), stats, self.id);
+    },
+    nearest: function(self, attack, stats, angle) {
+        var lowest, target;
+        if (Monster.chunks[self.map]) {
+            for (var z in Monster.chunks[self.map]) {
+                for (var y = self.chunky-1; y <= self.chunky+1; y++) {
+                    for (var x = self.chunkx-1; x <= self.chunkx+1; x++) {
+                        if (Monster.chunks[self.map][z][y] && Monster.chunks[self.map][z][y][x]) {
+                            var monsters = Monster.chunks[self.map][z][y][x];
+                            for (var i in monsters) {
+                                if (lowest == null || (self.getGridDistance(monsters[i]) < 20 && self.getGridDistance(monsters[i]) < self.getGridDistance(Monster.list[lowest]) && monsters[i].alive)) lowest = i;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        target = Monster.list[lowest];
+        new Projectile(attack.projectile, 0, stats, self.id, target.x, target.y);
+    }
+};
 
 // monsters
 Monster = function(type, x, y, map, layer) {
@@ -2707,7 +2775,7 @@ Monster = function(type, x, y, map, layer) {
                             if (Monster.chunks[self.map][z][y] && Monster.chunks[self.map][z][y][x]) {
                                 var monsters = Monster.chunks[self.map][self.layer][y][x];
                                 for (var i in monsters) {
-                                    if (monsters[i].map == self.map && self.getGridDistance(monsters[i]) < self.ai.maxRange  && (!self.rayCast(monsters[i].x, monsters[i].y) || self.getGridDistance(monsters[i]) < 4) && !monsters[i].region.nomonster && monsters[i].alive && (lowest == null || self.getGridDistance(monsters[i]) < self.getGridDistance(Monster.list[lowest]))) lowest = i;
+                                    if (self.getGridDistance(monsters[i]) < self.ai.maxRange  && (!self.rayCast(monsters[i].x, monsters[i].y) || self.getGridDistance(monsters[i]) < 4) && !monsters[i].region.nomonster && monsters[i].alive && (lowest == null || self.getGridDistance(monsters[i]) < self.getGridDistance(Monster.list[lowest]))) lowest = i;
                                 }
                             }
                         }
@@ -2732,7 +2800,7 @@ Monster = function(type, x, y, map, layer) {
                             if (Player.chunks[self.map][z][y] && Player.chunks[self.map][z][y][x]) {
                                 var players = Player.chunks[self.map][z][y][x];
                                 for (var i in players) {
-                                    if (players[i].map == self.map && self.getGridDistance(players[i]) < self.ai.maxRange  && (!self.rayCast(players[i].x, players[i].y) || self.getGridDistance(players[i]) < 4) && !players[i].region.nomonster && players[i].alive && (lowest == null || self.getGridDistance(players[i]) < self.getGridDistance(Player.list[lowest]))) lowest = i;
+                                    if (self.getGridDistance(players[i]) < self.ai.maxRange  && (!self.rayCast(players[i].x, players[i].y) || self.getGridDistance(players[i]) < 4) && !players[i].region.nomonster && players[i].alive && (lowest == null || self.getGridDistance(players[i]) < self.getGridDistance(Player.list[lowest]))) lowest = i;
                                 }
                             }
                         }
@@ -2751,149 +2819,8 @@ Monster = function(type, x, y, map, layer) {
     };
     self.attack = function attack() {
         self.ai.lastAttack++;
-        switch (self.ai.attackType) {
-            case 'triggeredcherrybomb':
-                if (self.ai.attackTime == 0) {
-                    self.moveSpeed = 0;
-                    self.invincible = true;
-                    self.alive = false;
-                    self.animationStage = 0;
-                    self.animationLength = 10;
-                    self.onDeath = function onDeath() {};
-                }
-                self.ai.attackTime++;
-                if (self.ai.attackTime >= seconds(0.2)) {
-                    self.ai.attackType = 'exploding';
-                    for (var i = 0; i < 100; i++) {
-                        new Particle(self.map, self.x, self.y, 'explosion');
-                    }
-                    for (var i in Monster.list) {
-                        if (parseFloat(i) != self.id && self.getDistance(Monster.list[i]) <= 64) {
-                            if (Monster.list[i].ai.attackType == 'cherrybomb') {
-                                Monster.list[i].ai.attackType = 'triggeredcherrybomb';
-                                Monster.list[i].ai.attackTime = 0;
-                            } else if (Monster.list[i].ai.attackType != 'triggeredcherrybomb' && Monster.list[i].alive) {
-                                Monster.list[i].onDeath(self, 'explosion');
-                            }
-                        } else if (parseFloat(i) != self.id && self.getDistance(Monster.list[i]) <= 128) {
-                            if (Monster.list[i].ai.attackType != 'cherrybomb' && Monster.list[i].ai.attackType != 'triggeredcherrybomb' && Monster.list[i].alive) {
-                                Monster.list[i].onHit(self, 'cherrybomb');
-                            }
-                        }
-                    }
-                    for (var i in Player.list) {
-                        if (self.getDistance(Player.list[i]) <= 64 && Player.list[i].alive) Player.list[i].onDeath(self, 'cherrybomb');
-                        else if (self.getDistance(Player.list[i]) <= 128 && Player.list[i].alive) Player.list[i].onHit(self, 'explosion');
-                    }
-                }
-                break;
-            case 'exploding':
-                if (self.animationStage >= 10) {
-                    delete Monster.list[self.id];
-                    if (Monster.chunks[self.chunkLocation.map] && Monster.chunks[self.chunkLocation.map][self.chunkLocation.layer] && Monster.chunks[self.chunkLocation.map][self.chunkLocation.layer][self.chunkLocation.chunky] && Monster.chunks[self.chunkLocation.map][self.chunkLocation.layer][self.chunkLocation.chunky][self.chunkLocation.chunkx]) delete Monster.chunks[self.chunkLocation.map][self.chunkLocation.layer][self.chunkLocation.chunky][self.chunkLocation.chunkx][self.id];
-                    else error('Could not delete monster from chunks!');
-                }
-                break;
-            case 'snowball':
-                if (self.ai.lastAttack >= seconds(4)) {
-                    self.ai.attackStage++;
-                    if (self.ai.attackStage == 20) {
-                        self.ai.attackStage = 0;
-                        self.ai.lastAttack = 0;
-                        self.animationLength = 0;
-                        self.moveSpeed = 10;
-                    }
-                }
-                break;
-        }
-        if (self.ai.entityTarget && !self.region.noattack) {
-            switch (self.ai.attackType) {
-                case 'bird':
-                    if (self.ai.lastAttack > seconds(1)) {
-                        if (self.ai.attackStage == 5) {
-                            var angle = Math.atan2(self.ai.entityTarget.y-self.y, self.ai.entityTarget.x-self.x);
-                            new Projectile('ninjastar', angle+Math.random()*0.2-0.1, self.stats, self.id);
-                            self.ai.attackStage = 0;
-                            self.ai.lastAttack = 0;
-                        }
-                        if (self.ai.attackStage == 1) {
-                            var angle = Math.atan2(self.ai.entityTarget.y-self.y, self.ai.entityTarget.x-self.x);
-                            new Projectile('ninjastar', angle+Math.random()*0.2-0.1, self.stats, self.id);
-                        }
-                        self.ai.attackStage++;
-                    }
-                    break;
-                case 'snowbird':
-                    if (self.ai.lastAttack > seconds(1)) {
-                        if (self.ai.attackStage == 1) {
-                            var angle = Math.atan2(self.ai.entityTarget.y-self.y, self.ai.entityTarget.x-self.x);
-                            new Projectile('fastsnowball', angle+Math.random()*0.2-0.1, self.stats, self.id);
-                        } else if (self.ai.attackStage == 5) {
-                            var angle = Math.atan2(self.ai.entityTarget.y-self.y, self.ai.entityTarget.x-self.x);
-                            new Projectile('fastsnowball', angle+Math.random()*0.2-0.1, self.stats, self.id);
-                            self.ai.attackStage = 0;
-                            self.ai.lastAttack = 0;
-                        }
-                        self.ai.attackStage++;
-                    }
-                    break;
-                case 'cherrybomb':
-                    if (self.getDistance(self.ai.entityTarget) < 64) {
-                        self.ai.attackType = 'triggeredcherrybomb';
-                        self.ai.attackTime = 0;
-                    }
-                    break;
-                case 'triggeredcherrybomb':
-                    break;
-                case 'exploding':
-                    break;
-                case 'snowball':
-                    if (self.ai.lastAttack >= seconds(4)) {
-                        if (self.ai.attackStage == 1) {
-                            self.animationLength = 7;
-                            self.animationSpeed = 100;
-                            self.moveSpeed = 16;
-                        }
-                        var angle = 16*self.ai.attackStage;
-                        new Projectile('snowball', degrees(angle), self.stats, self.id);
-                        new Projectile('snowball', degrees(angle-90), self.stats, self.id);
-                        new Projectile('snowball', degrees(angle-180), self.stats, self.id);
-                        new Projectile('snowball', degrees(angle-270), self.stats, self.id);
-                    }
-                    break;
-                case 'cavebird':
-                    if (self.ai.lastAttack > seconds(1.5)) {
-                        if (self.ai.attackStage == 1) {
-                            var angle = Math.atan2(self.ai.entityTarget.y-self.y, self.ai.entityTarget.x-self.x);
-                            new Projectile('rock', angle+Math.random()*0.3-0.15, self.stats, self.id);
-                        } else if (self.ai.attackStage == 3) {
-                            var angle = Math.atan2(self.ai.entityTarget.y-self.y, self.ai.entityTarget.x-self.x);
-                            new Projectile('rock', angle+Math.random()*0.3-0.15, self.stats, self.id);
-                        } else if (self.ai.attackStage == 5) {
-                            var angle = Math.atan2(self.ai.entityTarget.y-self.y, self.ai.entityTarget.x-self.x);
-                            new Projectile('rock', angle+Math.random()*0.3-0.15, self.stats, self.id);
-                            self.ai.attackStage = 0;
-                            self.ai.lastAttack = 0;
-                        }
-                        self.ai.attackStage++;
-                    }
-                    break;
-                case 'ram':
-                    if ((self.ai.lastAttack > seconds(2) && self.getGridDistance(self.ai.entityTarget) < 2) || self.ai.attackStage != 0) {
-                        self.ai.lastAttack = 0;
-                        var angle = Math.atan2(self.ai.entityTarget.y-self.y, self.ai.entityTarget.x-self.x);
-                        self.ai.charge = {
-                            x: Math.cos(angle)*20,
-                            y: Math.sin(angle)*20,
-                            time: 2
-                        };
-                    }
-                    break;
-                default:
-                    error('Invalid attack type: ' + self.ai.attackType);
-                    break;
-            }
-        }
+        typeof Monster.attacks[self.ai.attackType] == 'function' && Monster.attacks[self.ai.attackType](self);
+        typeof Monster.attacks[self.ai.attackType] != 'function' && error('Invalid monster attack type "' + self.ai.attackType + '"');
     };
     const oldOnHit = self.onHit;
     self.onHit = function onHit(entity, type) {
@@ -3098,14 +3025,180 @@ Monster.getDebugData = function getDebugData() {
 Monster.types = require('./monster.json');
 Monster.list = [];
 Monster.chunks = [];
+Monster.attacks = {
+    bird: function(self) {
+        if (self.ai.entityTarget && !self.region.noattack) {
+            if (self.ai.lastAttack > seconds(1)) {
+                if (self.ai.attackStage == 5) {
+                    var angle = Math.atan2(self.ai.entityTarget.y-self.y, self.ai.entityTarget.x-self.x);
+                    new Projectile('ninjastar', angle+Math.random()*0.2-0.1, self.stats, self.id);
+                    self.ai.attackStage = 0;
+                    self.ai.lastAttack = 0;
+                }
+                if (self.ai.attackStage == 1) {
+                    var angle = Math.atan2(self.ai.entityTarget.y-self.y, self.ai.entityTarget.x-self.x);
+                    new Projectile('ninjastar', angle+Math.random()*0.2-0.1, self.stats, self.id);
+                }
+                self.ai.attackStage++;
+            }
+        }
+    },
+    snowbird: function(self) {
+        if (self.ai.entityTarget && !self.region.noattack) {
+            if (self.ai.lastAttack > seconds(1)) {
+                if (self.ai.attackStage == 1) {
+                    var angle = Math.atan2(self.ai.entityTarget.y-self.y, self.ai.entityTarget.x-self.x);
+                    new Projectile('fastsnowball', angle+Math.random()*0.2-0.1, self.stats, self.id);
+                } else if (self.ai.attackStage == 5) {
+                    var angle = Math.atan2(self.ai.entityTarget.y-self.y, self.ai.entityTarget.x-self.x);
+                    new Projectile('fastsnowball', angle+Math.random()*0.2-0.1, self.stats, self.id);
+                    self.ai.attackStage = 0;
+                    self.ai.lastAttack = 0;
+                }
+                self.ai.attackStage++;
+            }
+        }
+    },
+    cherrybomb: function(self) {
+        if (self.ai.entityTarget && !self.region.noattack) {
+            if (self.getDistance(self.ai.entityTarget) < 64) {
+                self.ai.attackType = 'triggeredcherrybomb';
+                self.ai.attackTime = 0;
+            }
+        }
+    },
+    triggeredcherrybomb: function(self) {
+        if (self.ai.attackTime == 0) {
+            self.moveSpeed = 0;
+            self.invincible = true;
+            self.alive = false;
+            self.animationStage = 0;
+            self.animationLength = 10;
+            self.onDeath = function onDeath() {};
+        }
+        self.ai.attackTime++;
+        if (self.ai.attackTime >= seconds(0.2)) {
+            self.ai.attackType = 'exploding';
+            for (var i = 0; i < 100; i++) {
+                new Particle(self.map, self.x, self.y, 'explosion');
+            }
+            if (Monster.chunks[self.map]) {
+                for (var z in Monster.chunks[self.map]) {
+                    for (var y = self.chunky-1; y <= self.chunky+1; y++) {
+                        for (var x = self.chunkx-1; x <= self.chunkx+1; x++) {
+                            if (Monster.chunks[self.map][z][y] && Monster.chunks[self.map][z][y][x]) {
+                                var monsters = Monster.chunks[self.map][z][y][x];
+                                for (var i in monsters) {
+                                    if (parseFloat(i) != self.id && self.getDistance(monsters[i]) <= 64) {
+                                        if (monsters[i].ai.attackType == 'cherrybomb') {
+                                            monsters[i].ai.attackType = 'triggeredcherrybomb';
+                                            monsters[i].ai.attackTime = 0;
+                                        } else if (monsters[i].ai.attackType != 'triggeredcherrybomb' && monsters[i].alive) {
+                                            monsters[i].onDeath(self, 'explosion');
+                                        }
+                                    } else if (parseFloat(i) != self.id && self.getDistance(monsters[i]) <= 128) {
+                                        if (monsters[i].ai.attackType != 'cherrybomb' && monsters[i].ai.attackType != 'triggeredcherrybomb' && monsters[i].alive) {
+                                            monsters[i].onHit(self, 'cherrybomb');
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if (Player.chunks[self.map]) {
+                for (var z in Player.chunks[self.map]) {
+                    for (var y = self.chunky-1; y <= self.chunky+1; y++) {
+                        for (var x = self.chunkx-1; x <= self.chunkx+1; x++) {
+                            if (Player.chunks[self.map][z][y] && Player.chunks[self.map][z][y][x]) {
+                                var players = Player.chunks[self.map][z][y][x];
+                                for (var i in players) {
+                                    if (self.getDistance(players[i]) <= 64 && players[i].alive) players[i].onDeath(self, 'explosion');
+                                    else if (self.getDistance(players[i]) <= 128 && players[i].alive) players[i].onHit(self, 'cherrybomb');
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    exploding: function(self) {
+        if (self.animationStage >= 10) {
+            delete Monster.list[self.id];
+            if (Monster.chunks[self.chunkLocation.map] && Monster.chunks[self.chunkLocation.map][self.chunkLocation.layer] && Monster.chunks[self.chunkLocation.map][self.chunkLocation.layer][self.chunkLocation.chunky] && Monster.chunks[self.chunkLocation.map][self.chunkLocation.layer][self.chunkLocation.chunky][self.chunkLocation.chunkx]) delete Monster.chunks[self.chunkLocation.map][self.chunkLocation.layer][self.chunkLocation.chunky][self.chunkLocation.chunkx][self.id];
+            else error('Could not delete monster from chunks!');
+        }
+    },
+    snowball: function(self) {
+        if (self.ai.lastAttack >= seconds(4)) {
+            self.ai.attackStage++;
+            if (self.ai.attackStage == 20) {
+                self.ai.attackStage = 0;
+                self.ai.lastAttack = 0;
+                self.animationLength = 0;
+                self.moveSpeed = 10;
+            }
+        }
+        if (self.ai.entityTarget && !self.region.noattack) {
+            if (self.ai.lastAttack >= seconds(4)) {
+                if (self.ai.attackStage == 1) {
+                    self.animationLength = 7;
+                    self.animationSpeed = 100;
+                    self.moveSpeed = 16;
+                }
+                var angle = 16*self.ai.attackStage;
+                new Projectile('snowball', degrees(angle), self.stats, self.id);
+                new Projectile('snowball', degrees(angle-90), self.stats, self.id);
+                new Projectile('snowball', degrees(angle-180), self.stats, self.id);
+                new Projectile('snowball', degrees(angle-270), self.stats, self.id);
+            }
+        }
+    },
+    cavebird: function(self) {
+        if (self.ai.entityTarget && !self.region.noattack) {
+            if (self.ai.lastAttack > seconds(1.5)) {
+                if (self.ai.attackStage == 1) {
+                    var angle = Math.atan2(self.ai.entityTarget.y-self.y, self.ai.entityTarget.x-self.x);
+                    new Projectile('rock', angle+Math.random()*0.3-0.15, self.stats, self.id);
+                } else if (self.ai.attackStage == 3) {
+                    var angle = Math.atan2(self.ai.entityTarget.y-self.y, self.ai.entityTarget.x-self.x);
+                    new Projectile('rock', angle+Math.random()*0.3-0.15, self.stats, self.id);
+                } else if (self.ai.attackStage == 5) {
+                    var angle = Math.atan2(self.ai.entityTarget.y-self.y, self.ai.entityTarget.x-self.x);
+                    new Projectile('rock', angle+Math.random()*0.3-0.15, self.stats, self.id);
+                    self.ai.attackStage = 0;
+                    self.ai.lastAttack = 0;
+                }
+                self.ai.attackStage++;
+            }
+        }
+    },
+    ram: function(self) {
+        if (self.ai.entityTarget && !self.region.noattack) {
+            if ((self.ai.lastAttack > seconds(2) && self.getGridDistance(self.ai.entityTarget) < 2) || self.ai.attackStage != 0) {
+                self.ai.lastAttack = 0;
+                var angle = Math.atan2(self.ai.entityTarget.y-self.y, self.ai.entityTarget.x-self.x);
+                self.ai.charge = {
+                    x: Math.cos(angle)*20,
+                    y: Math.sin(angle)*20,
+                    time: 2
+                };
+            }
+        }
+    }
+};
 
 // projectiles
-Projectile = function(type, angle, stats, parentID) {
+Projectile = function(type, angle, stats, parentID, x, y) {
     var self = new Entity();
     self.entType = 'projectile';
     self.type = type;
     self.pierced = 0;
     self.maxPierce = 0;
+    self.patternUpdateSpeed = 0;
+    self.lastPatternUpdate = 0;
     try {
         var tempprojectile = Projectile.types[type];
         self.type = type;
@@ -3116,11 +3209,13 @@ Projectile = function(type, angle, stats, parentID) {
         self.noCollision = tempprojectile.noCollision;
         self.maxRange = tempprojectile.range;
         self.knockback = tempprojectile.knockback;
+        self.contactEvents = tempprojectile.contactEvents;
         self.damageType = tempprojectile.damageType;
         self.invincibilityFrame = tempprojectile.invincibilityFrame;
         self.deathMessage = tempprojectile.deathMessage;
-        self.pattern = Projectile.patterns[tempprojectile.pattern];
+        self.pattern = Projectile.patterns[tempprojectile.pattern] ?? function() {error('Invalid projectile pattern "' + tempprojectile.pattern + '"');};
         self.piercing = tempprojectile.piercing;
+        self.patternUpdateSpeed = tempprojectile.patternUpdateSpeed;
         tempprojectile = null;
     } catch (err) {
         error(err);
@@ -3132,8 +3227,8 @@ Projectile = function(type, angle, stats, parentID) {
     if (Monster.list[self.parentID]) self.parentIsPlayer = false;
     var parent = Player.list[self.parentID] ?? Monster.list[self.parentID];
     try {
-        self.x = parent.x;
-        self.y = parent.y;
+        self.x = x ?? parent.x;
+        self.y = y ?? parent.y;
         self.map = parent.map;
         self.layer = parent.layer;
         self.damage *= stats.attack;
@@ -3171,7 +3266,10 @@ Projectile = function(type, angle, stats, parentID) {
         if (self.toDelete) {
             delete Projectile.list[self.id];
             if (Projectile.chunks[self.chunkLocation.map] && Projectile.chunks[self.chunkLocation.map][self.chunkLocation.layer] && Projectile.chunks[self.chunkLocation.map][self.chunkLocation.layer][self.chunkLocation.chunky] && Projectile.chunks[self.chunkLocation.map][self.chunkLocation.layer][self.chunkLocation.chunky][self.chunkLocation.chunkx]) delete Projectile.chunks[self.chunkLocation.map][self.chunkLocation.layer][self.chunkLocation.chunky][self.chunkLocation.chunkx][self.id];
-            else error('Could not delete projectile from chunks!');
+            else {
+                error('Could not delete projectile from chunks!');
+                console.log(self.chunkLocation)
+            }
             return;
         }
         if (Player.list[self.parentID] == null && Monster.list[self.parentID] == null) {
@@ -3224,7 +3322,8 @@ Projectile = function(type, angle, stats, parentID) {
         }
     };
     self.updatePos = function updatePos() {
-        self.pattern(self);
+        self.lastPatternUpdate++;
+        self.lastPatternUpdate > self.patternUpdateSpeed && self.pattern(self);
         self.collide();
         self.updateChunkLocation();
         return self.checkPointCollision() && !self.noCollision;
@@ -3386,12 +3485,15 @@ Projectile.types = require('./projectile.json');
 Projectile.list = [];
 Projectile.chunks = [];
 Projectile.patterns = {
-    none: function(self) {},
+    none: function(self) {
+        self.lastPatternUpdate = 0;
+    },
     spin: function(self) {
         self.angle += degrees(25);
         self.sinAngle = Math.sin(self.angle);
         self.cosAngle = Math.cos(self.angle);
         self.collisionBoxSize = Math.max(Math.abs(self.sinAngle*self.height)+Math.abs(self.cosAngle*self.width), Math.abs(self.cosAngle*self.height)+Math.abs(self.sinAngle*self.width));
+        self.lastPatternUpdate = 0;
     },
     homing: function(self) {
         self.angle += degrees(25);
@@ -3400,21 +3502,33 @@ Projectile.patterns = {
         self.collisionBoxSize = Math.max(Math.abs(self.sinAngle*self.height)+Math.abs(self.cosAngle*self.width), Math.abs(self.cosAngle*self.height)+Math.abs(self.sinAngle*self.width));
         var lowest, target;
         if (self.parentIsPlayer) {
-            for (var i in Monster.list) {
-                if (Monster.list[i].map == self.map && Monster.list[i].alive) {
-                    if (lowest == null) lowest = i;
-                    if (self.getGridDistance(Monster.list[i]) < self.getGridDistance(Monster.list[lowest])) {
-                        lowest = i;
+            if (Monster.chunks[self.map]) {
+                for (var z in Monster.chunks[self.map]) {
+                    for (var y = self.chunky-2; y <= self.chunky+2; y++) {
+                        for (var x = self.chunkx-2; x <= self.chunkx+2; x++) {
+                            if (Monster.chunks[self.map][z][y] && Monster.chunks[self.map][z][y][x]) {
+                                var monsters = Monster.chunks[self.map][z][y][x];
+                                for (var i in monsters) {
+                                    if (lowest == null || (self.getGridDistance(monsters[i]) < self.getGridDistance(Monster.list[lowest]) && monsters[i].alive)) lowest = i;
+                                }
+                            }
+                        }
                     }
                 }
             }
             target = Monster.list[lowest];
         } else {
-            for (var i in Player.list) {
-                if (Player.list[i].map == self.map && Player.list[i].alive) {
-                    if (lowest == null) lowest = i;
-                    if (self.getGridDistance(Player.list[i]) < self.getGridDistance(Player.list[lowest])) {
-                        lowest = i;
+            if (Player.chunks[self.map]) {
+                for (var z in Player.chunks[self.map]) {
+                    for (var y = self.chunky-2; y <= self.chunky+2; y++) {
+                        for (var x = self.chunkx-2; x <= self.chunkx+2; x++) {
+                            if (Player.chunks[self.map][z][y] && Player.chunks[self.map][z][y][x]) {
+                                var players = Player.chunks[self.map][z][y][x];
+                                for (var i in players) {
+                                    if (lowest == null || (self.getGridDistance(players[i]) < self.getGridDistance(Player.list[lowest]) && players[i].alive)) lowest = i;
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -3428,25 +3542,38 @@ Projectile.patterns = {
         self.sinAngle = Math.sin(self.angle);
         self.cosAngle = Math.cos(self.angle);
         self.collisionBoxSize = Math.max(Math.abs(self.sinAngle*self.height)+Math.abs(self.cosAngle*self.width), Math.abs(self.cosAngle*self.height)+Math.abs(self.sinAngle*self.width));
+        self.lastPatternUpdate = 0;
     },
     homing2: function(self) {
         var lowest, target;
         if (self.parentIsPlayer) {
-            for (var i in Monster.list) {
-                if (Monster.list[i].map == self.map && Monster.list[i].alive) {
-                    if (lowest == null) lowest = i;
-                    if (self.getGridDistance(Monster.list[i]) < self.getGridDistance(Monster.list[lowest])) {
-                        lowest = i;
+            if (Monster.chunks[self.map]) {
+                for (var z in Monster.chunks[self.map]) {
+                    for (var y = self.chunky-2; y <= self.chunky+2; y++) {
+                        for (var x = self.chunkx-2; x <= self.chunkx+2; x++) {
+                            if (Monster.chunks[self.map][z][y] && Monster.chunks[self.map][z][y][x]) {
+                                var monsters = Monster.chunks[self.map][z][y][x];
+                                for (var i in monsters) {
+                                    if (lowest == null || (self.getGridDistance(monsters[i]) < self.getGridDistance(Monster.list[lowest]) && monsters[i].alive)) lowest = i;
+                                }
+                            }
+                        }
                     }
                 }
             }
             target = Monster.list[lowest];
         } else {
-            for (var i in Player.list) {
-                if (Player.list[i].map == self.map && Player.list[i].alive) {
-                    if (lowest == null) lowest = i;
-                    if (self.getGridDistance(Player.list[i]) < self.getGridDistance(Player.list[lowest])) {
-                        lowest = i;
+            if (Player.chunks[self.map]) {
+                for (var z in Player.chunks[self.map]) {
+                    for (var y = self.chunky-2; y <= self.chunky+2; y++) {
+                        for (var x = self.chunkx-2; x <= self.chunkx+2; x++) {
+                            if (Player.chunks[self.map][z][y] && Player.chunks[self.map][z][y][x]) {
+                                var players = Player.chunks[self.map][z][y][x];
+                                for (var i in players) {
+                                    if (lowest == null || (self.getGridDistance(players[i]) < self.getGridDistance(Player.list[lowest]) && players[i].alive)) lowest = i;
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -3454,21 +3581,28 @@ Projectile.patterns = {
         }
         if (target) {
             var angle = Math.atan2(target.y-self.y, target.x-self.x);
-            self.angle += Math.min(0.2, Math.max(angle-self.angle, -0.2));
+            self.angle += Math.min(0.5, Math.max(angle-self.angle, -0.5));
             self.xspeed = Math.cos(self.angle)*self.moveSpeed;
             self.yspeed = Math.sin(self.angle)*self.moveSpeed;
             self.sinAngle = Math.sin(self.angle);
             self.cosAngle = Math.cos(self.angle);
             self.collisionBoxSize = Math.max(Math.abs(self.sinAngle*self.height)+Math.abs(self.cosAngle*self.width), Math.abs(self.cosAngle*self.height)+Math.abs(self.sinAngle*self.width));
         }
+        self.lastPatternUpdate = 0;
     },
     enchantHoming: function(self) {
         var lowest, target;
-        for (var i in Monster.list) {
-            if (Monster.list[i].map == self.map && Monster.list[i].alive) {
-                if (lowest == null) lowest = i;
-                if (self.getGridDistance(Monster.list[i]) < self.getGridDistance(Monster.list[lowest])) {
-                    lowest = i;
+        if (Monster.chunks[self.map]) {
+            for (var z in Monster.chunks[self.map]) {
+                for (var y = self.chunky-2; y <= self.chunky+2; y++) {
+                    for (var x = self.chunkx-2; x <= self.chunkx+2; x++) {
+                        if (Monster.chunks[self.map][z][y] && Monster.chunks[self.map][z][y][x]) {
+                            var monsters = Monster.chunks[self.map][z][y][x];
+                            for (var i in monsters) {
+                                if (lowest == null || (self.getGridDistance(monsters[i]) < self.getGridDistance(Player.list[lowest]) && monsters[i].alive)) lowest = i;
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -3482,34 +3616,37 @@ Projectile.patterns = {
             self.cosAngle = Math.cos(self.angle);
             self.collisionBoxSize = Math.max(Math.abs(self.sinAngle*self.height)+Math.abs(self.cosAngle*self.width), Math.abs(self.cosAngle*self.height)+Math.abs(self.sinAngle*self.width));
         }
+        self.lastPatternUpdate = 0;
     },
     follow: function(self) {
         var parent = Player.list[self.parentID] ?? Monster.list[self.parentID];
-        if (parent) {
+        if (parent != null) {
             self.x = parent.x;
             self.y = parent.y;
-            self.x += Math.cos(self.angle)*(self.width/2+4);
-            self.y += Math.sin(self.angle)*(self.width/2+4);
+            self.x += self.cosAngle*(self.width/2+4);
+            self.y += self.sinAngle*(self.width/2+4);
             self.xspeed = self.cosAngle;
             self.yspeed = self.sinAngle;
             self.frozen = true;
         }
+        self.lastPatternUpdate = 0;
     },
     followDir: function(self) {
         var parent = Player.list[self.parentID] ?? Monster.list[self.parentID];
-        if (parent) {
+        if (parent != null) {
             self.x = parent.x;
             self.y = parent.y;
             if (parent.heldItem) self.angle = parent.heldItem.angle;
             self.sinAngle = Math.sin(self.angle);
             self.cosAngle = Math.cos(self.angle);
             self.collisionBoxSize = Math.max(Math.abs(self.sinAngle*self.height)+Math.abs(self.cosAngle*self.width), Math.abs(self.cosAngle*self.height)+Math.abs(self.sinAngle*self.width));
-            self.x += Math.cos(self.angle)*(self.width/2+4);
-            self.y += Math.sin(self.angle)*(self.width/2+4);
+            self.x += self.cosAngle*(self.width/2+4);
+            self.y += self.sinAngle*(self.width/2+4);
             self.xspeed = self.cosAngle;
             self.yspeed = self.sinAngle;
             self.frozen = true;
         }
+        self.lastPatternUpdate = 0;
     },
     orbit: function(self) {
         var parent = Player.list[self.parentID] ?? Monster.list[self.parentID];
@@ -3525,6 +3662,53 @@ Projectile.patterns = {
             self.xspeed = self.cosAngle;
             self.yspeed = self.sinAngle;
             self.frozen = true;
+        }
+        self.lastPatternUpdate = 0;
+    }
+};
+Projectile.contactEvents = {
+    explosion: function(self, entity, data) {
+        var parent = Player.list[self.parentID] ?? Monster.list[self.parentID];
+        for (var i = 0; i < data.size*15; i++) {
+            new Particle(self.map, self.x, self.y, 'explosion');
+        }
+        self.explosionSize = data.size;
+        if (Monster.chunks[self.map]) {
+            for (var z in Monster.chunks[self.map]) {
+                for (var y = self.chunky-1; y <= self.chunky+1; y++) {
+                    for (var x = self.chunkx-1; x <= self.chunkx+1; x++) {
+                        if (Monster.chunks[self.map][z][y] && Monster.chunks[self.map][z][y][x]) {
+                            var monsters = Monster.chunks[self.map][z][y][x];
+                            for (var i in monsters) {
+                                if (parseFloat(i) != self.id && self.getDistance(monsters[i]) <= 20*data.size) {
+                                    if (monsters[i].ai.attackType != 'cherrybomb' && monsters[i].ai.attackType != 'triggeredcherrybomb' && monsters[i].alive) {
+                                        monsters[i].onHit(self, 'explosion');
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (Player.chunks[self.map]) {
+            for (var z in Player.chunks[self.map]) {
+                for (var y = self.chunky-1; y <= self.chunky+1; y++) {
+                    for (var x = self.chunkx-1; x <= self.chunkx+1; x++) {
+                        if (Player.chunks[self.map][z][y] && Player.chunks[self.map][z][y][x]) {
+                            var players = Player.chunks[self.map][z][y][x];
+                            for (var i in players) {
+                                if (self.getDistance(players[i]) <= 20*data.size && players[i].alive) players[i].onHit(self, 'explosion');
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    effect: function(self, entity, data) {
+        if (entity) {
+            // do things here
         }
     }
 };

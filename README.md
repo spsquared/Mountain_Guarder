@@ -95,6 +95,7 @@ If you can't resolve your problem after trying these solutions or your problem i
 | 0.11.1   | <ul><li>Switched to correct collison script</li><li>Fixed pathfinding</li><li>Patched negative item dropping</li></ul> |
 | 0.12.0   | <ul><li>Added the Abandoned Mineshaft and expanded map</li><li>Added new monsters - found in the Abandoned Mineshaft</li><li>Added Ialite</li><li>Added lights</li><li>Buffed Steel Bow & added Titanium Bow</li><li>Revamped map to be more accurate to real life</li><li>Added new resources</li><li>Bob's forge can be used to craft steel items</li><li>Added touch damage</li><li>Added more death messages</li><li>Fixed instant kills with melee weapons</li><li>Added monster friendly fire</li><li>Added "Optimized Particles" setting</li><li>Added bridge tiles</li><li>Fixed slowdowns</li><li>Fixed layer rendering issues</li><li>Monsters now have death particles again</li><li>Added invincibility frames</li><li>Patched absurdly high crit power</li><li>Did not implement layer pathfinding</li><li>Patched negative item taking</li><li>Added physics accuracy property to ENV - lowers physics resolution to increase performance (higher is faster)</li><li>Patched account spam - accounts must play for more than 5 minutes to be considered valid</li><li>Optimizations</li></ul> |
 | 0.12.1   | <ul><li>Fixed Ialite Shard texture</li><li>Fixed incorrect touch damage knockback</li></ul> |
+| 0.13.0   | <ul><li>Added the limited-time Anniversary Item</li><li>Added shields</li><li>Decreased held item size</li><li>Added quartz & quartz crystal</li><li>Added projectile contact effects</li><li>Ialite now has a rarity color</li><li>Item rebalance</li><li>Fixed mana regen</li><li>Fixed settings loading</li><li>Patched server crash from speed hack exploit</li><li>Fixed knockback directions on touch damage and explosions</li><li>Patched opening shops while in a shop</li><li>Modified server timeout actions</li><li>Optimizations</li></ul> |
 
 ***
 
@@ -115,8 +116,8 @@ Full license can be found in the LICENSE file.
 
 ##### Resources:
 - Various articles on the internet
-- [ScriptersWar](https://www.youtube.com/channel/UC8Yp-YagXZ4C5vOduEhcjRw) [tutorial series](https://www.youtube.com/playlist?list=PLcIaPHraYF7k4FbeGIDY-1mZZdjTu9QyL)
 - [Meadow Guarder](https://github.com/maitian352/Meadow-Guarder-old)
+- [ScriptersWar](https://www.youtube.com/channel/UC8Yp-YagXZ4C5vOduEhcjRw) [tutorial series](https://www.youtube.com/playlist?list=PLcIaPHraYF7k4FbeGIDY-1mZZdjTu9QyL)
 - [Kinney](https://www.kenney.nl/)
 
 ***
@@ -128,7 +129,7 @@ To report a bug, you can submit a [submit a bug report](https://github.com/defin
 ***
 
 Games by [Radioactive64](https://github.com/definitely-nobody-is-here/) and [Maitian](https://github.com/maitian352/):
-<ul><li><a href="https://mountainguarder.herokuapp.com/" target="_blank">Mountain Guarder</a></li><li><a href="https://meadowguarder.herokuapp.com/" target="_blank">Meadow Guarder</a></li><li><a href="https://meadowguarderold.herokuapp.com/" target="_blank">Meadow Guarder Old</a></li><li><a href="https://bobguarder.herokuapp.com/" target="_blank">Bob Guarder</a></li><li><a href="https://battleboxes.herokuapp.com/" target="_blank">BattleBoxes Multiplayer</a></li><li><a href="https://cubieworld.herokuapp.com/" target="_blank">CubieWorld</a></li><li><a href="https://platformertemplate.herokuapp.com/" target="_blank">Platformer Template</a></li><li><a href="https://still-mesa-50010.herokuapp.com/" target="_blank">Maitian Game</a></li></ul>
+<ul><li><a href="https://mountainguarder.herokuapp.com/" target="_blank">Mountain Guarder</a></li><li><a href="https://meadowguarder.herokuapp.com/" target="_blank">Meadow Guarder</a></li><li><a href="https://meadowguarderold.herokuapp.com/" target="_blank">Meadow Guarder Old</a></li><li><a href="https://oceanguarder.herokuapp.com/" target="_blank">Ocean Guarder</a></li><li><a href="https://bobguarder.herokuapp.com/" target="_blank">Bob Guarder</a></li><li><a href="https://battleboxes2.herokuapp.com/" target="_blank">BattleBoxes Multiplayer</a></li><li><a href="https://cubieworld.herokuapp.com/" target="_blank">CubieWorld</a></li><li><a href="https://platformertemplate.herokuapp.com/" target="_blank">Platformer Template</a></li><li><a href="https://still-mesa-50010.herokuapp.com/" target="_blank">Maitian Game</a></li></ul>
 
 ***
 

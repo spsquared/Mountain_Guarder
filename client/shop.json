@@ -77,6 +77,16 @@
                 "costs": {
                     "silvercoin": 3
                 }
+            },
+            {
+                "item": {
+                    "id": "woodenshield",
+                    "amount": 1,
+                    "enchantments": []
+                },
+                "costs": {
+                    "silvercoin": 2
+                }
             }
         ]
     },
@@ -134,6 +144,7 @@
                     "enchantments": []
                 },
                 "costs": {
+                    "sticks": 2,
                     "coal": 1,
                     "iron": 1
                 }
@@ -145,8 +156,21 @@
                     "enchantments": []
                 },
                 "costs": {
+                    "sticks": 2,
                     "coal": 1,
                     "iron": 2
+                }
+            },
+            {
+                "item": {
+                    "id": "steelshield",
+                    "amount": 1,
+                    "enchantments": []
+                },
+                "costs": {
+                    "planks": 3,
+                    "coal": 1,
+                    "iron": 3
                 }
             }
         ]

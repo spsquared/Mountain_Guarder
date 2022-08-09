@@ -205,8 +205,8 @@
             "damageType": "ranged",
             "projectileSpeed": 1,
             "attack": 1.5,
-            "defense": 0.1,
-            "damageReduction": 2,
+            "defense": 0,
+            "damageReduction": 3,
             "knockbackResistance": 0.1,
             "heal": 0,
             "speed": 1,
@@ -265,11 +265,12 @@
         "animationLength": 1,
         "xpDrop": 15,
         "drops": {
-            "nothing": 10,
-            "coins": 20,
-            "stone": 30,
-            "ironore": 1,
-            "coal": 2
+            "nothing": 15,
+            "coins": 30,
+            "stone": 40,
+            "ironore": 3,
+            "coal": 8,
+            "quartz": 1
         },
         "coinDrops": {
             "coppercoin": 50,
@@ -315,6 +316,7 @@
             "coins": 50,
             "ironore": 2,
             "coal": 5,
+            "quartz": 1,
             "ialiteshard": 1
         },
         "coinDrops": {

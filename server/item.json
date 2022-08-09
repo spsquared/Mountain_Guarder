@@ -62,6 +62,13 @@
         "effects": [],
         "enchantments": []
     },
+    "quartz": {
+        "slotType": "material",
+        "rarity": 3,
+        "maxStackSize": 80,
+        "effects": [],
+        "enchantments": []
+    },
     "coal": {
         "slotType": "material",
         "rarity": 0,
@@ -158,11 +165,11 @@
         "effects": [
             {
                 "id": "rangedDamage",
-                "value": 1.1
+                "value": 1.02
             },
             {
                 "id": "meleeDamage",
-                "value": 0.9
+                "value": 0.98
             },
             {
                 "id": "magicDamage",
@@ -193,11 +200,11 @@
             },
             {
                 "id": "meleeDamage",
-                "value": 0.9
+                "value": 0.92
             },
             {
                 "id": "magicDamage",
-                "value": 1.1
+                "value": 1.02
             },
             {
                 "id": "critChance",
@@ -220,15 +227,15 @@
         "effects": [
             {
                 "id": "rangedDamage",
-                "value": 0.8
+                "value": 0.95
             },
             {
                 "id": "meleeDamage",
-                "value": 11
+                "value": 1.05
             },
             {
                 "id": "magicDamage",
-                "value": 0.8
+                "value": 0.95
             },
             {
                 "id": "critChance",
@@ -262,6 +269,16 @@
             "swiftness",
             "protection"
         ]
+    },
+    "woodenshield": {
+        "slotType": "shield",
+        "rarity": 0,
+        "maxStackSize": 1,
+        "knockbackResistance": 0.2,
+        "blockAngle": 90,
+        "projectileReflectChance": 0,
+        "effects": [],
+        "enchantments": []
     },
     "steelbow": {
         "slotType": "weapon",
@@ -363,15 +380,15 @@
         "effects": [
             {
                 "id": "rangedDamage",
-                "value": 0.9
+                "value": 0.95
             },
             {
                 "id": "meleeDamage",
-                "value": 0.8
+                "value": 0.86
             },
             {
                 "id": "magicDamage",
-                "value": 1.2
+                "value": 1.1
             },
             {
                 "id": "critPower",
@@ -392,15 +409,15 @@
         "effects": [
             {
                 "id": "rangedDamage",
-                "value": 1.2
+                "value": 1.1
             },
             {
                 "id": "meleeDamage",
-                "value": 0.8
+                "value": 0.9
             },
             {
                 "id": "magicDamage",
-                "value": 0.9
+                "value": 0.95
             }
         ],
         "enchantments": [
@@ -420,7 +437,7 @@
             },
             {
                 "id": "meleeDamage",
-                "value": 1.2
+                "value": 1.15
             },
             {
                 "id": "magicDamage",
@@ -463,6 +480,35 @@
             "swiftness",
             "protection",
             "smashing"
+        ]
+    },
+    "steelshield": {
+        "slotType": "shield",
+        "rarity": 1,
+        "maxStackSize": 1,
+        "knockbackResistance": 0.3,
+        "blockAngle": 105,
+        "projectileReflectChance": 0.02,
+        "effects": [],
+        "enchantments": [
+            "toughness"
+        ]
+    },
+    "stoneshield": {
+        "slotType": "shield",
+        "rarity": 1,
+        "maxStackSize": 1,
+        "knockbackResistance": 0.5,
+        "blockAngle": 105,
+        "projectileReflectChance": 0.01,
+        "effects": [
+            {
+                "id": "speed",
+                "value": 0.9
+            }
+        ],
+        "enchantments": [
+            "toughness"
         ]
     },
     "titaniumbow": {
@@ -513,16 +559,43 @@
             "focus"
         ]
     },
+    "quartzcrystal": {
+        "slotType": "crystal",
+        "rarity": 3,
+        "maxStackSize": 1,
+        "projectile": "spike",
+        "projectilePattern": "nearest",
+        "projectileSpeed": 1,
+        "projectileRange": 1,
+        "damage": 14,
+        "damageType": "melee",
+        "critChance": 0,
+        "critPower": 0,
+        "knockback": 1,
+        "useTime": 40,
+        "manaCost": 5,
+        "effects": [
+            {
+                "id": "meleeDamage",
+                "value": 1.05
+            },
+            {
+                "id": "critPower",
+                "value": 1.02
+            }
+        ],
+        "enchantments": []
+    },
     "ialiteshard": {
         "slotType": "material",
-        "rarity": 3,
+        "rarity": 4,
         "maxStackSize": 20,
         "effects": [],
         "enchantments": []
     },
     "ialitecrystal": {
         "slotType": "crystal",
-        "rarity": 3,
+        "rarity": 4,
         "maxStackSize": 1,
         "projectile": "magicball",
         "projectilePattern": "ring",
@@ -646,32 +719,26 @@
     "anniversary": {
         "slotType": "weapon",
         "rarity": -2,
-        "projectile": "homingmagicballnoclip",
-        "projectilePattern": "ring",
-        "projectileSpeed": 1,
-        "projectileRange": 1,
-        "damage": 1,
-        "damageType": "magic",
-        "critChance": 0.01,
-        "critPower": 0.5,
-        "knockback": 1,
-        "useTime": 30,
-        "manaCost": 40,
         "maxStackSize": 1,
+        "projectile": "explosive",
+        "projectilePattern": "triangle",
+        "projectileSpeed": 1,
+        "projectileRange": 2,
+        "damage": 20,
+        "damageType": "ranged",
+        "critChance": 0,
+        "critPower": 0,
+        "knockback": 1,
+        "useTime": 20,
+        "manaCost": 0,
         "effects": [
             {
-                "id": "damageReduction",
-                "value": -10
+                "id": "defense",
+                "value": 0.1
             }
         ],
         "enchantments": [
-            "swiftness",
-            "speed",
-            "accuracy",
-            "power",
-            "efficiency",
-            "sorcery",
-            "focus"
+            "swiftness"
         ]
     }
 }

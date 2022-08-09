@@ -4,6 +4,8 @@
         "height": 15,
         "rawWidth": 40,
         "rawHeight": 5,
+        "offsetX": 0,
+        "offsetY": 0,
         "glow": false,
         "above": false
     },
@@ -12,6 +14,8 @@
         "height": 15,
         "rawWidth": 40,
         "rawHeight": 5,
+        "offsetX": 0,
+        "offsetY": 0,
         "glow": false,
         "above": false
     },
@@ -20,6 +24,8 @@
         "height": 36,
         "rawWidth": 9,
         "rawHeight": 9,
+        "offsetX": 0,
+        "offsetY": 0,
         "glow": {
             "radius": 48,
             "color": {
@@ -36,6 +42,8 @@
         "height": 36,
         "rawWidth": 9,
         "rawHeight": 9,
+        "offsetX": 0,
+        "offsetY": 0,
         "glow": {
             "radius": 48,
             "color": {
@@ -52,6 +60,8 @@
         "height": 36,
         "rawWidth": 9,
         "rawHeight": 9,
+        "offsetX": 0,
+        "offsetY": 0,
         "glow": {
             "radius": 48,
             "color": {
@@ -68,6 +78,8 @@
         "height": 36,
         "rawWidth": 9,
         "rawHeight": 9,
+        "offsetX": 0,
+        "offsetY": 0,
         "glow": {
             "radius": 48,
             "color": {
@@ -84,6 +96,28 @@
         "height": 0,
         "rawWidth": 0,
         "rawHeight": 0,
+        "offsetX": 0,
+        "offsetY": 0,
+        "glow": false,
+        "above": false
+    },
+    "spike": {
+        "width": 36,
+        "height": 81,
+        "rawWidth": 12,
+        "rawHeight": 27,
+        "offsetX": 0,
+        "offsetY": -20,
+        "glow": false,
+        "above": false
+    },
+    "explosive": {
+        "width": 40,
+        "height": 40,
+        "rawWidth": 10,
+        "rawHeight": 10,
+        "offsetX": 0,
+        "offsetY": 0,
         "glow": false,
         "above": false
     },
@@ -92,6 +126,8 @@
         "height": 22,
         "rawWidth": 11,
         "rawHeight": 11,
+        "offsetX": 0,
+        "offsetY": 0,
         "glow": false,
         "above": false
     },
@@ -100,6 +136,8 @@
         "height": 18,
         "rawWidth": 9,
         "rawHeight": 9,
+        "offsetX": 0,
+        "offsetY": 0,
         "glow": false,
         "above": false
     },
@@ -108,6 +146,8 @@
         "height": 18,
         "rawWidth": 9,
         "rawHeight": 9,
+        "offsetX": 0,
+        "offsetY": 0,
         "glow": false,
         "above": false
     },
@@ -116,6 +156,8 @@
         "height": 24,
         "rawWidth": 12,
         "rawHeight": 12,
+        "offsetX": 0,
+        "offsetY": 0,
         "glow": false,
         "above": false
     },
@@ -124,6 +166,8 @@
         "height": 20,
         "rawWidth": 15,
         "rawHeight": 5,
+        "offsetX": 0,
+        "offsetY": 0,
         "glow": {
             "radius": 64,
             "color": {

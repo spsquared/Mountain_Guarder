@@ -3,7 +3,7 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "Caves.tmx",
+    "activeFile": "World.tmx",
     "expandedProjectPaths": [
     ],
     "exportAsImage.useCurrentScale": false,
@@ -157,8 +157,8 @@
             "scale": 1.5,
             "selectedLayer": 6,
             "viewCenter": {
-                "x": 794.6666666666667,
-                "y": -162.33333333333331
+                "x": 0,
+                "y": 4
             }
         },
         "NaN.tmx": {
@@ -197,8 +197,8 @@
             "scale": 3,
             "selectedLayer": 3,
             "viewCenter": {
-                "x": 159.99999999999997,
-                "y": 100.16666666666666
+                "x": 160,
+                "y": 100
             }
         },
         "Pingu's Cave.tmx": {
@@ -226,11 +226,11 @@
             }
         },
         "World.tmx": {
-            "scale": 2,
-            "selectedLayer": 29,
+            "scale": 3,
+            "selectedLayer": 21,
             "viewCenter": {
-                "x": 201.5,
-                "y": 191.75
+                "x": 162.33333333333331,
+                "y": 163.5
             }
         },
         "roguelikeSheet.tsx": {
@@ -271,7 +271,6 @@
     "recentFiles": [
         "tiles.tsx",
         "The Void.tmx",
-        "World.tmx",
         "Pingu's Cave.tmx",
         "Preview.tmx",
         "NaN.tmx",
@@ -279,6 +278,7 @@
         "Outpost Cottage 2.tmx",
         "Outpost Cottage 1.tmx",
         "Caves.tmx",
+        "World.tmx",
         "roguelikeSheet.tsx",
         "C:/Users/jacki/Google Drive/mountainguarder(dev)/coins.tsx"
     ],

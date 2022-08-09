@@ -628,6 +628,7 @@ Shop = function(id, socket, inventory, player) {
         y: 0,
         heal: false
     };
+    player.inShop = true;
     player.animationDirection = 'facing';
     
     socket.once('shop', function listener(data) {
@@ -683,6 +684,7 @@ Shop = function(id, socket, inventory, player) {
     self.close = function close() {
         player.canMove = true;
         player.invincible = false;
+        player.inShop = false;
     };
     socket.emit('shop', {
         id: self.id

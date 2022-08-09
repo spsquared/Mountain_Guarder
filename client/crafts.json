@@ -65,6 +65,22 @@
             "showWhenCraftable": false
         },
         {
+            "item": "woodenshield",
+            "amount": 1,
+            "resources": {
+                "planks": 4
+            },
+            "showWhenCraftable": true
+        },
+        {
+            "item": "quartzcrystal",
+            "amount": 1,
+            "resources": {
+                "quartz": 12
+            },
+            "showWhenCraftable": true
+        },
+        {
             "item": "ialitecrystal",
             "amount": 1,
             "resources": {

@@ -829,12 +829,11 @@ Spawner = function(map, x, y, layer, types) {
                 new Particle(self.map, self.x, self.y, 'spawn');
             }
             var localmonster = new Monster(monstertype, self.x, self.y, self.map, self.layer);
-            localmonster.spawnerID = self.id;
             const onDeath = localmonster.onDeath;
             localmonster.onDeath = function modified_onDeath(entity, type) {
                 onDeath(entity, type);
                 try {
-                    Spawner.list[localmonster.spawnerID].onMonsterDeath();
+                    self.onMonsterDeath();
                 } catch (err) {
                     error(err);
                 }

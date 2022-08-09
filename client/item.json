@@ -62,6 +62,13 @@
         "rarity": 0,
         "effects": []
     },
+    "quartz": {
+        "name": "Quartz",
+        "description": "Raw quartz crystals",
+        "slotType": "material",
+        "rarity": 3,
+        "effects": []
+    },
     "coal": {
         "name": "Coal",
         "description": "Bituminous coal, good for smelting",
@@ -96,7 +103,7 @@
         "useTime": "10",
         "manaCost": "0",
         "heldAngle": -45,
-        "heldDistance": 32,
+        "heldDistance": 24,
         "effects": []
     },
     "simplewoodensword": {
@@ -112,7 +119,7 @@
         "useTime": 15,
         "manaCost": 0,
         "heldAngle": 45,
-        "heldDistance": 64,
+        "heldDistance": 48,
         "effects": []
     },
     "simplewoodenstaff": {
@@ -128,7 +135,7 @@
         "useTime": 10,
         "manaCost": 10,
         "heldAngle": 45,
-        "heldDistance": 64,
+        "heldDistance": 48,
         "effects": []
     },
     "leatherhood": {
@@ -139,15 +146,19 @@
         "effects": [
             {
                 "id": "rangedDamage",
-                "value": 1.1
+                "value": 1.02
             },
             {
                 "id": "meleeDamage",
-                "value": 0.9
+                "value": 0.98
             },
             {
                 "id": "magicDamage",
                 "value": 0.7
+            },
+            {
+                "id": "range",
+                "value": 1.1
             },
             {
                 "id": "critChance",
@@ -167,11 +178,11 @@
             },
             {
                 "id": "meleeDamage",
-                "value": 0.9
+                "value": 0.92
             },
             {
                 "id": "magicDamage",
-                "value": 1.1
+                "value": 1.02
             },
             {
                 "id": "critChance",
@@ -191,15 +202,15 @@
         "effects": [
             {
                 "id": "rangedDamage",
-                "value": 0.8
+                "value": 0.95
             },
             {
                 "id": "meleeDamage",
-                "value": 1.1
+                "value": 1.05
             },
             {
                 "id": "magicDamage",
-                "value": 0.8
+                "value": 0.95
             },
             {
                 "id": "critChance",
@@ -207,7 +218,7 @@
             },
             {
                 "id": "damageReduction",
-                "value": 5
+                "value": 1
             }
         ]
     },
@@ -227,6 +238,13 @@
             }
         ]
     },
+    "woodenshield": {
+        "name": "Wooden Shield",
+        "description": "A basic shield of planks",
+        "slotType": "shield",
+        "rarity": 0,
+        "effects": []
+    },
     "steelbow": {
         "name": "Steel Bow",
         "description": "A simple bow forged from steel",
@@ -240,7 +258,7 @@
         "useTime": 10,
         "manaCost": 0,
         "heldAngle": -45,
-        "heldDistance": 32,
+        "heldDistance": 24,
         "effects": []
     },
     "steelbroadsword": {
@@ -256,7 +274,7 @@
         "useTime": 12,
         "manaCost": 0,
         "heldAngle": 45,
-        "heldDistance": 64,
+        "heldDistance": 48,
         "effects": []
     },
     "steelcutlass": {
@@ -272,7 +290,7 @@
         "useTime": 20,
         "manaCost": 0,
         "heldAngle": 45,
-        "heldDistance": 64,
+        "heldDistance": 48,
         "effects": []
     },
     "steelstaff": {
@@ -288,7 +306,7 @@
         "useTime": 8,
         "manaCost": 9,
         "heldAngle": 45,
-        "heldDistance": 64,
+        "heldDistance": 48,
         "effects": []
     },
     "simplewizardhat": {
@@ -299,15 +317,15 @@
         "effects": [
             {
                 "id": "rangedDamage",
-                "value": 0.9
+                "value": 0.95
             },
             {
                 "id": "meleeDamage",
-                "value": 0.9
+                "value": 0.86
             },
             {
                 "id": "magicDamage",
-                "value": 1.2
+                "value": 1.1
             },
             {
                 "id": "critPower",
@@ -323,15 +341,15 @@
         "effects": [
             {
                 "id": "rangedDamage",
-                "value": 1.2
+                "value": 1.1
             },
             {
                 "id": "meleeDamage",
-                "value": 0.8
+                "value": 0.9
             },
             {
                 "id": "magicDamage",
-                "value": 0.9
+                "value": 0.95
             }
         ]
     },
@@ -347,7 +365,7 @@
             },
             {
                 "id": "meleeDamage",
-                "value": 1.2
+                "value": 1.15
             },
             {
                 "id": "magicDamage",
@@ -355,7 +373,7 @@
             },
             {
                 "id": "damageReduction",
-                "value": 3
+                "value": 2
             },
             {
                 "id": "defense",
@@ -383,6 +401,25 @@
             }
         ]
     },
+    "steelshield": {
+        "name": "Steel Shield",
+        "description": "A shield reinforced with steel plating",
+        "slotType": "shield",
+        "rarity": 1,
+        "effects": []
+    },
+    "stoneshield": {
+        "name": "Stone Shield",
+        "description": "A shield reinforced with a stone slab",
+        "slotType": "shield",
+        "rarity": 1,
+        "effects": [
+            {
+                "id": "speed",
+                "value": 0.9
+            }
+        ]
+    },
     "titaniumbow": {
         "name": "Titanium Bow",
         "description": "A titanium cast of the Steel Bow. The higher quality allows it to shoot fast piercing arrows.",
@@ -396,7 +433,7 @@
         "useTime": 11,
         "manaCost": 0,
         "heldAngle": -45,
-        "heldDistance": 32,
+        "heldDistance": 24,
         "effects": []
     },
     "titaniumstaff": {
@@ -412,8 +449,33 @@
         "useTime": 8,
         "manaCost": 10,
         "heldAngle": 45,
-        "heldDistance": 64,
+        "heldDistance": 48,
         "effects": []
+    },
+    "quartzcrystal": {
+        "name": "Quartz Crystal",
+        "description": "Impales the nearest monster with a sudden stalagmite",
+        "slotType": "crystal",
+        "rarity": 3,
+        "damage": 14,
+        "damageType": "melee",
+        "critChance": 0,
+        "critPower": 0,
+        "knockback": 1,
+        "useTime": 30,
+        "manaCost": 5,
+        "heldAngle": -45,
+        "heldDistance": 24,
+        "effects": [
+            {
+                "id": "meleeDamage",
+                "value": 1.05
+            },
+            {
+                "id": "critPower",
+                "value": 1.02
+            }
+        ]
     },
     "ialiteshard": {
         "name": "Ialite Shard",
@@ -435,7 +497,7 @@
         "useTime": 30,
         "manaCost": 12,
         "heldAngle": -45,
-        "heldDistance": 32,
+        "heldDistance": 24,
         "effects": [
             {
                 "id": "health",
@@ -468,7 +530,7 @@
         "useTime": 20,
         "manaCost": 0,
         "heldAngle": 45,
-        "heldDistance": 48,
+        "heldDistance": 36,
         "effects": [
             {
                 "id": "speed",
@@ -514,11 +576,32 @@
         "useTime": 20,
         "manaCost": 8,
         "heldAngle": 90,
-        "heldDistance": 48,
+        "heldDistance": 36,
         "effects": [
             {
                 "id": "damageReduction",
                 "value": -10
+            }
+        ]
+    },
+    "anniversary": {
+        "name": "1-Year Anniversary Thing",
+        "description": "Celebrate Mountain Guarder's first anniversary by blowing up some monsters!",
+        "slotType": "weapon",
+        "rarity": -2,
+        "damage": 20,
+        "damageType": "ranged",
+        "critChance": 0,
+        "critPower": 0,
+        "knockback": 1,
+        "useTime": 20,
+        "manaCost": 0,
+        "heldAngle": 90,
+        "heldDistance": 36,
+        "effects": [
+            {
+                "id": "defense",
+                "value": 0.1
             }
         ]
     }

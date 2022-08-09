@@ -173,8 +173,9 @@ Player = function(id, map, x, y, name, isNPC, npcId) {
     self.layer = 0;
     self.heldItem = {
         id: null,
+        shieldId: null,
         angle: 0,
-        image: new Image()
+        usingShield: false,
     };
     self.isNPC = false;
     if (isNPC) self.isNPC = true;
@@ -207,21 +208,41 @@ Player = function(id, map, x, y, name, isNPC, npcId) {
         self.hp = data.hp;
         self.maxHP = data.maxHP;
         self.heldItem = data.heldItem;
-        if (self.heldItem) self.heldItem.image = Inventory.itemImages[self.heldItem.id];
         self.updated = true;
     };
     self.draw = function draw() {
-        if (!self.isNPC && self.heldItem && self.heldItem.image) {
+        if (!self.isNPC && self.heldItem.angle <= 0) {
             LAYERS.elayers[self.layer].save();
-            LAYERS.elayers[self.layer].translate(self.x+OFFSETX, self.y+OFFSETY);
+            LAYERS.elayers[self.layer].translate(self.x+OFFSETX, self.y-8+OFFSETY);
             LAYERS.elayers[self.layer].rotate(self.heldItem.angle);
-            LAYERS.elayers[self.layer].translate(Inventory.itemTypes[self.heldItem.id].heldDistance, 0);
-            LAYERS.elayers[self.layer].rotate(Inventory.itemTypes[self.heldItem.id].heldAngle*(Math.PI/180));
-            LAYERS.elayers[self.layer].drawImage(self.heldItem.image, -32, -32, 64, 64);
+            if (self.heldItem.id && !self.heldItem.usingShield) {
+                LAYERS.elayers[self.layer].translate(Inventory.itemTypes[self.heldItem.id].heldDistance, 0);
+                LAYERS.elayers[self.layer].rotate(Inventory.itemTypes[self.heldItem.id].heldAngle*(Math.PI/180));
+                LAYERS.elayers[self.layer].drawImage(Inventory.itemImages[self.heldItem.id], -24, -24, 48, 48);
+            } else if (self.heldItem.shield && self.heldItem.usingShield) {
+                LAYERS.elayers[self.layer].translate(32, 0);
+                LAYERS.elayers[self.layer].rotate(-90*(Math.PI/180));
+                LAYERS.elayers[self.layer].drawImage(Inventory.itemImages[self.heldItem.shield], -32, -32, 64, 32);
+            }
             LAYERS.elayers[self.layer].restore();
         }
         if (self.characterStyle.texture) LAYERS.elayers[self.layer].drawImage(self.animationImage, self.x-self.animationImage.width*2+OFFSETX, self.y-self.animationImage.height*2+OFFSETY, self.animationImage.width*4, self.animationImage.height*4);
         else LAYERS.elayers[self.layer].drawImage(self.animationImage, (self.animationStage % 6)*8, (~~(self.animationStage / 6))*16, 8, 16, self.x-16+OFFSETX, self.y-52+OFFSETY, 32, 64);
+        if (!self.isNPC && self.heldItem.angle > 0) {
+            LAYERS.elayers[self.layer].save();
+            LAYERS.elayers[self.layer].translate(self.x+OFFSETX, self.y-8+OFFSETY);
+            LAYERS.elayers[self.layer].rotate(self.heldItem.angle);
+            if (self.heldItem.id && !self.heldItem.usingShield) {
+                LAYERS.elayers[self.layer].translate(Inventory.itemTypes[self.heldItem.id].heldDistance, 0);
+                LAYERS.elayers[self.layer].rotate(Inventory.itemTypes[self.heldItem.id].heldAngle*(Math.PI/180));
+                LAYERS.elayers[self.layer].drawImage(Inventory.itemImages[self.heldItem.id], -24, -24, 48, 48);
+            } else if (self.heldItem.shield && self.heldItem.usingShield) {
+                LAYERS.elayers[self.layer].translate(32, 0);
+                LAYERS.elayers[self.layer].rotate(-90*(Math.PI/180));
+                LAYERS.elayers[self.layer].drawImage(Inventory.itemImages[self.heldItem.shield], -32, -32, 64, 32);
+            }
+            LAYERS.elayers[self.layer].restore();
+        }
         if (!self.isNPC) {
             LAYERS.eupper.drawImage(Rig.healthBarG, 0, 0, 42, 5, self.x-63+OFFSETX, self.y-72+OFFSETY, 126, 15);
             LAYERS.eupper.drawImage(Rig.healthBarG, 1, 5, (self.hp/self.maxHP)*40, 5, self.x-60+OFFSETX, self.y-72+OFFSETY, (self.hp/self.maxHP)*120, 15);
@@ -376,6 +397,8 @@ Projectile = function(id, map, x, y, angle, type) {
     self.height = tempprojectile.height;
     self.rawWidth = tempprojectile.rawWidth;
     self.rawHeight = tempprojectile.rawHeight;
+    self.offsetX = tempprojectile.offsetX;
+    self.offsetY = tempprojectile.offsetY;
     self.above = tempprojectile.above;
     self.animationImage = Projectile.images[type];
     self.animationStage = 0;
@@ -399,12 +422,14 @@ Projectile = function(id, map, x, y, angle, type) {
             LAYERS.eupper.save();
             LAYERS.eupper.translate(self.x+OFFSETX, self.y+OFFSETY);
             LAYERS.eupper.rotate(self.angle);
+            (self.offsetX || self.offsetY) && LAYERS.eupper.translate(self.offsetX, self.offsetY);
             LAYERS.eupper.drawImage(self.animationImage, self.animationStage*self.rawWidth, 0, self.rawWidth, self.rawHeight, -self.width/2, -self.height/2, self.width, self.height);
             LAYERS.eupper.restore();
         } else {
             LAYERS.elayers[self.layer].save();
             LAYERS.elayers[self.layer].translate(self.x+OFFSETX, self.y+OFFSETY);
             LAYERS.elayers[self.layer].rotate(self.angle);
+            (self.offsetX || self.offsetY) && LAYERS.elayers[self.layer].translate(self.offsetX, self.offsetY);
             LAYERS.elayers[self.layer].drawImage(self.animationImage, self.animationStage*self.rawWidth, 0, self.rawWidth, self.rawHeight, -self.width/2, -self.height/2, self.width, self.height);
             LAYERS.elayers[self.layer].restore();
         }
@@ -497,8 +522,10 @@ Particle = function(map, x, y, type, value) {
         case 'explosion':
             var random = Math.random();
             if (random <= 0.2) {
-                self.color = 'rgba(255, 255, 255, ';
+                self.color = 'rgba(240, 50, 50, ';
             } else if (random <= 0.4) {
+                self.color = 'rgba(255, 255, 255, ';
+            } else if (random <= 0.6) {
                 self.color = 'rgba(150, 150, 150, ';
             } else {
                 self.color = 'rgba(50, 50, 50, ';
