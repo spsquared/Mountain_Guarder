@@ -604,6 +604,7 @@ Layer.loadCache = function loadCache(map) {
 Layer.writeCache = function writeCache(map) {
     try {
         var bytes = msgpack.serialize({graph: Layer.graph[map], table: Layer.lookupTable[map]});
+        if (!fs.existsSync('./server/cache')) fs.mkdirSync('./server/cache');
         fs.writeFileSync('./server/cache/' + map + '.cache', bytes, {flag: 'w'});
     } catch (err) {
         forceQuit(err, 3);
