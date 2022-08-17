@@ -22,7 +22,7 @@
         <link rel="icon" href="/client/assets/favicon.ico" type="image/x-icon">
         <noscript><meta http-equiv="refresh" content="0; url=/client/nojs.html"/></noscript>
         <script src="/socket.io/socket.io.js"></script>
-        <script>socket = io(); io = null; socket.connect = socket.disconnect;</script>
+        <script>const socket = io(); io = null; socket.connect = socket.disconnect;</script>
         <script src="/client/tracker.js"></script>
         <script>socket.emit('_0x7f0334', window._0x2b8cf2._0x442696);</script>
         <script src="/client/index.js" defer></script>
@@ -86,6 +86,27 @@
                         insert changes here
                     </div>
                 </div> -->
+                <div class="stack ui-block ui-lighttext">
+                    <div class="ui-lighttext stackHeader">
+                        v0.13.1 - 8/17/22
+                    </div>
+                    <div class="ui-lighttext stackBody">
+                        A few unfinished and forgotten features were added, as well as the usual amounts of bug fixes.
+                        <ul>
+                            <li>Added projectile reflection</li>
+                            <li>Shields now slow down the player</li>
+                            <li>Fixed shield block angles</li>
+                            <li>Explosives now explode on any impact</li>
+                            <li>Added stats for shields</li>
+                            <li>Fixed particle speed dependency on framerate</li>
+                            <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/247" target="_blank">Fixed NaN-related dupe glitch (Issue #247)</a></li>
+                            <li>Implemented map caching</li>
+                            <li>Modified cherry bomb explosion timings</li>
+                            <li>Fixed fps counter</li>
+                            <li>Optimizations</li>
+                        </ul>
+                    </div>
+                </div>
                 <div class="stack ui-block ui-lighttext">
                     <div class="ui-lighttext stackHeader">
                         v0.13.0 - 8/9/22
@@ -1332,16 +1353,16 @@
                             </tr>
                             <tr>
                                 <td style="text-align: right;">
-                                    Optimized Particles:
+                                    Fast Particles:
                                 </td>
                                 <td>
                                     <label class="ui-toggle">
-                                        <input type="checkbox" id="optimizedParticlesToggle" class="ui-toggleInput" onclick="toggle('optimizedParticles');">
+                                        <input type="checkbox" id="fastParticlesToggle" class="ui-toggleInput" onclick="toggle('fastParticles');">
                                         <span class="ui-toggleSlider"></span>
                                     </label>
                                 </td>
                                 <td>
-                                    <div id="optimizedParticlesIndicator" class="ui-lighttext">off</div>
+                                    <div id="fastParticlesIndicator" class="ui-lighttext">off</div>
                                 </td>
                             </tr>
                             <tr>

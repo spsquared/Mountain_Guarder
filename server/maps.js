@@ -3,7 +3,7 @@
 MAPS = {
     loaded: false,
     load: async function load() {
-        if (!MAPS.loaded) loadAll();
+        if (!MAPS.loaded) await loadAll();
         MAPS.loaded = true;
     },
     reload: async function reload() {
@@ -12,7 +12,7 @@ MAPS = {
 }
 
 var npcWaypoints = {};
-function loadAll() {
+async function loadAll() {
     loadMap('World');
     loadMap('Caves');
     loadMap('The Void');
@@ -25,8 +25,10 @@ function loadAll() {
             Npc.list[i].ai.idleWaypoints.waypoints = npcWaypoints[Npc.list[i].npcId];
         }
     }
+    await Layer.init();
     Spawner.init();
     Npc.init();
+    Layer.lazyInit();
 };
 function loadMap(name) {
     var raw = require('./../client/maps/' + name + '.json');
@@ -297,8 +299,6 @@ function loadMap(name) {
             Collision.grid[name].dark = true;
         }
     }
-    Layer.generateGraphs(name);
-    Layer.generateLookupTables(name);
     Player.chunks[name] = [];
     Monster.chunks[name] = [];
     Projectile.chunks[name] = [];

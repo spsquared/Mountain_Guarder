@@ -1,6 +1,6 @@
 {
   "name": "mountain_guarder",
-  "version": "0.13.0",
+  "version": "0.13.1",
   "description": "Meadow Guarder's sister game!",
   "main": "app.js",
   "scripts": {
@@ -25,6 +25,7 @@
   },
   "homepage": "https://mountainguarder.herokuapp.com/",
   "dependencies": {
+    "@ygoe/msgpack": "^1.0.3",
     "bcrypt": "^5.0.1",
     "cryptr": "^6.0.2",
     "discord-webhook-node": "^1.1.8",

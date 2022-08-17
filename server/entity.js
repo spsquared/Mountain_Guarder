@@ -30,7 +30,7 @@ Entity = function() {
         height: 0,
         noCollision: false,
         physicsInaccuracy: 1,
-        collisionBoxSize: 1,
+        collisionBoxSize: 0,
         chunkLocation: {
             map: 'World',
             layer: 0,
@@ -40,7 +40,6 @@ Entity = function() {
     };
     self.id = Math.random();
     lock(self, ['id']);
-    self.collisionBoxSize = Math.max(self.width, self.height);
 
     self.update = function update() {
         self.updatePos();
@@ -52,7 +51,7 @@ Entity = function() {
         try {
             if (!self.frozen && (self.xspeed != 0 || self.yspeed != 0)) {
                 var max = Math.max(Math.abs(self.xspeed), Math.abs(self.yspeed))/(self.physicsInaccuracy*ENV.physicsInaccuracy);
-                for (var i = 0; i < max; i += max/Math.ceil(max)) {
+                for (let i = 0; i < max; i += max/Math.ceil(max)) {
                     self.lastx = self.x;
                     self.lasty = self.y;
                     self.x += self.xspeed/max || 0;
@@ -77,13 +76,13 @@ Entity = function() {
     self.checkCollisionLine = function checkCollisionLine(x1, y1, x2, y2) {
         if (Math.floor((x2-x1)/64)) {
             var slope = (y2-y1)/(x2-x1);
-            for (var x = Math.floor(Math.min(x1, x2)/64); x <= Math.floor(Math.max(x1, x2)/64); x++) {
+            for (let x = Math.floor(Math.min(x1, x2)/64); x <= Math.floor(Math.max(x1, x2)/64); x++) {
                 var y = Math.floor((slope*(x*64)+y1)/64);
                 if (Collision.getColEntity(self.map, x, y, self.layer)[0]) return true;
             }
         } else {
             var x = Math.floor(x1/64);
-            for (var y = Math.floor(Math.min(y1, y2)/64); y <= Math.floor(Math.max(y1, y2)/64); y++) {
+            for (let y = Math.floor(Math.min(y1, y2)/64); y <= Math.floor(Math.max(y1, y2)/64); y++) {
                 if (Collision.getColEntity(self.map, x, y, self.layer)[0]) return true;
             }
         }
@@ -124,13 +123,13 @@ Entity = function() {
     self.checkPointCollision = function checkPointCollision() {
         var collisions = [];
         var range = Math.ceil(self.collisionBoxSize/128);
-        for (var x = self.gridx-range; x <= self.gridx+range; x++) {
-            for (var y = self.gridy-range; y <= self.gridy+range; y++) {
+        for (let x = self.gridx-range; x <= self.gridx+range; x++) {
+            for (let y = self.gridy-range; y <= self.gridy+range; y++) {
                 collisions.push(Collision.getColEntity(self.map, x, y, self.layer));
             }
         }
-        for (var i in collisions) {
-            for (var j in collisions[i]) {
+        for (let i in collisions) {
+            for (let j in collisions[i]) {
                 if (self.collideWith(collisions[i][j])) return true;
             }
         }
@@ -139,14 +138,14 @@ Entity = function() {
     self.doPointCollision = function doPointCollision() {
         var collisions = [];
         var range = Math.ceil(self.collisionBoxSize/128);
-        for (var x = self.gridx-range; x <= self.gridx+range; x++) {
-            for (var y = self.gridy-range; y <= self.gridy+range; y++) {
+        for (let x = self.gridx-range; x <= self.gridx+range; x++) {
+            for (let y = self.gridy-range; y <= self.gridy+range; y++) {
                 collisions.push(Collision.getColEntity(self.map, x, y, self.layer));
             }
         }
         var colliding = false;
-        for (var i in collisions) {
-            for (var j in collisions[i]) {
+        for (let i in collisions) {
+            for (let j in collisions[i]) {
                 if (self.collideWith(collisions[i][j])) {
                     colliding = true;
                     break;
@@ -157,8 +156,8 @@ Entity = function() {
             colliding = false;
             var x = self.x;
             self.x = self.lastx;
-            for (var i in collisions) {
-                for (var j in collisions[i]) {
+            for (let i in collisions) {
+                for (let j in collisions[i]) {
                     if (self.collideWith(collisions[i][j])) {
                         colliding = true;
                         break;
@@ -169,8 +168,8 @@ Entity = function() {
                 colliding = false;
                 self.x = x;
                 self.y = self.lasty;
-                for (var i in collisions) {
-                    for (var j in collisions[i]) {
+                for (let i in collisions) {
+                    for (let j in collisions[i]) {
                         if (self.collideWith(collisions[i][j])) {
                             colliding = true;
                             break;
@@ -181,8 +180,8 @@ Entity = function() {
                     colliding = false;
                     self.x = self.lastx;
                     self.y = self.lasty;
-                    for (var i in collisions) {
-                        for (var j in collisions[i]) {
+                    for (let i in collisions) {
+                        for (let j in collisions[i]) {
                             if (self.collideWith(collisions[i][j])) {
                                 colliding = true;
                                 break;
@@ -197,14 +196,14 @@ Entity = function() {
     self.checkLayer = function checkLayer() {
         var collisions = [];
         var range = Math.ceil(self.collisionBoxSize/128);
-        for (var x = self.gridx-range; x <= self.gridx+range; x++) {
-            for (var y = self.gridy-range; y <= self.gridy+range; y++) {
+        for (let x = self.gridx-range; x <= self.gridx+range; x++) {
+            for (let y = self.gridy-range; y <= self.gridy+range; y++) {
                 collisions.push(Layer.getColEntity(self.map, x, y, self.layer));
             }
         }
         var dir = 0;
-        for (var i in collisions) {
-            for (var j in collisions[i]) {
+        for (let i in collisions) {
+            for (let j in collisions[i]) {
                 if (self.collideWith(collisions[i][j])) dir += collisions[i][j].dir;
             }
         }
@@ -212,14 +211,14 @@ Entity = function() {
     };
     self.checkSlowdown = function checkSlowdown() {
         var collisions = [];
-            for (var y = self.gridy-1; y <= self.gridy+1; y++) {
-                for (var x = self.gridx-1; x <= self.gridx+1; x++) {
+            for (let y = self.gridy-1; y <= self.gridy+1; y++) {
+                for (let x = self.gridx-1; x <= self.gridx+1; x++) {
                     collisions.push(Slowdown.getColEntity(self.map, x, y, self.layer));
                 }
             }
         var colliding = false;
-        for (var i in collisions) {
-            for (var j in collisions[i]) {
+        for (let i in collisions) {
+            for (let j in collisions[i]) {
                 if (self.collideWith(collisions[i][j])) colliding = true;
             }
         }
@@ -274,7 +273,7 @@ Entity = function() {
             ray.xspeed = Math.cos(ray.angle)*15;
             ray.yspeed = Math.sin(ray.angle)*15;
             var distance = Math.ceil(self.getDistance({x: x, y: y})/15)
-            for (var i = 0; i < distance; i++) {
+            for (let i = 0; i < distance; i++) {
                 ray.x += ray.xspeed;
                 ray.y += ray.yspeed;
                 if (Collision.grid[self.map][self.layer][Math.floor(ray.y/64)] && Collision.grid[self.map][self.layer][Math.floor(ray.y/64)][Math.floor(ray.x/64)] != null && Collision.grid[self.map][self.layer][Math.floor(ray.y/64)][Math.floor(ray.x/64)] < 15 && Collision.grid[self.map][self.layer][Math.floor(ray.y/64)][Math.floor(ray.x/64)] != 0) {
@@ -398,7 +397,7 @@ Rig = function() {
     self.effectTimers = {};
     self.alive = true;
     self.invincible = false;
-    self.bcDeaths = false;
+    self.bcDeath = false;
     self.canMove = true;
     self.teleporting = false;
     self.name = 'empty Rig';
@@ -479,7 +478,7 @@ Rig = function() {
             self.mana = Math.min(self.mana+1, self.maxMana);
             self.lastManaRegen = 0;
         }
-        for (var i in self.invincibilityFrames) {
+        for (let i in self.invincibilityFrames) {
             self.invincibilityFrames[i]--;
             self.invincibilityFrames[i] < 1 && delete self.invincibilityFrames[i];
         }
@@ -496,7 +495,7 @@ Rig = function() {
                 else self.ai.path = [];
             }
         } else {
-            if (self.slowedDown) self.moveSpeed *= 0.5;
+            if (self.slowedDown || self.shield) self.moveSpeed *= 0.5;
             self.controls.x = self.controls.xaxis;
             self.controls.y = self.controls.yaxis;
             if (self.controls.up) self.controls.y = Math.max(-1, Math.min(self.controls.y-1, 1));
@@ -505,7 +504,7 @@ Rig = function() {
             if (self.controls.right) self.controls.x = Math.max(-1, Math.min(self.controls.x+1, 1));
             self.xmove = self.controls.x*self.moveSpeed;
             self.ymove = self.controls.y*self.moveSpeed;
-            if (self.slowedDown) self.moveSpeed *= 2;
+            if (self.slowedDown || self.shield) self.moveSpeed *= 2;
         }
         if (!self.canMove) {
             self.xmove = 0;
@@ -593,7 +592,7 @@ Rig = function() {
             if (!self.frozen && (self.xspeed != 0 || self.yspeed != 0 || self.aiControlled)) {
                 self.aiControlled && self.aiControl();
                 var max = Math.max(Math.abs(self.xspeed), Math.abs(self.yspeed))/(self.physicsInaccuracy*ENV.physicsInaccuracy);
-                for (var i = 0; i < max; i += max/Math.ceil(max)) {
+                for (let i = 0; i < max; i += max/Math.ceil(max)) {
                     if (self.aiControlled && self.aiControl()) max = Math.max(Math.abs(self.xspeed), Math.abs(self.yspeed))/(self.physicsInaccuracy*ENV.physicsInaccuracy);
                     self.lastx = self.x;
                     self.lasty = self.y;
@@ -666,7 +665,7 @@ Rig = function() {
             self.xspeed = Math.round(self.xmove+self.xknockback);
             self.yspeed = Math.round(self.ymove+self.yknockback);
         }
-        for (var i in self.controls) {
+        for (let i in self.controls) {
             if (self.controls[i] != oldcontrols[i]) return true;
         }
         return false;
@@ -801,13 +800,13 @@ Rig = function() {
                         // var lastcurr = null;
                         // while (openlist.length) {
                         //     curr = openlist[0];
-                        //     for (var i in openlist) {
+                        //     for (let i in openlist) {
                         //         if (openlist[i].f < curr.f) curr = openlist[i];
                         //     }
                         //     curr.closed = true;
                         //     openlist.splice(openlist.indexOf(curr), 1);
                             
-                        //     for (var i in curr.connections) {
+                        //     for (let i in curr.connections) {
                         //         errors for some reason
                         //         var neighbor = graph[curr.layer+curr.dir][curr.connections[i].y][curr.connections[i].x];
                         //         if (neighbor.closed) continue;
@@ -826,7 +825,7 @@ Rig = function() {
                     }
                 }
             } catch (err) {
-                console.error(err);
+                error(err);
             }
         }
         return self.ai.path;
@@ -842,8 +841,8 @@ Rig = function() {
                     var bottom = Math.max(self.gridy+ENV.pathfindBuffer, y+ENV.pathfindBuffer);
                     self.ai.grid = new PF.Grid(right-left, bottom-top);
                     if (Collision.grid[self.map] && Collision.grid[self.map][self.layer]) {
-                        for (var writey = 0; writey < bottom-top; writey++) {
-                            for (var writex = 0; writex < right-left; writex++) {
+                        for (let writey = 0; writey < bottom-top; writey++) {
+                            for (let writex = 0; writex < right-left; writex++) {
                                 var checkx = writex+left;
                                 var checky = writey+top;
                                 Collision.grid[self.map][self.layer][checky] && Collision.grid[self.map][self.layer][checky][checkx] && self.ai.grid.setWalkableAt(writex, writey, false);
@@ -853,7 +852,7 @@ Rig = function() {
                     var path = self.ai.pathfinder.findPath(self.gridx-left, self.gridy-top, x-left, y-top, self.ai.grid);
                     path.shift();
                     retpath = PF.Util.compressPath(path);
-                    for (var i in retpath) {
+                    for (let i in retpath) {
                         retpath[i][0] += left;
                         retpath[i][1] += top;
                     }
@@ -875,30 +874,30 @@ Rig = function() {
                     var waypoints = Array.from(self.ai.idleWaypoints.waypoints);
                     var lastWaypoints = self.ai.idleWaypoints.lastWaypoints;
                     if (waypoints) {
-                        for (var i in waypoints) {
+                        for (let i in waypoints) {
                             var waypoint = waypoints[i];
                             if (waypoint.map != self.map) delete waypoints[i];
                             if (waypoint.x == self.gridx && waypoint.y == self.gridy && waypoint.map == self.map) {
                                 var alreadyExists = false;
-                                for (var j in lastWaypoints) {
+                                for (let j in lastWaypoints) {
                                     if (waypoint.x == lastWaypoints[j].x && waypoint.y == lastWaypoints[j].y && waypoint.map == lastWaypoints[j].map) alreadyExists = true;
                                 }
                                 if (!alreadyExists) self.ai.idleWaypoints.lastWaypoints.unshift(waypoint);
                             }
                         }
                         var waypointCount = 0;
-                        for (var i in waypoints) {
+                        for (let i in waypoints) {
                             if (waypoints[i].map == self.map) waypointCount++;
                         }
                         if (lastWaypoints.length > Math.min(4, waypointCount-1)) lastWaypoints.pop();
-                        for (var i in waypoints) {
+                        for (let i in waypoints) {
                             var waypoint = waypoints[i];
-                            for (var j in lastWaypoints) {
+                            for (let j in lastWaypoints) {
                                 if (waypoint.x == lastWaypoints[j].x && waypoint.y == lastWaypoints[j].y && waypoint.map == lastWaypoints[j].map) delete waypoints[i];
                             }
                         }
                         var lowest;
-                        for (var i in waypoints) {
+                        for (let i in waypoints) {
                             if (lowest == null) lowest = i;
                             if (lowest && self.getGridDistance(waypoints[i]) < self.getGridDistance(waypoints[lowest])) {
                                 lowest = i;
@@ -974,27 +973,47 @@ Rig = function() {
         return self.ai.path;
     };
     self.onHit = function onHit(entity, type) {
-        var oldhp = self.hp;
-        var critHp = 0;
-        var parent = Monster.list[entity.parentID] ?? Player.list[entity.parentID];
+        let oldhp = self.hp;
+        let critHp = 0;
+        let parent = Monster.list[entity.parentID] ?? Player.list[entity.parentID] ?? entity;
         if (entity.critChance && Math.random() < entity.critChance) critHp = entity.damage*entity.critPower;
-        var spawnParticles = true;
+        let spawnParticles = true;
+        let ret = false;
         if (!self.invincible) {
             switch (type) {
                 case 'projectile':
-                    var blocked = self.shield && Math.abs(self.shieldAngle-Math.atan2(-entity.yspeed, -entity.xspeed)) < degrees(self.shieldStats.blockAngle);
+                    var reflected = false;
+                    var blocked = self.shield && Math.abs(self.shieldAngle-Math.atan2(-entity.yspeed, -entity.xspeed)) < degrees(self.shieldStats.blockAngle/2);
                     if (self.invincibilityFrames[entity.type] == null && !blocked) {
                         self.hp -= Math.max(Math.round(((entity.damage+critHp)*(1-self.stats.defense))-self.stats.damageReduction), 0);
                         self.invincibilityFrames[entity.type] = entity.invincibilityFrame+1;
-                    } else spawnParticles = false;
+                    } else {
+                        spawnParticles = false;
+                        if (entity.reflectable && Math.random() < self.shieldStats.reflectProjectileChance) {
+                            reflected = true;
+                            ret = true;
+                        }
+                        // console.log(radians(self.shieldAngle-Math.atan2(-entity.yspeed, -entity.xspeed)+self.shieldAngle));
+                    }
                     var rand = 0.5+Math.random();
                     var multiplier = entity.knockback*rand*Math.max(0, 1-self.stats.knockbackResistance-(blocked?self.shieldStats.knockbackResistance:0));
                     self.xknockback += entity.xspeed*multiplier;
                     self.yknockback += entity.yspeed*multiplier;
-                    for (var i in entity.contactEvents) {
-                        if (Projectile.contactEvents[entity.contactEvents[i].type]) {
-                            Projectile.contactEvents[entity.contactEvents[i].type](entity, self, entity.contactEvents[i].data);
+                    for (let event of entity.contactEvents) {
+                        if (Projectile.contactEvents[event.type]) {
+                            Projectile.contactEvents[event.type](entity, self, event.data);
                         }
+                    }
+                    if (reflected) {
+                        entity.parentID = self.id;
+                        entity.angle = self.shieldAngle-Math.atan2(-entity.yspeed, -entity.xspeed)+self.shieldAngle;
+                        entity.travelTime = ticks(entity.maxRange)-30;
+                        entity.sinAngle = Math.sin(entity.angle);
+                        entity.cosAngle = Math.cos(entity.angle);
+                        entity.xspeed = entity.cosAngle*entity.moveSpeed;
+                        entity.yspeed = entity.sinAngle*entity.moveSpeed;
+                        entity.collisionBoxSize = Math.max(Math.abs(entity.sinAngle*entity.height)+Math.abs(entity.cosAngle*entity.width), Math.abs(entity.cosAngle*entity.height)+Math.abs(entity.sinAngle*entity.width));
+                        entity.deathMessage += ' by ' + parent.name + '\'s ' + entity.type + ' reflected';
                     }
                     if (self.hp < 0) self.onDeath(parent, 'killed', entity.deathMessage);
                     break;
@@ -1011,18 +1030,9 @@ Rig = function() {
                     self.yknockback += (Math.sin(angle)*rand*10+entity.yspeed*rand)*multiplier;
                     if (self.hp < 0) self.onDeath(entity, 'killed');
                     break;
-                case 'cherrybomb':
-                    var blocked = self.shield && Math.abs(self.shieldAngle-Math.atan2(self.y-entity.lasty, self.x-entity.lastx)) < degrees(self.shieldStats.blockAngle);
-                    if (!blocked) self.hp -= Math.max(Math.round((500*(1-self.stats.defense))-self.stats.damageReduction), 0);
-                    var rand = 0.5+Math.random();
-                    var angle = Math.atan2(self.y-entity.y-entity.yspeed, self.x-entity.x-entity.xspeed);
-                    self.xknockback += Math.cos(angle)*rand*40*(1-self.stats.knockbackResistance);
-                    self.yknockback += Math.sin(angle)*rand*40*(1-self.stats.knockbackResistance);
-                    if (self.hp < 0) self.onDeath(entity, 'explosion');
-                    break;
                 case 'explosion':
                     var blocked = self.shield && Math.abs(self.shieldAngle-Math.atan2(self.y-entity.lasty, self.x-entity.lastx)) < degrees(self.shieldStats.blockAngle);
-                    if (!blocked) self.hp -= Math.max(Math.round((80*entity.explosionSize*(1-self.stats.defense))-self.stats.damageReduction), 0);
+                    if (!blocked) self.hp -= Math.max(Math.round((40*entity.explosionSize*(1/(self.getDistance(entity)/64*entity.explosionSize))*(1-self.stats.defense))-self.stats.damageReduction), 0);
                     var rand = 0.5+Math.random();
                     var angle = Math.atan2(self.y-entity.y-entity.yspeed, self.x-entity.x-entity.xspeed);
                     self.xknockback += Math.cos(angle)*rand*10*entity.explosionSize*(1-self.stats.knockbackResistance);
@@ -1037,22 +1047,20 @@ Rig = function() {
         spawnParticles && critHp && new Particle(self.map, self.x, self.y, 'critdamage', self.hp-oldhp);
         spawnParticles && !critHp &&  new Particle(self.map, self.x, self.y, 'damage', self.hp-oldhp);
         if (parent && parent.entType == 'player') parent.trackedData.damageDealt += oldhp-self.hp;
+        return ret;
     };
     self.onDeath = function onDeath(entity, type, message) {
         if (!self.invincible) {
-            var oldhp = self.hp;
+            let oldhp = self.hp;
             self.hp = 0;
             self.alive = false;
             if (entity && entity.entType == 'player') {
                 entity.trackedData.kills++;
             }
-            if (self.hp != oldhp) {
-                new Particle(self.map, self.x, self.y, 'damage', self.hp-oldhp);
-            }
-            for (var i = 0; i < self.width*self.height/200; i++) {
+            for (let i = 0; i < self.width*self.height/200; i++) {
                 new Particle(self.map, self.x+Math.random()*self.width-self.width/2, self.y+Math.random()*self.height-self.height/2, 'death');
             }
-            if (self.bcDeaths) switch (type) {
+            if (self.bcDeath) switch (type) {
                 case 'killed':
                     if (entity) insertChat(self.name + ' was ' + (message ?? 'killed') + ' by ' + entity.name, 'death');
                     else insertChat(self.name + ' was ' + (message ?? 'killed'), 'death');
@@ -1078,7 +1086,7 @@ Rig = function() {
     self.teleport = function teleport(map, x, y, layer) {
         if (!self.teleporting) {
             self.teleporting = true;
-            for (var i = 0; i < 20; i++) {
+            for (let i = 0; i < 20; i++) {
                 new Particle(self.map, self.x, self.y, 'teleport');
             }
             self.map = map;
@@ -1094,7 +1102,7 @@ Rig = function() {
             self.ai.idleRandom.walking = false;
             self.ai.idleWaypoints.walking = false;
             self.ai.idleWaypoints.lastWaypoints = [];
-            for (var i = 0; i < 20; i++) {
+            for (let i = 0; i < 20; i++) {
                 new Particle(self.map, self.x, self.y, 'teleport');
             }
             self.teleporting = false;
@@ -1153,7 +1161,7 @@ Npc = function(id, x, y, map) {
                 break;
         }
         self.rightClickEvent = new Function('return ' + tempnpc.rightClickEvent)();
-        for (var i in tempnpc.data) {
+        for (let i in tempnpc.data) {
             self[i] = tempnpc.data[i];
         }
         if (tempnpc.width) self.width = tempnpc.width;
@@ -1202,7 +1210,7 @@ Npc = function(id, x, y, map) {
 };
 Npc.update = function update() {
     var pack = [];
-    for (var i in Npc.list) {
+    for (let i in Npc.list) {
         localnpc = Npc.list[i];
         localnpc.update();
         pack.push({
@@ -1223,7 +1231,7 @@ Npc.update = function update() {
 };
 Npc.getDebugData = function getDebugData() {
     var pack = [];
-    for (var i in Npc.list) {
+    for (let i in Npc.list) {
         var localnpc = Npc.list[i];
         pack.push({
             map: localnpc.map,
@@ -1242,9 +1250,9 @@ Npc.getDebugData = function getDebugData() {
     return pack;
 };
 Npc.init = function init() {
-    for (var i in Npc.dialogues) {
-        for (var j in Npc.dialogues[i]) {
-            for (var k in Npc.dialogues[i][j].options) {
+    for (let i in Npc.dialogues) {
+        for (let j in Npc.dialogues[i]) {
+            for (let k in Npc.dialogues[i][j].options) {
                 if (Npc.dialogues[i][j].options[k].action.includes('script_')) {
                     Npc.dialogues[i][j].options[k].script = new Function('return ' + Npc.dialogues[i][j].options[k].action.replace('script_', ''))();
                 } else if (Npc.dialogues[i][j].options[k].action.includes('script-end_')) {
@@ -1326,7 +1334,7 @@ Player = function(socket) {
         layer: 0
     };
     self.invincible = true;
-    self.bcDeaths = true;
+    self.bcDeath = true;
     self.canMove = false;
     self.talking = false;
     self.inShop = false;
@@ -1361,10 +1369,10 @@ Player = function(socket) {
                 maxDPS: self.trackedData.maxDPS,
                 bossesSlain: self.trackedData.bossesSlain-self.trackedData.last.bossesSlain,
             };
-            for (var i in self.trackedData.monstersKilled) {
+            for (let i in self.trackedData.monstersKilled) {
                 var temp = self.trackedData.monstersKilled[i];
                 var found = false;
-                for (var j in self.trackedData.last.monstersKilled) {
+                for (let j in self.trackedData.last.monstersKilled) {
                     var temp2 = self.trackedData.last.monstersKilled[j];
                     if (temp.id == temp2.id) {
                         if (temp.count-temp2.count != 0) delta.monstersKilled.push({
@@ -1421,7 +1429,7 @@ Player = function(socket) {
     self.disconnected = false;
 
     var maps = [];
-    for (var i in Collision.grid) {
+    for (let i in Collision.grid) {
         maps.push(i);
     }
     socket.on('signIn', async function(cred) {
@@ -1444,7 +1452,7 @@ Player = function(socket) {
                                 switch (status) {
                                     case 0:
                                         var signedIn = false;
-                                        for (var i in Player.list) {
+                                        for (let i in Player.list) {
                                             if (Player.list[i].creds.username == cred.username && Player.list[i].loginTime != null) {
                                                 signedIn = true;
                                             }
@@ -1487,7 +1495,7 @@ Player = function(socket) {
                             }
                             break;
                         case 'signUp':
-                            for (var i in Player.list) {
+                            for (let i in Player.list) {
                                 if (Player.list[i].ip == self.ip || Player.list[i].fingerprint.fpjs == self.fingerprint.fpjs || Player.list[i].fingerprint.webgl == self.fingerprint.webgl) Player.list[i].signUpAttempts++;
                             }
                             if (self.signUpAttempts > 1) {
@@ -1496,10 +1504,10 @@ Player = function(socket) {
                                 return;
                             }
                             var highest = 0;
-                            for (var i in Player.list) {
+                            for (let i in Player.list) {
                                 if (Player.list[i].ip == self.ip) highest = Math.max(highest, Player.list[i].signUpAttempts);
                             }
-                            for (var i in Player.list) {
+                            for (let i in Player.list) {
                                 if (Player.list[i].ip == self.ip) Player.list[i].signUpAttempts = highest;
                             }
                             var status = await ACCOUNTS.signup(cred.username, cred.password);
@@ -1601,8 +1609,8 @@ Player = function(socket) {
                     self.mouseY = data.y; 
                 } else if (data.button == 'right') {
                     data.state && self.interact(data.x, data.y);
-                    self.shield = data.state;
-                    self.heldItem.usingShield = data.state && self.inventory.equips.shield;
+                    self.shield = data.state && !self.talking && !self.inShop;
+                    self.heldItem.usingShield = data.state && self.inventory.equips.shield && !self.talking && !self.inShop;
                     self.mouseX = data.x;
                     self.mouseY = data.y; 
                 }
@@ -1700,7 +1708,7 @@ Player = function(socket) {
                                     return;
                                 }
                                 var valid = false;
-                                for (var i in Player.list) {
+                                for (let i in Player.list) {
                                     if (Player.list[i].name == args[0]) valid = true;
                                 }
                                 if (!valid) {
@@ -1727,7 +1735,7 @@ Player = function(socket) {
                         }
                     } else {
                         var valid = false;
-                        for (var i in msg) {
+                        for (let i in msg) {
                             if (msg[i] != ' ') valid = true;
                         }
                         if (valid) {
@@ -1781,13 +1789,14 @@ Player = function(socket) {
             self.mana = Math.min(self.mana+1, self.maxMana);
             self.lastManaRegen = 0;
         }
-        for (var i in self.invincibilityFrames) {
+        for (let i in self.invincibilityFrames) {
             self.invincibilityFrames[i]--;
             self.invincibilityFrames[i] < 1 && delete self.invincibilityFrames[i];
         }
         self.animationSpeed = 15/Math.sqrt(Math.pow(self.xmove, 2)+Math.pow(self.ymove, 2))*100 || 50;
         self.updateAnimation();
         var mouseangle = Math.atan2(self.mouseY, self.mouseX);
+        self.shieldAngle = mouseangle;
         self.heldItem.angle = mouseangle;
         var mouseddir = Math.round(radians(mouseangle)/45);
         if (mouseddir <= 0) mouseddir = 8-Math.abs(mouseddir);
@@ -1864,7 +1873,7 @@ Player = function(socket) {
     };
     socket.on('teleport1', function() {
         if (self.teleporting) {
-            for (var i = 0; i < 20; i++) {
+            for (let i = 0; i < 20; i++) {
                 new Particle(self.map, self.x, self.y, 'teleport');
             }
             self.map = self.teleportLocation.map;
@@ -1872,7 +1881,7 @@ Player = function(socket) {
             self.y = self.teleportLocation.y;
             self.layer = self.teleportLocation.layer;
             self.canMove = true;
-            for (var i = 0; i < 20; i++) {
+            for (let i = 0; i < 20; i++) {
                 new Particle(self.map, self.x, self.y, 'teleport');
             }
             self.gridx = Math.floor(self.x/64);
@@ -1885,14 +1894,15 @@ Player = function(socket) {
     });
     const oldonHit = self.onHit;
     self.onHit = function onHit(entity, type) {
-        var oldhp = self.hp;
-        oldonHit(entity, type);
+        let oldhp = self.hp;
+        let ret = oldonHit(entity, type);
         self.trackedData.damageTaken += oldhp-self.hp;
+        return ret;
     };
     const oldonDeath = self.onDeath;
     self.onDeath = function onDeath(entity, type, message) {
         oldonDeath(entity, type, message);
-        for (var i = 0; i < self.width*self.height/200; i++) {
+        for (let i = 0; i < self.width*self.height/200; i++) {
             new Particle(self.map, self.x+Math.random()*self.width-self.width/2, self.y+Math.random()*self.height-self.height/2, 'playerdeath');
         }
         self.quests.failQuests('death');
@@ -2021,10 +2031,10 @@ Player = function(socket) {
             self.shieldStats.reflectProjectileChance = item.projectileReflectChance;
             self.heldItem.shield = item.id;
         }
-        for (var i in self.inventory.equips) {
+        for (let i in self.inventory.equips) {
             var localitem = self.inventory.equips[i];
             if (i != 'weapon2' && localitem) {
-                for (var j in localitem.effects) {
+                for (let j in localitem.effects) {
                     var effect = localitem.effects[j];
                     switch (effect.id) {
                         case 'health':
@@ -2082,7 +2092,7 @@ Player = function(socket) {
         self.moveSpeed = Math.round(self.moveSpeed);
     };
     self.interact = function interact(x, y) {
-        for (var i in DroppedItem.list) {
+        for (let i in DroppedItem.list) {
             var localdroppeditem = DroppedItem.list[i];
             if (self.map == localdroppeditem.map && self.getDistance(localdroppeditem) < 512) {
                 if (localdroppeditem.playerId == self.id || localdroppeditem.playerId == null) {
@@ -2105,7 +2115,7 @@ Player = function(socket) {
             }
         }
         if (!self.talkingWith) {
-            for (var i in Npc.list) {
+            for (let i in Npc.list) {
                 var localnpc = Npc.list[i];
                 if (self.map == localnpc.map && self.getDistance(localnpc) < 512) {
                     var cx = self.x+x;
@@ -2129,6 +2139,7 @@ Player = function(socket) {
     self.prompt = function prompt(id, npcId) {
         self.attacking = false;
         self.shield = false;
+        self.heldItem.usingShield = false;
         self.canMove = false;
         self.invincible = true;
         self.controls = {
@@ -2209,7 +2220,7 @@ Player = function(socket) {
     });
     self.spectate = function spectate(name) {
         self.spectating = null;
-        for (var i in Player.list) {
+        for (let i in Player.list) {
             if (Player.list[i].name === name) self.spectating = i; 
         }
         return self.spectating;
@@ -2250,7 +2261,7 @@ Player = function(socket) {
                     self.xpLevel = progress.progress.xpLevel;
                     self.xp = progress.progress.xp;
                     self.quests.loadSaveData(progress.quests);
-                    for (var i in progress.trackedData) {
+                    for (let i in progress.trackedData) {
                         self.trackedData[i] = progress.trackedData[i];
                     }
                     self.trackedData.monstersKilled = Array.from(self.trackedData.monstersKilled);
@@ -2269,7 +2280,7 @@ Player = function(socket) {
                     self.xpLevel = progress.progress.xpLevel;
                     self.xp = progress.progress.xp;
                     self.quests.loadSaveData(progress.quests);
-                    for (var i in progress.trackedData) {
+                    for (let i in progress.trackedData) {
                         self.trackedData[i] = progress.trackedData[i];
                     }
                     self.trackedData.monstersKilled = Array.from(self.trackedData.monstersKilled);
@@ -2290,17 +2301,17 @@ Player = function(socket) {
             });
             self.inventory.refresh();
         }
-        for (var i in ENV.ops) {
+        for (let i in ENV.ops) {
             if (self.name == ENV.ops[i]) self.chatStyle = 'color: #28EB57;';
         }
-        for (var i in ENV.devs) {
+        for (let i in ENV.devs) {
             if (self.name == ENV.devs[i]) self.chatStyle = 'color: #6BFF00;';
         }
         if (self.name == 'Sampleprovider(sp)') self.chatStyle = 'color: #3C70FF;';
         if (self.name == 'sp') self.chatStyle = 'color: #FF0090;';
         self.updateStats();
         var noWeapon = true;
-        for (var i in self.inventory.items) {
+        for (let i in self.inventory.items) {
             if (self.inventory.items[i] && self.inventory.items[i].slotType == 'weapon') noWeapon = false;
         }
         if (self.inventory.equips['weapon']) noWeapon = false;
@@ -2402,7 +2413,7 @@ Player = function(socket) {
 };
 Player.update = function update() {
     var pack = [];
-    for (var i in Player.list) {
+    for (let i in Player.list) {
         var localplayer = Player.list[i];
         if (localplayer.toDisconnect) {
             localplayer.disconnect();
@@ -2435,7 +2446,7 @@ Player.update = function update() {
 };
 Player.getDebugData = function getDebugData() {
     var pack = [];
-    for (var i in Player.list) {
+    for (let i in Player.list) {
         var localplayer = Player.list[i];
         if (localplayer.name) {
             pack.push({
@@ -2464,12 +2475,12 @@ Player.usePatterns = {
         new Projectile(attack.projectile, angle+degrees(20), stats, self.id);
     },
     spray: function(self, attack, stats, angle) {
-        for (var i = 0; i < 3; i++) {
+        for (let i = 0; i < 3; i++) {
             new Projectile(attack.projectile, angle+Math.random()*0.2-0.1, stats, self.id);
         }
     },
     spray2: function(self, attack, stats, angle) {
-        for (var i = 0; i < 5; i++) {
+        for (let i = 0; i < 5; i++) {
             new Projectile(attack.projectile, angle+Math.random()*0.3-0.15, stats, self.id);
         }
     },
@@ -2497,12 +2508,12 @@ Player.usePatterns = {
     nearest: function(self, attack, stats, angle) {
         var lowest, target;
         if (Monster.chunks[self.map]) {
-            for (var z in Monster.chunks[self.map]) {
-                for (var y = self.chunky-1; y <= self.chunky+1; y++) {
-                    for (var x = self.chunkx-1; x <= self.chunkx+1; x++) {
+            for (let z in Monster.chunks[self.map]) {
+                for (let y = self.chunky-1; y <= self.chunky+1; y++) {
+                    for (let x = self.chunkx-1; x <= self.chunkx+1; x++) {
                         if (Monster.chunks[self.map][z][y] && Monster.chunks[self.map][z][y][x]) {
                             var monsters = Monster.chunks[self.map][z][y][x];
-                            for (var i in monsters) {
+                            for (let i in monsters) {
                                 if (lowest == null || (self.getGridDistance(monsters[i]) < 20 && self.getGridDistance(monsters[i]) < self.getGridDistance(Monster.list[lowest]) && monsters[i].alive)) lowest = i;
                             }
                         }
@@ -2511,7 +2522,7 @@ Player.usePatterns = {
             }
         }
         target = Monster.list[lowest];
-        new Projectile(attack.projectile, 0, stats, self.id, target.x, target.y);
+        target && new Projectile(attack.projectile, 0, stats, self.id, target.x, target.y);
     }
 };
 
@@ -2576,11 +2587,11 @@ Monster = function(type, x, y, map, layer) {
         self.active = false;
         if (Player.chunks[self.map]) {
             var range = 2;
-            search: for (var z in Player.chunks[self.map]) {
-                for (var y = self.chunky-range; y <= self.chunky+range; y++) {
-                    for (var x = self.chunkx-range; x <= self.chunkx+range; x++) {
+            search: for (let z in Player.chunks[self.map]) {
+                for (let y = self.chunky-range; y <= self.chunky+range; y++) {
+                    for (let x = self.chunkx-range; x <= self.chunkx+range; x++) {
                         if (Player.chunks[self.map][z][y] && Player.chunks[self.map][z][y][x]) {
-                            for (var i in Player.chunks[self.map][z][y][x]) {
+                            for (let i in Player.chunks[self.map][z][y][x]) {
                                 self.active = true;
                                 break search;
                             }
@@ -2601,10 +2612,10 @@ Monster = function(type, x, y, map, layer) {
             if (self.canMove) self.updatePos();
             if (self.alive && Player.chunks[self.map] && Player.chunks[self.map][self.layer]) {
                 var range = Math.ceil(self.collisionBoxSize/(128*Math.max(Collision.grid[self.map].chunkWidth, Collision.grid[self.map].chunkHeight)));
-                for (var y = self.chunky-range; y <= self.chunky+range; y++) {
-                    for (var x = self.chunkx-range; x <= self.chunkx+range; x++) {
+                for (let y = self.chunky-range; y <= self.chunky+range; y++) {
+                    for (let x = self.chunkx-range; x <= self.chunkx+range; x++) {
                         if (Player.chunks[self.map][self.layer][y] && Player.chunks[self.map][self.layer][y][x]) {
-                            for (var i in Player.chunks[self.map][self.layer][y][x]) {
+                            for (let i in Player.chunks[self.map][self.layer][y][x]) {
                                 Player.chunks[self.map][self.layer][y][x][i].alive && self.collideWith(Player.chunks[self.map][self.layer][y][x][i]) && Player.chunks[self.map][self.layer][y][x][i].onHit(self, 'touch');
                             }
                         }
@@ -2614,7 +2625,7 @@ Monster = function(type, x, y, map, layer) {
             self.attack();
             self.updateAnimation();
         }
-        for (var i in self.invincibilityFrames) {
+        for (let i in self.invincibilityFrames) {
             self.invincibilityFrames[i]--;
             self.invincibilityFrames[i] < 1 && delete self.invincibilityFrames[i];
         }
@@ -2630,8 +2641,8 @@ Monster = function(type, x, y, map, layer) {
                     y: null
                 };
                 var range = self.ai.maxRange/2;
-                for (var x = self.gridx-range; x < self.gridx+range; x++) {
-                    for (var y = self.gridy-range; y < self.gridy+range; y++) {
+                for (let x = self.gridx-range; x < self.gridx+range; x++) {
+                    for (let y = self.gridy-range; y < self.gridy+range; y++) {
                         if (Region.grid[self.map][y] && Region.grid[self.map][y][x] && Region.grid[self.map][y][x].nomonster == false) {
                             if (closest.x == null || self.getGridDistance({x: x, y: y}) < self.getGridDistance(closest)) closest = {
                                 x: x,
@@ -2651,9 +2662,9 @@ Monster = function(type, x, y, map, layer) {
                         var offsety = self.gridy-self.ai.maxRange-1;
                         var size = self.ai.maxRange*2+1;
                         var grid = [];
-                        for (var y = 0; y < size; y++) {
+                        for (let y = 0; y < size; y++) {
                             grid[y] = [];
-                            for (var x = 0; x < size; x++) {
+                            for (let x = 0; x < size; x++) {
                                 grid[y][x] = {
                                     g: 0,
                                     h: 0,
@@ -2663,8 +2674,8 @@ Monster = function(type, x, y, map, layer) {
                                 };
                             }
                         }
-                        for (var y = 0; y < size; y++) {
-                            for (var x = 0; x < size; x++) {
+                        for (let y = 0; y < size; y++) {
+                            for (let x = 0; x < size; x++) {
                                 var checkx = x+offsetx;
                                 var checky = y+offsety;
                                 grid[y][x].h = Math.sqrt(Math.pow(self.gridx-checkx, 2)+Math.pow(self.gridy-checky, 2));
@@ -2679,8 +2690,8 @@ Monster = function(type, x, y, map, layer) {
                             }
                         }
                         var best = null;
-                        for (var y in grid) {
-                            for (var x in grid) {
+                        for (let y in grid) {
+                            for (let x in grid) {
                                 if (best == null || grid[y][x].f < best.f) best = grid[y][x];
                             }
                         }
@@ -2769,12 +2780,12 @@ Monster = function(type, x, y, map, layer) {
             var lowest;
             if (Monster.chunks[self.map]) {
                 var range = Math.ceil(self.ai.maxRange/(64*Math.max(Collision.grid[self.map].chunkWidth, Collision.grid[self.map].chunkHeight)));
-                for (var z in Monster.chunks[self.map]) {
-                    for (var y = self.chunky-range; y <= self.chunky+range; y++) {
-                        for (var x = self.chunkx-range; x <= self.chunkx+range; x++) {
+                for (let z in Monster.chunks[self.map]) {
+                    for (let y = self.chunky-range; y <= self.chunky+range; y++) {
+                        for (let x = self.chunkx-range; x <= self.chunkx+range; x++) {
                             if (Monster.chunks[self.map][z][y] && Monster.chunks[self.map][z][y][x]) {
                                 var monsters = Monster.chunks[self.map][self.layer][y][x];
-                                for (var i in monsters) {
+                                for (let i in monsters) {
                                     if (self.getGridDistance(monsters[i]) < self.ai.maxRange  && (!self.rayCast(monsters[i].x, monsters[i].y) || self.getGridDistance(monsters[i]) < 4) && !monsters[i].region.nomonster && monsters[i].alive && (lowest == null || self.getGridDistance(monsters[i]) < self.getGridDistance(Monster.list[lowest]))) lowest = i;
                                 }
                             }
@@ -2794,12 +2805,12 @@ Monster = function(type, x, y, map, layer) {
             var lowest;
             if (Player.chunks[self.map]) {
                 var range = Math.ceil(self.ai.maxRange/(64*Math.max(Collision.grid[self.map].chunkWidth, Collision.grid[self.map].chunkHeight)));
-                for (var z in Player.chunks[self.map]) {
-                    for (var y = self.chunky-range; y <= self.chunky+range; y++) {
-                        for (var x = self.chunkx-range; x <= self.chunkx+range; x++) {
+                for (let z in Player.chunks[self.map]) {
+                    for (let y = self.chunky-range; y <= self.chunky+range; y++) {
+                        for (let x = self.chunkx-range; x <= self.chunkx+range; x++) {
                             if (Player.chunks[self.map][z][y] && Player.chunks[self.map][z][y][x]) {
                                 var players = Player.chunks[self.map][z][y][x];
-                                for (var i in players) {
+                                for (let i in players) {
                                     if (self.getGridDistance(players[i]) < self.ai.maxRange  && (!self.rayCast(players[i].x, players[i].y) || self.getGridDistance(players[i]) < 4) && !players[i].region.nomonster && players[i].alive && (lowest == null || self.getGridDistance(players[i]) < self.getGridDistance(Player.list[lowest]))) lowest = i;
                                 }
                             }
@@ -2824,7 +2835,7 @@ Monster = function(type, x, y, map, layer) {
     };
     const oldOnHit = self.onHit;
     self.onHit = function onHit(entity, type) {
-        oldOnHit(entity, type);
+        let ret = oldOnHit(entity, type);
         var parent;
         if (entity.parentIsPlayer) parent = Player.list[entity.parentID];
         else parent = Monster.list[entity.parentID];
@@ -2833,12 +2844,17 @@ Monster = function(type, x, y, map, layer) {
             self.ai.lastTracked = 0;
         }
         if (self.hp < self.ai.fleeThreshold) self.ai.fleeing = true;
+        return ret;
     };
+    const oldOnDeath = self.onDeath;
     self.onDeath = function onDeath(entity, type, message) {
+        self.bcDeath = ENV.broadcastMonsterDeaths;
+        // console.log(entity.entType, message)
+        oldOnDeath(entity, type, message);
         if (entity && entity.entType == 'player') {
             entity.xp += self.xpDrop;
             var found = false;
-            for (var i in entity.trackedData.monstersKilled) {
+            for (let i in entity.trackedData.monstersKilled) {
                 if (entity.trackedData.monstersKilled[i].id == self.type) {
                     entity.trackedData.monstersKilled[i].count++;
                     found = true;
@@ -2851,19 +2867,16 @@ Monster = function(type, x, y, map, layer) {
                 });
             }
         }
-        for (var i = 0; i < self.width*self.height/200; i++) {
-            new Particle(self.map, self.x+Math.random()*self.width-self.width/2, self.y+Math.random()*self.height-self.height/2, 'death');
-        }
         try {
             var multiplier = 0;
-            for (var i in self.drops) {
+            for (let i in self.drops) {
                 multiplier += self.drops[i];
             }
             var random = Math.random()*multiplier;
             var min = 0;
             var max = 0;
             var items = [];
-            for (var i in self.drops) {
+            for (let i in self.drops) {
                 max += self.drops[i];
                 if (random >= min && random <= max) {
                     items[i] = 1;
@@ -2873,13 +2886,13 @@ Monster = function(type, x, y, map, layer) {
             }
             if (items['coins']) {
                 items = [];
-                for (var i in self.coinDrops) {
+                for (let i in self.coinDrops) {
                     items[i] = Math.round(Math.random()*self.coinDrops[i]);
                 }
             }
             var id;
             if (entity) id = entity.id;
-            for (var i in items) {
+            for (let i in items) {
                 if (i != 'nothing' && items[i] != 0) {
                     var attempts = 0;
                     var dropx, dropy;
@@ -2890,16 +2903,16 @@ Monster = function(type, x, y, map, layer) {
                         var y = self.y+Math.sin(angle)*distance;
                         var collisions = [];
                         if (Collision.grid[self.map]) {
-                            for (var checkx = self.gridx-1; checkx <= self.gridx+1; checkx++) {
-                                for (var checky = self.gridy-1; checky <= self.gridy+1; checky++) {
+                            for (let checkx = self.gridx-1; checkx <= self.gridx+1; checkx++) {
+                                for (let checky = self.gridy-1; checky <= self.gridy+1; checky++) {
                                     if (Collision.grid[self.map][checky] && Collision.grid[self.map][checky][checkx])
                                     collisions.push(Collision.getColEntity(self.map, checkx, checky));
                                 }
                             }
                         }
                         var colliding = false;
-                        for (var i in collisions) {
-                            for (var j in collisions[i]) {
+                        for (let i in collisions) {
+                            for (let j in collisions[i]) {
                                 var bound1left = x-24;
                                 var bound1right = x+24;
                                 var bound1top = y-24;
@@ -2963,7 +2976,7 @@ Monster = function(type, x, y, map, layer) {
 };
 Monster.update = function update() {
     var pack = [];
-    for (var i in Monster.list) {
+    for (let i in Monster.list) {
         var localmonster = Monster.list[i];
         localmonster.update();
         pack.push({
@@ -2986,7 +2999,7 @@ Monster.update = function update() {
 };
 Monster.getDebugData = function getDebugData() {
     var pack = [];
-    for (var i in Monster.list) {
+    for (let i in Monster.list) {
         var localmonster = Monster.list[i];
         if (localmonster.active) {
             if (localmonster.ai.entityTarget) {
@@ -3064,6 +3077,7 @@ Monster.attacks = {
             if (self.getDistance(self.ai.entityTarget) < 64) {
                 self.ai.attackType = 'triggeredcherrybomb';
                 self.ai.attackTime = 0;
+                self.explosionSize = 10;
             }
         }
     },
@@ -3077,28 +3091,24 @@ Monster.attacks = {
             self.onDeath = function onDeath() {};
         }
         self.ai.attackTime++;
-        if (self.ai.attackTime >= seconds(0.2)) {
+        if (self.ai.attackTime >= seconds(0.3)) {
             self.ai.attackType = 'exploding';
-            for (var i = 0; i < 100; i++) {
+            for (let i = 0; i < 100; i++) {
                 new Particle(self.map, self.x, self.y, 'explosion');
             }
             if (Monster.chunks[self.map]) {
-                for (var z in Monster.chunks[self.map]) {
-                    for (var y = self.chunky-1; y <= self.chunky+1; y++) {
-                        for (var x = self.chunkx-1; x <= self.chunkx+1; x++) {
+                for (let z in Monster.chunks[self.map]) {
+                    for (let y = self.chunky-1; y <= self.chunky+1; y++) {
+                        for (let x = self.chunkx-1; x <= self.chunkx+1; x++) {
                             if (Monster.chunks[self.map][z][y] && Monster.chunks[self.map][z][y][x]) {
                                 var monsters = Monster.chunks[self.map][z][y][x];
-                                for (var i in monsters) {
-                                    if (parseFloat(i) != self.id && self.getDistance(monsters[i]) <= 64) {
+                                for (let i in monsters) {
+                                    if (parseFloat(i) != self.id && self.getDistance(monsters[i]) < 200 && monsters[i].alive && monsters[i].ai.attackType != 'triggeredcherrybomb') {
                                         if (monsters[i].ai.attackType == 'cherrybomb') {
                                             monsters[i].ai.attackType = 'triggeredcherrybomb';
                                             monsters[i].ai.attackTime = 0;
-                                        } else if (monsters[i].ai.attackType != 'triggeredcherrybomb' && monsters[i].alive) {
-                                            monsters[i].onDeath(self, 'explosion');
-                                        }
-                                    } else if (parseFloat(i) != self.id && self.getDistance(monsters[i]) <= 128) {
-                                        if (monsters[i].ai.attackType != 'cherrybomb' && monsters[i].ai.attackType != 'triggeredcherrybomb' && monsters[i].alive) {
-                                            monsters[i].onHit(self, 'cherrybomb');
+                                        } else {
+                                            monsters[i].onHit(self, 'explosion');
                                         }
                                     }
                                 }
@@ -3108,14 +3118,15 @@ Monster.attacks = {
                 }
             }
             if (Player.chunks[self.map]) {
-                for (var z in Player.chunks[self.map]) {
-                    for (var y = self.chunky-1; y <= self.chunky+1; y++) {
-                        for (var x = self.chunkx-1; x <= self.chunkx+1; x++) {
+                for (let z in Player.chunks[self.map]) {
+                    for (let y = self.chunky-1; y <= self.chunky+1; y++) {
+                        for (let x = self.chunkx-1; x <= self.chunkx+1; x++) {
                             if (Player.chunks[self.map][z][y] && Player.chunks[self.map][z][y][x]) {
                                 var players = Player.chunks[self.map][z][y][x];
-                                for (var i in players) {
-                                    if (self.getDistance(players[i]) <= 64 && players[i].alive) players[i].onDeath(self, 'explosion');
-                                    else if (self.getDistance(players[i]) <= 128 && players[i].alive) players[i].onHit(self, 'cherrybomb');
+                                for (let i in players) {
+                                    if (self.getDistance(players[i]) < 200 && players[i].alive) {
+                                        players[i].onHit(self, 'explosion');
+                                    }
                                 }
                             }
                         }
@@ -3216,6 +3227,7 @@ Projectile = function(type, angle, stats, parentID, x, y) {
         self.pattern = Projectile.patterns[tempprojectile.pattern] ?? function() {error('Invalid projectile pattern "' + tempprojectile.pattern + '"');};
         self.piercing = tempprojectile.piercing;
         self.patternUpdateSpeed = tempprojectile.patternUpdateSpeed;
+        self.reflectable = tempprojectile.reflectable;
         tempprojectile = null;
     } catch (err) {
         error(err);
@@ -3260,6 +3272,10 @@ Projectile = function(type, angle, stats, parentID, x, y) {
     self.collisionBoxSize = Math.max(Math.abs(self.sinAngle*self.height)+Math.abs(self.cosAngle*self.width), Math.abs(self.cosAngle*self.height)+Math.abs(self.sinAngle*self.width));
     self.x += self.cosAngle*self.width/2;
     self.y += self.sinAngle*self.width/2;
+    self.gridx = Math.floor(self.x/64);
+    self.gridy = Math.floor(self.y/64);
+    self.chunkx = Math.floor(self.gridx/Collision.grid[self.map].chunkWidth);
+    self.chunky = Math.floor(self.gridy/Collision.grid[self.map].chunkHeight);
     self.toDelete = false;
 
     self.update = function update() {
@@ -3268,14 +3284,17 @@ Projectile = function(type, angle, stats, parentID, x, y) {
             if (Projectile.chunks[self.chunkLocation.map] && Projectile.chunks[self.chunkLocation.map][self.chunkLocation.layer] && Projectile.chunks[self.chunkLocation.map][self.chunkLocation.layer][self.chunkLocation.chunky] && Projectile.chunks[self.chunkLocation.map][self.chunkLocation.layer][self.chunkLocation.chunky][self.chunkLocation.chunkx]) delete Projectile.chunks[self.chunkLocation.map][self.chunkLocation.layer][self.chunkLocation.chunky][self.chunkLocation.chunkx][self.id];
             else {
                 error('Could not delete projectile from chunks!');
-                console.log(self.chunkLocation)
+                error('Location: map:' + self.chunkLocation.map + ' layer:' + self.chunkLocation.layer + ' x:' + self.chunkLocation.chunkx + ' y:' + self.chunkLocation.chunky);
             }
             return;
         }
         if (Player.list[self.parentID] == null && Monster.list[self.parentID] == null) {
             delete Projectile.list[self.id];
             if (Projectile.chunks[self.chunkLocation.map] && Projectile.chunks[self.chunkLocation.map][self.chunkLocation.layer] && Projectile.chunks[self.chunkLocation.map][self.chunkLocation.layer][self.chunkLocation.chunky] && Projectile.chunks[self.chunkLocation.map][self.chunkLocation.layer][self.chunkLocation.chunky][self.chunkLocation.chunkx]) delete Projectile.chunks[self.chunkLocation.map][self.chunkLocation.layer][self.chunkLocation.chunky][self.chunkLocation.chunkx][self.id];
-            else error('Could not delete projectile from chunks!');
+            else {
+                error('Could not delete projectile from chunks!');
+                error('Location: map:' + self.chunkLocation.map + ' layer:' + self.chunkLocation.layer + ' x:' + self.chunkLocation.chunkx + ' y:' + self.chunkLocation.chunky);
+            }
             return;
         }
         self.traveltime++;
@@ -3286,15 +3305,15 @@ Projectile = function(type, angle, stats, parentID, x, y) {
         if (self.updatePos()) return;
         if ((!self.parentIsPlayer || ENV.pvp) && Player.chunks[self.map] && Player.chunks[self.map][self.layer]) {
             var range = Math.ceil(self.collisionBoxSize/(128*Math.max(Collision.grid[self.map].chunkWidth, Collision.grid[self.map].chunkHeight)));
-            for (var y = self.chunky-range; y <= self.chunky+range; y++) {
-                for (var x = self.chunkx-range; x <= self.chunkx+range; x++) {
+            for (let y = self.chunky-range; y <= self.chunky+range; y++) {
+                for (let x = self.chunkx-range; x <= self.chunkx+range; x++) {
                     if (Player.chunks[self.map][self.layer][y] && Player.chunks[self.map][self.layer][y][x]) {
                         var players = Player.chunks[self.map][self.layer][y][x];
-                        for (var i in players) {
+                        for (let i in players) {
                             if (players[i] && self.collideWith(players[i]) && players[i].alive && i != self.parentID) {
-                                players[i].onHit(self, 'projectile');
+                                let noDelete = players[i].onHit(self, 'projectile');
                                 self.pierced++;
-                                if (self.pierced > self.maxPierce) self.toDelete = true;
+                                if (self.pierced > self.maxPierce && !noDelete) self.toDelete = true;
                                 return;
                             }
                         }
@@ -3304,15 +3323,15 @@ Projectile = function(type, angle, stats, parentID, x, y) {
         }
         if ((self.parentIsPlayer || ENV.monsterFriendlyFire) && Monster.chunks[self.map] && Monster.chunks[self.map][self.layer]) {
             var range = Math.ceil(self.collisionBoxSize/(128*Math.max(Collision.grid[self.map].chunkWidth, Collision.grid[self.map].chunkHeight)));
-            for (var y = self.chunky-range; y <= self.chunky+range; y++) {
-                for (var x = self.chunkx-range; x <= self.chunkx+range; x++) {
+            for (let y = self.chunky-range; y <= self.chunky+range; y++) {
+                for (let x = self.chunkx-range; x <= self.chunkx+range; x++) {
                     if (Monster.chunks[self.map][self.layer][y] && Monster.chunks[self.map][self.layer][y][x]) {
                         var monsters = Monster.chunks[self.map][self.layer][y][x];
-                        for (var i in monsters) {
+                        for (let i in monsters) {
                             if (self.collideWith(monsters[i]) && monsters[i].alive && i != self.parentID) {
-                                monsters[i].onHit(self, 'projectile');
+                                let noDelete = monsters[i].onHit(self, 'projectile');
                                 self.pierced++;
-                                if (self.pierced > self.maxPierce) self.toDelete = true;
+                                if (self.pierced > self.maxPierce && !noDelete) self.toDelete = true;
                                 return;
                             }
                         }
@@ -3356,12 +3375,12 @@ Projectile = function(type, angle, stats, parentID, x, y) {
         if (self.checkCollisionLine(self.lastx, self.lasty, self.x, self.y)) colliding = true;
         if (colliding) self.toDelete = true;
         return colliding;
-    }
+    };
     self.checkPointCollision = function checkPointCollision() {
         var collisions = [];
         var range = Math.ceil(self.collisionBoxSize/128);
-        for (var x = self.gridx-range; x <= self.gridx+range; x++) {
-            for (var y = self.gridy-range; y <= self.gridy+range; y++) {
+        for (let x = self.gridx-range; x <= self.gridx+range; x++) {
+            for (let y = self.gridy-range; y <= self.gridy+range; y++) {
                 collisions.push(Collision.getColEntity(self.map, x, y, self.layer));
             }
         }
@@ -3373,8 +3392,8 @@ Projectile = function(type, angle, stats, parentID, x, y) {
             {x: ((-self.width/2)*self.cosAngle)-((self.height/2)*self.sinAngle)+self.x, y: ((-self.width/2)*self.sinAngle)+((self.height/2)*self.cosAngle)+self.y},
             {x: self.x, y: self.y}
         ];
-        for (var i in collisions) {
-            for (var j in collisions[i]) {
+        for (let i in collisions) {
+            for (let j in collisions[i]) {
                 if (self.collideWith(collisions[i][j])) {
                     return true;
                 }
@@ -3384,7 +3403,14 @@ Projectile = function(type, angle, stats, parentID, x, y) {
     };
     self.doPointCollision = function doPointCollision() {
         var colliding = self.checkPointCollision();
-        if (colliding) self.toDelete = true;
+        if (colliding) {
+            self.toDelete = true;
+            for (let event of self.contactEvents) {
+                if (Projectile.contactEvents[event.type]) {
+                    Projectile.contactEvents[event.type](self, null, event.data);
+                }
+            }
+        }
         return colliding;
     };
     self.checkLayer = function checkLayer() {};
@@ -3399,7 +3425,7 @@ Projectile = function(type, angle, stats, parentID, x, y) {
                         {x: entity.x-entity.width/2, y: entity.y-entity.height/2},
                         {x: entity.x-entity.width/2, y: entity.y+entity.height/2}
                     ];
-                    for (var i = 0; i < 4; i++) {
+                    for (let i = 0; i < 4; i++) {
                         if (vertices2[i].y-self.vertices[0].y < (getSlope(self.vertices[0], self.vertices[1])*(vertices2[i].x-self.vertices[0].x))) {
                             if (vertices2[i].y-self.vertices[1].y > (getSlope(self.vertices[1], self.vertices[2])*(vertices2[i].x-self.vertices[1].x))) {
                                 if (vertices2[i].y-self.vertices[2].y > (getSlope(self.vertices[2], self.vertices[3])*(vertices2[i].x-self.vertices[2].x))) {
@@ -3444,7 +3470,7 @@ Projectile = function(type, angle, stats, parentID, x, y) {
 };
 Projectile.update = function update() {
     var pack = [];
-    for (var i in Projectile.list) {
+    for (let i in Projectile.list) {
         localprojectile = Projectile.list[i];
         localprojectile.update();
         pack.push({
@@ -3464,7 +3490,7 @@ Projectile.update = function update() {
 };
 Projectile.getDebugData = function getDebugData() {
     var pack = [];
-    for (var i in Projectile.list) {
+    for (let i in Projectile.list) {
         localprojectile = Projectile.list[i];
         pack.push({
             map: localprojectile.map,
@@ -3503,12 +3529,12 @@ Projectile.patterns = {
         var lowest, target;
         if (self.parentIsPlayer) {
             if (Monster.chunks[self.map]) {
-                for (var z in Monster.chunks[self.map]) {
-                    for (var y = self.chunky-2; y <= self.chunky+2; y++) {
-                        for (var x = self.chunkx-2; x <= self.chunkx+2; x++) {
+                for (let z in Monster.chunks[self.map]) {
+                    for (let y = self.chunky-2; y <= self.chunky+2; y++) {
+                        for (let x = self.chunkx-2; x <= self.chunkx+2; x++) {
                             if (Monster.chunks[self.map][z][y] && Monster.chunks[self.map][z][y][x]) {
                                 var monsters = Monster.chunks[self.map][z][y][x];
-                                for (var i in monsters) {
+                                for (let i in monsters) {
                                     if (lowest == null || (self.getGridDistance(monsters[i]) < self.getGridDistance(Monster.list[lowest]) && monsters[i].alive)) lowest = i;
                                 }
                             }
@@ -3519,12 +3545,12 @@ Projectile.patterns = {
             target = Monster.list[lowest];
         } else {
             if (Player.chunks[self.map]) {
-                for (var z in Player.chunks[self.map]) {
-                    for (var y = self.chunky-2; y <= self.chunky+2; y++) {
-                        for (var x = self.chunkx-2; x <= self.chunkx+2; x++) {
+                for (let z in Player.chunks[self.map]) {
+                    for (let y = self.chunky-2; y <= self.chunky+2; y++) {
+                        for (let x = self.chunkx-2; x <= self.chunkx+2; x++) {
                             if (Player.chunks[self.map][z][y] && Player.chunks[self.map][z][y][x]) {
                                 var players = Player.chunks[self.map][z][y][x];
-                                for (var i in players) {
+                                for (let i in players) {
                                     if (lowest == null || (self.getGridDistance(players[i]) < self.getGridDistance(Player.list[lowest]) && players[i].alive)) lowest = i;
                                 }
                             }
@@ -3548,12 +3574,12 @@ Projectile.patterns = {
         var lowest, target;
         if (self.parentIsPlayer) {
             if (Monster.chunks[self.map]) {
-                for (var z in Monster.chunks[self.map]) {
-                    for (var y = self.chunky-2; y <= self.chunky+2; y++) {
-                        for (var x = self.chunkx-2; x <= self.chunkx+2; x++) {
+                for (let z in Monster.chunks[self.map]) {
+                    for (let y = self.chunky-2; y <= self.chunky+2; y++) {
+                        for (let x = self.chunkx-2; x <= self.chunkx+2; x++) {
                             if (Monster.chunks[self.map][z][y] && Monster.chunks[self.map][z][y][x]) {
                                 var monsters = Monster.chunks[self.map][z][y][x];
-                                for (var i in monsters) {
+                                for (let i in monsters) {
                                     if (lowest == null || (self.getGridDistance(monsters[i]) < self.getGridDistance(Monster.list[lowest]) && monsters[i].alive)) lowest = i;
                                 }
                             }
@@ -3564,12 +3590,12 @@ Projectile.patterns = {
             target = Monster.list[lowest];
         } else {
             if (Player.chunks[self.map]) {
-                for (var z in Player.chunks[self.map]) {
-                    for (var y = self.chunky-2; y <= self.chunky+2; y++) {
-                        for (var x = self.chunkx-2; x <= self.chunkx+2; x++) {
+                for (let z in Player.chunks[self.map]) {
+                    for (let y = self.chunky-2; y <= self.chunky+2; y++) {
+                        for (let x = self.chunkx-2; x <= self.chunkx+2; x++) {
                             if (Player.chunks[self.map][z][y] && Player.chunks[self.map][z][y][x]) {
                                 var players = Player.chunks[self.map][z][y][x];
-                                for (var i in players) {
+                                for (let i in players) {
                                     if (lowest == null || (self.getGridDistance(players[i]) < self.getGridDistance(Player.list[lowest]) && players[i].alive)) lowest = i;
                                 }
                             }
@@ -3593,12 +3619,12 @@ Projectile.patterns = {
     enchantHoming: function(self) {
         var lowest, target;
         if (Monster.chunks[self.map]) {
-            for (var z in Monster.chunks[self.map]) {
-                for (var y = self.chunky-2; y <= self.chunky+2; y++) {
-                    for (var x = self.chunkx-2; x <= self.chunkx+2; x++) {
+            for (let z in Monster.chunks[self.map]) {
+                for (let y = self.chunky-2; y <= self.chunky+2; y++) {
+                    for (let x = self.chunkx-2; x <= self.chunkx+2; x++) {
                         if (Monster.chunks[self.map][z][y] && Monster.chunks[self.map][z][y][x]) {
                             var monsters = Monster.chunks[self.map][z][y][x];
-                            for (var i in monsters) {
+                            for (let i in monsters) {
                                 if (lowest == null || (self.getGridDistance(monsters[i]) < self.getGridDistance(Player.list[lowest]) && monsters[i].alive)) lowest = i;
                             }
                         }
@@ -3668,20 +3694,23 @@ Projectile.patterns = {
 };
 Projectile.contactEvents = {
     explosion: function(self, entity, data) {
-        var parent = Player.list[self.parentID] ?? Monster.list[self.parentID];
-        for (var i = 0; i < data.size*15; i++) {
+        for (let i = 0; i < data.size*15; i++) {
             new Particle(self.map, self.x, self.y, 'explosion');
         }
         self.explosionSize = data.size;
+        console.log(self.chunkx, self.chunky)
         if (Monster.chunks[self.map]) {
-            for (var z in Monster.chunks[self.map]) {
-                for (var y = self.chunky-1; y <= self.chunky+1; y++) {
-                    for (var x = self.chunkx-1; x <= self.chunkx+1; x++) {
+            for (let z in Monster.chunks[self.map]) {
+                for (let y = self.chunky-1; y <= self.chunky+1; y++) {
+                    for (let x = self.chunkx-1; x <= self.chunkx+1; x++) {
                         if (Monster.chunks[self.map][z][y] && Monster.chunks[self.map][z][y][x]) {
                             var monsters = Monster.chunks[self.map][z][y][x];
-                            for (var i in monsters) {
-                                if (parseFloat(i) != self.id && self.getDistance(monsters[i]) <= 20*data.size) {
-                                    if (monsters[i].ai.attackType != 'cherrybomb' && monsters[i].ai.attackType != 'triggeredcherrybomb' && monsters[i].alive) {
+                            for (let i in monsters) {
+                                if (self.getDistance(monsters[i]) <= 64*data.size && monsters[i].ai.attackType != 'triggeredcherrybomb' && monsters[i].alive) {
+                                    if (monsters[i].ai.attackType == 'cherrybomb') {
+                                        monsters[i].ai.attackType = 'triggeredcherrybomb';
+                                        monsters[i].ai.attackTime = 0;
+                                    } else {
                                         monsters[i].onHit(self, 'explosion');
                                     }
                                 }
@@ -3692,13 +3721,15 @@ Projectile.contactEvents = {
             }
         }
         if (Player.chunks[self.map]) {
-            for (var z in Player.chunks[self.map]) {
-                for (var y = self.chunky-1; y <= self.chunky+1; y++) {
-                    for (var x = self.chunkx-1; x <= self.chunkx+1; x++) {
+            for (let z in Player.chunks[self.map]) {
+                for (let y = self.chunky-1; y <= self.chunky+1; y++) {
+                    for (let x = self.chunkx-1; x <= self.chunkx+1; x++) {
                         if (Player.chunks[self.map][z][y] && Player.chunks[self.map][z][y][x]) {
                             var players = Player.chunks[self.map][z][y][x];
-                            for (var i in players) {
-                                if (self.getDistance(players[i]) <= 20*data.size && players[i].alive) players[i].onHit(self, 'explosion');
+                            for (let i in players) {
+                                if (self.getDistance(players[i]) <= 64*data.size && players[i].alive) {
+                                    players[i].onHit(self, 'explosion');
+                                }
                             }
                         }
                     }
@@ -3730,7 +3761,7 @@ Particle = function(map, x, y, type, value) {
 };
 Particle.update = function update() {
     var pack = [];
-    for (var i in Particle.list) {
+    for (let i in Particle.list) {
         localparticle = Particle.list[i];
         pack.push(localparticle);
     }
@@ -3759,7 +3790,7 @@ DroppedItem = function(map, x, y, itemId, enchantments, stackSize, playerId) {
     };
     self.id = Math.random();
     var valid = false;
-    for (var i in Inventory.items) {
+    for (let i in Inventory.items) {
         if (itemId == i) {
             valid = true;
             break;
@@ -3778,7 +3809,7 @@ DroppedItem = function(map, x, y, itemId, enchantments, stackSize, playerId) {
 };
 DroppedItem.update = function update() {
     var pack = [];
-    for (var i in DroppedItem.list) {
+    for (let i in DroppedItem.list) {
         localdroppeditem = DroppedItem.list[i];
         localdroppeditem.update();
         pack.push({
@@ -3799,7 +3830,7 @@ DroppedItem.update = function update() {
 };
 DroppedItem.getDebugData = function getDebugData() {
     var pack = [];
-    for (var i in DroppedItem.list) {
+    for (let i in DroppedItem.list) {
         localdroppeditem = DroppedItem.list[i];
         pack.push({
             map: localdroppeditem.map,

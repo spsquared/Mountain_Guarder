@@ -341,7 +341,7 @@ DraggableWindow = function(id) {
         }
     }
     self.changeTab = function changeTab(tab) {
-        for (var i in self.tabs) {
+        for (let i in self.tabs) {
             document.getElementById(self.tabs[i]).style.display = 'none';
         }
         document.getElementById(tab).style.display = '';
@@ -349,7 +349,7 @@ DraggableWindow = function(id) {
     };
     const children = document.getElementById(id + 'Select').children;
     if (children[0]) {
-        for (var i in children) {
+        for (let i in children) {
             const id = children[i].id;
             if (id) {
                 self.tabs.push(id.replace('Select', ''));
@@ -388,10 +388,10 @@ inventoryWindow.hide = function hide() {
     inventoryWindow.window.style.display = 'none';
     inventoryWindow.open = false;
     document.getElementById('invHoverTooltip').style.opacity = 0;
-    for (var i in Inventory.items) {
+    for (let i in Inventory.items) {
         Inventory.items[i].mousedOver = false;
     }
-    for (var i in Inventory.equips) {
+    for (let i in Inventory.equips) {
         Inventory.equips[i].mousedOver = false;
     }
     if (Inventory.currentDrag) Inventory.dropItem(null, Inventory.currentDrag.stackSize);
@@ -403,14 +403,14 @@ inventoryWindow.hide = function hide() {
     }
 };
 inventoryWindow.changeTab = function changeTab(tab) {
-    for (var i in inventoryWindow.tabs) {
+    for (let i in inventoryWindow.tabs) {
         document.getElementById(inventoryWindow.tabs[i]).style.display = 'none';
     }
     document.getElementById(tab).style.display = '';
     inventoryWindow.currentTab = tab;
     if (Shop.currentShop) Shop.currentShop.close();
     if (tab == 'inventoryCrafting') {
-        for (var i in Crafting.slots) {
+        for (let i in Crafting.slots) {
             Crafting.slots[i].updateMaterials();
         }
     }
@@ -499,32 +499,32 @@ function updateSetting(setting) {
             drawFrame();
             indicatorText += '%';
             break;
-        case 'optimizedParticles':
-            if (settings.optimizedParticles) {
+        case 'fastParticles':
+            if (settings.fastParticles) {
                 if (settings.particles) {
                     indicatorText = 'on';
-                    document.getElementById('optimizedParticlesToggle').checked = true;
+                    document.getElementById('fastParticlesToggle').checked = true;
                 } else {
                     indicatorText = 'off';
-                    document.getElementById('optimizedParticlesToggle').checked = false;
+                    document.getElementById('fastParticlesToggle').checked = false;
                 }
             } else {
                 indicatorText = 'off';
-                settings.optimizedParticles = false;
-                document.getElementById('optimizedParticlesToggle').checked = false;
+                settings.fastParticles = false;
+                document.getElementById('fastParticlesToggle').checked = false;
             }
             break;
         case 'particles':
             if (settings.particles) {
                 indicatorText = 'on';
-                updateSetting('optimizedParticles');
+                updateSetting('fastParticles');
             } else {
                 indicatorText = 'off';
-                var optP = settings.optimizedParticles;
-                settings.optimizedParticles = false;
-                document.getElementById('optimizedParticlesToggle').checked = false;
-                updateSetting('optimizedParticles');
-                settings.optimizedParticles = optP;
+                var optP = settings.fastParticles;
+                settings.fastParticles = false;
+                document.getElementById('fastParticlesToggle').checked = false;
+                updateSetting('fastParticles');
+                settings.fastParticles = optP;
             }
             break;
         case 'coloredLights':
@@ -682,7 +682,7 @@ try {
     document.cookie.split('; ').forEach(function(cookie) {
         if (cookie.startsWith('settings=')) {
             cookiesettings = JSON.parse(cookie.replace('settings=', ''));
-            for (var i in cookiesettings) {
+            for (let i in cookiesettings) {
                 if (settings[i] != null) settings[i] = cookiesettings[i];
             }
             settings.debug = false;
@@ -690,7 +690,7 @@ try {
             document.getElementById('fpsSlider').value = settings.fps;
             document.getElementById('renderDistanceSlider').value = settings.renderDistance;
             document.getElementById('renderQualitySlider').value = settings.renderQuality;
-            document.getElementById('optimizedParticlesToggle').checked = settings.optimizedParticles;
+            document.getElementById('fastParticlesToggle').checked = settings.fastParticles;
             document.getElementById('particlesToggle').checked = settings.particles;
             document.getElementById('coloredLightsToggle').checked = settings.coloredLights;
             document.getElementById('lightsToggle').checked = settings.lights;
@@ -700,18 +700,18 @@ try {
             document.getElementById('chatBackgroundToggle').checked = settings.chatBackground;
             document.getElementById('chatSizeSlider').value = settings.chatSize;
             document.getElementById('highContrastToggle').checked = settings.highContrast;
-            for (var i in settings) {
+            for (let i in settings) {
                 if (i != 'fullscreen') try {updateSetting(i);} catch (err) {console.error(err);}
             }
         } else if (cookie.startsWith('controllerSettings=')) {
             cookiesettings = JSON.parse(cookie.replace('controllerSettings=', ''));
-            for (var i in cookiesettings) {
+            for (let i in cookiesettings) {
                 if (controllerSettings[i] != null) controllerSettings[i] = cookiesettings[i];
             }
             document.getElementById('sensitivitySlider').value = controllerSettings.sensitivity;
             document.getElementById('driftXSlider').value = controllerSettings.driftX;
             document.getElementById('driftYSlider').value = controllerSettings.driftY;
-            for (var i in controllerSettings) {
+            for (let i in controllerSettings) {
                 updateControllerSetting(i);
             }
         }
@@ -725,7 +725,7 @@ changingKeyBind = false;
 function changeKeybind(keybind) {
     if (changingKeyBind == false) {
         changingKeyBind = keybind;
-        for (var i in keybinds) {
+        for (let i in keybinds) {
             updateKeybind(i);
             document.getElementById('keybind_' + i).style.color = '';
         }
@@ -735,7 +735,7 @@ function changeKeybind(keybind) {
 document.addEventListener('keydown', function(e) {
     if (changingKeyBind) {
         if (e.key != 'Meta' && e.key != 'Alt' && e.key != 'Control' && e.key != 'Shift') {
-            for (var i in keybinds) {
+            for (let i in keybinds) {
                 document.getElementById('keybind_' + i).style.color = '';
             }
             var oldKeyBind = keybinds[changingKeyBind];
@@ -744,7 +744,7 @@ document.addEventListener('keydown', function(e) {
             e.preventDefault();
             updateKeybind(changingKeyBind);
             if (e.key != 'Escape') {
-                for (var i in keybinds) {
+                for (let i in keybinds) {
                     if (e.key.toLowerCase() == keybinds[i] && typeof e.key.toLowerCase() == typeof keybinds[i] && i != changingKeyBind) {
                         document.getElementById('keybind_' + i).style.color = 'red';
                         document.getElementById('keybind_' + changingKeyBind).style.color = 'red';
@@ -760,14 +760,14 @@ document.addEventListener('keydown', function(e) {
 });
 document.addEventListener('mousedown', function(e) {
     if (changingKeyBind) {
-        for (var i in keybinds) {
+        for (let i in keybinds) {
             document.getElementById('keybind_' + i).style.color = '';
         }
         var oldKeyBind = keybinds[changingKeyBind];
         keybinds[changingKeyBind] = e.button;
         e.preventDefault();
         updateKeybind(changingKeyBind);
-        for (var i in keybinds) {
+        for (let i in keybinds) {
             if (e.button == keybinds[i] && typeof e.button == typeof keybinds[i] && i != changingKeyBind) {
                 document.getElementById('keybind_' + i).style.color = 'red';
                 document.getElementById('keybind_' + changingKeyBind).style.color = 'red';
@@ -812,10 +812,10 @@ function saveKeybinds() {
 try {
     document.cookie.split('; ').forEach(function(cookie) {if (cookie.startsWith('keybinds=')) {
         cookiekeybinds = JSON.parse(cookie.replace('keybinds=', ''));
-        for (var i in cookiekeybinds) {
+        for (let i in cookiekeybinds) {
             keybinds[i] = cookiekeybinds[i];
         }
-        for (var i in keybinds) {
+        for (let i in keybinds) {
             updateKeybind(i);
         }
     }});

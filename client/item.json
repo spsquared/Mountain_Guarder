@@ -243,6 +243,9 @@
         "description": "A basic shield of planks",
         "slotType": "shield",
         "rarity": 0,
+        "knockbackResistance": 0.2,
+        "blockAngle": 90,
+        "projectileReflectChance": 0,
         "effects": []
     },
     "steelbow": {
@@ -406,6 +409,9 @@
         "description": "A shield reinforced with steel plating",
         "slotType": "shield",
         "rarity": 1,
+        "knockbackResistance": 0.3,
+        "blockAngle": 105,
+        "projectileReflectChance": 0.02,
         "effects": []
     },
     "stoneshield": {
@@ -413,6 +419,9 @@
         "description": "A shield reinforced with a stone slab",
         "slotType": "shield",
         "rarity": 1,
+        "knockbackResistance": 0.5,
+        "blockAngle": 105,
+        "projectileReflectChance": 0.01,
         "effects": [
             {
                 "id": "speed",
@@ -454,7 +463,7 @@
     },
     "quartzcrystal": {
         "name": "Quartz Crystal",
-        "description": "Impales the nearest monster with a sudden stalagmite",
+        "description": "A large quartz crystal. When used, the crystal impales the nearest monster with a sudden stalagmite",
         "slotType": "crystal",
         "rarity": 3,
         "damage": 14,
@@ -486,7 +495,7 @@
     },
     "ialitecrystal": {
         "name": "Ialite Crystal",
-        "description": "A powerful crystal made of Purple-infused Ialite. When used, the crystal blasts waves of Purple.",
+        "description": "A powerful crystal made of Purple-infused Ialite. When used, the crystal blasts waves of Purple",
         "slotType": "crystal",
         "rarity": 3,
         "damage": 24,

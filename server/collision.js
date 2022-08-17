@@ -1,9 +1,10 @@
 // Copyright (C) 2022 Radioactive64
 
 const PF = require('pathfinding');
+const msgpack = require('@ygoe/msgpack');
 const fs = require('fs');
 
-Collision = function(map, x, y, layer, type) {
+Collision = function Collision(map, x, y, layer, type) {
     var coltype = 0;
     switch (type) {
         case -1:
@@ -478,7 +479,7 @@ Collision.getColEntity = function getColEntity(map, x, y, layer) {
 };
 Collision.grid = [];
 
-Layer = function(map, x, y, layer, type) {
+Layer = function Layer(map, x, y, layer, type) {
     if (Layer.grid[map][parseInt(layer)][parseInt(y)] == null) {
         Layer.grid[map][parseInt(layer)][parseInt(y)] = [];
     }
@@ -565,13 +566,50 @@ Layer.getColDir = function getColDir(map, x, y, layer) {
     if (coltype > 5) return -1;
     return 1;
 };
+Layer.init = async function() {
+    for (var map in Layer.grid) {
+        var s = Layer.loadCache(map);
+        if (s) {
+            Layer.lazyInitQueue.push(map);
+        } else {
+            await Layer.generateGraphs(map, false);
+            await Layer.generateLookupTables(map, false);
+            Layer.writeCache(map);
+        }
+    }
+};
+Layer.lazyInit = async function lazyInit() {
+    while (Layer.lazyInitQueue.length) {
+        await Layer.generateGraphs(Layer.lazyInitQueue[0], true);
+        await Layer.generateLookupTables(Layer.lazyInitQueue[0], true);
+        Layer.writeCache(Layer.lazyInitQueue[0]);
+        Layer.lazyInitQueue.shift();
+    }
+};
 Layer.loadCache = function loadCache(map) {
-
+    var exists = fs.existsSync('./server/cache/' + map + '.cache');
+    if (exists) {
+        try {
+            var bytes = fs.readFileSync('./server/cache/' + map + '.cache');
+            var data = msgpack.deserialize(bytes);
+            Layer.graph[map] = data.graph;
+            Layer.lookupTable[map] = data.table;
+            return true;
+        } catch (err) {
+            forceQuit(err, 3);
+        }
+    }
+    return false;
 };
 Layer.writeCache = function writeCache(map) {
-
+    try {
+        var bytes = msgpack.serialize({graph: Layer.graph[map], table: Layer.lookupTable[map]});
+        fs.writeFileSync('./server/cache/' + map + '.cache', bytes, {flag: 'w'});
+    } catch (err) {
+        forceQuit(err, 3);
+    }
 };
-Layer.generateGraphs = function generateGraphs(map) {
+Layer.generateGraphs = async function generateGraphs(map, lazy) {
     const pathfinder = new PF.JumpPointFinder(PF.JPFMoveDiagonallyIfNoObstacles);
     // create graphs
     var layers = [];
@@ -591,6 +629,7 @@ Layer.generateGraphs = function generateGraphs(map) {
                     });
                 }
             }
+            if (lazy) await sleep(10);
         }
     }
     // create grids
@@ -604,6 +643,7 @@ Layer.generateGraphs = function generateGraphs(map) {
                         grid.setWalkableAt(parseInt(x)-Collision.grid[map].offsetX, parseInt(y)-Collision.grid[map].offsetY, false);
                     }
                 }
+                if (lazy) await sleep(10);
             }
         }
         grids[z] = grid;
@@ -627,6 +667,7 @@ Layer.generateGraphs = function generateGraphs(map) {
                         }
                     }
                 }
+                if (lazy) await sleep(10);
             }
         }
     }
@@ -658,12 +699,13 @@ Layer.generateGraphs = function generateGraphs(map) {
                     distance: layers[z][i].distances[j]
                 };
             }
+            if (lazy) await sleep(10);
         }
     }
     
     Layer.graph[map] = graph;
 };
-Layer.generateLookupTables = function generateLookupTables(map) {
+Layer.generateLookupTables = async function generateLookupTables(map, lazy) {
     var grid = [];
     for (var z in Collision.grid[map]) {
         grid[parseInt(z)] = [];
@@ -690,6 +732,7 @@ Layer.generateLookupTables = function generateLookupTables(map) {
                     if (lowest) grid[parseInt(z)][parseInt(y)][parseInt(x)] = lowest;
                     else grid[parseInt(z)][parseInt(y)][parseInt(x)] = {x: 0, y: 0, distance: 1000000};
                 }
+                if (lazy) await sleep(1);
             }
         }
     }
@@ -698,8 +741,9 @@ Layer.generateLookupTables = function generateLookupTables(map) {
 Layer.grid = [];
 Layer.graph = [];
 Layer.lookupTable = [];
+Layer.lazyInitQueue = []
 
-Slowdown = function(map, x, y, type) {
+Slowdown = function Slowdown(map, x, y, type) {
     var coltype = 0;
     switch (type) {
         case -1:
@@ -796,7 +840,7 @@ Slowdown.getColEntity = function getColEntity(map, x, y) {
 };
 Slowdown.grid = [];
 
-Spawner = function(map, x, y, layer, types) {
+Spawner = function Spawner(map, x, y, layer, types) {
     var self = {
         id: null,
         x: x*64+32,
@@ -863,7 +907,7 @@ Spawner.init = function init() {
 };
 Spawner.list = [];
 
-Region = function(map, x, y, properties) {
+Region = function Region(map, x, y, properties) {
     var data = {
         name: 'missing name',
         noattack: false,
@@ -883,19 +927,14 @@ Region = function(map, x, y, properties) {
 };
 Region.grid = [];
 
-Teleporter = function(map, x, y, properties) {
+Teleporter = function Teleporter(map, x, y, properties) {
     var data = {
-        x: 0,
-        y: 0,
-        map: 'World',
-        layer: 0,
-        direction: null
+        map: properties[0],
+        x: parseInt(properties[1]),
+        y: parseInt(properties[2]),
+        layer: parseInt(properties[3]),
+        direction: properties[4]
     };
-    data.map = properties[0];
-    data.x = parseInt(properties[1]);
-    data.y = parseInt(properties[2]);
-    data.layer = parseInt(properties[3]);
-    data.direction = properties[4];
 
     if (Teleporter.grid[map][parseInt(y)] == null) {
         Teleporter.grid[map][parseInt(y)] = [];
@@ -904,3 +943,14 @@ Teleporter = function(map, x, y, properties) {
     return data;
 };
 Teleporter.grid = [];
+
+EventTrigger = function EventTrigger(map, x, y, properties) {
+    var data = {
+        type: properties[0]
+    }
+};
+EventTrigger.triggers = require('./triggers.json');
+
+async function sleep(ms) {
+    await new Promise((resolve, reject) => setTimeout(resolve, ms));
+};

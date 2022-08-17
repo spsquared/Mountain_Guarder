@@ -199,26 +199,30 @@ a:focus {
     opacity: 0.3;
 }
 #menuTitle {
-    position: relative;
-    top: -95%;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100vw;
+    height: 50vh;
     text-align: center;
     font-family: 'pixel';
     font-size: 100px;
     color: #000000;
+    padding-top: 10vh;
     text-shadow: 5px 5px 0px #00000055;
     transform: translateZ(-4px) scale(1.4);
 }
 #stackLeft {
     position: absolute;
-    top: 50%;
-    left: 10%;
-    width: 35%;
+    top: 50vh;
+    left: 10vw;
+    width: 35vw;
 }
 #stackRight {
     position: absolute;
-    top: 50%;
-    left: 55%;
-    width: 35%;
+    top: 50vh;
+    right: 10vw;
+    width: 35vw;
 }
 .stack {
     width: 100%;

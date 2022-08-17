@@ -13,7 +13,8 @@
         "deathMessage": "shot",
         "piercing": false,
         "noCollision": false,
-        "patternUpdateSpeed": 0
+        "patternUpdateSpeed": 0,
+        "reflectable": true
     },
     "piercingarrow": {
         "width": 120,
@@ -29,7 +30,8 @@
         "deathMessage": "shot",
         "piercing": true,
         "noCollision": false,
-        "patternUpdateSpeed": 0
+        "patternUpdateSpeed": 0,
+        "reflectable": false
     },
     "magicball": {
         "width": 40,
@@ -45,7 +47,8 @@
         "deathMessage": "purpled to death",
         "piercing": false,
         "noCollision": false,
-        "patternUpdateSpeed": 0
+        "patternUpdateSpeed": 0,
+        "reflectable": true
     },
     "magicballnoclip": {
         "width": 40,
@@ -61,7 +64,8 @@
         "deathMessage": "purpled to death",
         "piercing": false,
         "noCollision": true,
-        "patternUpdateSpeed": 0
+        "patternUpdateSpeed": 0,
+        "reflectable": false
     },
     "homingmagicball": {
         "width": 40,
@@ -77,7 +81,8 @@
         "deathMessage": "purpled to death",
         "piercing": false,
         "noCollision": false,
-        "patternUpdateSpeed": 1
+        "patternUpdateSpeed": 1,
+        "reflectable": true
     },
     "homingmagicballnoclip": {
         "width": 40,
@@ -93,7 +98,8 @@
         "deathMessage": "purpled to death",
         "piercing": false,
         "noCollision": true,
-        "patternUpdateSpeed": 1
+        "patternUpdateSpeed": 1,
+        "reflectable": false
     },
     "meleedamage": {
         "width": 100,
@@ -109,7 +115,8 @@
         "deathMessage": "slain",
         "piercing": true,
         "noCollision": true,
-        "patternUpdateSpeed": 0
+        "patternUpdateSpeed": 0,
+        "reflectable": false
     },
     "spike": {
         "width": 36,
@@ -125,7 +132,8 @@
         "deathMessage": "impaled",
         "piercing": true,
         "noCollision": true,
-        "patternUpdateSpeed": 0
+        "patternUpdateSpeed": 0,
+        "reflectable": false
     },
     "explosive": {
         "width": 40,
@@ -148,7 +156,8 @@
         "deathMessage": "impaled",
         "piercing": false,
         "noCollision": false,
-        "patternUpdateSpeed": 0
+        "patternUpdateSpeed": 0,
+        "reflectable": false
     },
     "ninjastar": {
         "width": 18,
@@ -164,7 +173,8 @@
         "deathMessage": "shurikened",
         "piercing": false,
         "noCollision": false,
-        "patternUpdateSpeed": 0
+        "patternUpdateSpeed": 0,
+        "reflectable": true
     },
     "snowball": {
         "width": 18,
@@ -180,7 +190,8 @@
         "deathMessage": "snowballed",
         "piercing": false,
         "noCollision": false,
-        "patternUpdateSpeed": 1
+        "patternUpdateSpeed": 1,
+        "reflectable": true
     },
     "fastsnowball": {
         "width": 18,
@@ -196,7 +207,8 @@
         "deathMessage": "snowballed",
         "piercing": false,
         "noCollision": false,
-        "patternUpdateSpeed": 0
+        "patternUpdateSpeed": 0,
+        "reflectable": true
     },
     "rock": {
         "width": 24,
@@ -212,7 +224,8 @@
         "deathMessage": "pelted with rocks",
         "piercing": false,
         "noCollision": false,
-        "patternUpdateSpeed": 1
+        "patternUpdateSpeed": 1,
+        "reflectable": true
     },
     "christmas2021": {
         "width": 60,
@@ -228,6 +241,7 @@
         "deathMessage": "made festive",
         "piercing": false,
         "noCollision": true,
-        "patternUpdateSpeed": 1
+        "patternUpdateSpeed": 1,
+        "reflectable": false
     }
 }

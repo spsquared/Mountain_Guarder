@@ -226,11 +226,11 @@
             }
         },
         "World.tmx": {
-            "scale": 3,
-            "selectedLayer": 21,
+            "scale": 4,
+            "selectedLayer": 25,
             "viewCenter": {
-                "x": 162.33333333333331,
-                "y": 163.5
+                "x": 1492.25,
+                "y": -204.875
             }
         },
         "roguelikeSheet.tsx": {

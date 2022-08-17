@@ -118,7 +118,7 @@ ACCOUNTS = {
         if (username != '' && username != null) {
             if (username.length > 3 || username == 'sp') {
                 if (username.length <= 20) {
-                    for (var i in username) {
+                    for (let i in username) {
                         if (chars.indexOf(username[i]) == -1) return 5;
                     }
                     if (password != '' && password != null) {
@@ -201,7 +201,7 @@ dbDebug = {
         try {
             database.query('SELECT username FROM users;', async function(err, res) {
                 if (err) forceQuit(err);
-                for (var i in res.rows) {
+                for (let i in res.rows) {
                     console.log(res.rows[i].username);
                 }
             });
@@ -240,9 +240,9 @@ dbDebug = {
                     logColor('Purged ' + purged + ' accounts', '\x1b[33m', 'log');
                     purged = 0;
                 }, 10000);
-                for (var i in res.rows) {
+                for (let i in res.rows) {
                     var allnumbers = true;
-                    for (var j in res.rows[i].username) {
+                    for (let j in res.rows[i].username) {
                         if (res.rows[i].username[j] != '.' && res.rows[i].username[j] != '0' && res.rows[i].username[j] != '0' && res.rows[i].username[j] != '1' && res.rows[i].username[j] != '2' && res.rows[i].username[j] != '3' && res.rows[i].username[j] != '4' && res.rows[i].username[j] != '5' && res.rows[i].username[j] != '6' && res.rows[i].username[j] != '7' && res.rows[i].username[j] != '8' && res.rows[i].username[j] != '9') {
                             allnumbers = false;
                         }
@@ -282,9 +282,9 @@ dbDebug = {
                     logColor('Purged ' + purged + ' accounts', '\x1b[33m', 'log');
                     purged = 0;
                 }, 10000);
-                for (var i in res.rows) {
+                for (let i in res.rows) {
                     var allnumbers = true;
-                    for (var j in res.rows[i].username) {
+                    for (let j in res.rows[i].username) {
                         if (res.rows[i].username[j] != '.' && res.rows[i].username[j] != '0' && res.rows[i].username[j] != '0' && res.rows[i].username[j] != '1' && res.rows[i].username[j] != '2' && res.rows[i].username[j] != '3' && res.rows[i].username[j] != '4' && res.rows[i].username[j] != '5' && res.rows[i].username[j] != '6' && res.rows[i].username[j] != '7' && res.rows[i].username[j] != '8' && res.rows[i].username[j] != '9') {
                             allnumbers = false;
                         }
@@ -314,7 +314,7 @@ dbDebug = {
     },
     removeOld: function() {
         try {
-            database.query('SELECT username, data FROM users;', async function(err, res) {
+            database.query('SELECT username FROM users;', async function(err, res) {
                 logColor('Purging old (>1 year no login) and unused (no data / <10 minutes playtime) accounts... This may take a while.', '\x1b[33m', 'log');
                 var purged = 0;
                 if (err) forceQuit(err);
@@ -322,7 +322,7 @@ dbDebug = {
                     logColor('Purged ' + purged + ' accounts', '\x1b[33m', 'log');
                     purged = 0;
                 }, 10000);
-                for (var i in res.rows) {
+                for (let i in res.rows) {
                     var toremove = false;
                     if (res.rows[i].data == null) toremove = true;
                     var data = JSON.parse(res.rows[i].data);
@@ -349,6 +349,37 @@ dbDebug = {
             forceQuit(err, 2);
         }
     },
+    removeSp: async function removeSP() {
+        try {
+            database.query('SELECT username, data FROM users;', async function(err, res) {
+                logColor('Purging old (>1 year no login) and unused (no data / <10 minutes playtime) accounts... This may take a while.', '\x1b[33m', 'log');
+                var purged = 0;
+                if (err) forceQuit(err);
+                var updates = setInterval(function() {
+                    logColor('Purged ' + purged + ' accounts', '\x1b[33m', 'log');
+                    purged = 0;
+                }, 10000);
+                for (let i in res.rows) {
+                    var toremove = false;
+                    if (res.rows[i].username.includes('sp') && res.rows[i].username != 'Sampleprovider(sp)') toremove = true;
+                    if (toremove) {
+                        purged++;
+                        try {
+                            await database.query('DELETE FROM users WHERE username=$1;', [res.rows[i].username]);
+                        } catch (err) {
+                            error(err);
+                        }
+                    }
+                    await new Promise(function(resolve, reject) {setTimeout(resolve, 10);});
+                }
+                logColor('Purged ' + purged + ' accounts', '\x1b[33m', 'log');
+                clearInterval(updates);
+                logColor('Done', '\x1b[33m', 'log');
+            });
+        } catch (err) {
+            forceQuit(err, 2);
+        }
+    }
 };
 // */
 

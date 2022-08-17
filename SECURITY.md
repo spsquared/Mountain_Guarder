@@ -10,6 +10,7 @@ Supported Versions are stable versions that can run without breaking the format 
 
 | Version  | Supported          |
 | -------  | ------------------ |
+| 0.13.1   | :white_check_mark: |
 | 0.13.0   | :white_check_mark: |
 | 0.12.1   | :white_check_mark: |
 | 0.12.0   | :white_check_mark: |

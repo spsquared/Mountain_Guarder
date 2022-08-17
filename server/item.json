@@ -567,7 +567,7 @@
         "projectilePattern": "nearest",
         "projectileSpeed": 1,
         "projectileRange": 1,
-        "damage": 14,
+        "damage": 6,
         "damageType": "melee",
         "critChance": 0,
         "critPower": 0,

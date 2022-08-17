@@ -150,7 +150,7 @@ Inventory.enchantSlot = function enchantSlot(slot, enchantments) {
 };
 Inventory.contains = function contains(id, amount) {
     var count = 0;
-    for (var i in Inventory.items) {
+    for (let i in Inventory.items) {
         if (Inventory.items[i].item && Inventory.items[i].item.id == id) count += Inventory.items[i].item.stackSize;
     }
     return count >= amount;
@@ -200,7 +200,7 @@ Inventory.getRarityColor = function getRarityColor(rarity) {
 Inventory.loadEffects = function loadEffects(item) {
     var str = '<div style="font-size: 12px; line-height: 14px;">';
     if (typeof item === 'object') {
-        if (item.slotType == 'weapon') {
+        if (item.slotType == 'weapon' || item.slotType == 'crystal') {
             var damageType = 'Damage';
             switch (item.damageType) {
                 case 'ranged':
@@ -223,8 +223,12 @@ Inventory.loadEffects = function loadEffects(item) {
                 str += '<br><span style="color: lime;">' + Math.round(item.critPower*100) + '% Critical hit power</span>';
             }
             str += '<br>';
+        } else if (item.slotType == 'shield') {
+            str += '<span style="color: lime;">' + item.blockAngle + '° Block angle</span><br>';
+            str += '<span style="color: lime;">' + Math.round(item.projectileReflectChance*100) + '% Reflection chance</span><br>';
+            str += '<span style="color: lime;">+' + Math.round(item.knockbackResistance*100) + '% Knockback resistance</span><br>';
         }
-        for (var i in item.effects) {
+        for (let i in item.effects) {
             var color = '';
             var number = '+0';
             var effect = 'nothing';
@@ -352,7 +356,7 @@ document.addEventListener('mousedown', function(e) {
     if (loaded) {
         if (e.button == 0 || e.button == 2) {
             if (document.getElementById('inventory').contains(e.target)) {
-                for (var i in Inventory.items) {
+                for (let i in Inventory.items) {
                     if (Inventory.items[i].mousedOver) {
                         if (Inventory.currentDrag) {
                             if (e.button == 0) Inventory.placeItem(parseInt(i), Inventory.currentDrag.stackSize);
@@ -364,7 +368,7 @@ document.addEventListener('mousedown', function(e) {
                         return;
                     }
                 }
-                for (var i in Inventory.equips) {
+                for (let i in Inventory.equips) {
                     if (Inventory.equips[i].mousedOver) {
                         if (Inventory.currentDrag) {
                             if (e.button == 0) Inventory.placeItem(i, Inventory.currentDrag.stackSize);
@@ -402,7 +406,7 @@ document.addEventListener('keydown', function(e) {
     if (loaded) {
         if (!inchat && !indebug) {
             if (e.key.toLowerCase() == keybinds.drop) {
-                for (var i in Inventory.items) {
+                for (let i in Inventory.items) {
                     if (Inventory.items[i].item && Inventory.items[i].mousedOver) {
                         if (e.getModifierState('Control')) Inventory.dropItem(parseInt(i), Inventory.items[i].item.stackSize);
                         else Inventory.dropItem(parseInt(i), 1);
@@ -410,7 +414,7 @@ document.addEventListener('keydown', function(e) {
                         Inventory.hovering = false;
                     }
                 }
-                for (var i in Inventory.equips) {
+                for (let i in Inventory.equips) {
                     if (Inventory.equips[i].item && Inventory.equips[i].mousedOver) {
                         Inventory.dropItem(parseInt(i), Inventory.equips[i].item.stackSize);
                         tooltip.style.opacity = 0;
@@ -473,7 +477,7 @@ socket.on('item', function(data) {
     switch (data.action) {
         case 'maxItems':
             Inventory.maxItems = data.slots;
-            for (var i = 0; i < Inventory.maxItems; i++) {
+            for (let i = 0; i < Inventory.maxItems; i++) {
                 new Inventory.Slot();
             }
             break;
@@ -496,7 +500,7 @@ socket.on('item', function(data) {
     }
     if (Shop.currentShop) Shop.currentShop.updateAffordability();
     if (inventoryWindow.currentTab == 'inventoryCrafting') {
-        for (var i in Crafting.slots) {
+        for (let i in Crafting.slots) {
             Crafting.slots[i].updateMaterials();
         }
     }
@@ -513,14 +517,14 @@ async function getInventoryData() {
                 var json = JSON.parse(this.response);
                 Inventory.itemTypes = json;
                 loadedassets++;
-                for (var i in Inventory.itemTypes) {
+                for (let i in Inventory.itemTypes) {
                     totalassets += 2;
                     Inventory.itemImages[i] = new Image();
                     Inventory.itemHighlightImages[i] = new Image();
                 }
                 totalassets++;
                 Inventory.itemImages['empty'] = new Image();
-                for (var i in Inventory.equips) {
+                for (let i in Inventory.equips) {
                     totalassets++;
                     Inventory.itemImages[i] = new Image();
                 }
@@ -540,7 +544,7 @@ async function getInventoryData() {
 };
 async function loadInventoryData() {
     // The whole point of this is to get all the items into cache - unlike everything else the images will not be loaded from the array into the inventory window because of some wierd CSS issues.
-    for (var i in Inventory.itemTypes) {
+    for (let i in Inventory.itemTypes) {
         await new Promise(function(resolve, reject) {
             Inventory.itemImages[i].onload = function() {
                 loadedassets++;
@@ -566,7 +570,7 @@ async function loadInventoryData() {
         Inventory.itemImages['empty'].src = '/client/img/item/empty.png';
         Inventory.itemImages['empty'].className = 'invSlotImgNoGrab noSelect';
     });
-    for (var i in Inventory.equips) {
+    for (let i in Inventory.equips) {
         await new Promise(function(resolve, reject) {
             Inventory.itemImages[i].onload = function() {
                 loadedassets++;
@@ -576,7 +580,7 @@ async function loadInventoryData() {
             Inventory.itemImages[i].className = 'invSlotImgNoGrab noSelect';
         });
     }
-    for (var i in Inventory.equips) {
+    for (let i in Inventory.equips) {
         new Inventory.EquipSlot(i);
     }
 };
@@ -629,7 +633,7 @@ Crafting.slot = function(slot) {
     craft.updateMaterials = function updateMaterials() {
         var str = '<span style="font-size: 14px;">Requires:</span><br><div style="font-size: 12px; line-height: 12px;">';
         var hasAllResources = true;
-        for (var i in craft.resources) {
+        for (let i in craft.resources) {
             if (Inventory.contains(i, craft.resources[i])) {
                 str += '<div style="color: lime;">x' + craft.resources[i] + ' ' + Inventory.itemTypes[i].name + '</div><br>';
             } else {
@@ -667,7 +671,7 @@ async function getCraftingData() {
                 var json = JSON.parse(this.response);
                 Crafting.slots = json.items;
                 loadedassets++;
-                for (var i in Crafting.slots) {
+                for (let i in Crafting.slots) {
                     totalassets++;
                 }
                 resolve();
@@ -685,7 +689,7 @@ async function getCraftingData() {
     });
 };
 async function loadCraftingData() {
-    for (var i in Crafting.slots) {
+    for (let i in Crafting.slots) {
         new Crafting.slot(i);
         loadedassets++;
     }
@@ -702,14 +706,14 @@ Shop = function(id) {
     self.divs = [];
     inventoryShop.innerHTML = '';
     shopName.innerText = self.name;
-    for (var i in self.slots) {
+    for (let i in self.slots) {
         const block = document.createElement('div');
         block.className = 'shopBlock';
         const costs = document.createElement('div');
         costs.className = 'shopCosts';
         block.appendChild(costs);
         var counts = [];
-        for (var j in self.slots[i].costs) {
+        for (let j in self.slots[i].costs) {
             const costblock = document.createElement('div');
             costblock.className = 'costItemBlock';
             const cost = new Image();
@@ -756,9 +760,9 @@ Shop = function(id) {
     }
     
     self.updateAffordability = function() {
-        for (var i in self.slots) {
+        for (let i in self.slots) {
             var hasAll = true;
-            for (var j in self.slots[i].costs) {
+            for (let j in self.slots[i].costs) {
                 if (Inventory.contains(j, self.slots[i].costs[j])) {
                     self.divs[i].costcounts[j].style.color = '';
                 } else {

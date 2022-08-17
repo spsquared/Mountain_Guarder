@@ -1,6 +1,6 @@
 // Copyright (C) 2022 Radioactive64
 
-const version = 'v0.13.0';
+const version = 'v0.13.1';
 var firstload = false;
 // canvas
 CTXRAW = document.getElementById('canvas');
@@ -48,7 +48,7 @@ settings = {
     fps: 60,
     renderDistance: 1,
     renderQuality: 100,
-    optimizedParticles: false,
+    fastParticles: false,
     particles: true,
     coloredLights: true,
     lights: true,
@@ -117,13 +117,13 @@ function resetCanvases() {
     LAYERS.map0.height = window.innerHeight*SCALE;
     LAYERS.mlower.scale(SCALE, SCALE);
     resetCanvas(LAYERS.map0);
-    for (var i in LAYERS.mapvariables) {
+    for (let i in LAYERS.mapvariables) {
         LAYERS.mapvariables[i].width = window.innerWidth*SCALE;
         LAYERS.mapvariables[i].height = window.innerHeight*SCALE;
         LAYERS.mvariables[i].scale(SCALE, SCALE);
         resetCanvas(LAYERS.mapvariables[i]);
     }
-    for (var i in LAYERS.entitylayers) {
+    for (let i in LAYERS.entitylayers) {
         LAYERS.entitylayers[i].width = window.innerWidth*SCALE;
         LAYERS.entitylayers[i].height = window.innerHeight*SCALE;
         LAYERS.elayers[i].scale(SCALE, SCALE);
@@ -145,9 +145,9 @@ function resetCanvases() {
     CTXRAW.height = window.innerHeight*SCALE;
     CTX.scale(SCALE, SCALE);
     resetCanvas(CTXRAW);
-    for (var i in MAPS) {
-        for (var j in MAPS[i].chunks) {
-            for (var k in MAPS[i].chunks[j]) {
+    for (let i in MAPS) {
+        for (let j in MAPS[i].chunks) {
+            for (let k in MAPS[i].chunks[j]) {
                 resetCanvas(MAPS[i].chunks[j][k].upper);
                 resetCanvas(MAPS[i].chunks[j][k].lower);
             }

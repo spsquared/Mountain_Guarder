@@ -42,8 +42,6 @@ function generateServerItem() {
         item.knockbackResistance = null;
         item.blockAngle = null;
         item.projectileReflectChance = null;
-    } else if (slotType == 'offHand') {
-        item.offhandEffect = null;
     }
     for (var i in item) {
         var value = document.getElementById(i).value;
@@ -108,6 +106,10 @@ function generateClientItem() {
         item.manaCost = null;
         item.heldAngle = null;
         item.heldDistance = null;
+    } else if (slotType == 'shield') {
+        item.knockbackResistance = null;
+        item.blockAngle = null;
+        item.projectileReflectChance = null;
     }
     for (var i in item) {
         var value = document.getElementById(i).value;

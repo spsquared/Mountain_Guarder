@@ -34,11 +34,11 @@ QuestHandler = function(socket, player) {
                 type: 'end',
                 id: id
             });
-            for (var i in rewards) {
+            for (let i in rewards) {
                 if (i == 'xp') {
                     player.xp += rewards[i];
                 } else if (i == 'items') {
-                    for (var j in rewards[i]) {
+                    for (let j in rewards[i]) {
                         player.inventory.addItem(j, rewards[i][j]);
                     }
                 }
@@ -51,13 +51,13 @@ QuestHandler = function(socket, player) {
         }
     };
     self.updateQuestRequirements = function updateQuestRequirements(data) {
-        for (var i in self.current) {
+        for (let i in self.current) {
             if (self.current[i].checkRequirements(data)) self.advanceQuestStage(i);
         }
     };
     self.updateClient = function updateClient() {
         var pack = [];
-        for (var i in self.current) {
+        for (let i in self.current) {
             pack.push({
                 id: i,
                 data: self.current[i].objectivesComplete
@@ -69,7 +69,7 @@ QuestHandler = function(socket, player) {
         var quest = QuestData.quests[id];
         if (quest) {
             if (player.xpLevel < quest.requirements.xpLevel) return false;
-            for (var i in quest.requirements.completed) {
+            for (let i in quest.requirements.completed) {
                 if (self.done.indexOf(quest.requirements.completed[i]) == -1) return false;
             }
             return true;
@@ -79,7 +79,7 @@ QuestHandler = function(socket, player) {
         }
     };
     self.isInQuest = function isInQuest(id) {
-        for (var i in self.current) {
+        for (let i in self.current) {
             if (self.current[i].id == id) {
                 return self.current[i].stage;
             }
@@ -88,7 +88,7 @@ QuestHandler = function(socket, player) {
     };
     self.failQuests = function failQuests(reason) {
         if (reason == 'death') {
-            for (var i in self.current) {
+            for (let i in self.current) {
                 if (self.current[i].failOnDeath) self.endQuest(i, false);
             }
         }
@@ -116,9 +116,9 @@ QuestData = function(id) {
         rewards: quest.rewards,
         failOnDeath: quest.failOnDeath
     };
-    for (var i in self.objectivesComplete) {
+    for (let i in self.objectivesComplete) {
         if (i == 'killMonster' || i == 'obtain') {
-            for (var j in self.objectivesComplete[i]) {
+            for (let j in self.objectivesComplete[i]) {
                 self.objectivesComplete[i][j] = 0;
             }
         } else if (j == 'talk' || j == 'area') {
@@ -131,11 +131,11 @@ QuestData = function(id) {
     self.checkRequirements = function checkRequirements(data) {
         var objectives = self.objectivesComplete;
         var goals = self.objectives;
-        for (var i in objectives) {
+        for (let i in objectives) {
             switch (i) {
                 case 'obtain':
-                    for (var j in data.aqquiredItems) {
-                        for (var k in objectives[i]) {
+                    for (let j in data.aqquiredItems) {
+                        for (let k in objectives[i]) {
                             if (j == k) objectives[i][k] += data.aqquiredItems[j];
                         }
                     }
@@ -149,8 +149,8 @@ QuestData = function(id) {
                     objectives[i] += data.trackedData.playerKills;
                     break;
                 case 'killMonster':
-                    for (var j in data.trackedData.monstersKilled) {
-                        for (var k in objectives[i]) {
+                    for (let j in data.trackedData.monstersKilled) {
+                        for (let k in objectives[i]) {
                             if (k == 'any') objectives[i][k] += data.trackedData.monstersKilled[j].count;
                             if (k == 'bird' && data.trackedData.monstersKilled[j].id.includes('bird')) objectives[i][k] += data.trackedData.monstersKilled[j].count;
                             if (k == data.trackedData.monstersKilled[j].id) objectives[i][k] += data.trackedData.monstersKilled[j].count;
@@ -172,9 +172,9 @@ QuestData = function(id) {
             }
         }
         var completed = true;
-        check: for (var j in objectives) {
+        check: for (let j in objectives) {
             if (j == 'killMonster' || j == 'obtain') {
-                for (var k in objectives[j]) {
+                for (let k in objectives[j]) {
                     if (objectives[j][k] < goals[j][k]) {
                         completed = false;
                         break check;
@@ -199,9 +199,9 @@ QuestData = function(id) {
         if (self.stages[self.stage] == null) return true;
         self.objectives = cloneDeep(self.stages[self.stage]);
         self.objectivesComplete = cloneDeep(self.stages[self.stage]);
-        for (var i in self.objectivesComplete) {
+        for (let i in self.objectivesComplete) {
             if (i == 'killMonster' || i == 'obtain') {
-                for (var j in self.objectivesComplete[i]) {
+                for (let j in self.objectivesComplete[i]) {
                     self.objectivesComplete[i][j] = 0;
                 }
             } else if (i == 'talk' || i == 'area') {

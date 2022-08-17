@@ -22,7 +22,7 @@ insertChat = function insertChat(text, color) {
 };
 insertSingleChat = function insertSingleChat(text, color, username, log) {
     var socket = null;
-    for (var i in Player.list) {
+    for (let i in Player.list) {
         if (Player.list[i].name == username) socket = Player.list[i].socket;
     }
     if (socket) {
@@ -55,6 +55,7 @@ logColor = function logColor(text, colorstring, type) {
     }
     if (process.env.DATABASE_URL) console.log('[' + time.getUTCHours() + ':' + minute + '] ' + colorstring + text + '\x1b[0m');
     else console.log('\r[' + time.getUTCHours() + ':' + minute + '] ' + colorstring + text + '\x1b[0m');
+    process.stdout.write('> ');
     appendLog('[' + time.getUTCHours() + ':' + minute + '] ' + text, type);
 };
 log = function log(text) {
@@ -72,6 +73,6 @@ appendLog = function appendLog(text, type) {
     if (type == 'warn') typestring = '!WN ';
     if (type == 'log') typestring = 'LOG ';
     if (type == 'chat') typestring = 'CHT ';
-    fs.appendFileSync('./server/log.txt', typestring + text + '\n', {encoding: 'utf-8'});
+    fs.appendFile('./server/log.log', typestring + text + '\n', {encoding: 'utf-8'}, function() {});
     if (global.ENV && !ENV.offlineMode && ENV.useDiscordWebhook && type != 'chat') try {postDebugDiscord(typestring, text.toString());} catch (err) {error(err);};
 };

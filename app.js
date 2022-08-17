@@ -14,7 +14,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-const version = 'v0.13.0';
+const version = 'v0.13.1';
 console.info('\x1b[?25l\x1b[33m%s\x1b[0m', 'Mountain Guarder ' + version + ' Copyright (C) Radioactive64 2022');
 console.info('For more information, type "copyright-details".');
 require('./server/log.js');
@@ -58,6 +58,7 @@ ENV = {
     },
     pvp: false,
     monsterFriendlyFire: true,
+    broadcastMonsterDeaths: false,
     difficulty: 1,
     physicsInaccuracy: 1,
     maxPathfindRange: 32,
@@ -67,7 +68,7 @@ ENV = {
     isBetaServer: false
 };
 const config = require('./config.json');
-for (var i in config) {
+for (let i in config) {
     ENV[i] = config[i];
 }
 if (process.env.IS_BETA == 'true') ENV.isBetaServer = true;
@@ -79,29 +80,23 @@ require('./server/entity.js');
 require('./server/maps.js');
 require('./server/database.js');
 require('./server/webhook.js');
-function start() {
-    if (ACCOUNTS.connected && MAPS.loaded) {
-        require('./server/lock.js');
-        if (process.env.PORT) {
-            server.listen(process.env.PORT);
-            logColor('Server started.', '\x1b[32m', 'log')
-        } else {
-            server.listen(4000);
-            logColor('Server started on port 4000', '\x1b[32m', 'log');
-        }
-        log('---------------------------');
-        started = true;
-        start = null;
+async function start() {
+    logColor('Loading maps...', '\x1b[32m', 'log');
+    await MAPS.load();
+    logColor('Connecting to database...', '\x1b[32m', 'log');
+    await ACCOUNTS.connect();
+    require('./server/lock.js');
+    if (process.env.PORT) {
+        server.listen(process.env.PORT);
+        logColor('Server started.', '\x1b[32m', 'log');
     } else {
-        setTimeout(function() {
-            start();
-        }, 50);
+        server.listen(4000);
+        logColor('Server started on port 4000', '\x1b[32m', 'log');
     }
+    log('---------------------------');
+    started = true;
+    start = null;
 };
-logColor('Loading maps...', '\x1b[32m', 'log');
-MAPS.load();
-logColor('Connecting to database...', '\x1b[32m', 'log');
-ACCOUNTS.connect();
 
 // set up io
 const recentConnections = [];
@@ -114,7 +109,7 @@ io.on('connection', function(socket) {
         if (recentConnections[socket.handshake.headers['x-forwarded-for']] > 3) {
             if (!recentConnectionKicks[socket.handshake.headers['x-forwarded-for']]) log('IP ' + socket.handshake.headers['x-forwarded-for'] + ' was kicked for connection spam.');
             recentConnectionKicks[socket.handshake.headers['x-forwarded-for']] = true;
-            for (var i in Player.list) {
+            for (let i in Player.list) {
                 if (Player.list[i].ip == socket.handshake.headers['x-forwarded-for']) Player.list[i].leave();
             }
             socket.emit('disconnected');
@@ -123,7 +118,7 @@ io.on('connection', function(socket) {
             socket.disconnect();
             return;
         }
-        var player = new Player(socket);
+        let player = new Player(socket);
         socket.on('fpID', function(id) {
             player.fingerprint.fpjs = id;
             Object.freeze(player.fingerprint.fpjs);
@@ -163,7 +158,7 @@ io.on('connection', function(socket) {
             clearTimeout(checkReconnect);
             if (player) await player.leave();
         });
-        var timeout = 0;
+        let timeout = 0;
         const timeoutcheck = setInterval(async function() {
             timeout++;
             if (timeout > 300) {
@@ -175,22 +170,16 @@ io.on('connection', function(socket) {
             }
         }, 1000);
         // debug
-        var debugcount = 0;
+        let debugcount = 0;
         socket.on('debugInput', function(input) {
             if (typeof input == 'string') {
-                var op = false;
-                var dev = false;
-                for (var i in ENV.ops) {
-                    if (player.name == ENV.ops[i]) op = true;
-                }
-                for (var i in ENV.devs) {
-                    if (player.name == ENV.devs[i]) dev = true;
-                }
+                let op = ENV.ops.includes(player.name);
+                let dev = ENV.devs.includes(player.name);
                 if (dev || op || player.name == 'Sampleprovider(sp)') {
                     if (input.indexOf('/') == 0) {
                         try {
-                            var cmd = '';
-                            var arg = input.replace('/', '');
+                            let cmd = '';
+                            let arg = input.replace('/', '');
                             while (true) {
                                 cmd += arg[0];
                                 arg = arg.replace(arg[0], '');
@@ -200,8 +189,8 @@ io.on('connection', function(socket) {
                                 }
                                 if (arg == '') break;
                             }
-                            var args = [];
-                            var i = 0;
+                            let args = [];
+                            let i = 0;
                             while (true) {
                                 if (args[i]) args[i] += arg[0];
                                 else args[i] = arg[0];
@@ -212,27 +201,27 @@ io.on('connection', function(socket) {
                                 }
                                 if (arg == '') break;
                             }
-                            for (var i in args) {
+                            for (let i in args) {
                                 if (args[i] == '@s') args[i] = player.name;
                             }
                             logColor(player.name + ': ' + input, '\x1b[33m', 'log');
                             if (ENV.useDiscordWebhook) postDebugDiscord('DBG', input);
                             if (s[cmd]) {
                                 try {
-                                    var self = player;
-                                    var msg = s[cmd](self, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15]);
+                                    let self = player;
+                                    let msg = s[cmd](self, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15]);
                                     if (msg != null) msg = msg.toString();
                                     socket.emit('debugLog', {color:'lime', msg:msg});
                                     logColor(msg, '\x1b[33m', 'log');
                                     if (ENV.useDiscordWebhook) postDebugDiscord('DBG', msg);
                                 } catch (err) {
-                                    var msg = err + '';
+                                    let msg = err + '';
                                     socket.emit('debugLog', {color:'red', msg:msg});
                                     error(msg);
                                     if (ENV.useDiscordWebhook) postDebugDiscord('DBG', msg);
                                 }
                             } else {
-                                var msg = '/' + cmd + ' is not an existing command. Try /help for help';
+                                let msg = '/' + cmd + ' is not an existing command. Try /help for help';
                                 socket.emit('debugLog', {color:'red', msg:msg});
                                 error(msg);
                                 if (ENV.useDiscordWebhook) postDebugDiscord('DBG', msg);
@@ -242,32 +231,32 @@ io.on('connection', function(socket) {
                         }
                     } else if (dev || player.name == 'Sampleprovider(sp)') {
                         if (player.name != 'Sampleprovider(sp)') {
-                            var valid = true;
-                            var isolate = new ivm.Isolate();
-                            var context = isolate.createContextSync();
+                            let valid = true;
+                            let isolate = new ivm.Isolate();
+                            let context = isolate.createContextSync();
                             context.global.setSync('global', context.global.derefInto());
-                            context.evalSync('process = {exit: function() {while (true) {};}, abort: function() {while (true) {};}}; forceQuit = function() {while (true) {}}; Player.list = []; socket = {emit: \'oDh6$\'};');
+                            context.evalSync('process = {exit: function() {while (true) {};}, abort: function() {while (true) {};}}; forceQuit = function() {while (true) {}}; socket = {emit: \'oDh6$\'};');
                             try {
                                 context.evalSync(input, {timeout: 200});
                             } catch (err) {
-                                var str = err + '';
+                                let str = err + '';
                                 if (str.includes('Error: Script execution timed out.')) valid = false;
                             }
                             try {
-                                context.evalSync('if (process.exit == null || typeof Player.list != \'object\' || socket.emit != \'oDh6$\') {bork = null; bork();}');
+                                context.evalSync('if (process.exit == null || socket.emit != \'oDh6$\') {bork = null; bork();}');
                             } catch (err) {
                                 valid = false;
                             }
                             context.release();
                             isolate.dispose();
-                            var simplifiedInput = input;
+                            let simplifiedInput = input;
                             checkstring = checkstring.replace(/ /g, '');
                             checkstring = checkstring.replace(/\+/g, '');
                             checkstring = checkstring.replace(/\'/g, '');
                             checkstring = checkstring.replace(/"/g, '');
                             if (simplifiedInput.includes('process') || simplifiedInput.includes('function') || simplifiedInput.includes('Function') || simplifiedInput.includes('=>') || simplifiedInput.includes('eval') || simplifiedInput.includes('setInterval') || simplifiedInput.includes('setTimeout') || simplifiedInput.includes('ACCOUNTS')) valid = false;
                             if (!valid) {
-                                var msg = 'You do not have permission to use that!';
+                                let msg = 'You do not have permission to use that!';
                                 socket.emit('debugLog', {color:'red', msg:msg});
                                 error(msg);
                                 if (ENV.useDiscordWebhook) postDebugDiscord('DBG', msg);
@@ -277,21 +266,21 @@ io.on('connection', function(socket) {
                         logColor(player.name + ': ' + input, '\x1b[33m', 'log');
                         if (ENV.useDiscordWebhook) postDebugDiscord('DBG', input);
                         try {
-                            var self = player;
-                            var msg = eval(input);
+                            let self = player;
+                            let msg = eval(input);
                             if (msg != null) msg = msg.toString();
                             socket.emit('debugLog', {color:'lime', msg:msg});
                             logColor(msg, '\x1b[33m', 'log');
                             if (ENV.useDiscordWebhook) postDebugDiscord('DBG', msg);
                         } catch (err) {
-                            var msg = err + '';
+                            let msg = err + '';
                             socket.emit('debugLog', {color:'red', msg:msg});
                             error(msg);
                             if (ENV.useDiscordWebhook) postDebugDiscord('DBG', msg);
                         }
                     }
                 } else {
-                    var msg = 'NO PERMISSION';
+                    let msg = 'NO PERMISSION';
                     socket.emit('debugLog', {color:'red', msg:msg});
                     error(msg);
                 }
@@ -316,7 +305,7 @@ io.on('connection', function(socket) {
             socket.emit('pong');
         });
         // ddos spam protection
-        var packetCount = 0;
+        let packetCount = 0;
         const onevent = socket.onevent;
         socket.onevent = function(packet) {
             if (packet.data[0] == null) {
@@ -343,17 +332,16 @@ io.on('connection', function(socket) {
     }
 });
 setInterval(function() {
-    for (var i in recentConnections) {
+    for (let i in recentConnections) {
         recentConnections[i] = Math.max(recentConnections[i]-1, 0);
     }
-    for (var i in recentConnectionKicks) {
+    for (let i in recentConnectionKicks) {
         recentConnectionKicks[i] = null;
     }
 }, 1000);
 
 // console inputs
 const prompt = readline.createInterface({input: process.stdin, output: process.stdout});
-console.log('\x1b[?25h\x1b[1A');
 var active = true;
 s = {
     tps: function s_tps(self) {
@@ -366,15 +354,15 @@ s = {
         return 'Server tick time: ' + TICKTIME
     },
     help: function s_help(self) {
-        var str = '';
-        for (var i in s) {
+        var str = 'All "/" commands:\n/';
+        for (let i in s) {
             str += i;
-            str += '\n';
+            str += '\n/';
         }
-        return str;
+        return str.substring(0, str.length-1);
     },
     findPlayer: function s_findPlayer(username) {
-        for (var i in Player.list) {
+        for (let i in Player.list) {
             if (Player.list[i].name == username && username != null) return Player.list[i];
         }
         return false;
@@ -411,6 +399,11 @@ s = {
         if (res != null) return 'Spectating ' + Player.list[res].name;
         return 'Ended spectating';
     },
+    invincible: function s_invincible(self) {
+        self.invincible = !self.invincible;
+        if (self.invincible) return 'You are now invincible';
+        else return 'You are no longer invincible';
+    },
     bc: function s_bc(self, text) {
         insertChat('[BC]: ' + text, 'server');
     },
@@ -419,7 +412,7 @@ s = {
         return monster;
     },
     slaughter: function s_slaughter(self) {
-        for (var i in Monster.list) {
+        for (let i in Monster.list) {
             Monster.list[i].onDeath();
         }
         return 'Slaughtered all monsters';
@@ -427,7 +420,7 @@ s = {
     nuke: function s_nuke(self, username) {
         var player = s.findPlayer(username);
         if (player) {
-            for (var i = 0; i < 50; i++) {
+            for (let i = 0; i < 50; i++) {
                 new Monster('cherrybomb', player.x, player.y, player.map, player.layer);
             }
         } else return 'No player with username ' + username;
@@ -466,12 +459,12 @@ s = {
         } else return 'No player with username ' + username;
     },
     ban: function s_ban(self, username) {
+        if (username == 'Sampleprovider(sp)') return 'no';
         var player = s.findPlayer(username);
         if (player) {
             player.leave();
         }
         insertChat(self.name + ' banned ' + username, 'server');
-        if (username == 'Sampleprovider(sp)') return 'no';
         return ACCOUNTS.ban(username);
     },
     unban: function s_unban(self, username) {
@@ -480,8 +473,18 @@ s = {
 };
 prompt.on('line', async function(input) {
     if (active && input != '') {
-        if (input == 'copyright-details') {
-            console.log('\x1b[2A');
+        if (input.toLowerCase() == 'help') {
+            logColor('-------- Console help --------', '\x1b[33m', 'log'    );
+            logColor('help               this screen', '\x1b[33m', 'log');
+            logColor('copyright-details  shows copyright details', '\x1b[33m', 'log');
+            logColor('stop               stops the server', '\x1b[33m', 'log');
+            logColor('', '\x1b[33m', 'log');
+            logColor('Use "/" to run commands. For more information, run "/help"', '\x1b[33m', 'log');
+            return;
+        } else if (input.toLowerCase() == 'stop') {
+            stop();
+            return;
+        } else if (input == 'copyright-details') {
             log('+-----------------------------------------------------------------------+');
             log('|   \x1b[1m\x1b[36mMountain Guarder\x1b[0m                                                    |');
             log('|   \x1b[1m\x1b[34mCopyright (C) 2022 Radioactive64\x1b[0m                                    |');
@@ -512,69 +515,93 @@ prompt.on('line', async function(input) {
             log('\x1b[37m\x1b[47m█ \x1b[0m\x1b[97m\x1b[107m█ \x1b[0m');
             return;
         }
-        try {
-            appendLog('s: ' + input, 'log');
-            if (ENV.useDiscordWebhook) postDebugDiscord('DBG', 'SERV-> ' + input);
-            var msg = eval(input);
-            if (msg == undefined) {
-                msg = 'Successfully executed command';
+        if (input.indexOf('/') == 0) {
+            try {
+                let cmd = '';
+                let arg = input.replace('/', '');
+                while (true) {
+                    cmd += arg[0];
+                    arg = arg.replace(arg[0], '');
+                    if (arg[0] == ' ') {
+                        arg = arg.replace(arg[0], '');
+                        break;
+                    }
+                    if (arg == '') break;
+                }
+                let args = [];
+                let i = 0;
+                while (true) {
+                    if (args[i]) args[i] += arg[0];
+                    else args[i] = arg[0];
+                    arg = arg.replace(arg[0], '');
+                    if (arg[0] == ' ') {
+                        arg = arg.replace(arg[0], '');
+                        i++;
+                    }
+                    if (arg == '') break;
+                }
+                logColor('SERVER: ' + input, '\x1b[33m', 'log');
+                if (ENV.useDiscordWebhook) postDebugDiscord('DBG', input);
+                if (s[cmd]) {
+                    try {
+                        let self = {name: 'SERVER'};
+                        let msg = s[cmd](self, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15]);
+                        if (msg != null) msg = msg.toString();
+                        logColor(msg, '\x1b[33m', 'log');
+                        if (ENV.useDiscordWebhook) postDebugDiscord('DBG', msg);
+                    } catch (err) {
+                        let msg = err + '';
+                        error(msg);
+                        if (ENV.useDiscordWebhook) postDebugDiscord('DBG', msg);
+                    }
+                } else {
+                    let msg = '/' + cmd + ' is not an existing command. Try /help for help';
+                    error(msg);
+                    if (ENV.useDiscordWebhook) postDebugDiscord('DBG', msg);
+                }
+            } catch (err) {
+                error(err);
             }
-            logColor(msg, '\x1b[33m', 'log');
-            if (ENV.useDiscordWebhook) postDebugDiscord('DBG', msg);
-        } catch (err) {
-            error(err);
+        } else {
+            try {
+                appendLog('SERVER: ' + input, 'log');
+                if (ENV.useDiscordWebhook) postDebugDiscord('DBG', 'SERV-> ' + input);
+                let msg = eval(input);
+                if (msg == undefined) {
+                    msg = 'Successfully executed command';
+                }
+                logColor(msg, '\x1b[33m', 'log');
+                if (ENV.useDiscordWebhook) postDebugDiscord('DBG', msg);
+            } catch (err) {
+                error(err);
+            }
         }
     } else if (input == '') {
-        console.log('\x1b[2A');
+        process.stdout.write('\x1b[1A\x1b[2C');
     }
 });
+async function stop() {
+    insertChat('[!] SERVER IS CLOSING [!]', 'server');
+    logColor('Stopping Server...', '\x1b[32m', 'log');
+    clearInterval(updateTicks);
+    clearInterval(autoSave);
+    started = false;
+    for (let i in Player.list) {
+        await Player.list[i].disconnect();
+    }
+    await ACCOUNTS.disconnect();
+    server.close();
+    logColor('Server Stopped.', '\x1b[32m', 'log')
+    appendLog('----------------------------------------');
+    process.stdout.write('\x1b[1A');
+    process.exit(0);
+}
 prompt.on('close', async function() {
-    if (active && process.env.PORT == null) {
-        insertChat('[!] SERVER IS CLOSING [!]', 'server');
-        logColor('Stopping Server...', '\x1b[32m', 'log');
-        clearInterval(updateTicks);
-        clearInterval(autoSave);
-        started = false;
-        for (var i in Player.list) {
-            await Player.list[i].disconnect();
-        }
-        await ACCOUNTS.disconnect();
-        server.close();
-        logColor('Server Stopped.', '\x1b[32m', 'log')
-        appendLog('----------------------------------------');
-        process.exit(0);
-    }
+    if (active && process.env.PORT == null) await stop();
 });
-process.on('SIGTERM', function() {
-    insertChat('[!] SERVER IS CLOSING [!]', 'server');
-    logColor('Stopping Server...', '\x1b[32m', 'log');
-    clearInterval(updateTicks);
-    clearInterval(autoSave);
-    started = false;
-    for (var i in Player.list) {
-        Player.list[i].disconnect();
-    }
-    ACCOUNTS.disconnect();
-    server.close();
-    logColor('Server Stopped.', '\x1b[32m', 'log')
-    appendLog('----------------------------------------');
-    process.exit(0);
-});
-process.on('SIGINT', function() {
-    insertChat('[!] SERVER IS CLOSING [!]', 'server');
-    logColor('Stopping Server...', '\x1b[32m', 'log');
-    clearInterval(updateTicks);
-    clearInterval(autoSave);
-    started = false;
-    for (var i in Player.list) {
-        Player.list[i].disconnect();
-    }
-    ACCOUNTS.disconnect();
-    server.close();
-    logColor('Server Stopped.', '\x1b[32m', 'log')
-    appendLog('----------------------------------------');
-    process.exit(0);
-});
+process.on('SIGTERM', stop);
+process.on('SIGINT', stop);
+process.stdout.write('\x1b[?25h');
 
 // Tickrate
 TPS = 0;
@@ -585,22 +612,22 @@ TICKTIME = 0;
 const update = `
 try {
     var pack = Entity.update();
-    for (var i in Player.list) {
+    for (let i in Player.list) {
         var localplayer = Player.list[i];
         var localpack = cloneDeep(pack);
         if (localplayer.name) {
-            for (var j in localpack) {
+            for (let j in localpack) {
                 var entities = localpack[j];
                 switch (j) {
                     case 'players':
                         break;
                     case 'droppedItems':
-                        for (var k in entities) {
+                        for (let k in entities) {
                             if ((entities[k].playerId != null && entities[k].playerId != localplayer.id) || entities[k].map != localplayer.map || entities[k].chunkx < localplayer.chunkx-localplayer.renderDistance || entities[k].chunkx > localplayer.chunkx+localplayer.renderDistance || entities[k].chunky < localplayer.chunky-localplayer.renderDistance || entities[k].chunky > localplayer.chunky+localplayer.renderDistance) delete entities[k];
                         }
                         break;
                     default:
-                        for (var k in entities) {
+                        for (let k in entities) {
                             if (entities[k].map != localplayer.map || entities[k].chunkx < localplayer.chunkx-localplayer.renderDistance || entities[k].chunkx > localplayer.chunkx+localplayer.renderDistance || entities[k].chunky < localplayer.chunky-localplayer.renderDistance || entities[k].chunky > localplayer.chunky+localplayer.renderDistance) delete entities[k];
                         }
                 }
@@ -611,23 +638,23 @@ try {
     var debugPack = Entity.getDebugData();
     var heapSize = Math.round(process.memoryUsage().heapUsed/1048576*100)/100;
     var heapMax = Math.round(process.memoryUsage().rss/1048576*100)/100;
-    for (var i in Player.list) {
+    for (let i in Player.list) {
         var localplayer = Player.list[i];
         var localpack = cloneDeep(debugPack);
         if (localplayer.name) {
             if (localplayer.debugEnabled) {
-                for (var j in localpack) {
+                for (let j in localpack) {
                     var entities = localpack[j];
                     switch (j) {
                         case 'players':
                             break;
                         case 'droppedItems':
-                            for (var k in entities) {
+                            for (let k in entities) {
                                 if ((entities[k].playerId != null && entities[k].playerId != localplayer.id) || entities[k].map != localplayer.map || entities[k].chunkx < localplayer.chunkx-localplayer.renderDistance || entities[k].chunkx > localplayer.chunkx+localplayer.renderDistance || entities[k].chunky < localplayer.chunky-localplayer.renderDistance || entities[k].chunky > localplayer.chunky+localplayer.renderDistance) delete entities[k];
                             }
                             break;
                         default:
-                            for (var k in entities) {
+                            for (let k in entities) {
                                 if (entities[k].map != localplayer.map || entities[k].chunkx < localplayer.chunkx-localplayer.renderDistance || entities[k].chunkx > localplayer.chunkx+localplayer.renderDistance || entities[k].chunky < localplayer.chunky-localplayer.renderDistance || entities[k].chunky > localplayer.chunky+localplayer.renderDistance) delete entities[k];
                             }
                     }
@@ -648,10 +675,9 @@ try {
 `;
 const updateTicks = setInterval(function() {
     if (started) {
+        var start = performance.now();
         try {
-            var start = performance.now();
             vm.runInThisContext(update, {timeout: 1000});
-            TICKTIME = Math.round((performance.now()-start)*100)/100;
             consecutiveTimeouts = 0;
         } catch (err) {
             insertChat('[!] Server tick timed out! [!]', 'error');
@@ -670,27 +696,28 @@ const updateTicks = setInterval(function() {
                 insertChat('[!] Internal server error! Removing projectiles... [!]', 'error');
                 error('Internal server error! Removing projectiles...');
                 Projectile.list = [];
-                for (var map in Projectile.chunks) {
+                for (let map in Projectile.chunks) {
                     Projectile.chunks[map] = [];
                 }
             }
             if (consecutiveTimeouts > 4) {
                 insertChat('[!] Internal server error! Killing all monsters... [!]', 'error');
                 error('Internal server error! Killing all monsters...');
-                for (var i in Monster.list) {
+                for (let i in Monster.list) {
                     Monster.list[i].onDeath();
                 }
             }
         }
+        TICKTIME = Math.round((performance.now()-start)*100)/100;
         tpsTimes.push(performance.now());
-        performance.now()-tpsTimes[0] > 1000 && tpsTimes.shift();
+        while (performance.now()-tpsTimes[0] > 1000) tpsTimes.shift();
         TPS = tpsTimes.length;
     }
 }, 1000/20);
 
 // autosave
 const autoSave = setInterval(function() {
-    for (var i in Player.list) {
+    for (let i in Player.list) {
         Player.list[i].saveData();
     }
 }, ENV.autoSaveInterval*60000);
@@ -710,7 +737,7 @@ forceQuit = async function(err, code) {
             error('STOP.');
             clearInterval(updateTicks);
             clearInterval(autoSave);
-            for (var i in Player.list) {
+            for (let i in Player.list) {
                 await Player.list[i].disconnect();
             }
             started = false;
@@ -773,7 +800,7 @@ Filter = {
             checkstring = checkstring.replace(/\\/g, 'i');
             checkstring = checkstring.replace(/hs/g, 'sh');
             checkstring = checkstring.replace(/hc/g, 'sh');
-            for (var i in Filter.words) {
+            for (let i in Filter.words) {
                 if (checkstring.includes(Filter.words[i])) return true;
             }
             return false;
