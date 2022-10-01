@@ -111,6 +111,16 @@
         "glow": false,
         "above": false
     },
+    "aiminglaser": {
+        "width": 1024,
+        "height": 3,
+        "rawWidth": 1,
+        "rawHeight": 1,
+        "offsetX": 0,
+        "offsetY": 0,
+        "glow": false,
+        "above": false
+    },
     "explosive": {
         "width": 40,
         "height": 40,
@@ -161,6 +171,24 @@
         "glow": false,
         "above": false
     },
+    "explodingrock": {
+        "width": 30,
+        "height": 30,
+        "rawWidth": 12,
+        "rawHeight": 12,
+        "offsetX": 0,
+        "offsetY": 0,
+        "glow": {
+            "radius": 16,
+            "color": {
+                "r": 255,
+                "g": 130,
+                "b": 0
+            },
+            "intensity": 0.1
+        },
+        "above": false
+    },
     "christmas2021": {
         "width": 60,
         "height": 20,
@@ -172,10 +200,10 @@
             "radius": 64,
             "color": {
                 "r": 255,
-                "g": 150,
-                "b": 0
+                "g": 200,
+                "b": 40
             },
-            "intensity": 0.5
+            "intensity": 0.3
         },
         "above": true
     }

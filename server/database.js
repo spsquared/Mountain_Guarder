@@ -4,10 +4,13 @@ const bcrypt = require('bcrypt');
 const salt = 10;
 const Cryptr = require('cryptr');
 const cryptr = new Cryptr('cachePasswordKey');
+const fs = require('fs');
 const {Client} = require('pg');
+const msgpack = require('@ygoe/msgpack');
+url = null;
 if (process.env.DATABASE_URL) {
     url = process.env.DATABASE_URL;
-} else {
+} else if (!ENV.useLocalDatabase) {
     require('./url.js');
 }
 const database = new Client({
@@ -24,17 +27,21 @@ ACCOUNTS = {
     connected: false,
     connect: async function connect() {
         if (!ACCOUNTS.connected) {
-            if (ENV.offlineMode) {
-                ACCOUNTS.connected = true;
-                warn('[!] Offline Mode is enabled! Accounts and progress will not load or save! [!]');
-            } else {
-                try {
+            try {
+                if (ENV.useLocalDatabase) {
+                    warn('[!] Local Database Mode is enabled! Accounts and progress will be saved locally! [!]');
+                    let exists = fs.existsSync('./database.db');
+                    if (exists) {
+                        let bytes = fs.readFileSync('./database.db');
+                        let data = msgpack.deserialize(bytes);
+                        data.forEach(e => localDatabase.push(e));
+                    }
+                } else {
                     await database.connect();
-                    // 69.142.222.186
-                    ACCOUNTS.connected = true;
-                } catch (err) {
-                    forceQuit(err, 2);
                 }
+                ACCOUNTS.connected = true;
+            } catch (err) {
+                forceQuit(err, 2);
             }
         } else {
             warn('Already connected!');
@@ -43,7 +50,13 @@ ACCOUNTS = {
     disconnect: async function disconnect() {
         if (ACCOUNTS.connected) {
             try {
-                if (!ENV.offlineMode) await database.end();
+                if (ENV.useLocalDatabase) {
+                    let bytes = msgpack.serialize(localDatabase);
+                    fs.writeFileSync('./database.db', bytes, {flag: 'w'});
+                    clearInterval(writeLoop);
+                } else {
+                    await database.end();
+                }
                 ACCOUNTS.connected = false;
             } catch (err) {
                 forceQuit(err, 2);
@@ -53,7 +66,6 @@ ACCOUNTS = {
         }
     },
     signup: async function signup(username, password) {
-        if (ENV.offlineMode) return 0;
         if (username == 'unavailable') return 3;
         if (await getCredentials(username) == false) {
             if (typeof username == 'string' && typeof password == 'string') {
@@ -68,7 +80,6 @@ ACCOUNTS = {
         return 1;
     },
     login: async function login(username, password) {
-        if (ENV.offlineMode) return 0;
         var cred = await getCredentials(username);
         if (cred) {
             if (bcrypt.compareSync(password, cred.password)) {
@@ -82,7 +93,6 @@ ACCOUNTS = {
         return 2;
     },
     deleteAccount: async function deleteAccount(username, password) {
-        if (ENV.offlineMode) return 0;
         var cred = await getCredentials(username);
         if (cred) {
             if (bcrypt.compareSync(password, cred.password)) {
@@ -98,7 +108,6 @@ ACCOUNTS = {
         return 2;
     },
     changePassword: async function changePassword(username, oldpassword, password) {
-        if (ENV.offlineMode) return 0;
         var cred = await getCredentials(username);
         if (cred) {
             if (bcrypt.compareSync(oldpassword, cred.password)) {
@@ -141,7 +150,6 @@ ACCOUNTS = {
         }
     },
     loadProgress: async function loadProgress(username, password) {
-        if (ENV.offlineMode) return '{}';
         var progress = await getProgress(username, password);
         if (progress != false) {
             return progress;
@@ -150,7 +158,6 @@ ACCOUNTS = {
         return false;
     },
     saveProgress: async function saveProgress(username, password, data) {
-        if (ENV.offlineMode) return true;
         var status = await updateProgress(username, password, data);
         if (status) {
             return true;
@@ -159,7 +166,6 @@ ACCOUNTS = {
         return false;
     },
     ban: async function ban(username) {
-        if (ENV.offlineMode) return true;
         var status = await setBanned(username, true);
         if (status) {
             return true;
@@ -168,34 +174,31 @@ ACCOUNTS = {
         return false;
     },
     unban: async function unban(username) {
-        if (ENV.offlineMode) return true;
         var status = await setBanned(username, false);
         if (status) {
             return true;
         }
         warn('Failed to ban user!');
         return false;
-    },
-    ipban: async function ban(ip) {
-        if (ENV.offlineMode) return true;
-        var status = await setIPBanned(ip, true);
-        if (status) {
-            return true;
-        }
-        warn('Failed to ban user!');
-        return false;
-    },
-    ipunban: async function unban(ip) {
-        if (ENV.offlineMode) return true;
-        var status = await setIPBanned(ip, false);
-        if (status) {
-            return true;
-        }
-        warn('Failed to ban user!');
-        return false;
+    // },
+    // ipban: async function ban(ip) {
+    //     var status = await setIPBanned(ip, true);
+    //     if (status) {
+    //         return true;
+    //     }
+    //     warn('Failed to ban user!');
+    //     return false;
+    // },
+    // ipunban: async function unban(ip) {
+    //     var status = await setIPBanned(ip, false);
+    //     if (status) {
+    //         return true;
+    //     }
+    //     warn('Failed to ban user!');
+    //     return false;
     }
 };
-// /*
+/*
 dbDebug = {
     list: function() {
         try {
@@ -348,47 +351,34 @@ dbDebug = {
         } catch (err) {
             forceQuit(err, 2);
         }
-    },
-    removeSp: async function removeSP() {
-        try {
-            database.query('SELECT username, data FROM users;', async function(err, res) {
-                logColor('Purging old (>1 year no login) and unused (no data / <10 minutes playtime) accounts... This may take a while.', '\x1b[33m', 'log');
-                var purged = 0;
-                if (err) forceQuit(err);
-                var updates = setInterval(function() {
-                    logColor('Purged ' + purged + ' accounts', '\x1b[33m', 'log');
-                    purged = 0;
-                }, 10000);
-                for (let i in res.rows) {
-                    var toremove = false;
-                    if (res.rows[i].username.includes('sp') && res.rows[i].username != 'Sampleprovider(sp)') toremove = true;
-                    if (toremove) {
-                        purged++;
-                        try {
-                            await database.query('DELETE FROM users WHERE username=$1;', [res.rows[i].username]);
-                        } catch (err) {
-                            error(err);
-                        }
-                    }
-                    await new Promise(function(resolve, reject) {setTimeout(resolve, 10);});
-                }
-                logColor('Purged ' + purged + ' accounts', '\x1b[33m', 'log');
-                clearInterval(updates);
-                logColor('Done', '\x1b[33m', 'log');
-            });
-        } catch (err) {
-            forceQuit(err, 2);
-        }
     }
 };
-// */
+*/
+
+// local database
+const localDatabase = [];
+var pendingLocalWrite = 0;
+var unwrittenData = 0;
+const writeLoop = setInterval(function() {
+    pendingLocalWrite--;
+    if (pendingLocalWrite == 0 || unwrittenData > 10) {
+        pendingLocalWrite = 0;
+        unwrittenData = 0;
+        let bytes = msgpack.serialize(localDatabase);
+        fs.writeFileSync('./database.db', bytes, {flag: 'w'});
+    }
+}, 2000);
+if (!ENV.useLocalDatabase) clearInterval(writeLoop);
 
 // credential read/write
 async function getCredentials(username) {
     try {
-        var data = await database.query('SELECT username, password FROM users WHERE username=$1;', [username]);
-        if (data.rows[0]) {
-            return {username: data.rows[0].username, password: data.rows[0].password};
+        if (ENV.useLocalDatabase) {
+            let data = localDatabase.find(acc => acc.username == username);
+            if (data != undefined) return {username: data.username, password: data.password};
+        } else {
+            let data = await database.query('SELECT username, password FROM users WHERE username=$1;', [username]);
+            if (data.rows[0]) return {username: data.rows[0].username, password: data.rows[0].password};
         }
     } catch (err) {
         forceQuit(err, 2);
@@ -402,7 +392,13 @@ async function writeCredentials(username, password) {
         forceQuit(err, 3);
     }
     try {
-        await database.query('INSERT INTO users (username, password) VALUES ($1, $2);', [username, encryptedpassword]);
+        if (ENV.useLocalDatabase) {
+            localDatabase.push({username: username, password: encryptedpassword, data: null, banned: false});
+            pendingLocalWrite = 10;
+            unwrittenData++;
+        } else {
+            await database.query('INSERT INTO users (username, password) VALUES ($1, $2);', [username, encryptedpassword]);
+        }
         return true;
     } catch (err) {
         forceQuit(err, 2);
@@ -411,7 +407,16 @@ async function writeCredentials(username, password) {
 };
 async function deleteCredentials(username) {
     try {
-        await database.query('DELETE FROM users WHERE username=$1;', [username]);
+        if (ENV.useLocalDatabase) {
+            let index = localDatabase.findIndex(acc => acc.username == username);
+            if (index != -1) {
+                localDatabase.splice(index, 1);
+                pendingLocalWrite = 10;
+                unwrittenData++;
+            }
+        } else {
+            await database.query('DELETE FROM users WHERE username=$1;', [username]);
+        }
         return true;
     } catch (err) {
         forceQuit(err, 2);
@@ -425,7 +430,16 @@ async function updatePassword(username, password) {
         forceQuit(err, 3);
     }
     try {
-        await database.query('UPDATE users SET password=$2 WHERE username=$1;', [username, encryptedpassword]);
+        if (ENV.useLocalDatabase) {
+            let data = localDatabase.find(acc => acc.username == username);
+            if (data != undefined) {
+                data.password = encryptedpassword;
+                pendingLocalWrite = 10;
+                unwrittenData++;
+            }
+        } else {
+            await database.query('UPDATE users SET password=$2 WHERE username=$1;', [username, encryptedpassword]);
+        }
         return true;
     } catch (err) {
         forceQuit(err, 2);
@@ -437,12 +451,15 @@ async function getProgress(username, password) {
     var cred = await getCredentials(username);
     if (cred) {
         if (bcrypt.compareSync(cryptr.decrypt(password), cred.password)) {
-            var data = await database.query('SELECT data FROM users WHERE username=$1;', [username]);
-            if (data.rows[0]) {
-                return data.rows[0].data;
+            if (ENV.useLocalDatabase) {
+                let data = localDatabase.find(acc => acc.username == username);
+                if (data != undefined) return data.data;
+            } else {
+                let data = await database.query('SELECT data FROM users WHERE username=$1;', [username]);
+                if (data.rows[0]) return data.rows[0].data;
             }
         } else {
-            warn('WARNING: Unauthorized attempt to fetch user data!');
+            warn('[!] WARNING: Unauthorized attempt to change user data! [!]');
         }
     }
     return false;
@@ -452,22 +469,34 @@ async function updateProgress(username, password, data) {
     if (cred) {
         if (bcrypt.compareSync(cryptr.decrypt(password), cred.password)) {
             try {
-                await database.query('UPDATE users SET data=$2 WHERE username=$1;', [username, data]);
+                if (ENV.useLocalDatabase) {
+                    let data2 = localDatabase.find(acc => acc.username == username);
+                    if (data2 != undefined) {
+                        data2.data = data;
+                        pendingLocalWrite = 10;
+                        unwrittenData++;
+                    }
+                } else {
+                    await database.query('UPDATE users SET data=$2 WHERE username=$1;', [username, data]);
+                }
                 return true;
             } catch (err) {
                 forceQuit(err, 2);
             }
         } else {
-            warn('WARNING: Unauthorized attempt to change user data!');
+            warn('[!] WARNING: Unauthorized attempt to change user data! [!]');
         }
     }
     return false;
 };
 async function getBanned(username) {
     try {
-        var data = await database.query('SELECT banned FROM users WHERE username=$1;', [username]);
-        if (data.rows[0]) {
-            if (data.rows[0].banned) return true;
+        if (ENV.useLocalDatabase) {
+            let data = localDatabase.find(acc => acc.username == username);
+            if (data != undefined) return data.banned;
+        } else {
+            let data = await database.query('SELECT banned FROM users WHERE username=$1;', [username]);
+            if (data.rows[0] && data.rows[0].banned) return true;
         }
     } catch (err) {
         forceQuit(err, 2);
@@ -476,7 +505,16 @@ async function getBanned(username) {
 };
 async function setBanned(username, banned) {
     try {
-        await database.query('UPDATE users SET banned=$2 WHERE username=$1;', [username, banned.toString()]);
+        if (ENV.useLocalDatabase) {
+            let data = localDatabase.find(acc => acc.username == username);
+            if (data != undefined) {
+                data.banned = banned;
+                pendingLocalWrite = 10;
+                unwrittenData++;
+            }
+        } else {
+            await database.query('UPDATE users SET banned=$2 WHERE username=$1;', [username, banned.toString()]);
+        }
         return true;
     } catch (err) {
         forceQuit(err, 2);

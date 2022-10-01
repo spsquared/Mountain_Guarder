@@ -18,26 +18,26 @@
         <meta name="title" content="Mountain Guarder">
         <meta name="description" content="Mountain Guarder - A free-to-play indie RPG.">
         <meta name="url" content="https://mountainguarder.herokuapp.com">
-        <meta name="image" content="https://mountainguarder.herokuapp.com/client/img/banner_small.png">
-        <link rel="icon" href="/client/assets/favicon.ico" type="image/x-icon">
-        <noscript><meta http-equiv="refresh" content="0; url=/client/nojs.html"/></noscript>
+        <meta name="image" content="https://mountainguarder.herokuapp.com/img/banner_small.png">
+        <link rel="icon" href="/assets/favicon.ico" type="image/x-icon">
+        <noscript><meta http-equiv="refresh" content="0; url=/nojs.html"/></noscript>
         <script src="/socket.io/socket.io.js"></script>
         <script>const socket = io(); io = null; socket.connect = socket.disconnect;</script>
-        <script src="/client/tracker.js"></script>
+        <script src="/tracker.js"></script>
         <script>socket.emit('_0x7f0334', window._0x2b8cf2._0x442696);</script>
-        <script src="/client/index.js" defer></script>
-        <script src="/client/game.js" defer></script>
-        <script src="/client/entity.js" defer></script>
-        <script src="/client/inventory.js" defer></script>
-        <script src="/client/quest.js" defer></script>
-        <script src="/client/menu.js" defer></script>
-        <script src="/client/controller.js" defer></script>
-        <link rel="stylesheet" href="/client/assets/main.css">
-        <link rel="stylesheet" href="/client/assets/game.css">
+        <script src="/index.js" defer></script>
+        <script src="/game.js" defer></script>
+        <script src="/entity.js" defer></script>
+        <script src="/inventory.js" defer></script>
+        <script src="/quest.js" defer></script>
+        <script src="/menu.js" defer></script>
+        <script src="/controller.js" defer></script>
+        <link rel="stylesheet" href="/assets/main.css">
+        <link rel="stylesheet" href="/assets/game.css">
     </head>
     <body>
         <div id="menuContainer" class="noSelect">
-            <img id="backgroundImg" src="./client/img/Preview.png"></img>
+            <img id="backgroundImg" src="./img/Preview.png">
             <div id="backgroundShade"></div>
             <div id="menuTitle">Mountain Guarder</div>
             <div id="stackLeft">
@@ -86,6 +86,38 @@
                         insert changes here
                     </div>
                 </div> -->
+                <div class="stack ui-block ui-lighttext">
+                    <div class="ui-lighttext stackHeader">
+                        v0.14.0 - 9/25/22
+                    </div>
+                    <div class="ui-lighttext stackBody">
+                        The first boss fight! Fight the <span style="font-size: 8px;">(strangly similar-looking to the Sentient Rock)</span> Rock of SPUH to reclaim the Lodestone. Talk to Tammy in the Outpost Trader's Store for more information. As usual, bugfixes. And as a bonus, character customization (finally) works!
+                        <ul>
+                            <li>Added The Rock of SP</li>
+                            <li>Added the Rock Turret</li>
+                            <li>Added player customization</li>
+                            <li>Reworked item drop system</li>
+                            <li>Added quick-equip hotkey</li>
+                            <li>Added Mana keys</li>
+                            <li>Fixed client performance issues on low CPU clock speeds</li>
+                            <li>Sentient Rocks now exhibit swarming behavior</li>
+                            <li>Added an upstairs to the Outpost Trader's Store</li>
+                            <li>Added Entity teams</li>
+                            <li>Added support for local file-based account databases</li>
+                            <li>Added the <a href="./Editor/" target="_blank">Mountain Guarder Asset Editor</a></li>
+                            <li>Fixed random light radius below 0</li>
+                            <li>Explosions can no longer damage through collisions</li>
+                            <li>Added scroll bar to banner container on overflow</li>
+                            <li>Fixed monster stat linking</li>
+                            <li>Added scroll bar to shop costs on overflow</li>
+                            <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/257" target="_blank">Fixed pixel bleed in player animation (Issue #257)</a></li>
+                            <li>Added stack traces to logfiles</li>
+                            <li>Retextured rocks</li>
+                            <li>Fixed text misplacement in shops</li>
+                            <li>Minor bugfixes</li>
+                        </ul>
+                    </div>
+                </div>
                 <div class="stack ui-block ui-lighttext">
                     <div class="ui-lighttext stackHeader">
                         v0.13.1 - 8/17/22
@@ -654,7 +686,7 @@
                         v0.5.2 - 11/6/21
                     </div>
                     <div class="ui-lighttext stackBody">
-                        The inventory is almost complete. Items now actually do something! In the meantime, go support <a href="https://teamseas.org/" target="_blank">#TeamSeas</a> in their mission to remove 30,000,000 pounds of trash from the oceans! <a href="/client/teamSeas/" target="_blank">#TeamSeas!</a>
+                        The inventory is almost complete. Items now actually do something! In the meantime, go support <a href="https://teamseas.org/" target="_blank">#TeamSeas</a> in their mission to remove 30,000,000 pounds of trash from the oceans! <a href="/teamSeas/" target="_blank">#TeamSeas!</a>
                         <ul>
                             <li>Equipped items now have an effect</li>
                             <li>Item held is now visible (swords and staffs are a bit broken)</li>
@@ -1051,9 +1083,9 @@
                         <div class="stackBody">
                             New collision optimizations! Collisions will only be checked if the distance between two hitboxes is small enough for a collision to occur. Projectiles no longer recalculate the sin() and cos() values hundreds of times per tick as well, so the impact is huge.<br>
                             Before: (reached 800 before crashing)<br>
-                            <img src="./client/img/announcements/11-25-21-a.png" class="announcementsImage"><br>
+                            <img src="./img/announcements/11-25-21-a.png" class="announcementsImage"><br>
                             After:<br>
-                            <img src="./client/img/announcements/11-25-21-b.png" class="announcementsImage"><br>
+                            <img src="./img/announcements/11-25-21-b.png" class="announcementsImage"><br>
                         </div><br>
                         <div class="stackSub">
                             11/27/21
@@ -1077,7 +1109,7 @@
                             11/6/21
                         </div>
                         <div class="stackBody">
-                            <a href="./client/teamSeas/" target="_blank">#TeamSeas</a> Donate today at <a href="https://teamseas.org" target="_blank">teamseas.org</a>! Help raise $30,000,000 by the end of the year! Every dollar donated removes 1 pound of trash from the ocean!
+                            <a href="./teamSeas/" target="_blank">#TeamSeas</a> Donate today at <a href="https://teamseas.org" target="_blank">teamseas.org</a>! Help raise $30,000,000 by the end of the year! Every dollar donated removes 1 pound of trash from the ocean!
                         </div><br>
                         <div class="stackSub">
                             9/23/2021
@@ -1115,7 +1147,7 @@
                         <a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder" target="_blank">GitHub repository</a><br>
                         <a href="https://discord.gg/y2pMjrwZGr" target="_blank">Join our Discord!</a><br>
                         <br>
-                        <a href="./client/license.html" target="_blank" class="ui-lighttext">Mountain Guarder Copyright &copy; Radioactive64 2022</a><br>
+                        <a href="./license.html" target="_blank" class="ui-lighttext">Mountain Guarder Copyright &copy; Radioactive64 2022</a><br>
                         <br>
                         Would you like to contribute? Contributing can range from <a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/new?assignees=&labels=bug&template=bug-report.md&title=BUG+-+%5BSummary+here%5D" target="_blank">submitting a bug report</a> or <a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/new?assignees=&labels=suggestion&template=feature_request.md&title=SUGGESTION+-+%5BSummary+here%5D" target="_blank">creating a suggestion</a> to sending a pull request stating the reason the pull request was created and what it changes. For more information visit the <a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder" target="_blank">GitHub repository</a>.<br>
                         <br>
@@ -1156,15 +1188,16 @@
                         Dev Tools
                     </div>
                     <div class="ui-lighttext stackBody">
-                        Here are some tools (both internal and external) to help modders create assets easily.<br>
-                        <a href="./itemcreator/" target="_blank">Mountain Guarder Item Creator</a><br>
+                        Here are some tools (both internal and external) for creating and editing game assets.<br>
+                        <a href="./itemcreator/" target="_blank">Mountain Guarder Item Creator (depracated)</a><br>
+                        <a href="./asseteditor/" target="_blank">Mountain Guarder Asset Editor</a><br>
                         <a href="https://thorbjorn.itch.io/tiled" target="_blank">Tiled</a>
                     </div>
                 </div>
             </div>
         </div>
         <div id="loadingContainer" class="noSelect">
-            <img id="loadingIcon" src="./client/img/assets/loading.png">
+            <img id="loadingIcon" src="./img/assets/loading.png">
             <div id="loadingBar">
                 <div id="loadingBarInner"></div>
                 <div id="loadingBarText" class="ui-lighttext">0/0 (0%)</div>
@@ -1172,7 +1205,7 @@
         </div>
         <div id="gameContainer">
             <canvas id="canvas"></canvas>
-            <img id="crossHair" src="./client/img/assets/crosshair.png" class="noSelect">
+            <img id="crossHair" src="./img/assets/crosshair.png" class="noSelect">
             <div id="bossBars" class="noSelect"></div>
             <div id="regionName" class="ui-lighttext ui-block noSelect"></div>
             <div id="promptContainer" class=" ui-lighttext ui-block noSelect">
@@ -1302,7 +1335,7 @@
                     </div>
                     <div class="window-body">
                         <div id="debugLog" class="ui-lighttext"></div>
-                        <input type="text" id="debugInput" class="ui-textInput" autocomplete="off" spellcheck="false"></input>
+                        <input type="text" id="debugInput" class="ui-textInput" autocomplete="off" spellcheck="false">
                     </div>
                     <div id="debugConsoleSelect" class="window-select"></div>
                 </div>
@@ -1391,6 +1424,20 @@
                                 </td>
                                 <td>
                                     <div id="coloredLightsIndicator" class="ui-lighttext">on</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: right;">
+                                    Flickering Lights:
+                                </td>
+                                <td>
+                                    <label class="ui-toggle">
+                                        <input type="checkbox" id="flickeringLightsToggle" class="ui-toggleInput" onclick="toggle('flickeringLights');" checked>
+                                        <span class="ui-toggleSlider"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <div id="flickeringLightsIndicator" class="ui-lighttext">on</div>
                                 </td>
                             </tr>
                             <tr>
@@ -1517,7 +1564,7 @@
                     </div>
                     <div id="settingsPlayer" class="window-body">
                         <div style="display: inline-block;">
-                            <canvas id="playerPreview" width="150" height="200"></canvas>
+                            <canvas id="playerPreview" width="120" height="200"></canvas>
                         </div>
                         <div style="display: inline-block;">
                             <table><tbody>
@@ -1637,6 +1684,14 @@
                                     </td>
                                     <td>
                                         <button id="keybind_swap" class="ui-lightbutton keyBindButton" onclick="changeKeybind('swap');">TAB</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        Quick-Equip&nbsp;
+                                    </td>
+                                    <td>
+                                        <button id="keybind_quickEquip" class="ui-lightbutton keyBindButton" onclick="changeKeybind('quickEquip');">F</button>
                                     </td>
                                 </tr>
                                 <tr>

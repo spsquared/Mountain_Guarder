@@ -21,7 +21,7 @@
     width: 100vw;
     height: 100vh;
     background-color: black;
-    cursor: url('/client/img/assets/crosshair.png') 11 11, crosshair;
+    cursor: url('/img/assets/crosshair.png') 11 11, crosshair;
     z-index: 0;
 }
 
@@ -37,28 +37,40 @@
 /* bossbars */
 #bossBars {
     position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100vw;
     text-align: center;
     z-index: 4;
 }
-.bossBar {
-    width: 70vw;
-    height: 40px;
-    margin: 4px;
+.bossBarOuter {
+    position: relative;
+    display: inline-block;
+    width: 50vw;
+    height: 32px;
+    margin-top: 4px;
+    padding: 0px 0px;
     border: 2px solid black;
-    font-family: 'Pixel';
-    font-size: 30px;
-    color: white;
-    text-align: center;
 }
-.bossBar-value {
-    position: absolute;
+.bossBarInner {
+    display: block;
+    position: relative;
     top: 0px;
     left: 0px;
+    margin: 0px 0px;
     width: 100%;
+    height: 100%;
     background-color: red;
 }
-.bossBar-text {
-    padding-top: -2px;
+.bossBarText {
+    display: block;
+    position: absolute;
+    top: 2px;
+    width: 50vw;
+    text-align: center;
+    color: white;
+    font-family: 'Pixel';
+    font-size: 20px;
 }
 
 /* region name */
@@ -75,7 +87,7 @@
     margin-right: -50%;
     padding: 8px 20px;
     animation-duration: 1s;
-    cursor: url('/client/img/assets/crosshair.png') 11 11, crosshair;
+    cursor: url('/img/assets/crosshair.png') 11 11, crosshair;
     z-index: 1;
 }
 
@@ -128,7 +140,7 @@
     position: absolute;
     top: 0px;
     left: 0px;
-    cursor: url('/client/img/assets/crosshair.png') 11 11, crosshair;
+    cursor: url('/img/assets/crosshair.png') 11 11, crosshair;
     width: 160px;
     height: 80px;
     z-index: 4;
@@ -211,15 +223,22 @@
     position: absolute;
     top: 0px;
     right: 0px;
-    cursor: url('/client/img/assets/crosshair.png') 11 11, crosshair;
+    cursor: url('/img/assets/crosshair.png') 11 11, crosshair;
     width: 258px;
+    max-height: 100vh;
+    overflow-x: hidden;
+    overflow-y: auto;
     z-index: 4;
+}
+#bannerContainer::-webkit-scrollbar {
+    width: 4px;
 }
 .banner {
     width: 240px;
     min-height: 18px;
     margin: 4px 4px;
     padding: 4px 4px;
+    margin-right: 8px;
     font-size: 14px;
     transition: 0.2s linear all;
     animation: 0.5s ease banner-in;
@@ -260,8 +279,10 @@
     transition: 0.1s linear width;
 }
 .quest-progresstext {
+    position: relative;
+    top: -18px;
     font-size: 12px;
-    transform: translateY(-18px);
+    word-break: break-all;
 }
 @keyframes progressbar {
     from {
@@ -279,7 +300,7 @@
     left: 4px;
     font-size: 10px;
     color: black;
-    cursor: url('/client/img/assets/crosshair.png') 11 11, crosshair;
+    cursor: url('/img/assets/crosshair.png') 11 11, crosshair;
     z-index: 4;
 }
 
@@ -289,7 +310,7 @@
     background-color: #00000055;
     padding: 2px 4px;
     padding-right: 2px;
-    cursor: url('/client/img/assets/crosshair.png') 11 11, crosshair;
+    cursor: url('/img/assets/crosshair.png') 11 11, crosshair;
     z-index: 4;
 }
 #debug {
@@ -357,7 +378,7 @@
     height: 160px;
     border: 1px solid black;
     padding: 0px 4px;
-    cursor: url('/client/img/assets/crosshair.png') 11 11, crosshair;
+    cursor: url('/img/assets/crosshair.png') 11 11, crosshair;
     z-index: 4;
 }
 #chatText {
@@ -641,11 +662,17 @@
 }
 .shopCosts {
     display: inline-flex;
-    flex-direction: row;
-    justify-content: flex-end;
+    flex-direction: row-reverse;
     width: 162px;
     height: 54px;
     border-right: 1px solid black;
+    white-space: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+.shopCosts::-webkit-scrollbar {
+    height: 6px;
+    opacity: 0.5;
 }
 .costItemBlock {
     display: flex;
@@ -698,15 +725,15 @@
 .shopCount {
     position: relative;
     bottom: -28px;
-    left: -16px;
     text-align: right;
+    transform: translateX(-100%);
 }
 
 /* world map */
 #map {
     width: 600px;
     background-color: transparent;
-    background-image: url(/client/img/assets/window_map.png);
+    background-image: url(/img/assets/window_map.png);
     background-size: contain;
     background-repeat: no-repeat;
     border-color: transparent;
@@ -850,5 +877,21 @@
     }
     100% {
         color: green;
+    }
+}
+
+/* garuder */
+@keyframes garuder {
+    0% {
+        color: #47d89f;
+    }
+    33% {
+        color: #ff0099;
+    }
+    66% {
+        color: #3c70ff;
+    }
+    100% {
+        color: #47d89f;
     }
 }

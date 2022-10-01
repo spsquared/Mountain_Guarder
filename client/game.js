@@ -37,8 +37,8 @@ function load(data) {
         await getQuestData();
         await getNpcDialogues();
         document.getElementById('loadingBar').style.display = 'block';
-        tileset.src = '/client/maps/tiles.png';
-        map.src = '/client/img/World.png';
+        tileset.src = '/maps/tiles.png';
+        map.src = '/img/World.png';
         const loadingBarText = document.getElementById('loadingBarText');
         const loadingBarInner = document.getElementById('loadingBarInner');
         var updateLoadBar = setInterval(function() {
@@ -74,11 +74,11 @@ function load(data) {
 async function loadMap(name) {
     if (tilesetloaded) {
         await new Promise(async function(resolve, reject) {
-            var request = new XMLHttpRequest();
-            request.open('GET', '/client/maps/' + name + '.json', true);
+            let request = new XMLHttpRequest();
+            request.open('GET', '/maps/' + name + '.json', true);
             request.onload = function() {   
                 if (this.status >= 200 && this.status < 400) {
-                    var json = JSON.parse(this.response);
+                    let json = JSON.parse(this.response);
                     MAPS[name] = {
                         width: 0,
                         height: 0,
@@ -89,7 +89,8 @@ async function loadMap(name) {
                         chunks: [],
                         chunkJSON: [],
                         layerCount: 0,
-                        lights: false,
+                        isDark: false,
+                        darknessOpacity: 0
                     };
                     for (let i in json.layers) {
                         if (json.layers[i].visible) {
@@ -133,29 +134,21 @@ async function loadMap(name) {
                                 if (json.layers[i].offsetx) MAPS[name].chunkJSON[0][0][json.layers[i].name].offsetX = json.layers[i].offsetx;
                                 if (json.layers[i].offsety) MAPS[name].chunkJSON[0][0][json.layers[i].name].offsetY = json.layers[i].offsety;
                             }
-                            if (json.layers[i].name.includes('Variable')) MAPS[name].layerCount++;
-                        } else if (json.layers[i].name == 'Darkness') {
-                            MAPS[name].lights = true;
-                        } else if (json.layers[i].name.includes('Light:')) {
-                            var rawlayer = json.layers[i];
-                            var propertystring = rawlayer.name.replace('Light:', '');
-                            var properties = [];
-                            var lastl = 0;
-                            for (let l in propertystring) {
-                                if (propertystring[l] == ',') {
-                                    properties.push(parseFloat(propertystring.slice(lastl, l)));
-                                    lastl = parseInt(l)+1;
-                                }
-                            }
-                            if (rawlayer.chunks) {
-                                for (let j in rawlayer.chunks) {
-                                    var rawchunk = rawlayer.chunks[j];
+                            if (json.layers[i].name.startsWith('Variable')) MAPS[name].layerCount++;
+                        } else if (json.layers[i].name.startsWith('Darkness:')) {
+                            MAPS[name].isDark = true;
+                            MAPS[name].darknessOpacity = parseFloat(json.layers[i].name.replace('Darkness:', ''));
+                        } else if (json.layers[i].name.startsWith('Light:')) {
+                            var properties = json.layers[i].name.replace('Light:', '').split(',');
+                            if (json.layers[i].chunks) {
+                                for (let j in json.layers[i].chunks) {
+                                    let rawchunk = json.layers[i].chunks[j];
                                     for (let k in rawchunk.data) {
                                         if (rawchunk.data[k] != 0) {
-                                            var x = ((k % rawchunk.width)+rawchunk.x)*64+32;
-                                            var y = (~~(k / rawchunk.width)+rawchunk.y)*64+32;
+                                            let x = ((k % rawchunk.width)+rawchunk.x)*64+32;
+                                            let y = (~~(k / rawchunk.width)+rawchunk.y)*64+32;
                                             if (rawchunk.data[k]-1 == 1867) {
-                                                new Light(x, y, name, properties[4], properties[0], properties[1], properties[2], properties[3]);
+                                                new Light(x, y, name, parseInt(properties[4]), parseInt(properties[0]), parseInt(properties[1]), parseInt(properties[2]), parseFloat(properties[3]));
                                             } else {
                                                 console.error('Invalid region at (' + name + ', ' + x + ', ' + y + ')');
                                             }
@@ -163,12 +156,12 @@ async function loadMap(name) {
                                     }
                                 }
                             } else {
-                                for (let j in rawlayer.data) {
-                                    if (rawlayer.data[j] != 0) {
-                                        var x = (j % rawlayer.width)*64+32;
-                                        var y = ~~(j / rawlayer.width)*64+32;
-                                        if (rawlayer.data[j]-1 == 1867) {
-                                            new Light(x, y, name, properties[4], properties[0], properties[1], properties[2], properties[3]);
+                                for (let j in json.layers[i].data) {
+                                    if (json.layers[i].data[j] != 0) {
+                                        let x = (j % json.layers[i].width)*64+32;
+                                        let y = ~~(j / json.layers[i].width)*64+32;
+                                        if (json.layers[i].data[j]-1 == 1867) {
+                                            new Light(x, y, name, parseInt(properties[4]), parseInt(properties[0]), parseInt(properties[1]), parseInt(properties[2]), parseFloat(properties[3]));
                                         } else {
                                             console.error('Invalid region at (' + name + ', ' + x + ', ' + y + ')');
                                         }
@@ -215,12 +208,14 @@ function drawFrame() {
         OFFSETX = 0;
         OFFSETY = 0;
         if (MAPS[player.map].width*64 > window.innerWidth) {
-            OFFSETX = -Math.max((window.innerWidth/2)-(player.x-MAPS[player.map].offsetX), Math.min((MAPS[player.map].offsetX+(MAPS[player.map].width*64))-player.x-(window.innerWidth/2), 0));
-            OFFSETY = -Math.max((window.innerHeight/2)-(player.y-MAPS[player.map].offsetY), Math.min((MAPS[player.map].offsetY+(MAPS[player.map].height*64))-player.y-(window.innerHeight/2), 0));
+            OFFSETX = -Math.max((window.innerWidth/2)-(player.x2-MAPS[player.map].offsetX), Math.min((MAPS[player.map].offsetX+(MAPS[player.map].width*64))-player.x2-(window.innerWidth/2), 0));
+            OFFSETY = -Math.max((window.innerHeight/2)-(player.y2-MAPS[player.map].offsetY), Math.min((MAPS[player.map].offsetY+(MAPS[player.map].height*64))-player.y2-(window.innerHeight/2), 0));
         }
         OFFSETX += lsdX;
         OFFSETY += lsdY;
         updateCameraShake();
+        OFFSETX = Math.round(OFFSETX);
+        OFFSETY = Math.round(OFFSETY);
         drawMap();
         DroppedItem.updateHighlight();
         Entity.draw();
@@ -238,7 +233,6 @@ function drawFrame() {
             var current = performance.now();
             frameTimeCounter = Math.round((current-frameStart)*100)/100;
         }
-        if (!controllerConnected) socket.emit('mouseMove', {x: mouseX-OFFSETX, y: mouseY-OFFSETY});
     }
 };
 function drawMap() {
@@ -253,8 +247,8 @@ function drawMap() {
             resetCanvas(LAYERS.mapvariables[i]);
         }
     }
-    var translatex = (window.innerWidth/2)-player.x;
-    var translatey = (window.innerHeight/2)-player.y;
+    let translatex = (window.innerWidth/2)-player.x2;
+    let translatey = (window.innerHeight/2)-player.y2;
     LAYERS.mlower.clearRect(0, 0, window.innerWidth, window.innerHeight);
     LAYERS.mlower.save();
     LAYERS.mlower.translate(translatex, translatey);
@@ -266,8 +260,8 @@ function drawMap() {
     LAYERS.mupper.clearRect(0, 0, window.innerWidth, window.innerHeight);
     LAYERS.mupper.save();
     LAYERS.mupper.translate(translatex, translatey);
-    var width = MAPS[player.map].chunkwidth*64;
-    var height = MAPS[player.map].chunkheight*64;
+    let width = MAPS[player.map].chunkwidth*64;
+    let height = MAPS[player.map].chunkheight*64;
     for (let y in MAPS[player.map].chunks) {
         for (let x in MAPS[player.map].chunks[y]) {
             LAYERS.mlower.drawImage(MAPS[player.map].chunks[y][x].lower, (x*width)+OFFSETX, (y*height)+OFFSETY, width, height);
@@ -278,10 +272,10 @@ function drawMap() {
         }
     }
     LAYERS.mupper.fillStyle = '#000000';
-    var mwidth = MAPS[player.map].width*64;
-    var mheight = MAPS[player.map].height*64;
-    var offsetX = MAPS[player.map].offsetX;
-    var offsetY = MAPS[player.map].offsetY;
+    let mwidth = MAPS[player.map].width*64;
+    let mheight = MAPS[player.map].height*64;
+    let offsetX = MAPS[player.map].offsetX;
+    let offsetY = MAPS[player.map].offsetY;
     LAYERS.mupper.fillRect(-1024+offsetX+OFFSETX, -1024+offsetY+OFFSETY, mwidth+2048, 1024);
     LAYERS.mupper.fillRect(-1024+offsetX+OFFSETX, mheight+offsetY+OFFSETY, mwidth+2048, 1024);
     LAYERS.mupper.fillRect(-1024+offsetX+OFFSETX, -1024+offsetY+OFFSETY, 1024, mheight+2048);
@@ -292,7 +286,7 @@ function drawMap() {
     }
     LAYERS.mupper.restore();
     if (settings.debug) {
-        var current = performance.now();
+        let current = performance.now();
         mapTimeCounter = Math.round((current-mapStart)*100)/100;
     }
 };
@@ -327,17 +321,17 @@ async function updateRenderedChunks() {
     }
 };
 function renderChunk(x, y, map) {
-    var templower = createCanvas(MAPS[map].chunkwidth * 64, MAPS[map].chunkheight * 64);
-    var tempupper = createCanvas(MAPS[map].chunkwidth * 64, MAPS[map].chunkheight * 64);
-    var tlower = templower.getContext('2d');
-    var tupper = tempupper.getContext('2d');
+    let templower = createCanvas(MAPS[map].chunkwidth * 64, MAPS[map].chunkheight * 64);
+    let tempupper = createCanvas(MAPS[map].chunkwidth * 64, MAPS[map].chunkheight * 64);
+    let tlower = templower.getContext('2d');
+    let tupper = tempupper.getContext('2d');
     resetCanvas(tempupper);
     resetCanvas(templower);
-    var tempvariables = [];
-    var tvariables = [];
+    let tempvariables = [];
+    let tvariables = [];
     for (let i in MAPS[player.map].chunkJSON[y][x]) {
-        var above = false;
-        var variable = -1;
+        let above = false;
+        let variable = -1;
         if (i.includes('Above')) above = true;
         if (i.includes('Variable')) {
             variable = parseInt(i.replace('Variable', ''));
@@ -346,13 +340,13 @@ function renderChunk(x, y, map) {
             resetCanvas(tempvariables[variable]);
         }
         for (let j in MAPS[player.map].chunkJSON[y][x][i]) {
-            var tileid = MAPS[player.map].chunkJSON[y][x][i][j];
+            let tileid = MAPS[player.map].chunkJSON[y][x][i][j];
             if (tileid != 0) {
                 tileid--;
-                var imgx = (tileid % 86)*17;
-                var imgy = ~~(tileid / 86)*17;
-                var dx = (j % MAPS[map].chunkwidth)*16+MAPS[player.map].chunkJSON[y][x][i].offsetX;
-                var dy = ~~(j / MAPS[map].chunkwidth)*16+MAPS[player.map].chunkJSON[y][x][i].offsetY;
+                let imgx = (tileid % 86)*17;
+                let imgy = ~~(tileid / 86)*17;
+                let dx = (j % MAPS[map].chunkwidth)*16+MAPS[player.map].chunkJSON[y][x][i].offsetX;
+                let dy = ~~(j / MAPS[map].chunkwidth)*16+MAPS[player.map].chunkJSON[y][x][i].offsetY;
                 if (above) {
                     tupper.drawImage(tileset, imgx, imgy, 16, 16, dx*4, dy*4, 64, 64);
                 } else if (variable != -1) {
@@ -375,16 +369,16 @@ function renderChunk(x, y, map) {
 function drawDebug() {
     if (debugData && settings.debug) {
         debugStart = performance.now();
-        var temp = new createCanvas(window.innerWidth, window.innerHeight);
-        var tempctx = temp.getContext('2d');
+        let temp = new createCanvas(window.innerWidth, window.innerHeight);
+        let tempctx = temp.getContext('2d');
         function getManhattanDistance(entity) {
-            return Math.abs(player.x-entity.x) + Math.abs(player.y-entity.y);
+            return Math.abs(player.x2-entity.x) + Math.abs(player.y2-entity.y);
         };
         tempctx.save();
-        tempctx.translate((window.innerWidth/2)-player.x, (window.innerHeight/2)-player.y);
+        tempctx.translate((window.innerWidth/2)-player.x2, (window.innerHeight/2)-player.y2);
         // chunk borders
-        var width = MAPS[player.map].chunkwidth*64;
-        var height = MAPS[player.map].chunkheight*64;
+        let width = MAPS[player.map].chunkwidth*64;
+        let height = MAPS[player.map].chunkheight*64;
         tempctx.beginPath();
         tempctx.strokeStyle = '#00FF00';
         tempctx.lineWidth = 4;
@@ -403,7 +397,7 @@ function drawDebug() {
         tempctx.strokeStyle = '#FF9900';
         tempctx.lineWidth = 2;
         for (let i in debugData.players) {
-            var localplayer = debugData.players[i];
+            let localplayer = debugData.players[i];
             if (localplayer.map == player.map && getManhattanDistance(localplayer) < settings.renderDistance*2*MAPS[player.map].chunkwidth*64) {
                 tempctx.moveTo(localplayer.x-localplayer.width/2+OFFSETX, localplayer.y-localplayer.height/2+OFFSETY);
                 tempctx.lineTo(localplayer.x-localplayer.width/2+OFFSETX, localplayer.y+localplayer.height/2+OFFSETY);
@@ -423,7 +417,7 @@ function drawDebug() {
         tempctx.strokeStyle = '#000000';
         tempctx.lineWidth = 2;
         for (let i in debugData.players) {
-            var localplayer = debugData.players[i];
+            let localplayer = debugData.players[i];
             if (localplayer.map == player.map && getManhattanDistance(localplayer) < settings.renderDistance*2*MAPS[player.map].chunkwidth*64) {
                 tempctx.moveTo(localplayer.x+OFFSETX, localplayer.y+OFFSETY);
                 tempctx.lineTo(localplayer.x+localplayer.controls.x*20+OFFSETX, localplayer.y+OFFSETY);
@@ -442,9 +436,9 @@ function drawDebug() {
         tempctx.font = '10px Pixel';
         tempctx.fillStyle = '#FFFF00';
         for (let i in debugData.players) {
-            var localplayer = debugData.players[i];
+            let localplayer = debugData.players[i];
             if (localplayer.map == player.map && getManhattanDistance(localplayer) < settings.renderDistance*2*MAPS[player.map].chunkwidth*64 && localplayer.idleWaypoints) {
-                var waypoints = localplayer.idleWaypoints.waypoints;
+                let waypoints = localplayer.idleWaypoints.waypoints;
                 if (waypoints && waypoints[0]) {
                     for (let j in waypoints) {
                         if (waypoints[j].map == player.map) {
@@ -468,9 +462,9 @@ function drawDebug() {
         tempctx.font = '10px Pixel';
         tempctx.fillStyle = '#FFFF00';
         for (let i in debugData.players) {
-            var localplayer = debugData.players[i];
+            let localplayer = debugData.players[i];
             if (localplayer.map == player.map && getManhattanDistance(localplayer) < settings.renderDistance*2*MAPS[player.map].chunkwidth*64 && localplayer.idleWaypoints) {
-                var lastWaypoints = localplayer.idleWaypoints.lastWaypoints;
+                let lastWaypoints = localplayer.idleWaypoints.lastWaypoints;
                 if (lastWaypoints && lastWaypoints[0]) {
                     for (let j in lastWaypoints) {
                         if (lastWaypoints[j].map == player.map) {
@@ -491,7 +485,7 @@ function drawDebug() {
         tempctx.strokeStyle = '#0000FF';
         tempctx.lineWidth = 4;
         for (let i in debugData.players) {
-            var localplayer = debugData.players[i];
+            let localplayer = debugData.players[i];
             if (localplayer.map == player.map && getManhattanDistance(localplayer) < settings.renderDistance*2*MAPS[player.map].chunkwidth*64) {
                 if (localplayer.path && localplayer.path[0]) {
                     tempctx.moveTo(localplayer.x+OFFSETX, localplayer.y+OFFSETY);
@@ -508,7 +502,7 @@ function drawDebug() {
         tempctx.strokeStyle = '#FF9900';
         tempctx.lineWidth = 2;
         for (let i in debugData.monsters) {
-            var localmonster = debugData.monsters[i];
+            let localmonster = debugData.monsters[i];
             if (localmonster && localmonster.map == player.map) {
                 tempctx.moveTo(localmonster.x-localmonster.width/2+OFFSETX, localmonster.y-localmonster.height/2+OFFSETY);
                 tempctx.lineTo(localmonster.x-localmonster.width/2+OFFSETX, localmonster.y+localmonster.height/2+OFFSETY);
@@ -528,7 +522,7 @@ function drawDebug() {
         tempctx.strokeStyle = '#000000';
         tempctx.lineWidth = 2;
         for (let i in debugData.monsters) {
-            var localmonster = debugData.monsters[i];
+            let localmonster = debugData.monsters[i];
             if (localmonster && localmonster.map == player.map) {
                 tempctx.moveTo(localmonster.x+OFFSETX, localmonster.y+OFFSETY);
                 tempctx.lineTo(localmonster.x+localmonster.controls.x*20+OFFSETX, localmonster.y+OFFSETY);
@@ -544,7 +538,7 @@ function drawDebug() {
         tempctx.strokeStyle = '#0000FF';
         tempctx.lineWidth = 4;
         for (let i in debugData.monsters) {
-            var localmonster = debugData.monsters[i];
+            let localmonster = debugData.monsters[i];
             if (localmonster && localmonster.map == player.map) {
                 if (localmonster.path[0]) {
                     tempctx.moveTo(localmonster.x+OFFSETX, localmonster.y+OFFSETY);
@@ -560,7 +554,7 @@ function drawDebug() {
         tempctx.strokeStyle = '#FF0000';
         tempctx.lineWidth = 2;
         for (let i in debugData.monsters) {
-            var localmonster = debugData.monsters[i];
+            let localmonster = debugData.monsters[i];
             if (localmonster && localmonster.map == player.map) {
                 if (Player.list[localmonster.aggroTarget]) {
                     tempctx.moveTo(localmonster.x+OFFSETX, localmonster.y+OFFSETY);
@@ -575,7 +569,7 @@ function drawDebug() {
         // tempctx.fillStyle = '#FF00000A';
         tempctx.lineWidth = 4;
         for (let i in debugData.monsters) {
-            var localmonster = debugData.monsters[i];
+            let localmonster = debugData.monsters[i];
             if (localmonster && localmonster.map == player.map) {
                 // tempctx.beginPath();
                 tempctx.moveTo(localmonster.x+OFFSETX+localmonster.aggroRange*64, localmonster.y+OFFSETY);
@@ -591,7 +585,7 @@ function drawDebug() {
         tempctx.strokeStyle = '#FF9900';
         tempctx.lineWidth = 2;
         for (let i in debugData.projectiles) {
-            var localprojectile = debugData.projectiles[i];
+            let localprojectile = debugData.projectiles[i];
             if (localprojectile && localprojectile.map == player.map) {
                 var sinAngle = Math.sin(localprojectile.angle);
                 var cosAngle = Math.cos(localprojectile.angle);
@@ -613,10 +607,10 @@ function drawDebug() {
         tempctx.strokeStyle = '#000000';
         tempctx.lineWidth = 2;
         for (let i in debugData.projectiles) {
-            var localprojectile = debugData.projectiles[i];
+            let localprojectile = debugData.projectiles[i];
             if (localprojectile && localprojectile.map == player.map) {
-                var sinAngle = Math.sin(localprojectile.angle);
-                var cosAngle = Math.cos(localprojectile.angle);
+                let sinAngle = Math.sin(localprojectile.angle);
+                let cosAngle = Math.cos(localprojectile.angle);
                 tempctx.moveTo(localprojectile.x+OFFSETX, localprojectile.y+OFFSETY);
                 tempctx.lineTo(((localprojectile.width/2)*cosAngle)+localprojectile.x+OFFSETX, ((localprojectile.width/2)*sinAngle)+localprojectile.y+OFFSETY);
             }
@@ -627,7 +621,7 @@ function drawDebug() {
         tempctx.strokeStyle = '#FF9900';
         tempctx.lineWidth = 2;
         for (let i in debugData.droppedItems) {
-            var localdroppeditem = debugData.droppedItems[i];
+            let localdroppeditem = debugData.droppedItems[i];
             if (localdroppeditem && localdroppeditem.map == player.map) {
                 tempctx.moveTo(localdroppeditem.x-24+OFFSETX, localdroppeditem.y-24+OFFSETY);
                 tempctx.lineTo(localdroppeditem.x-24+OFFSETX, localdroppeditem.y+24+OFFSETY);
@@ -642,7 +636,7 @@ function drawDebug() {
         debug.style.display = 'block';
         mousepos.innerText = 'Mouse: (' + Math.floor((player.x+mouseX-OFFSETX)/64) + ', ' + Math.floor((player.y+mouseY-OFFSETY)/64) + ')';
         position.innerText = 'Player: (' + Math.floor(player.x/64) + ', ' + Math.floor(player.y/64) + ')';
-        var current = performance.now();
+        let current = performance.now();
         debugTimeCounter = Math.round((current-debugStart)*100)/100;
     } else {
         debug.style.display = '';
@@ -668,6 +662,7 @@ socket.on('updateTick', function(data) {
         player = Player.list[playerid];
         if (lastmap != player.map) MAPS[player.map].chunks = [];
         updateRenderedChunks();
+        if (!controllerConnected) socket.emit('mouseMove', {x: mouseX-OFFSETX, y: mouseY-OFFSETY});
         if (settings.useController) sendControllers();
     }
 });
@@ -992,14 +987,14 @@ async function displayText(text, div) {
         if (questLabel) letter.style.color = 'cyan';
         letter.innerText = text[i];
         div.appendChild(letter);
-        await sleep((11-settings.dialogueSpeed)*5);
+        await sleep((11-settings.dialogueSpeed)*2);
     }
 };
 async function getNpcDialogues() {
     await new Promise(async function(resolve, reject) {
         totalassets++;
         var request = new XMLHttpRequest();
-        request.open('GET', '/client/prompts.json', true);
+        request.open('GET', '/prompts.json', true);
         request.onload = async function() {
             if (this.status >= 200 && this.status < 400) {
                 var json = JSON.parse(this.response);
@@ -1035,7 +1030,6 @@ Banner = function(html, param) {
     div.classList.add('ui-block');
     div.classList.add('banner');
     div.innerHTML = html;
-    bannerContainer.insertBefore(div, bannerContainer.firstChild);
     if (param) {
         if (param.type == 'id') div.id2 = param.id;
         else if (param.type == 'time') {
@@ -1048,6 +1042,19 @@ Banner = function(html, param) {
         } else {
             console.error('invalid banner type ' + param.type);
         }
+        div.priority = param.priority;
+        if (param.priority) bannerContainer.insertBefore(div, bannerContainer.firstChild);
+        else {
+            let children = Array.from(bannerContainer.children);
+            let added = false;
+            for (let i = children.length-1; i > 0; i--) {
+                if (children[i].priority) {
+                    children[i].after(div);
+                    added = true;
+                }
+            }
+            if (!added) bannerContainer.insertBefore(div, bannerContainer.firstChild);
+        }
     }
 
     Banners.unshift(div);
@@ -1055,33 +1062,38 @@ Banner = function(html, param) {
 };
 
 // camera shake
-var cameraShake = {
-    intensity: 0,
-    x: 0,
-    y: 0,
-    xspeed: 0,
-    yspeed: 0
-}
-function startCameraShake(intensity) {
-    cameraShake.intensity = intensity;
-    var shake = setInterval(function() {
-        cameraShake.xspeed = ((Math.random()*(2*cameraShake.intensity)-cameraShake.intensity)-cameraShake.x)/(settings.fps/40);
-        cameraShake.yspeed = ((Math.random()*(2*cameraShake.intensity)-cameraShake.intensity)-cameraShake.y)/(settings.fps/40);
-        cameraShake.intensity *= 0.9;
-        if (cameraShake.intensity < 0.1) {
-            cameraShake.x = 0;
-            cameraShake.y = 0;
-            cameraShake.xspeed = 0;
-            cameraShake.yspeed = 0;
+var cameraShake = [];
+function startCameraShake(intensity, length) {
+    let camShake = {
+        intensity: intensity,
+        x: 0,
+        y: 0,
+        xspeed: 0,
+        yspeed: 0,
+        length: length
+    };
+    cameraShake.push(camShake);
+    let shake = setInterval(function() {
+        camShake.xspeed = ((Math.random()*(2*camShake.intensity)-camShake.intensity)-camShake.x)/(settings.fps/40);
+        camShake.yspeed = ((Math.random()*(2*camShake.intensity)-camShake.intensity)-camShake.y)/(settings.fps/40);
+        camShake.intensity *= (1-(50/camShake.length)/50);
+        if (camShake.intensity < 0.05) {
+            camShake.x = 0;
+            camShake.y = 0;
+            camShake.xspeed = 0;
+            camShake.yspeed = 0;
+            cameraShake.splice(cameraShake.indexOf(camShake, 1));
             clearInterval(shake);
         }
     }, 25);
 };
 function updateCameraShake() {
-    cameraShake.x += cameraShake.xspeed;
-    cameraShake.y += cameraShake.yspeed;
-    OFFSETX += cameraShake.x;
-    OFFSETY += cameraShake.y;
+    for (let camShake of cameraShake) {
+        camShake.x += camShake.xspeed;
+        camShake.y += camShake.yspeed;
+        OFFSETX += camShake.x;
+        OFFSETY += camShake.y;
+    }
 };
 socket.on('cameraShake', function(intensity) {
     startCameraShake(intensity);

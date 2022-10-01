@@ -9,15 +9,21 @@ function updateItemBaseStats() {
     document.getElementById('statsWeapon').style.display = 'none';
     document.getElementById('statsShield').style.display = 'none';
     document.getElementById('statsOffhand').style.display = 'none';
+    document.getElementById('statsKey').style.display = 'none';
     if (slotType == 'weapon' || slotType == 'crystal') {
         document.getElementById('statsWeapon').style.display = '';
     } else if (slotType == 'shield') {
         document.getElementById('statsShield').style.display = '';
     } else if (slotType == 'offhand') {
         document.getElementById('statsOffhand').style.display = '';
+    } else if (slotType == 'key') {
+        document.getElementById('statsKey').style.display = '';
     }
 };
 updateItemBaseStats();
+
+const effects = ['health', 'damage', 'rangedDamage', 'meleeDamage', 'magicDamage', 'critChance', 'critPower', 'damageReduction', 'defense', 'speed'];
+const enchantments = ['speed', 'poisonEffect', 'burningEffect', 'range', 'accuracy', 'power', 'piercing', 'sharpness', 'reach', 'force', 'efficiency', 'sorcery', 'focus', 'spuhrpling', 'protection', 'spikes', 'swiftness', 'toughness', 'mirroring'];
 
 function generateServerItem() {
     var item = {
@@ -42,6 +48,10 @@ function generateServerItem() {
         item.knockbackResistance = null;
         item.blockAngle = null;
         item.projectileReflectChance = null;
+    } else if (slotType == 'key') {
+        item.manaIncrease = null;
+        item.manaRegenerationSpeed = null;
+        item.manaRegenerationAmount = null;
     }
     for (var i in item) {
         var value = document.getElementById(i).value;
@@ -56,7 +66,6 @@ function generateServerItem() {
         if (isNaN(value*2) == false) value = parseFloat(value);
         item[i] = value;
     }
-    var effects = ['health', 'damage', 'rangedDamage', 'meleeDamage', 'magicDamage', 'critChance', 'critPower', 'damageReduction', 'defense', 'speed'];
     item.effects = [];
     for (var i in effects) {
         var value = document.getElementById('effect' + effects[i]).value;
@@ -68,7 +77,6 @@ function generateServerItem() {
             });
         }
     }
-    var enchantments = ['swiftness', 'speed', 'range', 'accuracy', 'power', 'piercing', 'sharpness', 'sweepingedge', 'efficiency', 'sorcery', 'focus', 'witchcraft', 'protection', 'smashing', 'toughness', 'mirroring'];
     item.enchantments = [];
     for (var i in enchantments) {
         var checked = document.getElementById(enchantments[i]).checked;
@@ -110,6 +118,10 @@ function generateClientItem() {
         item.knockbackResistance = null;
         item.blockAngle = null;
         item.projectileReflectChance = null;
+    } else if (slotType == 'key') {
+        item.manaIncrease = null;
+        item.manaRegenerationSpeed = null;
+        item.manaRegenerationAmount = null;
     }
     for (var i in item) {
         var value = document.getElementById(i).value;
@@ -124,7 +136,6 @@ function generateClientItem() {
         if (isNaN(value*2) == false) value = parseFloat(value);
         item[i] = value;
     }
-    var effects = ['health', 'damage', 'rangedDamage', 'meleeDamage', 'magicDamage', 'critChance', 'critPower', 'damageReduction', 'defense', 'speed'];
     item.effects = [];
     for (var i in effects) {
         var value = document.getElementById('effect' + effects[i]).value;

@@ -225,10 +225,10 @@ Collision = function Collision(map, x, y, layer, type) {
     return coltype;
 };
 Collision.getColEntity = function getColEntity(map, x, y, layer) {
-    var collision = [];
-    var coltype = 0;
+    let collision = [];
+    let coltype = 0;
     if (Collision.grid[map] && Collision.grid[map][layer] && Collision.grid[map][layer][y] && Collision.grid[map][layer][y][x]) coltype = Collision.grid[map][layer][y][x];
-    var noProjectile = false;
+    let noProjectile = false;
     if (coltype > 18) {
         noProjectile = true;
         coltype -= 18;
@@ -487,10 +487,10 @@ Layer = function Layer(map, x, y, layer, type) {
     return type;
 };
 Layer.getColEntity = function getColEntity(map, x, y, layer) {
-    var collision = [];
-    var coltype = 0;
+    let collision = [];
+    let coltype = 0;
     if (Layer.grid[map] && Layer.grid[map][layer] && Layer.grid[map][layer][y] && Layer.grid[map][layer][y][x]) coltype = Layer.grid[map][layer][y][x];
-    var dir = 1;
+    let dir = 1;
     if (coltype > 5) {
         dir = -1;
         coltype -= 5;
@@ -561,14 +561,14 @@ Layer.getColEntity = function getColEntity(map, x, y, layer) {
     return collision;
 };
 Layer.getColDir = function getColDir(map, x, y, layer) {
-    var coltype = 0;
+    let coltype = 0;
     if (Layer.grid[map] && Layer.grid[map][layer] && Layer.grid[map][layer][y] && Layer.grid[map][layer][y][x]) coltype = Layer.grid[map][layer][y][x];
     if (coltype > 5) return -1;
     return 1;
 };
 Layer.init = async function() {
-    for (var map in Layer.grid) {
-        var s = Layer.loadCache(map);
+    for (let map in Layer.grid) {
+        let s = Layer.loadCache(map);
         if (s) {
             Layer.lazyInitQueue.push(map);
         } else {
@@ -587,37 +587,37 @@ Layer.lazyInit = async function lazyInit() {
     }
 };
 Layer.loadCache = function loadCache(map) {
-    var exists = fs.existsSync('./server/cache/' + map + '.cache');
+    let exists = fs.existsSync('./server/cache/' + map + '.cache');
     if (exists) {
         try {
-            var bytes = fs.readFileSync('./server/cache/' + map + '.cache');
-            var data = msgpack.deserialize(bytes);
+            let bytes = fs.readFileSync('./server/cache/' + map + '.cache');
+            let data = msgpack.deserialize(bytes);
             Layer.graph[map] = data.graph;
             Layer.lookupTable[map] = data.table;
             return true;
         } catch (err) {
-            forceQuit(err, 3);
+            forceQuit(err, 4);
         }
     }
     return false;
 };
 Layer.writeCache = function writeCache(map) {
     try {
-        var bytes = msgpack.serialize({graph: Layer.graph[map], table: Layer.lookupTable[map]});
+        let bytes = msgpack.serialize({graph: Layer.graph[map], table: Layer.lookupTable[map]});
         if (!fs.existsSync('./server/cache')) fs.mkdirSync('./server/cache');
         fs.writeFileSync('./server/cache/' + map + '.cache', bytes, {flag: 'w'});
     } catch (err) {
-        forceQuit(err, 3);
+        forceQuit(err, 4);
     }
 };
 Layer.generateGraphs = async function generateGraphs(map, lazy) {
     const pathfinder = new PF.JumpPointFinder(PF.JPFMoveDiagonallyIfNoObstacles);
     // create graphs
-    var layers = [];
-    for (var z in Layer.grid[map]) {
+    const layers = [];
+    for (let z in Layer.grid[map]) {
         layers[z] = [];
-        for (var y in Layer.grid[map][z]) {
-            for (var x in Layer.grid[map][z][y]) {
+        for (let y in Layer.grid[map][z]) {
+            for (let x in Layer.grid[map][z][y]) {
                 if (Layer.grid[map][z][y][x]) {
                     layers[z].push({
                         x: parseInt(x)-Collision.grid[map].offsetX,
@@ -630,36 +630,36 @@ Layer.generateGraphs = async function generateGraphs(map, lazy) {
                     });
                 }
             }
-            if (lazy) await sleep(10);
+            if (lazy) await sleep(1);
         }
     }
     // create grids
-    var grids = [];
-    for (var z in layers) {
+    const grids = [];
+    for (let z in layers) {
         const grid = new PF.Grid(Collision.grid[map].width, Collision.grid[map].height);
-        for (var y in Collision.grid[map][z]) {
-            for (var x in Collision.grid[map][z][y]) {
+        for (let y in Collision.grid[map][z]) {
+            for (let x in Collision.grid[map][z][y]) {
                 if (Collision.grid[map][z][y][x]) {
                     if (parseInt(x)-Collision.grid[map].offsetX >= 0 && parseInt(x)-Collision.grid[map].offsetX < Collision.grid[map].width && parseInt(y)-Collision.grid[map].offsetY >= 0 && parseInt(y)-Collision.grid[map].offsetY < Collision.grid[map].height) {
                         grid.setWalkableAt(parseInt(x)-Collision.grid[map].offsetX, parseInt(y)-Collision.grid[map].offsetY, false);
                     }
                 }
-                if (lazy) await sleep(10);
             }
+            if (lazy) await sleep(1);
         }
         grids[z] = grid;
     }
     // find connected tiles
-    for (var z in layers) {
-        for (var l1 in layers[z]) {
-            var z2 = layers[z][l1].z+layers[z][l1].dir;
+    for (let z in layers) {
+        for (let l1 in layers[z]) {
+            let z2 = layers[z][l1].z+layers[z][l1].dir;
             if (layers[z2]) {
-                for (var l2 in layers[z2]) {
+                for (let l2 in layers[z2]) {
                     if (layers[z2][l2].z == layers[z][l1].z+layers[z][l1].dir && layers[z][l1].attempts.indexOf(layers[z2][l2]) == -1) {
                         layers[z][l1].attempts.push(layers[z2][l2]);
                         layers[z2][l2].attempts.push(layers[z][l1]);
-                        var grid2 = grids[layers[z][l1].z+layers[z][l1].dir].clone();
-                        var path = pathfinder.findPath(layers[z][l1].x, layers[z][l1].y, layers[z2][l2].x, layers[z2][l2].y, grid2);
+                        let grid2 = grids[layers[z][l1].z+layers[z][l1].dir].clone();
+                        let path = pathfinder.findPath(layers[z][l1].x, layers[z][l1].y, layers[z2][l2].x, layers[z2][l2].y, grid2);
                         if (path[0]) {
                             layers[z][l1].connections.push(layers[z2][l2]);
                             layers[z2][l2].connections.push(layers[z][l1]);
@@ -668,15 +668,15 @@ Layer.generateGraphs = async function generateGraphs(map, lazy) {
                         }
                     }
                 }
-                if (lazy) await sleep(10);
+                if (lazy) await sleep(1);
             }
         }
     }
     // convert to grid
-    var graph = [];
-    for (var z in layers) {
+    const graph = [];
+    for (let z in layers) {
         graph[z] = [];
-        for (var i in layers[z]) {
+        for (let i in layers[z]) {
             if (graph[z][layers[z][i].y+Collision.grid[map].offsetY] == null) {
                 graph[z][layers[z][i].y+Collision.grid[map].offsetY] = [];
             }
@@ -693,59 +693,90 @@ Layer.generateGraphs = async function generateGraphs(map, lazy) {
                 visited: false,
                 closed: false
             };
-            for (var j in layers[z][i].connections) {
+            for (let j in layers[z][i].connections) {
                 graph[z][layers[z][i].y+Collision.grid[map].offsetY][layers[z][i].x+Collision.grid[map].offsetX].connections[j] = {
                     x: layers[z][i].connections[j].x+Collision.grid[map].offsetX,
                     y: layers[z][i].connections[j].y+Collision.grid[map].offsetY,
                     distance: layers[z][i].distances[j]
                 };
             }
-            if (lazy) await sleep(10);
         }
+        if (lazy) await sleep(1);
     }
     
     Layer.graph[map] = graph;
 };
 Layer.generateLookupTables = async function generateLookupTables(map, lazy) {
-    var grid = [];
-    for (var z in Collision.grid[map]) {
-        grid[parseInt(z)] = [];
-        for (var y in Collision.grid[map][z]) {
-            grid[parseInt(z)][parseInt(y)] = [];
-            for (var x in Collision.grid[map][z][y]) {
-                if (parseInt(x)-Collision.grid[map].offsetX >= 0 && parseInt(x)-Collision.grid[map].offsetX < Collision.grid[map].width && parseInt(y)-Collision.grid[map].offsetY >= 0 && parseInt(y)-Collision.grid[map].offsetY < Collision.grid[map].height) {
-                    var lowest = null;
-                    for (var y2 in Layer.grid[map][z]) {
-                        for (var x2 in Layer.grid[map][z][y2]) {
-                            if (Layer.grid[map][z][y2][x2]) {
-                                var distance = Math.pow(parseInt(x2)-parseInt(x), 2)+Math.pow(parseInt(y2)-parseInt(y), 2)
-                                if (lowest == null || distance < lowest.distance) {
-                                    lowest = {
-                                        x: parseInt(x2),
-                                        y: parseInt(y2),
-                                        distance: distance
-                                    };
-                                    break;
-                                }
-                            }
-                        }
+    // rewrite thing to generate list of all accessible layer changers
+    // rewrite thing to generate list of all accessible layer changers
+    // rewrite thing to generate list of all accessible layer changers
+    // rewrite thing to generate list of all accessible layer changers
+    // rewrite thing to generate list of all accessible layer changers
+    // rewrite thing to generate list of all accessible layer changers
+    // rewrite thing to generate list of all accessible layer changers
+    // rewrite thing to generate list of all accessible layer changers
+    // rewrite thing to generate list of all accessible layer changers
+    // rewrite thing to generate list of all accessible layer changers
+    // rewrite thing to generate list of all accessible layer changers
+    // rewrite thing to generate list of all accessible layer changers
+    // rewrite thing to generate list of all accessible layer changers
+    // rewrite thing to generate list of all accessible layer changers
+    // rewrite thing to generate list of all accessible layer changers
+    const pathfinder = new PF.JumpPointFinder(PF.JPFMoveDiagonallyIfNoObstacles);
+    // create grids
+    const grids = [];
+    for (let z in Layer.grid) {
+        const grid = new PF.Grid(Collision.grid[map].width, Collision.grid[map].height);
+        for (let y in Collision.grid[map][z]) {
+            for (let x in Collision.grid[map][z][y]) {
+                if (Collision.grid[map][z][y][x]) {
+                    if (parseInt(x)-Collision.grid[map].offsetX >= 0 && parseInt(x)-Collision.grid[map].offsetX < Collision.grid[map].width && parseInt(y)-Collision.grid[map].offsetY >= 0 && parseInt(y)-Collision.grid[map].offsetY < Collision.grid[map].height) {
+                        grid.setWalkableAt(parseInt(x)-Collision.grid[map].offsetX, parseInt(y)-Collision.grid[map].offsetY, false);
                     }
-                    if (lowest) grid[parseInt(z)][parseInt(y)][parseInt(x)] = lowest;
-                    else grid[parseInt(z)][parseInt(y)][parseInt(x)] = {x: 0, y: 0, distance: 1000000};
                 }
-                if (lazy) await sleep(1);
             }
+            if (lazy) await sleep(1);
+        }
+        grids[z] = grid;
+    }
+    const table = [];
+    for (let z in Collision.grid[map]) {
+        table[parseInt(z)] = [];
+        for (let y in Collision.grid[map][z]) {
+            table[parseInt(z)][parseInt(y)] = [];
+            for (let x in Collision.grid[map][z][y]) {
+                table[parseInt(z)][parseInt(y)][parseInt(x)] = [];
+                    // let lowest = null;
+                    // for (let y2 in Layer.grid[map][z]) {
+                    //     for (let x2 in Layer.grid[map][z][y2]) {
+                    //         if (Layer.grid[map][z][y2][x2]) {
+                    //             let distance = Math.pow(parseInt(x2)-parseInt(x), 2)+Math.pow(parseInt(y2)-parseInt(y), 2)
+                    //             if (lowest == null || distance < lowest.distance) {
+                    //                 lowest = {
+                    //                     x: parseInt(x2),
+                    //                     y: parseInt(y2),
+                    //                     distance: distance
+                    //                 };
+                    //                 break;
+                    //             }
+                    //         }
+                    //     }
+                    // }
+                    // if (lowest) grid[parseInt(z)][parseInt(y)][parseInt(x)] = lowest;
+                    // else grid[parseInt(z)][parseInt(y)][parseInt(x)] = {x: 0, y: 0, distance: 1000000};
+                }
+            if (lazy) await sleep(1);
         }
     }
-    Layer.lookupTable[map] = grid;
+    Layer.lookupTable[map] = table;
 };
 Layer.grid = [];
 Layer.graph = [];
 Layer.lookupTable = [];
-Layer.lazyInitQueue = []
+Layer.lazyInitQueue = [];
 
 Slowdown = function Slowdown(map, x, y, type) {
-    var coltype = 0;
+    let coltype = 0;
     switch (type) {
         case -1:
             break;
@@ -776,8 +807,8 @@ Slowdown = function Slowdown(map, x, y, type) {
     return coltype;
 };
 Slowdown.getColEntity = function getColEntity(map, x, y) {
-    var collision = [];
-    var coltype = 0;
+    let collision = [];
+    let coltype = 0;
     if (Slowdown.grid[map] && Slowdown.grid[map][y] && Slowdown.grid[map][y][x]) coltype = Slowdown.grid[map][y][x];
     switch (coltype) {
         case 0:
@@ -842,38 +873,34 @@ Slowdown.getColEntity = function getColEntity(map, x, y) {
 Slowdown.grid = [];
 
 Spawner = function Spawner(map, x, y, layer, types) {
-    var self = {
-        id: null,
+    const self = {
         x: x*64+32,
         y: y*64+32,
         map: map,
         layer: parseInt(layer),
         types: types
     };
-    self.id = Math.random();
 
     self.spawnMonster = function spawnMonster() {
         try {
-            var multiplier = 0;
-            for (var i in self.types) {
-                multiplier += Monster.types[self.types[i]].spawnChance;
-            }
-            var random = Math.random()*multiplier;
-            var min = 0;
-            var max = 0;
-            var monstertype;
-            for (var i in self.types) {
-                max += Monster.types[self.types[i]].spawnChance;
+            let multiplier = 0;
+            for (let id of Array.from(self.types)) multiplier += Monster.types[id].spawnChance;
+            let random = Math.random()*multiplier;
+            let min = 0;
+            let max = 0;
+            let monstertype;
+            for (let id of self.types) {
+                max += Monster.types[id].spawnChance;
                 if (random >= min && random <= max) {
-                    monstertype = self.types[i];
+                    monstertype = id;
                     break;
                 }
-                min += Monster.types[self.types[i]].spawnChance;
+                min += Monster.types[id].spawnChance;
             }
-            for (var i = 0; i < 50; i++) {
+            for (let i = 0; i < 50; i++) {
                 new Particle(self.map, self.x, self.y, 'spawn');
             }
-            var localmonster = new Monster(monstertype, self.x, self.y, self.map, self.layer);
+            let localmonster = new Monster(monstertype, self.x, self.y, self.map, self.layer);
             const onDeath = localmonster.onDeath;
             localmonster.onDeath = function modified_onDeath(entity, type) {
                 onDeath(entity, type);
@@ -892,29 +919,60 @@ Spawner = function Spawner(map, x, y, layer, types) {
         }
     };
     self.onMonsterDeath = function onMonsterDeath() {
-        var time = Math.random()*10000+10000;
+        let time = Math.random()*10000+10000;
         setTimeout(function() {
             self.spawnMonster();
         }, time);
     };
 
-    Spawner.list[self.id] = self;
+    Spawner.list.push(self);
     return self;
 };
+BossSpawner = function BossSpawner(map, x, y, layer, id) {
+    const self = new Spawner(map, x, y, layer, [id]);
+
+    self.onMonsterDeath = function onMonsterDeath() {
+        let time = Math.random()*10000+60000;
+        setTimeout(function() {
+            let wait = setInterval(function() {
+                if (Player.chunks[self.map]) {
+                    let range = 2;
+                    let chunkx = Math.floor(self.x/64/Collision.grid[self.map].chunkWidth);
+                    let chunky = Math.floor(self.y/64/Collision.grid[self.map].chunkHeight);
+                    for (let z in Player.chunks[self.map]) {
+                        for (let y = chunky-range; y <= chunky+range; y++) {
+                            for (let x = chunkx-range; x <= chunkx+range; x++) {
+                                if (Player.chunks[self.map][z][y] && Player.chunks[self.map][z][y][x]) {
+                                    for (let i in Player.chunks[self.map][z][y][x]) {
+                                        if (Player.chunks[self.map][z][y][x][i] != null) {
+                                            return;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                self.spawnMonster();
+                clearInterval(wait);
+            }, 1000);
+        }, time);
+    };
+};
 Spawner.init = function init() {
-    for (var i in Spawner.list) {
-        Spawner.list[i].spawnMonster();
+    for (let localspawner of Spawner.list) {
+        localspawner.spawnMonster();
     }
 };
 Spawner.list = [];
 
 Region = function Region(map, x, y, properties) {
-    var data = {
+    let data = {
         name: 'missing name',
         noattack: false,
         nomonster: false
     };
-    for (var i in properties) {
+    for (let i in properties) {
         if (properties[i] == 'noattack') data.noattack = true;
         else if (properties[i] == 'nomonster') data.nomonster = true;
         else data.name = properties[i];
@@ -929,7 +987,7 @@ Region = function Region(map, x, y, properties) {
 Region.grid = [];
 
 Teleporter = function Teleporter(map, x, y, properties) {
-    var data = {
+    let data = {
         map: properties[0],
         x: parseInt(properties[1]),
         y: parseInt(properties[2]),
@@ -946,7 +1004,7 @@ Teleporter = function Teleporter(map, x, y, properties) {
 Teleporter.grid = [];
 
 EventTrigger = function EventTrigger(map, x, y, properties) {
-    var data = {
+    let data = {
         type: properties[0]
     }
 };

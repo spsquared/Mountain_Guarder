@@ -3,8 +3,8 @@
 /* font */
 @font-face {
     font-family: "Pixel";
-    src: url(/client/assets/miniset2-webfont.woff),
-         url(/client/assets/miniset2-webfont.woff2) format('woff2');
+    src: url(/assets/miniset2-webfont.woff),
+         url(/assets/miniset2-webfont.woff2) format('woff2');
     font-weight: normal;
     font-style: normal;
 }
@@ -282,12 +282,11 @@ a:focus {
 #loadingBar {
     display: none;
     position: absolute;
-    bottom: 15%;
-    left: 25%;
-    width: 50%;
+    bottom: 15vh;
+    left: calc(25vw - 4px);
+    width: 50vw;
     height: 30px;
     border: 4px solid whitesmoke;
-    transform: translateX(-4px);
     text-align: center;
 }
 #loadingBarInner {

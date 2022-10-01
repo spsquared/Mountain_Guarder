@@ -11,6 +11,7 @@
                     "missing": 0
                 },
                 "area": {
+                    "description": "Go to nowhere",
                     "x": 0,
                     "y": 0,
                     "r": 2
@@ -43,6 +44,9 @@
             {
                 "killMonster": {
                     "bird": 5
+                },
+                "obtain": {
+                    "coppercoin": 10
                 }
             },
             {
@@ -56,5 +60,46 @@
             }
         },
         "failOnDeath": true
+    },
+    "sprock": {
+        "name": "Lodestone Mystery",
+        "requirements": {
+            "xpLevel": 0,
+            "completed": [
+                "5birds"
+            ]
+        },
+        "objectives": [
+            {
+                "area": {
+                    "description": "Locate the source of the lights",
+                    "x": 116,
+                    "y": 55,
+                    "r": 5
+                }
+            },
+            {
+                "killMonster": {
+                    "sprock": 1
+                }
+            },
+            {
+                "obtain": {
+                    "lodestone": 1
+                }
+            },
+            {
+                "talk":"tammy"
+            }
+        ],
+        "rewards": {
+            "xp": 150,
+            "items": {
+                "ialiteshard": 3,
+                "quartz": 5,
+                "iron": 5
+            }
+        },
+        "failOnDeath": false
     }
 }

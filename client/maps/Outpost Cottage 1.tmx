@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="14" height="16" tilewidth="16" tileheight="16" infinite="0" nextlayerid="13" nextobjectid="1">
+<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="14" height="16" tilewidth="16" tileheight="16" infinite="0" nextlayerid="14" nextobjectid="1">
  <editorsettings>
   <export target="Outpost Cottage 1.json" format="json"/>
  </editorsettings>
  <tileset firstgid="1" source="tiles.tsx"/>
- <layer id="9" name="Teleporter:World,5,6,0,down," width="14" height="16" visible="0" locked="1">
+ <layer id="9" name="Teleporter:World,5,6,0,down" width="14" height="16" visible="0" locked="1">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -24,7 +24,7 @@
 0,0,0,0,1695,1695,1695,0,0,0,0,0,0,0
 </data>
  </layer>
- <layer id="10" name="Region:Outpost Inn:noattack:nomonster:" width="14" height="16" visible="0" locked="1">
+ <layer id="10" name="Region:Outpost Inn:noattack:nomonster" width="14" height="16" visible="0" locked="1">
   <data encoding="csv">
 1696,1696,1696,1696,1696,1696,1696,1696,1696,1696,1696,1696,1696,1696,
 1696,1696,1696,1696,1696,1696,1696,1696,1696,1696,1696,1696,1696,1696,
@@ -82,6 +82,26 @@
 2122,0,2214,2122,0,0,0,2122,0,0,0,2122,2122,2122,
 2122,0,0,2124,0,0,0,2122,2130,0,2123,0,2126,2122,
 2122,2122,2122,2122,0,0,0,2122,2122,2122,2122,2122,2122,2122
+</data>
+ </layer>
+ <layer id="13" name="Light:255,180,50,0.2,100" width="14" height="16" visible="0" locked="1">
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,1868,0,0,0,0,0,
+0,0,0,0,1868,0,1868,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,1868,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,1868,0,0,0,0,1868,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,1868,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
  <layer id="2" name="Ground Terrain" width="14" height="16">

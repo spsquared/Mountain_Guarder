@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="9" height="9" tilewidth="16" tileheight="16" infinite="1" nextlayerid="22" nextobjectid="1">
+<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="9" height="9" tilewidth="16" tileheight="16" infinite="1" nextlayerid="23" nextobjectid="1">
  <editorsettings>
   <export target="Caves.json" format="json"/>
  </editorsettings>
  <tileset firstgid="1" source="tiles.tsx"/>
- <layer id="13" name="Darkness" width="9" height="9" visible="0" locked="1">
+ <layer id="13" name="Darkness:0.9" width="9" height="9" visible="0" locked="1">
   <data encoding="csv"/>
  </layer>
- <layer id="14" name="Teleporter:World,93,56,2,down," width="9" height="9" visible="0" locked="1">
+ <layer id="14" name="Teleporter:World,93,56,2,down" width="9" height="9" visible="0" locked="1">
   <data encoding="csv">
    <chunk x="-48" y="0" width="16" height="16">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -29,7 +29,7 @@
 </chunk>
   </data>
  </layer>
- <layer id="17" name="Teleporter:Caves,55,21,0,up," width="9" height="9" visible="0" locked="1">
+ <layer id="17" name="Teleporter:Caves,55,21,0,up" width="9" height="9" visible="0" locked="1">
   <data encoding="csv">
    <chunk x="-48" y="0" width="16" height="16">
 0,0,0,0,0,0,1695,1695,1695,0,0,0,0,0,0,0,
@@ -51,7 +51,7 @@
 </chunk>
   </data>
  </layer>
- <layer id="18" name="Teleporter:Caves,-41,0,0,down," width="9" height="9" visible="0" locked="1">
+ <layer id="18" name="Teleporter:Caves,-41,0,0,down" width="9" height="9" visible="0" locked="1">
   <data encoding="csv">
    <chunk x="48" y="16" width="16" height="16">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -73,7 +73,7 @@
 </chunk>
   </data>
  </layer>
- <layer id="15" name="Region:Abandoned Mineshaft:" width="9" height="9" visible="0" locked="1">
+ <layer id="15" name="Region:Abandoned Mineshaft" width="9" height="9" visible="0" locked="1">
   <data encoding="csv">
    <chunk x="0" y="-32" width="16" height="16">
 1696,1696,1696,1696,1696,1696,1696,1696,1696,1696,1696,1696,1696,1696,1696,1696,
@@ -383,7 +383,7 @@
 </chunk>
   </data>
  </layer>
- <layer id="16" name="Spawner:0:cavebird,sentientrock," width="9" height="9" visible="0" locked="1">
+ <layer id="16" name="Spawner:0:cavebird,sentientrock" width="9" height="9" visible="0" locked="1">
   <data encoding="csv">
    <chunk x="0" y="-16" width="16" height="16">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -413,24 +413,6 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,1693,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-</chunk>
-   <chunk x="0" y="0" width="16" height="16">
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,1693,0,
-0,0,0,0,0,0,1693,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -531,7 +513,29 @@
 </chunk>
   </data>
  </layer>
- <layer id="10" name="Collision:0" width="9" height="9" visible="0" locked="1">
+ <layer id="22" name="Spawner:0:rockturret" width="9" height="9" visible="0" locked="1">
+  <data encoding="csv">
+   <chunk x="0" y="0" width="16" height="16">
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,1693,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+</chunk>
+  </data>
+ </layer>
+ <layer id="10" name="Collision:0" width="9" height="9">
   <data encoding="csv">
    <chunk x="0" y="-32" width="16" height="16">
 2122,2122,2122,2122,2122,2122,2122,2122,2122,2122,2122,2122,2122,2122,2122,2122,
@@ -675,7 +679,7 @@
 0,0,2122,2122,2122,2122,2122,2122,2122,2122,2122,2122,2122,2122,2122,2122,
 2126,0,2122,2122,2122,2122,2122,2122,2122,2122,2122,2122,2122,2122,2122,2122,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,2122,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </chunk>
    <chunk x="48" y="-16" width="16" height="16">
 0,0,2122,2122,2122,2122,2122,2122,2122,0,0,2122,2122,2122,2122,2122,
@@ -752,7 +756,7 @@
    <chunk x="32" y="0" width="16" height="16">
 2126,0,2125,0,0,2126,2125,0,0,2126,2125,0,0,2126,2125,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,2122,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,2123,0,0,0,0,0,0,
 2126,0,2130,0,0,2126,2125,0,0,2129,2125,0,0,2126,2125,0,
 0,0,0,0,0,0,0,0,0,0,2122,0,0,0,0,0,
@@ -899,7 +903,7 @@
 </chunk>
   </data>
  </layer>
- <layer id="20" name="Light:200,50,230,0.1,300," width="9" height="9" visible="0" locked="1">
+ <layer id="20" name="Light:200,50,230,0.1,300" width="9" height="9" visible="0" locked="1">
   <data encoding="csv">
    <chunk x="16" y="-32" width="16" height="16">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -1827,8 +1831,8 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,932,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,933,0,0,
-0,0,0,0,1447,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,1447,0,0,0,0,0,0,0,0,933,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,237,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,

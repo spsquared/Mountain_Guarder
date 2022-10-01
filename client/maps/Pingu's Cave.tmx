@@ -4,7 +4,7 @@
   <export target="Pingu's Cave.json" format="json"/>
  </editorsettings>
  <tileset firstgid="1" source="tiles.tsx"/>
- <layer id="1" name="Teleporter:World,87,-13,2,down," width="9" height="11" visible="0" locked="1">
+ <layer id="1" name="Teleporter:World,87,-13,2,down" width="9" height="11" visible="0" locked="1">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,
@@ -19,7 +19,7 @@
 0,0,0,0,1695,0,0,0,0
 </data>
  </layer>
- <layer id="2" name="Region:Pingu's Cave:noattack:" width="9" height="11" visible="0" locked="1">
+ <layer id="2" name="Region:Pingu's Cave:noattack" width="9" height="11" visible="0" locked="1">
   <data encoding="csv">
 1696,1696,1696,1696,1696,1696,1696,1696,1696,
 1696,1696,1696,1696,1696,1696,1696,1696,1696,

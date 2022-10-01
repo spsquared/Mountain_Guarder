@@ -44,7 +44,7 @@ insertSingleChat = function insertSingleChat(text, color, username, log) {
 };
 
 // logging
-logColor = function logColor(text, colorstring, type) {
+getTimeStamp = function getTimeStamp() {
     var time = new Date();
     var minute = '' + time.getUTCMinutes();
     if(minute.length == 1){
@@ -53,26 +53,35 @@ logColor = function logColor(text, colorstring, type) {
     if(minute == '0'){
         minute = '00';
     }
-    if (process.env.DATABASE_URL) console.log('[' + time.getUTCHours() + ':' + minute + '] ' + colorstring + text + '\x1b[0m');
-    else console.log('\r[' + time.getUTCHours() + ':' + minute + '] ' + colorstring + text + '\x1b[0m');
+    return '[' + time.getUTCHours() + ':' + minute + '] ';
+};
+logColor = function logColor(text, colorstring, type) {
+    let timestamp = getTimeStamp();
+    if (process.env.DATABASE_URL) console.log(timestamp + colorstring + text + '\x1b[0m');
+    else console.log('\r' + timestamp + colorstring + text + '\x1b[0m');
     process.stdout.write('> ');
-    appendLog('[' + time.getUTCHours() + ':' + minute + '] ' + text, type);
+    appendLog(timestamp + text, type);
 };
 log = function log(text) {
     logColor(text, '', 'log');
+};
+debugLog = function debugLog(text) {
+    logColor(text, '', 'debug');
 };
 warn = function warn(text) {
     logColor(text, '\x1b[33m', 'warn');
 };
 error = function error(text) {
     logColor(text, '\x1b[31m', 'error');
+    if (text instanceof Error) appendLog(text.stack, 'error');
 };
 appendLog = function appendLog(text, type) {
     var typestring = '--- ';
     if (type == 'error') typestring = 'ERR ';
-    if (type == 'warn') typestring = '!WN ';
-    if (type == 'log') typestring = 'LOG ';
-    if (type == 'chat') typestring = 'CHT ';
-    fs.appendFile('./server/log.log', typestring + text + '\n', {encoding: 'utf-8'}, function() {});
+    else if (type == 'warn') typestring = '!WN ';
+    else if (type == 'log') typestring = 'LOG ';
+    else if (type == 'debug') typestring = 'DBG ';
+    else if (type == 'chat') typestring = 'CHT ';
+    fs.appendFileSync('./server/log.log', typestring + text + '\n', {encoding: 'utf-8'}, function() {});
     if (global.ENV && !ENV.offlineMode && ENV.useDiscordWebhook && type != 'chat') try {postDebugDiscord(typestring, text.toString());} catch (err) {error(err);};
 };

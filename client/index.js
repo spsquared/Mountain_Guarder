@@ -1,10 +1,10 @@
 // Copyright (C) 2022 Radioactive64
 
-const version = 'v0.13.1';
+const version = 'v0.14.0';
 var firstload = false;
 // canvas
-CTXRAW = document.getElementById('canvas');
-CTX = CTXRAW.getContext('2d');
+CANVAS = document.getElementById('canvas');
+CTX = CANVAS.getContext('2d');
 MAPS = [];
 NO_OFFSCREENCANVAS = false;
 if (typeof OffscreenCanvas == 'undefined') NO_OFFSCREENCANVAS = true;
@@ -51,6 +51,7 @@ settings = {
     fastParticles: false,
     particles: true,
     coloredLights: true,
+    flickeringLights: true,
     lights: true,
     dialogueSpeed: 5,
     pointerLock: false,
@@ -76,6 +77,7 @@ keybinds = {
     use: 0,
     second: 2,
     disableSecond: 'shift',
+    quickEquip: 'f',
     swap: 'tab',
     drop: 'q',
     chat: 't',
@@ -141,10 +143,10 @@ function resetCanvases() {
     LAYERS.lightCanvas.height = window.innerHeight*SCALE;
     LAYERS.lights.scale(SCALE, SCALE);
     resetCanvas(LAYERS.lightCanvas);
-    CTXRAW.width = window.innerWidth*SCALE;
-    CTXRAW.height = window.innerHeight*SCALE;
+    CANVAS.width = window.innerWidth*SCALE;
+    CANVAS.height = window.innerHeight*SCALE;
     CTX.scale(SCALE, SCALE);
-    resetCanvas(CTXRAW);
+    resetCanvas(CANVAS);
     for (let i in MAPS) {
         for (let j in MAPS[i].chunks) {
             for (let k in MAPS[i].chunks[j]) {
@@ -153,6 +155,7 @@ function resetCanvases() {
             }
         }
     }
+    resetCanvas(document.getElementById('playerPreview'));
 };
 resetCanvases();
 
@@ -312,7 +315,7 @@ setInterval(function() {
     // socket.off('loudrickroll');
     // socket.on('loudrickroll', function() {
     //     var rickroll = new Audio();
-    //     rickroll.src = './client/sound/music/null.mp3';
+    //     rickroll.src = './sound/music/null.mp3';
     //     rickroll.oncanplay = function() {
     //         rickroll.play();
     //     };
@@ -332,7 +335,7 @@ setInterval(function() {
         window.onerror = function() {};
         document.body.innerHTML = '<iframe src="https://www.herokucdn.com/error-pages/application-error.html" width=' + window.innerWidth + ' height=' + window.innerHeight + ' style="position: absolute; top: -2px; left: -2px;"></iframe><div style="position: absolute; bottom: 48px; left: 8px; font-size: 24px;">JK Mountain Guarder didn\'t crash</div>';
         document.body.style.overflow = 'hidden';
-    })
+    });
     socket.on('lag', function() {
         insertChat = null;
         var str = 'a';
@@ -343,7 +346,7 @@ setInterval(function() {
             });
         });
     });
-});
+}, 4);
 
 // utility
 function sleep(ms) {

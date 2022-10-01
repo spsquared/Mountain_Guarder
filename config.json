@@ -1,5 +1,5 @@
 {
-    "offlineMode": false,
+    "useLocalDatabase": true,
     "useDiscordWebhook": false,
     "ops": [
         "Sampleprovider(sp)",

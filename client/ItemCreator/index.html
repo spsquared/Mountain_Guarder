@@ -3,13 +3,13 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>MG Item Creator Tool</title>
+        <title>Item Creator - Mountain Guarder</title>
         <meta content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=2.0, minimum-scale=1.0, user-scalable=no">
         <meta id="viewport" name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=2.0, minimum-scale=1.0, user-scalable=no">
         <meta charset="utf-8">
-        <link rel="icon" href="/client/assets/favicon.ico" type="image/x-icon">
-        <script src="/client/ItemCreator/index.js" defer></script>
-        <link rel="stylesheet" href="/client/ItemCreator/main.css">
+        <link rel="icon" href="/assets/favicon.ico" type="image/x-icon">
+        <script src="/ItemCreator/index.js" defer></script>
+        <link rel="stylesheet" href="/ItemCreator/main.css">
     </head>
     <body>
         <span id="header">
@@ -30,6 +30,7 @@
                 <option value="shield">Shield</option>
                 <option value="offhand">Bag</option>
                 <option value="crystal">Crystal</option>
+                <option value="key">Key</option>
                 <option value="material">Material</option>
             </select><br>
             <div id="statsWeapon">
@@ -78,10 +79,14 @@
                 &emsp;Custom Effect:<br>
                 <textarea id="offhandEffect">function() {
     
-};
-            </textarea>
+};</textarea>
             </div>
-            &emsp;Rarity:&nbsp;<input type="number" id="rarity" class="text-small" min="0" max="999999999" value="0"><br>
+            <div id="statsKey">
+                &emsp;Max Mana Increase:&nbsp;<input type="number" id="manaIncrease" class="text-small" min="0" max="1000000" value="0">
+                &emsp;Mana Regen Speed:&nbsp;<input type="number" id="manaRegenerationSpeed" class="text-small" min="1" max="100" value="20">
+                &emsp;Mana Regen Amount:&nbsp;<input type="number" id="manaRegenerationAmount" class="text-small" min="1" max="1000" value="1">
+            </div>
+            &emsp;Rarity:&nbsp;<input type="number" id="rarity" class="text-small" min="-1000000" max="1000000" value="0"><br>
             &emsp;Maximum Stack Size:&nbsp;<input type="number" id="maxStackSize" class="text-small" min="0" max="1000000" value="1"><br>
             <b>Effects:</b><br>
             &emsp;Health Boost:&nbsp;<input type="number" id="effecthealth" class="text-small" min="0" max="1000" step="0.01"><br>
@@ -107,9 +112,11 @@
             <b>Enchantments:</b><br>
             <div id="enchantments">
                 <b>All</b><br>
-                &emsp;<input type="checkbox" id="swiftness" class="checkBox">Swiftness (movespeed)<br>
+                &emsp;<input type="checkbox" id="asdf" class="checkBox">idk<br>
                 <b>Weapons</b><br>
                 &emsp;<input type="checkbox" id="speed" class="checkBox">Speed (attackspeed)<br>
+                &emsp;<input type="checkbox" id="poisonEffect" class="checkBox">Poison (poison effect)<br>
+                &emsp;<input type="checkbox" id="burningEffect" class="checkBox">Blazing (fire effect)<br>
                 &emsp;<b>Ranged</b><br>
                 &emsp;&emsp;<input type="checkbox" id="range" class="checkBox">Range (range)<br>
                 &emsp;&emsp;<input type="checkbox" id="accuracy" class="checkBox">Accuracy (crit chance)<br>
@@ -117,17 +124,19 @@
                 &emsp;&emsp;<input type="checkbox" id="piercing" class="checkBox">Piercing (max entities)<br>
                 &emsp;<b>Melee</b><br>
                 &emsp;&emsp;<input type="checkbox" id="sharpness" class="checkBox">Sharpness (damage)<br>
-                &emsp;&emsp;<input type="checkbox" id="sweepingedge" class="checkBox">Sweeping Edge (crit damage)<br>
-                &emsp;&emsp;<input type="checkbox" id="force" class="checkBox">Force (knockback)<br>
-                &emsp;<b>Magic</b><br>
+                &emsp;&emsp;<input type="checkbox" id="reach" class="checkBox">Reach (reach)<br>
+                &emsp;&emsp;<input type="checkbox" id="force" class="checkBox">Knockback (knockback)<br>
+                &emsp;<b>Purple</b><br>
                 &emsp;&emsp;<input type="checkbox" id="efficiency" class="checkBox">Efficiency (manacost)<br>
                 &emsp;&emsp;<input type="checkbox" id="sorcery" class="checkBox">Sorcery (damage)<br>
                 &emsp;&emsp;<input type="checkbox" id="focus" class="checkBox">Focus (crit chance)<br>
-                &emsp;&emsp;<input type="checkbox" id="witchcraft" class="checkBox">Witchcraft (crit damage)<br>
+                &emsp;&emsp;<input type="checkbox" id="spuhrpling" class="checkBox">Spuhrpling (crit damage)<br>
                 <b>Armor</b><br>
                 &emsp;<input type="checkbox" id="protection" class="checkBox">Protection (defense)<br>
-                &emsp;<input type="checkbox" id="smashing" class="checkBox">Smashing (touch knockback)<br>
-                &emsp;<b>Shields</b><br>
+                &emsp;<input type="checkbox" id="spikes" class="checkBox">Spikes (touch damage)<br>
+                <b>Boots</b><br>
+                &emsp;<input type="checkbox" id="swiftness" class="checkBox">Swiftness (movespeed)<br>
+                <b>Shields</b><br>
                 &emsp;<input type="checkbox" id="toughness" class="checkBox">Toughness (knockback resistance)<br>
                 &emsp;<input type="checkbox" id="mirroring" class="checkBox">Mirroring (reflection)<br>
             </div>

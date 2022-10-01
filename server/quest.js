@@ -1,10 +1,11 @@
 // Copyright (C) 2022 Radioactive64
 
 QuestHandler = function(socket, player) {
-    var self = {
+    const self = {
         qualified: [],
         done: [],
-        current: []
+        current: [],
+        lastTick: 0
     };
 
     self.startQuest = function startQuest(id) {
@@ -56,14 +57,18 @@ QuestHandler = function(socket, player) {
         }
     };
     self.updateClient = function updateClient() {
-        var pack = [];
-        for (let i in self.current) {
-            pack.push({
-                id: i,
-                data: self.current[i].objectivesComplete
-            });
+        self.lastTick++;
+        if (self.lastTick > 3) {
+            self.lastTick = 0;
+            var pack = [];
+            for (let i in self.current) {
+                pack.push({
+                    id: i,
+                    data: self.current[i].objectivesComplete
+                });
+            }
+            socket.emit('questData', pack);
         }
-        socket.emit('questData', pack);
     };
     self.qualifiesFor = function qualifiesFor(id) {
         var quest = QuestData.quests[id];
@@ -107,7 +112,7 @@ QuestHandler = function(socket, player) {
 };
 QuestData = function(id) {
     const quest = cloneDeep(QuestData.quests[id]);
-    var self = {
+    const self = {
         id: id,
         stages: quest.objectives,
         stage: 0,
@@ -121,7 +126,7 @@ QuestData = function(id) {
             for (let j in self.objectivesComplete[i]) {
                 self.objectivesComplete[i][j] = 0;
             }
-        } else if (j == 'talk' || j == 'area') {
+        } else if (i == 'talk' || i == 'area') {
             self.objectivesComplete[i] = false;
         } else {
             self.objectivesComplete[i] = 0;

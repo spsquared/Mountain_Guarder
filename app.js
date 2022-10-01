@@ -14,7 +14,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-const version = 'v0.13.1';
+const version = 'v0.14.0';
 console.info('\x1b[?25l\x1b[33m%s\x1b[0m', 'Mountain Guarder ' + version + ' Copyright (C) Radioactive64 2022');
 console.info('For more information, type "copyright-details".');
 require('./server/log.js');
@@ -34,17 +34,16 @@ const limiter = rateLimit({
 });
 cloneDeep = require('lodash/cloneDeep');
 
-app.get('/', function(req, res) {res.sendFile(__dirname + '/client/index.html');});
-app.get('/itemcreator', function(req, res) {res.sendFile(__dirname + '/client/ItemCreator/index.html');});
-app.get('/itemcreator/table', function(req, res) {res.sendFile(__dirname + '/client/ItemCreator/table/index.html');});
-app.post('/', function(req, res) {res.download('./client/img/World.png')});
-app.use('/client/',express.static(__dirname + '/client/'));
+app.get('/', (req, res) => res.sendFile(__dirname + '/client/index.html'));
+app.get('/itemcreator', (req, res) => res.sendFile(__dirname + '/client/ItemCreator/index.html'));
+app.get('/asseteditor', (req, res) => res.sendFile(__dirname + '/client/Editor/index.html'));
+app.use('/', express.static(__dirname + '/client/'));
 app.use(limiter);
 
 // start server
 var started = false;
 ENV = {
-    offlineMode: false,
+    useLocalDatabase: false,
     useDiscordWebhook: false,
     ops: [],
     devs: [
@@ -55,6 +54,9 @@ ENV = {
         x: 224,
         y: 544,
         layer: 0
+        // x: 7500,
+        // y: 3600,
+        // layer: 4
     },
     pvp: false,
     monsterFriendlyFire: true,
@@ -354,12 +356,12 @@ s = {
         return 'Server tick time: ' + TICKTIME
     },
     help: function s_help(self) {
-        var str = 'All "/" commands:\n/';
+        logColor('All "/" commands:', '\x1b[33m', 'debug');
+        let str = '';
         for (let i in s) {
-            str += i;
-            str += '\n/';
+            str += '\n\t/' + i;
         }
-        return str.substring(0, str.length-1);
+        return str;
     },
     findPlayer: function s_findPlayer(username) {
         for (let i in Player.list) {
@@ -383,7 +385,6 @@ s = {
     tp: function s_tp(self, name1, name2) {
         var player1 = s.findPlayer(name1);
         var player2 = s.findPlayer(name2);
-        console.log(name1, name2, player1, player2)
         if (player1) {
             if (player2) {
                 player1.teleport(player2.map, player2.gridx, player2.gridy, player2.layer);
@@ -403,6 +404,11 @@ s = {
         self.invincible = !self.invincible;
         if (self.invincible) return 'You are now invincible';
         else return 'You are no longer invincible';
+    },
+    noclip: function s_noclip(self) {
+        self.noCollision = !self.noCollision;
+        if (self.noCollision) return 'Disabled collisions';
+        else return 'Enabled collisions';
     },
     bc: function s_bc(self, text) {
         insertChat('[BC]: ' + text, 'server');
@@ -474,45 +480,45 @@ s = {
 prompt.on('line', async function(input) {
     if (active && input != '') {
         if (input.toLowerCase() == 'help') {
-            logColor('-------- Console help --------', '\x1b[33m', 'log'    );
-            logColor('help               this screen', '\x1b[33m', 'log');
-            logColor('copyright-details  shows copyright details', '\x1b[33m', 'log');
-            logColor('stop               stops the server', '\x1b[33m', 'log');
-            logColor('', '\x1b[33m', 'log');
-            logColor('Use "/" to run commands. For more information, run "/help"', '\x1b[33m', 'log');
+            logColor('-------- Console help --------', '\x1b[33m', 'debug');
+            logColor('help               this screen', '\x1b[33m', 'debug');
+            logColor('copyright-details  shows copyright details', '\x1b[33m', 'debug');
+            logColor('stop               stops the server', '\x1b[33m', 'debug');
+            logColor('', '\x1b[33m', 'debug');
+            logColor('Use "/" to run commands. For more information, run "/help"', '\x1b[33m', 'debug');
             return;
         } else if (input.toLowerCase() == 'stop') {
             stop();
             return;
         } else if (input == 'copyright-details') {
-            log('+-----------------------------------------------------------------------+');
-            log('|   \x1b[1m\x1b[36mMountain Guarder\x1b[0m                                                    |');
-            log('|   \x1b[1m\x1b[34mCopyright (C) 2022 Radioactive64\x1b[0m                                    |');
-            log('|                                                                       |');
-            log('| This program is free software: you can redistribute it and/or modify  |');
-            log('| it under the terms of the GNU General Public License as published by  |');
-            log('| the Free Software Foundation, either version 3 of the License, or     |');
-            log('| (at your option) any later version.                                   |');
-            log('|                                                                       |');
-            log('| This program is distributed in the hope that it will be useful, but   |');
-            log('| WITHOUT ANY WARRANTY; without even the implied warranty of            |');
-            log('| MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     |');
-            log('| GNU General Public License for more details.                          |');
-            log('|                                                                       |');
-            log('| You should have received a copy of the GNU General Public License     |');
-            log('| along with this program. If not, see <\x1b[4mhttps://www.gnu.org/licenses/\x1b[0m>. |');
-            log('+-----------------------------------------------------------------------+');
+            debugLog('+-----------------------------------------------------------------------+');
+            debugLog('|   \x1b[1m\x1b[36mMountain Guarder\x1b[0m                                                    |');
+            debugLog('|   \x1b[1m\x1b[34mCopyright (C) 2022 Radioactive64\x1b[0m                                    |');
+            debugLog('|                                                                       |');
+            debugLog('| This program is free software: you can redistribute it and/or modify  |');
+            debugLog('| it under the terms of the GNU General Public License as published by  |');
+            debugLog('| the Free Software Foundation, either version 3 of the License, or     |');
+            debugLog('| (at your option) any later version.                                   |');
+            debugLog('|                                                                       |');
+            debugLog('| This program is distributed in the hope that it will be useful, but   |');
+            debugLog('| WITHOUT ANY WARRANTY; without even the implied warranty of            |');
+            debugLog('| MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     |');
+            debugLog('| GNU General Public License for more details.                          |');
+            debugLog('|                                                                       |');
+            debugLog('| You should have received a copy of the GNU General Public License     |');
+            debugLog('| along with this program. If not, see <\x1b[4mhttps://www.gnu.org/licenses/\x1b[0m>. |');
+            debugLog('+-----------------------------------------------------------------------+');
             return;
         } else if (input == 'colortest') {
-            log('\x1b[0m█ \x1b[0m\x1b[1m█ \x1b[0m');
-            log('\x1b[30m\x1b[40m█ \x1b[0m\x1b[90m\x1b[100m█ \x1b[0m');
-            log('\x1b[31m\x1b[41m█ \x1b[0m\x1b[91m\x1b[101m█ \x1b[0m');
-            log('\x1b[32m\x1b[42m█ \x1b[0m\x1b[92m\x1b[102m█ \x1b[0m');
-            log('\x1b[33m\x1b[43m█ \x1b[0m\x1b[93m\x1b[103m█ \x1b[0m');
-            log('\x1b[34m\x1b[44m█ \x1b[0m\x1b[94m\x1b[104m█ \x1b[0m');
-            log('\x1b[35m\x1b[45m█ \x1b[0m\x1b[95m\x1b[105m█ \x1b[0m');
-            log('\x1b[36m\x1b[46m█ \x1b[0m\x1b[96m\x1b[106m█ \x1b[0m');
-            log('\x1b[37m\x1b[47m█ \x1b[0m\x1b[97m\x1b[107m█ \x1b[0m');
+            debugLog('\x1b[0m█ \x1b[0m\x1b[1m█ \x1b[0m');
+            debugLog('\x1b[30m\x1b[40m█ \x1b[0m\x1b[90m\x1b[100m█ \x1b[0m');
+            debugLog('\x1b[31m\x1b[41m█ \x1b[0m\x1b[91m\x1b[101m█ \x1b[0m');
+            debugLog('\x1b[32m\x1b[42m█ \x1b[0m\x1b[92m\x1b[102m█ \x1b[0m');
+            debugLog('\x1b[33m\x1b[43m█ \x1b[0m\x1b[93m\x1b[103m█ \x1b[0m');
+            debugLog('\x1b[34m\x1b[44m█ \x1b[0m\x1b[94m\x1b[104m█ \x1b[0m');
+            debugLog('\x1b[35m\x1b[45m█ \x1b[0m\x1b[95m\x1b[105m█ \x1b[0m');
+            debugLog('\x1b[36m\x1b[46m█ \x1b[0m\x1b[96m\x1b[106m█ \x1b[0m');
+            debugLog('\x1b[37m\x1b[47m█ \x1b[0m\x1b[97m\x1b[107m█ \x1b[0m');
             return;
         }
         if (input.indexOf('/') == 0) {
@@ -540,7 +546,7 @@ prompt.on('line', async function(input) {
                     }
                     if (arg == '') break;
                 }
-                logColor('SERVER: ' + input, '\x1b[33m', 'log');
+                logColor(getTimeStamp() + 'SERVER: ' + input, '\x1b[33m', 'log');
                 if (ENV.useDiscordWebhook) postDebugDiscord('DBG', input);
                 if (s[cmd]) {
                     try {
@@ -564,7 +570,7 @@ prompt.on('line', async function(input) {
             }
         } else {
             try {
-                appendLog('SERVER: ' + input, 'log');
+                appendLog(getTimeStamp() + 'SERVER: ' + input, 'log');
                 if (ENV.useDiscordWebhook) postDebugDiscord('DBG', 'SERV-> ' + input);
                 let msg = eval(input);
                 if (msg == undefined) {
@@ -581,23 +587,26 @@ prompt.on('line', async function(input) {
     }
 });
 async function stop() {
-    insertChat('[!] SERVER IS CLOSING [!]', 'server');
-    logColor('Stopping Server...', '\x1b[32m', 'log');
-    clearInterval(updateTicks);
-    clearInterval(autoSave);
-    started = false;
-    for (let i in Player.list) {
-        await Player.list[i].disconnect();
+    if (active) {
+        active = false;
+        insertChat('[!] SERVER IS CLOSING [!]', 'server');
+        logColor('Stopping Server...', '\x1b[32m', 'log');
+        clearInterval(updateTicks);
+        clearInterval(autoSave);
+        started = false;
+        for (let i in Player.list) {
+            await Player.list[i].disconnect();
+        }
+        await ACCOUNTS.disconnect();
+        server.close();
+        logColor('Server Stopped.', '\x1b[32m', 'log')
+        appendLog('----------------------------------------');
+        process.stdout.write('\x1b[1A');
+        process.exit(0);
     }
-    await ACCOUNTS.disconnect();
-    server.close();
-    logColor('Server Stopped.', '\x1b[32m', 'log')
-    appendLog('----------------------------------------');
-    process.stdout.write('\x1b[1A');
-    process.exit(0);
 }
 prompt.on('close', async function() {
-    if (active && process.env.PORT == null) await stop();
+    if (process.env.PORT == null) await stop();
 });
 process.on('SIGTERM', stop);
 process.on('SIGINT', stop);
@@ -608,7 +617,6 @@ TPS = 0;
 var tpsTimes = [];
 var consecutiveTimeouts = 0;
 TICKTIME = 0;
-// change to chunk-based pack for more efficiency and then convert back to list
 const update = `
 try {
     var pack = Entity.update();
@@ -718,7 +726,7 @@ const updateTicks = setInterval(function() {
 // autosave
 const autoSave = setInterval(function() {
     for (let i in Player.list) {
-        Player.list[i].saveData();
+        if (Player.list[i].name) Player.list[i].saveData();
     }
 }, ENV.autoSaveInterval*60000);
 

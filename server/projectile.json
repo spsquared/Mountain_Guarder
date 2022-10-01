@@ -12,6 +12,7 @@
         "invincibilityFrame": 0,
         "deathMessage": "shot",
         "piercing": false,
+        "maxPierce": 0,
         "noCollision": false,
         "patternUpdateSpeed": 0,
         "reflectable": true
@@ -29,6 +30,7 @@
         "invincibilityFrame": 2,
         "deathMessage": "shot",
         "piercing": true,
+        "maxPierce": 1,
         "noCollision": false,
         "patternUpdateSpeed": 0,
         "reflectable": false
@@ -46,6 +48,7 @@
         "invincibilityFrame": 0,
         "deathMessage": "purpled to death",
         "piercing": false,
+        "maxPierce": 0,
         "noCollision": false,
         "patternUpdateSpeed": 0,
         "reflectable": true
@@ -63,6 +66,7 @@
         "invincibilityFrame": 0,
         "deathMessage": "purpled to death",
         "piercing": false,
+        "maxPierce": 0,
         "noCollision": true,
         "patternUpdateSpeed": 0,
         "reflectable": false
@@ -80,6 +84,7 @@
         "invincibilityFrame": 0,
         "deathMessage": "purpled to death",
         "piercing": false,
+        "maxPierce": 0,
         "noCollision": false,
         "patternUpdateSpeed": 1,
         "reflectable": true
@@ -97,6 +102,7 @@
         "invincibilityFrame": 0,
         "deathMessage": "purpled to death",
         "piercing": false,
+        "maxPierce": 0,
         "noCollision": true,
         "patternUpdateSpeed": 1,
         "reflectable": false
@@ -114,6 +120,7 @@
         "invincibilityFrame": 5,
         "deathMessage": "slain",
         "piercing": true,
+        "maxPierce": 2,
         "noCollision": true,
         "patternUpdateSpeed": 0,
         "reflectable": false
@@ -131,6 +138,7 @@
         "invincibilityFrame": 8,
         "deathMessage": "impaled",
         "piercing": true,
+        "maxPierce": 5,
         "noCollision": true,
         "patternUpdateSpeed": 0,
         "reflectable": false
@@ -151,11 +159,30 @@
                 }
             }
         ],
-        "damageType": "melee",
+        "damageType": "ranged",
         "invincibilityFrame": 5,
-        "deathMessage": "impaled",
+        "deathMessage": "blown up",
         "piercing": false,
+        "maxPierce": 0,
         "noCollision": false,
+        "patternUpdateSpeed": 0,
+        "reflectable": false
+    },
+    "aiminglaser": {
+        "width": 1024,
+        "height": 3,
+        "speed": 0,
+        "pattern": "followDir",
+        "damage": 0,
+        "range": 2,
+        "knockback": 0,
+        "contactEvents": [],
+        "damageType": "ranged",
+        "invincibilityFrame": 10,
+        "deathMessage": "somehow was aiming lasered to death",
+        "piercing": true,
+        "maxPierce": 1000000,
+        "noCollision": true,
         "patternUpdateSpeed": 0,
         "reflectable": false
     },
@@ -172,6 +199,7 @@
         "invincibilityFrame": 1,
         "deathMessage": "shurikened",
         "piercing": false,
+        "maxPierce": 0,
         "noCollision": false,
         "patternUpdateSpeed": 0,
         "reflectable": true
@@ -189,6 +217,7 @@
         "invincibilityFrame": 1,
         "deathMessage": "snowballed",
         "piercing": false,
+        "maxPierce": 0,
         "noCollision": false,
         "patternUpdateSpeed": 1,
         "reflectable": true
@@ -206,6 +235,7 @@
         "invincibilityFrame": 1,
         "deathMessage": "snowballed",
         "piercing": false,
+        "maxPierce": 0,
         "noCollision": false,
         "patternUpdateSpeed": 0,
         "reflectable": true
@@ -218,14 +248,63 @@
         "damage": 14,
         "range": 3,
         "knockback": 0.3,
-        "contactEvents": [],
+        "contactEvents": [
+            {
+                "type": "effect",
+                "data": {
+                    "id": "stun",
+                    "time": 5
+                }
+            }
+        ],
         "damageType": "ranged",
         "invincibilityFrame": 2,
         "deathMessage": "pelted with rocks",
         "piercing": false,
+        "maxPierce": 0,
         "noCollision": false,
         "patternUpdateSpeed": 1,
         "reflectable": true
+    },
+    "explodingrock": {
+        "width": 30,
+        "height": 30,
+        "speed": 25,
+        "pattern": "spin",
+        "damage": 9,
+        "range": 3,
+        "knockback": 0.4,
+        "contactEvents": [
+            {
+                "type": "effect",
+                "data": {
+                    "id": "stun",
+                    "time": 5
+                }
+            },
+            {
+                "type": "explosion",
+                "data": {
+                    "size": 1
+                }
+            },
+            {
+                "type": "areaeffect",
+                "data": {
+                    "size": 1,
+                    "effect": "burning",
+                    "time": 40
+                }
+            }
+        ],
+        "damageType": "ranged",
+        "invincibilityFrame": 4,
+        "deathMessage": "exploded with rocks",
+        "piercing": false,
+        "maxPierce": 0,
+        "noCollision": false,
+        "patternUpdateSpeed": 0,
+        "reflectable": false
     },
     "christmas2021": {
         "width": 60,
@@ -240,6 +319,7 @@
         "invincibilityFrame": 1,
         "deathMessage": "made festive",
         "piercing": false,
+        "maxPierce": 0,
         "noCollision": true,
         "patternUpdateSpeed": 1,
         "reflectable": false

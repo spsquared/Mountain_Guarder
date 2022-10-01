@@ -60,10 +60,10 @@ Inventory.Slot = function Slot() {
 
     self.refresh = function() {
         if (self.item) {
-            if (self.item.stackSize != 1) slot.innerHTML = '<img src="/client/img/item/' + self.item.id + '.png" class="invSlotImg noSelect"></img><div class="invSlotStackSize noSelect">' + self.item.stackSize + '</div>';
-            else slot.innerHTML = '<img src="/client/img/item/' + self.item.id + '.png" class="invSlotImg noSelect"></img>';
+            if (self.item.stackSize != 1) slot.innerHTML = '<img src="/img/item/' + self.item.id + '.png" class="invSlotImg noSelect"><div class="invSlotStackSize noSelect">' + self.item.stackSize + '</div>';
+            else slot.innerHTML = '<img src="/img/item/' + self.item.id + '.png" class="invSlotImg noSelect">';
         } else {
-            slot.innerHTML = '<img src="/client/img/item/empty.png" class="invSlotImgNoGrab noSelect"></img>';
+            slot.innerHTML = '<img src="/img/item/empty.png" class="invSlotImgNoGrab noSelect">';
         }
     };
     slot.onmouseover = function(e) {
@@ -97,9 +97,9 @@ Inventory.EquipSlot = function EquipSlot(equip) {
 
     self.refresh = function() {
         if (self.item) {
-            slot.innerHTML = '<img src="/client/img/item/' + self.item.id + '.png" class="invSlotImg noSelect"></img>';
+            slot.innerHTML = '<img src="/img/item/' + self.item.id + '.png" class="invSlotImg noSelect">';
         } else {
-            slot.innerHTML = '<img src="/client/img/item/emptySlot' + self.slotId + '.png" class="invSlotImgNoGrab noSelect"></img>';
+            slot.innerHTML = '<img src="/img/item/emptySlot' + self.slotId + '.png" class="invSlotImgNoGrab noSelect">';
         }
     };
     slot.onmouseover = function(e) {
@@ -173,6 +173,9 @@ Inventory.getRarityColor = function getRarityColor(rarity) {
         case 'blucoin':
             str = 'color: #3C70FF;';
             break;
+        case -3:
+            str = 'animation: garuder 3s infinite;';
+            break;
         case -2:
             str = 'color: #3C70FF;';
             break;
@@ -201,7 +204,7 @@ Inventory.loadEffects = function loadEffects(item) {
     var str = '<div style="font-size: 12px; line-height: 14px;">';
     if (typeof item === 'object') {
         if (item.slotType == 'weapon' || item.slotType == 'crystal') {
-            var damageType = 'Damage';
+            let damageType = 'Damage';
             switch (item.damageType) {
                 case 'ranged':
                     damageType = ' Ranged damage';
@@ -227,12 +230,16 @@ Inventory.loadEffects = function loadEffects(item) {
             str += '<span style="color: lime;">' + item.blockAngle + '° Block angle</span><br>';
             str += '<span style="color: lime;">' + Math.round(item.projectileReflectChance*100) + '% Reflection chance</span><br>';
             str += '<span style="color: lime;">+' + Math.round(item.knockbackResistance*100) + '% Knockback resistance</span><br>';
+        } else if (item.slotType == 'key') {
+            if (item.manaIncrease != 0) str += '<span style="color: lime;">+' + item.manaIncrease + ' Max Mana</span><br>';
+            let regen = Math.round(item.manaRegenerationAmount*(20/item.manaRegenerationSpeed)*10)/10;
+            str += '<span style="color: lime;">Regenerates ' + regen + ' Mana/second</span><br>';
         }
         for (let i in item.effects) {
-            var color = '';
-            var number = '+0';
-            var effect = 'nothing';
-            var localeffect = item.effects[i];
+            let color = '';
+            let number = '+0';
+            let effect = 'nothing';
+            let localeffect = item.effects[i];
             if (localeffect.value < 0) {
                 color = 'red';
                 number = localeffect.value;
@@ -426,13 +433,22 @@ document.addEventListener('keydown', function(e) {
                     action: 'swap'
                 });
                 e.preventDefault();
+            } else if (e.key.toLowerCase() == keybinds.quickEquip) {
+                for (let i in Inventory.items) {
+                    if (Inventory.items[i].item && Inventory.items[i].mousedOver) {
+                        socket.emit('item', {
+                            action: 'quickEquip',
+                            slot: parseInt(i)
+                        });
+                    }
+                }
             }
         }
     }
 });
-Inventory.itemTypes = [];
-Inventory.itemImages = [];
-Inventory.itemHighlightImages = [];
+Inventory.itemTypes = {};
+Inventory.itemImages = {};
+Inventory.itemHighlightImages = {};
 
 // io
 Inventory.takeItem = function takeItem(slot, amount) {
@@ -464,12 +480,12 @@ socket.on('dragging', function(data) {
         dragDiv.style.top = mouseY+window.innerHeight/2-32 + 'px';
         dragStackSize.innerText = '';
         if (data.stackSize != 1) dragStackSize.innerText = data.stackSize;
-        dragImg.src = '/client/img/item/' + data.id + '.png';
+        dragImg.src = '/img/item/' + data.id + '.png';
         document.getElementById('gameContainer').style.cursor = 'grabbing';
     } else {
         dragDiv.style.display = 'none';
         dragStackSize.innerText = '';
-        dragImg.src = '/client/img/item/empty.png';
+        dragImg.src = '/img/item/empty.png';
         document.getElementById('gameContainer').style.cursor = '';
     }
 });
@@ -511,7 +527,7 @@ async function getInventoryData() {
     await new Promise(function(resolve, reject) {
         totalassets++;
         var request = new XMLHttpRequest();
-        request.open('GET', '/client/item.json', true);
+        request.open('GET', '/item.json', true);
         request.onload = async function() {
             if (this.status >= 200 && this.status < 400) {
                 var json = JSON.parse(this.response);
@@ -550,7 +566,7 @@ async function loadInventoryData() {
                 loadedassets++;
                 resolve();
             };
-            Inventory.itemImages[i].src = '/client/img/item/' + i + '.png';
+            Inventory.itemImages[i].src = '/img/item/' + i + '.png';
             Inventory.itemImages[i].className = 'invSlotImg noSelect';
         });
         await new Promise(function(resolve, reject) {
@@ -558,7 +574,7 @@ async function loadInventoryData() {
                 loadedassets++;
                 resolve();
             };
-            Inventory.itemHighlightImages[i].src = '/client/img/item/highlighted/' + i + '.png';
+            Inventory.itemHighlightImages[i].src = '/img/item/highlighted/' + i + '.png';
             Inventory.itemHighlightImages[i].className = 'invSlotImg noSelect';
         });
     }
@@ -567,7 +583,7 @@ async function loadInventoryData() {
             loadedassets++;
             resolve();
         };
-        Inventory.itemImages['empty'].src = '/client/img/item/empty.png';
+        Inventory.itemImages['empty'].src = '/img/item/empty.png';
         Inventory.itemImages['empty'].className = 'invSlotImgNoGrab noSelect';
     });
     for (let i in Inventory.equips) {
@@ -576,7 +592,7 @@ async function loadInventoryData() {
                 loadedassets++;
                 resolve();
             };
-            Inventory.itemImages[i].src = '/client/img/item/emptySlot' + i + '.png';
+            Inventory.itemImages[i].src = '/img/item/emptySlot' + i + '.png';
             Inventory.itemImages[i].className = 'invSlotImgNoGrab noSelect';
         });
     }
@@ -603,7 +619,7 @@ Crafting.slot = function(slot) {
     block.className = 'craftingImageBlock';
     const image = new Image();
     image.className = 'craftingImage';
-    image.src = '/client/img/item/' + craft.item + '.png';
+    image.src = '/img/item/' + craft.item + '.png';
     block.appendChild(image);
     const amount = document.createElement('div');
     amount.className = 'craftingAmount';
@@ -665,7 +681,7 @@ async function getCraftingData() {
     await new Promise(function(resolve, reject) {
         totalassets++;
         var request = new XMLHttpRequest();
-        request.open('GET', '/client/crafts.json', true);
+        request.open('GET', '/crafts.json', true);
         request.onload = async function() {
             if (this.status >= 200 && this.status < 400) {
                 var json = JSON.parse(this.response);
@@ -701,7 +717,7 @@ const shopName = document.getElementById('inventoryShopName');
 
 // shops
 Shop = function(id) {
-    var self = Object.assign({}, Shop.shops[id]);
+    const self = Object.assign({}, Shop.shops[id]);
     self.id = id;
     self.divs = [];
     inventoryShop.innerHTML = '';
@@ -718,18 +734,18 @@ Shop = function(id) {
             costblock.className = 'costItemBlock';
             const cost = new Image();
             cost.className = 'costItemImg';
-            cost.src = '/client/img/item/' + j + '.png';
+            cost.src = '/img/item/' + j + '.png';
             costblock.appendChild(cost);
             const costcount = document.createElement('div');
             costcount.className = 'shopCount';
             costcount.innerText = self.slots[i].costs[j] != 1 ? self.slots[i].costs[j] : '';
             costblock.appendChild(costcount);
-            costs.appendChild(costblock);
+            costs.insertBefore(costblock, costs.firstChild);
             counts[j] = costcount;
         }
-        costs.onwheel = function onwheel(e) {
-            console.log(e.deltaX, e.deltaY)
-        };
+        costs.addEventListener('wheel', e => {
+            costs.scrollLeft += e.deltaY/5;
+        }, {passive: true});
         const arrow = document.createElement('div');
         arrow.className = 'shopArrow';
         block.appendChild(arrow);
@@ -738,7 +754,7 @@ Shop = function(id) {
         const item = new Image();
         item.className = 'shopItemImg';
         itemblock.appendChild(item);
-        item.src = '/client/img/item/' + self.slots[i].item.id + '.png';
+        item.src = '/img/item/' + self.slots[i].item.id + '.png';
         const itemcount = document.createElement('div');
         itemcount.className = 'shopCount';
         itemcount.innerText = self.slots[i].item.amount != 1 ? self.slots[i].item.amount : '';
@@ -785,9 +801,8 @@ Shop = function(id) {
         });
         inventoryShop.innerHTML = '';
         shopName.innerText = 'How Did You Get Here?';
-        self = null;
         Shop.currentShop = null;
-    }
+    };
 
     self.updateAffordability();
     
@@ -797,7 +812,7 @@ Shop = function(id) {
     return self;
 };
 Shop.currentShop = null;
-Shop.shops = [];
+Shop.shops = {};
 
 // io
 socket.on('shop', function(data) {
@@ -809,7 +824,7 @@ async function getShopData() {
     await new Promise(function(resolve, reject) {
         totalassets++;
         var request = new XMLHttpRequest();
-        request.open('GET', '/client/shop.json', true);
+        request.open('GET', '/shop.json', true);
         request.onload = async function() {
             if (this.status >= 200 && this.status < 400) {
                 var json = JSON.parse(this.response);

@@ -141,7 +141,7 @@ function unlockCrafts() {
 var mgtimer = 0;
 MGHC = function () {
     mgtimer++;
-    if (mgtimer > settings.fps/20) {mgtimer = 0;}
+    if (mgtimer > settings.fps / 20) { mgtimer = 0; }
     if (mTracers || PTracers) {
         CTX.save();
         CTX.translate((window.innerWidth / 2) - player.x, (window.innerHeight / 2) - player.y);
@@ -213,8 +213,9 @@ MGHC = function () {
                     if (lowest) if (Monster.list[i].map == player.map && Monster.list[i].hp > Monster.list[lowest].hp) lowest = i;
                 }
             }
-            if (lowest) {
-                socket.emit('click', { button: 'left', x: Monster.list[lowest].x - player.x, y: Monster.list[lowest].y - player.y, state: true });
+            if (lowest != null) {
+                console.log(lowest);
+                socket.emit('click', { button: 'left', x: Monster.list[lowest].x - player.x - OFFSETX, y: Monster.list[lowest].y - player.y - OFFSETY, state: true });
             }
         }
         if (autopickup) {
@@ -233,8 +234,8 @@ MGHC = function () {
 function getDistance(entity) {
     return Math.sqrt(Math.pow(player.x - entity.x, 2) + Math.pow(player.y - entity.y, 2));
 };
-document.onmousemove = function (e) {
-    if (loaded && !mAttack) {
+document.onmousemove = function onmousemove(e) {
+    if (loaded && visible && !mAttack) {
         if (!e.isTrusted) {
             socket.emit('timeout');
         }
@@ -311,8 +312,8 @@ drawFrame = function () {
             if (LAYERS.entitylayers[i] == null) {
                 LAYERS.entitylayers[i] = createCanvas();
                 LAYERS.elayers[i] = LAYERS.entitylayers[i].getContext('2d');
-                LAYERS.entitylayers[i].width = window.innerWidth*SCALE;
-                LAYERS.entitylayers[i].height = window.innerHeight*SCALE;
+                LAYERS.entitylayers[i].width = window.innerWidth * SCALE;
+                LAYERS.entitylayers[i].height = window.innerHeight * SCALE;
                 LAYERS.elayers[i].scale(SCALE, SCALE);
                 resetCanvas(LAYERS.entitylayers[i]);
             }
@@ -320,9 +321,9 @@ drawFrame = function () {
         CTX.clearRect(0, 0, window.innerWidth, window.innerHeight);
         OFFSETX = 0;
         OFFSETY = 0;
-        if (MAPS[player.map].width*64 > window.innerWidth) {
-            OFFSETX = -Math.max((window.innerWidth/2)-(player.x-MAPS[player.map].offsetX), Math.min((MAPS[player.map].offsetX+(MAPS[player.map].width*64))-player.x-(window.innerWidth/2), 0));
-            OFFSETY = -Math.max((window.innerHeight/2)-(player.y-MAPS[player.map].offsetY), Math.min((MAPS[player.map].offsetY+(MAPS[player.map].height*64))-player.y-(window.innerHeight/2), 0));
+        if (MAPS[player.map].width * 64 > window.innerWidth) {
+            OFFSETX = -Math.max((window.innerWidth / 2) - (player.x - MAPS[player.map].offsetX), Math.min((MAPS[player.map].offsetX + (MAPS[player.map].width * 64)) - player.x - (window.innerWidth / 2), 0));
+            OFFSETY = -Math.max((window.innerHeight / 2) - (player.y - MAPS[player.map].offsetY), Math.min((MAPS[player.map].offsetY + (MAPS[player.map].height * 64)) - player.y - (window.innerHeight / 2), 0));
         }
         OFFSETX += lsdX;
         OFFSETY += lsdY;
@@ -331,7 +332,7 @@ drawFrame = function () {
         DroppedItem.updateHighlight();
         Entity.draw();
         CTX.drawImage(LAYERS.map0, 0, 0, window.innerWidth, window.innerHeight);
-        for (var i = 0; i < MAPS[player.map].layerCount+1; i++) {
+        for (var i = 0; i < MAPS[player.map].layerCount + 1; i++) {
             LAYERS.entitylayers[i] != null && CTX.drawImage(LAYERS.entitylayers[i], 0, 0, window.innerWidth, window.innerHeight);
             LAYERS.mapvariables[i] != null && CTX.drawImage(LAYERS.mapvariables[i], 0, 0, window.innerWidth, window.innerHeight);
         }
@@ -343,8 +344,8 @@ drawFrame = function () {
         lastmap = player.map;
         if (settings.debug) {
             var current = performance.now();
-            frameTimeCounter = Math.round((current-frameStart)*100)/100;
+            frameTimeCounter = Math.round((current - frameStart) * 100) / 100;
         }
-        if (!controllerConnected) socket.emit('mouseMove', {x: mouseX-OFFSETX, y: mouseY-OFFSETY});
+        if (!controllerConnected) socket.emit('mouseMove', { x: mouseX - OFFSETX, y: mouseY - OFFSETY });
     }
 };

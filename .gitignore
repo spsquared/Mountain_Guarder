@@ -25,7 +25,7 @@ node_modules/
 # Output of 'npm pack'
 *.tgz
 
-# Private database URI & Discord webhook URI
+# Database and webhook info
 server/url.js
 server/token.js
-*.tiled-session
+database.db

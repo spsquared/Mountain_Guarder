@@ -2,7 +2,7 @@
 
 ## Database URL
 
-The database URL will not be disclosed, since it contains sensitive information and releasing such information will allow people entry to the database, allowing them to delete, inject, and modify user accounts. So please, don't ask for it, you can create your own database for your own servers. For more information on creating a database, visit [PostgreSQL](https://www.postgresql.org/).
+The database URI will not be disclosed. Any release of database credentials to the public will allow modification, deletetion, and injection of user accounts. Don't ask for it, you can use your own local database or set up your own SQL database.
 
 ## Supported Versions
 
@@ -10,10 +10,10 @@ Supported Versions are stable versions that can run without breaking the format 
 
 | Version  | Supported          |
 | -------  | ------------------ |
+| 0.14.0   | :white_check_mark: |
 | 0.13.1   | :white_check_mark: |
 | 0.13.0   | :white_check_mark: |
-| 0.12.1   | :white_check_mark: |
-| 0.12.0   | :white_check_mark: |
+| 0.12.x   | :white_check_mark: |
 | 0.11.1   | :white_check_mark: |
 | 0.11.0   | :x:                |
 | < 0.11.0 | :x:                |

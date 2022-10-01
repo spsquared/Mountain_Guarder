@@ -281,7 +281,7 @@ socket.on('signInState', async function(state) {
 
 // window creator
 DraggableWindow = function(id) {
-    var self = {
+    const self = {
         x: 0,
         y: 0,
         width: 900,
@@ -542,17 +542,38 @@ function updateSetting(setting) {
                 document.getElementById('coloredLightsToggle').checked = false;
             }
             break;
+        case 'flickeringLights':
+            if (settings.flickeringLights) {
+                if (settings.lights) {
+                    indicatorText = 'on';
+                    document.getElementById('flickeringLightsToggle').checked = true;
+                } else {
+                    indicatorText = 'off';
+                    document.getElementById('flickeringLightsToggle').checked = false;
+                }
+            } else {
+                indicatorText = 'off';
+                settings.flickeringLights = false;
+                document.getElementById('flickeringLightsToggle').checked = false;
+            }
+            break;
         case 'lights':
             if (settings.lights) {
                 indicatorText = 'on';
                 updateSetting('coloredLights');
+                updateSetting('flickeringLights');
             } else {
                 indicatorText = 'off';
                 var optP = settings.coloredLights;
+                var optP2 = settings.flickeringLights;
                 settings.coloredLights = false;
+                settings.flickeringLights = false;
                 document.getElementById('coloredLightsToggle').checked = false;
                 updateSetting('coloredLights');
+                document.getElementById('flickeringLightsToggle').checked = false;
+                updateSetting('flickeringLights');
                 settings.coloredLights = optP;
+                settings.flickeringLights = optP2;
             }
             break;
         case 'dialogueSpeed':
@@ -605,10 +626,10 @@ function updateSetting(setting) {
             break;
         case 'highContrast':
             if (settings.highContrast) {
-                CTXRAW.style.filter = 'brightness(90%) saturate(130%) contrast(120%)';
+                CANVAS.style.filter = 'brightness(90%) saturate(130%) contrast(120%)';
                 indicatorText = 'on';
             } else {
-                CTXRAW.style.filter = '';
+                CANVAS.style.filter = '';
                 indicatorText = 'off';
             }
             break;
@@ -719,6 +740,23 @@ try {
 } catch (err) {
     console.error(err);
 }
+
+// customization
+document.getElementById('playerHairType').oninput = function(e) {
+    socket.emit('playerStyle', {hair: this.value});
+};
+document.getElementById('playerHairColor').oninput = function(e) {
+    socket.emit('playerStyle', {hairColor: this.value});
+};
+document.getElementById('playerSkinColor').oninput = function(e) {
+    socket.emit('playerStyle', {bodyColor: this.value});
+};
+document.getElementById('playerShirtColor').oninput = function(e) {
+    socket.emit('playerStyle', {shirtColor: this.value});
+};
+document.getElementById('playerPantsColor').oninput = function(e) {
+    socket.emit('playerStyle', {pantsColor: this.value});
+};
 
 // keybinds
 changingKeyBind = false;

@@ -90,6 +90,13 @@
         "rarity": 0,
         "effects": []
     },
+    "lodestone": {
+        "name": "Lodestone",
+        "description": "Two large Ialite crystals with some strange glowing substances trapped between them. It seems to warp time and space around it...",
+        "slotType": "material",
+        "rarity": -3,
+        "effects": []
+    },
     "simplewoodenbow": {
         "name": "Simple Wooden Bow",
         "description": "A cheap, simple bow of standard wood",
@@ -525,6 +532,16 @@
                 "value": 1.01
             }
         ]
+    },
+    "ialitekey": {
+        "name": "Key of Ialite",
+        "description": "A key that seems useless as a key, but contains a small Ialite crystal within.",
+        "slotType": "key",
+        "rarity": 4,
+        "manaIncrease": 10,
+        "manaRegenerationSpeed": 5,
+        "manaRegenerationAmount": 2,
+        "effects": []
     },
     "yeetstick": {
         "name": "Yeet",

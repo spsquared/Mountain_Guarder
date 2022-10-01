@@ -4,7 +4,7 @@ const {lock} = require('object-property-lock');
 // node
 lock(global, ['setInterval', 'setTimeout', 'setImmediate']);
 // app.js
-lock(ENV, ['ops', 'devs', 'offlineMode', 'useDiscordWebhook', 'autoSaveInterval', 'isBetaServer']);
+lock(ENV, ['ops', 'devs', 'useLocalDatabase', 'useDiscordWebhook', 'autoSaveInterval', 'isBetaServer']);
 lock(io);
 lock(s);
 lock(global, ['forceQuit', 'cloneDeep']);
@@ -19,14 +19,14 @@ lock(global.Layer, ['getColEntity', 'getColDir']);
 lock(global.Slowdown, ['getColEntity']);
 // inventory.js
 lock(global, ['Inventory', 'Shop']);
-lock(global.Inventory, ['Item', 'items'])
+lock(global.Inventory, ['Item', 'items']);
 // entity.js
 lock(global, ['Entity', 'Rig', 'Npc', 'Player', 'Monster', 'Projectile', 'Particle', 'DroppedItem']);
 lock(global.Entity, ['update', 'getDebugData']);
 lock(global.Npc, ['update', 'getDebugData', 'rawJson', 'dialogues']);
 lock(global.Player, ['update', 'getDebugData']);
-lock(global.Monster, ['update', 'getDebugData', 'types']);
-lock(global.Projectile, ['update', 'getDebugData', 'types', 'patterns']);
+lock(global.Monster, ['update', 'getDebugData', 'types', 'attacks', 'bossAttacks']);
+lock(global.Projectile, ['update', 'getDebugData', 'types', 'patterns', 'contactEvents']);
 lock(global.Particle, ['update']);
 lock(global.DroppedItem, ['update', 'getDebugData']);
 // misc
