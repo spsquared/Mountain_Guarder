@@ -29,3 +29,7 @@ node_modules/
 server/url.js
 server/token.js
 database.db
+
+# Replit files
+*.replit
+replit.nix
