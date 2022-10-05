@@ -2,7 +2,7 @@
 
 const PF = require('pathfinding');
 const Cryptr = require('cryptr');
-const { cloneDeep, clone } = require('lodash');
+const { cloneDeep, clone, range, random } = require('lodash');
 const { lock } = require('object-property-lock');
 const cryptr = new Cryptr('cachePasswordKey');
 
@@ -292,14 +292,12 @@ Entity = function() {
     self.searchChunks = function searchChunks(chunks, range, cb) {
         if (typeof chunks == 'object' && typeof range == 'number' && typeof cb == 'function') {
             for (let z in chunks) {
-                if (chunks[z]) {
-                    for (let y = self.chunky-range; y <= self.chunky+range; y++) {
-                        for (let x = self.chunkx-range; x <= self.chunkx+range; x++) {
-                            if (chunks[z][y] && chunks[z][y][x]) {
-                                let entities = chunks[z][y][x];
-                                for (let i in entities) {
-                                    if (cb(entities[i], i)) return;
-                                }
+                if (chunks[z]) for (let y = self.chunky-range; y <= self.chunky+range; y++) {
+                    if (chunks[z][y]) for (let x = self.chunkx-range; x <= self.chunkx+range; x++) {
+                        if (chunks[z][y][x]) {
+                            let entities = chunks[z][y][x];
+                            for (let i in entities) {
+                                if (cb(entities[i], i)) return;
                             }
                         }
                     }
@@ -311,45 +309,22 @@ Entity = function() {
     return self;
 };
 Entity.update = function update() {
-    var pack1 = Player.update();
-    var pack2 = Monster.update();
-    var pack3 = Projectile.update();
-    var pack4 = Npc.update();
-    var pack5 = Particle.update();
-    var pack6 = DroppedItem.update();
-    var pack = {
-        players: [],
-        monsters: [],
-        projectiles: [],
-        particles: [],
-        droppedItems: []
+    const pack = {
+        players: Player.update().concat(Npc.update()),
+        monsters: Monster.update(),
+        projectiles: Projectile.update(),
+        particles: Particle.update(),
+        droppedItems: DroppedItem.update()
     };
-    pack.players = pack1;
-    pack.monsters = pack2;
-    pack.projectiles = pack3;
-    pack.players = pack.players.concat(pack4);
-    pack.particles = pack5;
-    pack.droppedItems = pack6;
 
     return pack;
 };
 Entity.getDebugData = function getDebugData() {
-    var pack1 = Player.getDebugData();
-    var pack2 = Monster.getDebugData();
-    var pack3 = Projectile.getDebugData();
-    var pack4 = Npc.getDebugData();
-    var pack5 = DroppedItem.getDebugData();
-    var pack = {
-        players: [],
-        monsters: [],
-        projectiles: [],
-        droppedItems: []
+    const pack = {
+        players: Player.getDebugData().concat(Npc.getDebugData()),
+        monsters: Monster.getDebugData(),
+        projectiles: Projectile.getDebugData(),
     };
-    pack.players = pack1;
-    pack.monsters = pack2;
-    pack.projectiles = pack3;
-    pack.players = pack.players.concat(pack4);
-    pack.droppedItems = pack5;
 
     return pack;
 };
@@ -392,6 +367,7 @@ Rig = function() {
         heal: 0,
         speed: 1,
         range: 1,
+        accuracy: 0,
         critChance: 0,
         critPower: 1,
         knockback: 0
@@ -899,7 +875,7 @@ Rig = function() {
     self.ai.pathIdle = function pathIdle() {
         if (self.ai.idleMove == 'waypoints') {
             try {
-                if (self.ai.idleWaypoints.lastPathEnd >= seconds(self.ai.idleWaypoints.waitTime)*Math.random()) {
+                if (self.ai.idleWaypoints.lastPathEnd >= randomRange(0, seconds(self.ai.idleWaypoints.waitTime))) {
                     self.ai.idleWaypoints.lastPathEnd = 0;
                     var waypoints = Array.from(self.ai.idleWaypoints.waypoints);
                     var lastWaypoints = self.ai.idleWaypoints.lastWaypoints;
@@ -958,7 +934,7 @@ Rig = function() {
             }
         } else if (self.ai.idleMove == 'random') {
             try {
-                if (self.ai.idleRandom.lastPathEnd >= seconds(self.ai.idleRandom.waitTime)*Math.random()) {
+                if (self.ai.idleRandom.lastPathEnd >= randomRange(seconds(self.ai.idleRandom.waitTime))) {
                     self.ai.idleRandom.lastPathEnd = 0;
                     var pathAttempts = 0;
                     while (true) {
@@ -970,8 +946,8 @@ Rig = function() {
                         };
                         while (true) {
                             attempts++;
-                            pos.x = Math.round(self.gridx+Math.random()*2-1);
-                            pos.y = Math.round(self.gridy+Math.random()*2-1);
+                            pos.x = Math.round(self.gridx+randomRange(-1, 1));
+                            pos.y = Math.round(self.gridy+randomRange(-1, 1));
                             if (Collision.grid[self.map][self.layer][pos.y] && Collision.grid[self.map][self.layer][pos.y][pos.x]) {}
                             else break;
                             if (attempts >= 10) break;
@@ -1025,7 +1001,7 @@ Rig = function() {
                             ret = true;
                         }
                     }
-                    var rand = 0.5+Math.random();
+                    var rand = randomRange(0.5, 1.5);
                     var multiplier = entity.knockback*rand*Math.max(0, 1-self.stats.knockbackResistance-(blocked?self.shieldStats.knockbackResistance:0));
                     self.xknockback += entity.xspeed*multiplier;
                     self.yknockback += entity.yspeed*multiplier;
@@ -1050,10 +1026,10 @@ Rig = function() {
                 case 'touch':
                     var blocked = self.shield && Math.abs(self.shieldAngle-self.getAngle(entity)) < degrees(self.shieldStats.blockAngle);
                     if (self.invincibilityFrames['touch'] == null && !blocked) {
-                        self.hp -= Math.max(Math.round(Math.floor((Math.random()*(entity.touchDamage/2))+(entity.touchDamage/2)+1)*(1-self.stats.defense))-self.stats.damageReduction, 0);
+                        self.hp -= Math.max(Math.round(Math.floor(randomRange(entity.touchDamage/2+1, entity.touchDamage))*(1-self.stats.defense)-self.stats.damageReduction), 0);
                         self.invincibilityFrames['touch'] = 5;
                     } else spawnParticles = false;
-                    var rand = 0.5+Math.random();
+                    var rand = randomRange(0.5, 1.5);
                     var angle = Math.atan2(self.y-entity.y-entity.yspeed, self.x-entity.x-entity.xspeed);
                     var multiplier = Math.max(0, 1-self.stats.knockbackResistance-(blocked?self.shieldStats.knockbackResistance:0));
                     self.xknockback += (Math.cos(angle)*rand*10+entity.xspeed*rand)*multiplier;
@@ -1063,7 +1039,7 @@ Rig = function() {
                 case 'explosion':
                     var blocked = self.shield && Math.abs(self.shieldAngle-self.getAngle(entity)) < degrees(self.shieldStats.blockAngle);
                     if (!blocked) self.hp -= Math.max(Math.round((40*entity.explosionSize*(1/(self.getDistance(entity)/64*entity.explosionSize))*(1-self.stats.defense))-self.stats.damageReduction), 0);
-                    var rand = 0.5+Math.random();
+                    var rand = randomRange(0.5, 1.5);
                     var angle = Math.atan2(self.y-entity.y-entity.yspeed, self.x-entity.x-entity.xspeed);
                     self.xknockback += Math.cos(angle)*rand*10*entity.explosionSize*(1-self.stats.knockbackResistance);
                     self.yknockback += Math.sin(angle)*rand*10*entity.explosionSize*(1-self.stats.knockbackResistance);
@@ -1088,7 +1064,7 @@ Rig = function() {
                 entity.trackedData.kills++;
             }
             for (let i = 0; i < self.width*self.height/200; i++) {
-                new Particle(self.map, self.x+Math.random()*self.width-self.width/2, self.y+Math.random()*self.height-self.height/2, 'death');
+                new Particle(self.map, self.x+randomRange(-self.width/2, self.width/2), self.y+randomRange(-self.height/2, self.height/2), 'death');
             }
             if (self.bcDeath) switch (type) {
                 case 'killed':
@@ -1276,9 +1252,9 @@ Npc = function(id, x, y, map) {
     return self;
 };
 Npc.update = function update() {
-    var pack = [];
+    const pack = [];
     for (let i in Npc.list) {
-        localnpc = Npc.list[i];
+        let localnpc = Npc.list[i];
         localnpc.update();
         pack.push({
             id: localnpc.id,
@@ -1297,9 +1273,9 @@ Npc.update = function update() {
     return pack;
 };
 Npc.getDebugData = function getDebugData() {
-    var pack = [];
+    const pack = [];
     for (let i in Npc.list) {
-        var localnpc = Npc.list[i];
+        let localnpc = Npc.list[i];
         pack.push({
             map: localnpc.map,
             x: localnpc.x,
@@ -1362,6 +1338,7 @@ Player = function(socket) {
         attack: 1,
         speed: 1,
         range: 1,
+        accuracy: 1,
         critChance: 0,
         critPower: 1,
         knockback: 0,
@@ -1735,8 +1712,8 @@ Player = function(socket) {
     socket.on('chat', function(msg) {
         if (self.signedIn) {
             if (typeof msg == 'string') {
-                msg = msg.replace(/</g, '&lt');
-                msg = msg.replace(/>/g, '&gt');
+                msg = msg.replaceAll('<', '&lt');
+                msg = msg.replaceAll('>', '&gt');
                 try {
                     if (msg.indexOf('/') == 0) {
                         var cmd = '';
@@ -1993,7 +1970,7 @@ Player = function(socket) {
     self.onDeath = function onDeath(entity, type, message) {
         oldonDeath(entity, type, message);
         for (let i = 0; i < self.width*self.height/200; i++) {
-            new Particle(self.map, self.x+Math.random()*self.width-self.width/2, self.y+Math.random()*self.height-self.height/2, 'playerdeath');
+            new Particle(self.map, self.x+randomRange(-self.width/2, self.width/2), self.y+randomRange(-self.height/2, self.height/2), 'playerdeath');
         }
         self.quests.failQuests('death');
         if (self.currentConversation.id) {
@@ -2042,6 +2019,7 @@ Player = function(socket) {
             heal: 8,
             speed: 1,
             range: 1,
+            accuracy: 0,
             critChance: 0,
             critPower: 1,
             knockback: 0,
@@ -2053,6 +2031,7 @@ Player = function(socket) {
             attack: 1,
             speed: 1,
             range: 1,
+            accuracy: 1,
             critChance: 0,
             critPower: 1,
             knockback: 0,
@@ -2097,6 +2076,7 @@ Player = function(socket) {
             self.attack.projectilePattern = item.projectilePattern;
             self.stats.projectileSpeed = item.projectileSpeed;
             self.stats.range = item.projectileRange;
+            self.stats.accuracy = item.accuracy;
             self.attack.useTime = item.useTime;
             self.attack.manaCost = item.manaCost;
             self.heldItem.id = item.id;
@@ -2191,6 +2171,7 @@ Player = function(socket) {
             }
         }
         self.moveSpeed = Math.round(self.moveSpeed);
+        self.stats.accuracy = 5/(self.stats.accuracy+4)-1;
     };
     self.interact = function interact(x, y) {
         for (let i in DroppedItem.list) {
@@ -2516,9 +2497,9 @@ Player = function(socket) {
     return self;
 };
 Player.update = function update() {
-    var pack = [];
+    const pack = [];
     for (let i in Player.list) {
-        var localplayer = Player.list[i];
+        let localplayer = Player.list[i];
         if (localplayer.toDisconnect) {
             localplayer.disconnect();
             continue;
@@ -2549,9 +2530,9 @@ Player.update = function update() {
     return pack;
 };
 Player.getDebugData = function getDebugData() {
-    var pack = [];
+    const pack = [];
     for (let i in Player.list) {
-        var localplayer = Player.list[i];
+        let localplayer = Player.list[i];
         if (localplayer.name) {
             pack.push({
                 map: localplayer.map,
@@ -2571,43 +2552,47 @@ Player.list = [];
 Player.chunks = [];
 Player.usePatterns = {
     single: function usePattern_single(self, attack, stats, angle) {
-        new Projectile(attack.projectile, angle, stats, self.id);
+        new Projectile(attack.projectile, angle+randomRange(-stats.accuracy/2, stats.accuracy/2), stats, self.id);
     },
     triple: function usePattern_triple(self, attack, stats, angle) {
-        new Projectile(attack.projectile, angle-degrees(20), stats, self.id);
-        new Projectile(attack.projectile, angle, stats, self.id);
-        new Projectile(attack.projectile, angle+degrees(20), stats, self.id);
+        let angle2 = angle+randomRange(-stats.accuracy/2, stats.accuracy/2);
+        new Projectile(attack.projectile, angle2-degrees(20), stats, self.id);
+        new Projectile(attack.projectile, angle2, stats, self.id);
+        new Projectile(attack.projectile, angle2+degrees(20), stats, self.id);
     },
     spray: function usePattern_spray(self, attack, stats, angle) {
         for (let i = 0; i < 3; i++) {
-            new Projectile(attack.projectile, angle+Math.random()*0.2-0.1, stats, self.id);
+            new Projectile(attack.projectile, angle+randomRange(degrees(-15), degrees(15)), stats, self.id);
         }
     },
     spray2: function usePattern_spray2(self, attack, stats, angle) {
         for (let i = 0; i < 5; i++) {
-            new Projectile(attack.projectile, angle+Math.random()*0.3-0.15, stats, self.id);
+            new Projectile(attack.projectile, angle+randomRange(degrees(-25), degrees(25)), stats, self.id);
         }
     },
     line: function usePattern_line(self, attack, stats, angle) {
-        new Projectile(attack.projectile, angle, stats, self.id);
-        new Projectile(attack.projectile, angle-degrees(180), stats, self.id);
+        let angle2 = angle+randomRange(-stats.accuracy/2, stats.accuracy/2);
+        new Projectile(attack.projectile, angle2, stats, self.id);
+        new Projectile(attack.projectile, angle2-degrees(180), stats, self.id);
     },
     triangle: function usePattern_triangle(self, attack, stats, angle) {
-        new Projectile(attack.projectile, angle-degrees(120), stats, self.id);
-        new Projectile(attack.projectile, angle, stats, self.id);
-        new Projectile(attack.projectile, angle+degrees(120), stats, self.id);
+        let angle2 = angle+randomRange(-stats.accuracy/2, stats.accuracy/2);
+        new Projectile(attack.projectile, angle2-degrees(120), stats, self.id);
+        new Projectile(attack.projectile, angle2, stats, self.id);
+        new Projectile(attack.projectile, angle2+degrees(120), stats, self.id);
     },
     ring: function usePattern_ring(self, attack, stats, angle) {
-        new Projectile(attack.projectile, angle, stats, self.id);
-        new Projectile(attack.projectile, angle-degrees(36), stats, self.id);
-        new Projectile(attack.projectile, angle-degrees(72), stats, self.id);
-        new Projectile(attack.projectile, angle-degrees(108), stats, self.id);
-        new Projectile(attack.projectile, angle-degrees(144), stats, self.id);
-        new Projectile(attack.projectile, angle-degrees(180), stats, self.id);
-        new Projectile(attack.projectile, angle-degrees(216), stats, self.id);
-        new Projectile(attack.projectile, angle-degrees(252), stats, self.id);
-        new Projectile(attack.projectile, angle-degrees(288), stats, self.id);
-        new Projectile(attack.projectile, angle-degrees(324), stats, self.id);
+        let angle2 = angle+randomRange(-stats.accuracy/2, stats.accuracy/2);
+        new Projectile(attack.projectile, angle2, stats, self.id);
+        new Projectile(attack.projectile, angle2-degrees(36), stats, self.id);
+        new Projectile(attack.projectile, angle2-degrees(72), stats, self.id);
+        new Projectile(attack.projectile, angle2-degrees(108), stats, self.id);
+        new Projectile(attack.projectile, angle2-degrees(144), stats, self.id);
+        new Projectile(attack.projectile, angle2-degrees(180), stats, self.id);
+        new Projectile(attack.projectile, angle2-degrees(216), stats, self.id);
+        new Projectile(attack.projectile, angle2-degrees(252), stats, self.id);
+        new Projectile(attack.projectile, angle2-degrees(288), stats, self.id);
+        new Projectile(attack.projectile, angle2-degrees(324), stats, self.id);
     },
     nearest: function usePattern_nearest(self, attack, stats, angle) {
         let lowest, target;
@@ -2651,6 +2636,7 @@ Monster = function(type, x, y, map, layer, params) {
         self.type = type;
         self.name = tempmonster.name;
         self.stats = cloneDeep(tempmonster.stats);
+        self.stats.accuracy = 5/(self.stats.accuracy+4)-1;
         self.moveSpeed = tempmonster.moveSpeed;
         self.width = tempmonster.width;
         self.height = tempmonster.height;
@@ -2755,7 +2741,7 @@ Monster = function(type, x, y, map, layer, params) {
     };
     self.updatePos = function updatePos() {
         self.ai.lastPath++;
-        if (self.ai.lastPath >= seconds(0.1)) {
+        if (self.ai.lastPath >= seconds(1/ENV.pathfindUpdateSpeed)) {
             self.ai.lastPath = 0;
             self.ai.path = [];
             if (self.ai.inNomonsterRegion) {
@@ -2952,7 +2938,7 @@ Monster = function(type, x, y, map, layer, params) {
                 const stage = self.ai.boss.data.stages[self.ai.boss.currentStage];
                 let multiplier = 0;
                 for (let attack of stage.attacks) multiplier += attack.chance;
-                let random = Math.random()*multiplier;
+                let random = randomRange(0, multiplier);
                 let min = 0;
                 let max = 0;
                 let index;
@@ -3012,7 +2998,7 @@ Monster = function(type, x, y, map, layer, params) {
             try {
                 let multiplier = 0;
                 for (let chance of Array.from(self.drops.chance)) multiplier += chance;
-                let random = Math.random()*multiplier;
+                let random = randomRange(0, multiplier);
                 let min = 0;
                 let max = 0;
                 var items = [];
@@ -3046,8 +3032,8 @@ Monster = function(type, x, y, map, layer, params) {
                             }
                         }
                         while (attempts < 100) {
-                            let angle = Math.random()*2*Math.PI;
-                            let distance = Math.random()*32;
+                            let angle = randomRange(-Math.PI, Math.PI);
+                            let distance = randomRange(0, 32);
                             let x = self.x+Math.cos(angle)*distance;
                             let y = self.y+Math.sin(angle)*distance;
                             let colliding = false;
@@ -3116,11 +3102,14 @@ Monster = function(type, x, y, map, layer, params) {
     return self;
 };
 Monster.update = function update() {
-    var pack = [];
+    const pack = [];
     for (let i in Monster.list) {
-        var localmonster = Monster.list[i];
+        let localmonster = Monster.list[i];
         localmonster.update();
-        pack.push({
+        if (pack[localmonster.map] == null) pack[localmonster.map] = [];
+        if (pack[localmonster.map][localmonster.chunky] == null) pack[localmonster.map][localmonster.chunky] = [];
+        if (pack[localmonster.map][localmonster.chunky][localmonster.chunkx] == null) pack[localmonster.map][localmonster.chunky][localmonster.chunkx] = [];
+        pack[localmonster.map][localmonster.chunky][localmonster.chunkx].push({
             id: localmonster.id,
             map: localmonster.map,
             x: localmonster.x,
@@ -3139,12 +3128,15 @@ Monster.update = function update() {
     return pack;
 };
 Monster.getDebugData = function getDebugData() {
-    var pack = [];
+    const pack = [];
     for (let i in Monster.list) {
-        var localmonster = Monster.list[i];
+        let localmonster = Monster.list[i];
         if (localmonster.active) {
             if (localmonster.ai.entityTarget) {
-                pack.push({
+                if (pack[localmonster.map] == null) pack[localmonster.map] = [];
+                if (pack[localmonster.map][localmonster.chunky] == null) pack[localmonster.map][localmonster.chunky] = [];
+                if (pack[localmonster.map][localmonster.chunky][localmonster.chunkx] == null) pack[localmonster.map][localmonster.chunky][localmonster.chunkx] = [];
+                pack[localmonster.map][localmonster.chunky][localmonster.chunkx].push({
                     map: localmonster.map,
                     x: localmonster.x,
                     y: localmonster.y,
@@ -3158,7 +3150,10 @@ Monster.getDebugData = function getDebugData() {
                     aggroRange: localmonster.ai.maxRange
                 });
             } else {
-                pack.push({
+                if (pack[localmonster.map] == null) pack[localmonster.map] = [];
+                if (pack[localmonster.map][localmonster.chunky] == null) pack[localmonster.map][localmonster.chunky] = [];
+                if (pack[localmonster.map][localmonster.chunky][localmonster.chunkx] == null) pack[localmonster.map][localmonster.chunky][localmonster.chunkx] = [];
+                pack[localmonster.map][localmonster.chunky][localmonster.chunkx].push({
                     map: localmonster.map,
                     x: localmonster.x,
                     y: localmonster.y,
@@ -3180,15 +3175,15 @@ Monster.types = require('./monster.json');
 Monster.list = [];
 Monster.chunks = [];
 Monster.attacks = {
-    generic_throw: function attack_generic_throw(self, timeout, stages, projectile, accuracy) {
+    generic_throw: function attack_generic_throw(self, timeout, stages, projectile) {
         if (self.ai.entityTarget && !self.region.noattack) {
             if (self.ai.lastAttack > seconds(timeout)) {
                 if (stages.indexOf(self.ai.attackStage) != -1) {
-                    var angle = self.getAngle(self.ai.entityTarget);
-                    new Projectile(projectile, angle+Math.random()*(accuracy*2)-accuracy, self.stats, self.id);
-                    self.ai.attackStage++;
+                    let angle = self.getAngle(self.ai.entityTarget);
+                    new Projectile(projectile, angle+randomRange(-self.stats.accuracy/2, self.stats.accuracy/2), self.stats, self.id);
                 }
-                if (self.ai.attackStage == stages[stages.length-1]) {
+                self.ai.attackStage++;
+                if (self.ai.attackStage > stages[stages.length-1]) {
                     self.ai.attackStage = 0;
                     self.ai.lastAttack = 0;
                 }
@@ -3196,10 +3191,10 @@ Monster.attacks = {
         }
     },
     bird: function attack_bird(self) {
-        Monster.attacks.generic_throw(self, 1, [1, 5], 'ninjastar', 0.1);
+        Monster.attacks.generic_throw(self, 1, [1, 5], 'ninjastar');
     },
     snowbird: function attack_snowbird(self) {
-        Monster.attacks.generic_throw(self, 1, [1, 5], 'fastsnowball', 0.1);
+        Monster.attacks.generic_throw(self, 1, [1, 5], 'fastsnowball');
     },
     cherrybomb: function attack_cherrybomb(self) {
         if (self.ai.entityTarget && !self.region.noattack) {
@@ -3275,13 +3270,13 @@ Monster.attacks = {
         }
     },
     cavebird: function attack_cavebird(self) {
-        Monster.attacks.generic_throw(self, 1.5, [1, 3, 5], 'rock', 0.15);
+        Monster.attacks.generic_throw(self, 1.5, [1, 3, 5], 'rock');
     },
     ram: function attack_ram(self) {
         if (self.ai.entityTarget && !self.region.noattack) {
             if ((self.ai.lastAttack > seconds(2) && self.getGridDistance(self.ai.entityTarget) < 2) || self.ai.attackStage != 0) {
                 self.ai.lastAttack = 0;
-                var angle = self.getAngle(self.ai.entityTarget);
+                let angle = self.getAngle(self.ai.entityTarget);
                 self.ai.charge = {
                     x: Math.cos(angle)*20,
                     y: Math.sin(angle)*20,
@@ -3338,8 +3333,8 @@ Monster.bossAttacks = {
             self.searchChunks(Player.chunks[self.map], Math.ceil(self.ai.maxRange/(64*Math.max(Collision.grid[self.map].chunkWidth, Collision.grid[self.map].chunkHeight))), function(player, id) {
                 if (self.getGridDistance(player) < self.ai.maxRange  && (!self.rayCast(player) || self.getGridDistance(player) < 4) && player.alive) {
                     let id = data.id;
-                    let x = player.x+Math.random()*128-64;
-                    let y = player.y+Math.random()*128-64;
+                    let x = player.x+randomRange(-64, 64);
+                    let y = player.y+randomRange(-64, 64);
                     let map = self.map;
                     let layer = z;
                     new Particle(map, x, y, 'warning', data.warning);
@@ -3357,8 +3352,8 @@ Monster.bossAttacks = {
                     let id = data.id;
                     let stats = data.stats;
                     let selfID = self.id;
-                    let x = player.x+Math.random()*32-16;
-                    let y = player.y+Math.random()*32-16;
+                    let x = player.x+randomRange(-16, 16);
+                    let y = player.y+randomRange(-16, 16);
                     new Particle(self.map, x, y, 'warning', data.warning);
                     self.ai.boss.pendingEvents.push({
                         timer: data.warning,
@@ -3375,8 +3370,8 @@ Monster.bossAttacks = {
             let attempts = 0;
             let x, y;
             while (attempts < 20) {
-                x = self.gridx+Math.round(Math.random()*48-24);
-                y = self.gridy+Math.round(Math.random()*48-24);
+                x = self.gridx+Math.round(randomRange(-24, 24));
+                y = self.gridy+Math.round(randomRange(-24, 24));
                 if (Collision.grid[self.map] && Collision.grid[self.map][self.layer] && Collision.grid[self.map][self.layer][y] && Collision.grid[self.map][self.layer][y][x] == 0) break;
                 attempts++;
             }
@@ -3669,11 +3664,14 @@ Projectile = function(type, angle, stats, parentID, x, y) {
     return self;
 };
 Projectile.update = function update() {
-    var pack = [];
+    const pack = [];
     for (let i in Projectile.list) {
-        localprojectile = Projectile.list[i];
+        let localprojectile = Projectile.list[i];
         localprojectile.update();
-        pack.push({
+        if (pack[localprojectile.map] == null) pack[localprojectile.map] = [];
+        if (pack[localprojectile.map][localprojectile.chunky] == null) pack[localprojectile.map][localprojectile.chunky] = [];
+        if (pack[localprojectile.map][localprojectile.chunky][localprojectile.chunkx] == null) pack[localprojectile.map][localprojectile.chunky][localprojectile.chunkx] = [];
+        pack[localprojectile.map][localprojectile.chunky][localprojectile.chunkx].push({
             id: localprojectile.id,
             map: localprojectile.map,
             x: localprojectile.x,
@@ -3689,10 +3687,13 @@ Projectile.update = function update() {
     return pack;
 };
 Projectile.getDebugData = function getDebugData() {
-    var pack = [];
+    const pack = [];
     for (let i in Projectile.list) {
-        localprojectile = Projectile.list[i];
-        pack.push({
+        let localprojectile = Projectile.list[i];
+        if (pack[localprojectile.map] == null) pack[localprojectile.map] = [];
+        if (pack[localprojectile.map][localprojectile.chunky] == null) pack[localprojectile.map][localprojectile.chunky] = [];
+        if (pack[localprojectile.map][localprojectile.chunky][localprojectile.chunkx] == null) pack[localprojectile.map][localprojectile.chunky][localprojectile.chunkx] = [];
+        pack[localprojectile.map][localprojectile.chunky][localprojectile.chunkx].push({
             map: localprojectile.map,
             x: localprojectile.x,
             y: localprojectile.y,
@@ -3895,9 +3896,9 @@ Particle = function(map, x, y, type, value) {
     return self;
 };
 Particle.update = function update() {
-    var pack = [];
+    const pack = [];
     for (let i in Particle.list) {
-        localparticle = Particle.list[i];
+        let localparticle = Particle.list[i];
         pack.push(localparticle);
     }
     Particle.list = [];
@@ -3944,11 +3945,14 @@ DroppedItem = function(map, x, y, itemId, enchantments, stackSize, playerId, isL
     return self;
 };
 DroppedItem.update = function update() {
-    var pack = [];
+    const pack = [];
     for (let i in DroppedItem.list) {
-        localdroppeditem = DroppedItem.list[i];
+        let localdroppeditem = DroppedItem.list[i];
         localdroppeditem.update();
-        pack.push({
+        if (pack[localdroppeditem.map] == null) pack[localdroppeditem.map] = [];
+        if (pack[localdroppeditem.map][localdroppeditem.chunky] == null) pack[localdroppeditem.map][localdroppeditem.chunky] = [];
+        if (pack[localdroppeditem.map][localdroppeditem.chunky][localdroppeditem.chunkx] == null) pack[localdroppeditem.map][localdroppeditem.chunky][localdroppeditem.chunkx] = [];
+        pack[localdroppeditem.map][localdroppeditem.chunky][localdroppeditem.chunkx].push({
             id: localdroppeditem.id,
             map: localdroppeditem.map,
             x: localdroppeditem.x,
@@ -3959,21 +3963,6 @@ DroppedItem.update = function update() {
             itemId: localdroppeditem.itemId,
             stackSize: localdroppeditem.stackSize,
             playerId: localdroppeditem.playerId
-        });
-    }
-
-    return pack;
-};
-DroppedItem.getDebugData = function getDebugData() {
-    var pack = [];
-    for (let i in DroppedItem.list) {
-        localdroppeditem = DroppedItem.list[i];
-        pack.push({
-            map: localdroppeditem.map,
-            x: localdroppeditem.x,
-            y: localdroppeditem.y,
-            itemId: localdroppeditem.itemId,
-            enchantments: localdroppeditem.enchantments
         });
     }
 
@@ -3996,4 +3985,7 @@ function degrees(d) {
 };
 function radians(r) {
     return r*180/Math.PI;
+};
+function randomRange(lower, upper) {
+    return Math.random()*(upper-lower)+lower;
 };

@@ -646,7 +646,7 @@ function resetFPS() {
     clearInterval(drawLoop);
     fpsTimes = [];
     drawLoop = setInterval(function() {
-        if (visible) requestAnimationFrame(function() {
+        if (!document.hidden && hasFocus) requestAnimationFrame(function() {
             drawFrame();
             if (settings.useController) updateControllers();
             fpsTimes.push(performance.now());
@@ -657,7 +657,7 @@ function resetFPS() {
 
 // io
 socket.on('updateTick', function(data) {
-    if (loaded && visible) {
+    if (loaded && !document.hidden) {
         Entity.update(data);
         player = Player.list[playerid];
         if (lastmap != player.map) MAPS[player.map].chunks = [];
@@ -667,7 +667,7 @@ socket.on('updateTick', function(data) {
     }
 });
 socket.on('debugTick', function(debug) {
-    if (loaded && visible) {
+    if (loaded && !document.hidden) {
         debugData = debug.data;
         tpsCounter = debug.tps;
         tickTime = debug.tickTime;
@@ -725,20 +725,8 @@ document.onkeydown = function onkeydown(e) {
                     }
                 } else if (key == 'i' && !e.getModifierState('Shift') && e.getModifierState('Control') && debugConsoleEnabled) {
                     toggleDebugConsole();
-                } else if (e.key == 'Meta' || e.key == 'Alt' || e.key == 'Control'){
-                    socket.emit('keyPress', {key:'up', state:false});
-                    socket.emit('keyPress', {key:'down', state:false});
-                    socket.emit('keyPress', {key:'left', state:false});
-                    socket.emit('keyPress', {key:'right', state:false});
-                    socket.emit('keyPress', {key:'heal', state:false});
-                    socket.emit('click', {button: 'left', x: mouseX, y: mouseY, state: false});
-                    socket.emit('click', {button: 'right', x: mouseX, y: mouseY, state: false});
-                    socket.emit('controllerAxes', {
-                        movex: 0,
-                        movey: 0,
-                        aimx: 0,
-                        aimy: 0
-                    });
+                } else if (e.key == 'Meta' || e.key == 'Alt' || e.key == 'Control') {
+                    releaseAll();
                 }
             }
         }
@@ -823,7 +811,7 @@ document.onmouseup = function onmouseup(e) {
     }
 };
 document.onmousemove = function onmousemove(e) {
-    if (loaded && visible) {
+    if (loaded && !document.hidden) {
         if (!e.isTrusted) {
             socket.emit('timeout');
         }
@@ -841,7 +829,7 @@ document.onmousemove = function onmousemove(e) {
     }
 };
 socket.on('updateSelf', function(data) {
-    if (loaded && visible) {
+    if (loaded && !document.hidden) {
         playerid = data.id;
         document.getElementById('statsHPvalue').style.width = (data.hp/data.maxHP)*100 + '%';
         document.getElementById('statsHPtext').innerText = data.hp + '/' + data.maxHP;
@@ -1211,7 +1199,7 @@ var packetTime = 0;
 var serverHeapUsed = 0;
 var serverHeapMax = 0;
 setInterval(function() {
-    if (loaded && visible) {
+    if (loaded && !document.hidden) {
         while (performance.now()-fpsTimes[0] > 1000) fpsTimes.shift();
         document.getElementById('fps').innerText = 'FPS: ' + fpsTimes.length;
         document.getElementById('tps').innerText = 'TPS: ' + tpsCounter;

@@ -447,7 +447,7 @@ Inventory = function(socket, player) {
                 self.equips[newSlot] = item;
                 self.items[slot] = slotItem;
                 item.slot = newSlot;
-                slotItem.slot = slot;
+                if (slotItem) slotItem.slot = slot;
                 self.refreshItem(slot);
                 self.refreshItem(newSlot);
             }

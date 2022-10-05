@@ -1,6 +1,6 @@
 {
   "name": "mountain_guarder",
-  "version": "0.14.0",
+  "version": "0.14.1",
   "description": "Meadow Guarder's sister game!",
   "main": "app.js",
   "scripts": {
@@ -31,7 +31,6 @@
     "discord-webhook-node": "^1.1.8",
     "express": "^4.17.1",
     "express-rate-limit": "^5.5.1",
-    "isolated-vm": "^4.3.6",
     "lodash": "^4.17.21",
     "object-property-lock": "^1.1.0",
     "pathfinding": "^0.4.18",

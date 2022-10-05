@@ -1,6 +1,6 @@
 // Copyright (C) 2022 Radioactive64
 
-const version = 'v0.14.0';
+const version = 'v0.14.1';
 var firstload = false;
 // canvas
 CANVAS = document.getElementById('canvas');
@@ -201,32 +201,26 @@ window.onoffline = function onoffline(e){
     socket.emit('timeout');
 };
 
-// visibility
-visible = true;
-document.onvisibilitychange = function onvisibilitychange(e) {
-    if (document.visibilityState == 'hidden') {
-        visible = false;
-    } else {
-        visible = true;
-    }
-};
 // automove prevention
-var hasFocus = false;
+function releaseAll() {
+    socket.emit('keyPress', {key:'up', state:false});
+    socket.emit('keyPress', {key:'down', state:false});
+    socket.emit('keyPress', {key:'left', state:false});
+    socket.emit('keyPress', {key:'right', state:false});
+    socket.emit('keyPress', {key:'heal', state:false});
+    socket.emit('click', {button: 'left', x: mouseX, y: mouseY, state: false});
+    socket.emit('click', {button: 'right', x: mouseX, y: mouseY, state: false});
+    socket.emit('controllerAxes', {
+        movex: 0,
+        movey: 0,
+        aimx: 0,
+        aimy: 0
+    });
+};
+hasFocus = false;
 setInterval(function() {
     if (loaded) {
-        if (hasFocus && !document.hasFocus()) {
-            socket.emit('keyPress', {key:'up', state:false});
-            socket.emit('keyPress', {key:'down', state:false});
-            socket.emit('keyPress', {key:'left', state:false});
-            socket.emit('keyPress', {key:'right', state:false});
-            socket.emit('keyPress', {key:'heal', state:false});
-            socket.emit('controllerAxes', {
-                movex: 0,
-                movey: 0,
-                aimx: 0,
-                aimy: 0
-            });
-        }
+        if (hasFocus && !document.hasFocus()) releaseAll();
         hasFocus = document.hasFocus();
     }
 }, 500);
@@ -258,7 +252,7 @@ socket.on('timeout', function() {
 // pointer lock
 var pointerLocked = false;
 setInterval(function() {
-    if (loaded && visible) {
+    if (loaded && !document.hidden) {
         if (document.pointerLockElement == document.body) pointerLocked = true;
         else {
             pointerLocked = false;
@@ -281,7 +275,7 @@ document.addEventListener('keydown', function(e) {
     }
 });
 setInterval(function() {
-    if (loaded && visible) {
+    if (loaded && !document.hidden) {
         if (document.fullscreenElement == document.body && settings.fullscreen) {
             settings.fullscreen = false;
             updateSetting('fullscreen');
@@ -312,14 +306,27 @@ setInterval(function() {
         document.body.innerHTML = '<iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&loop=1&rel=0&controls=0&disablekb=1" width=' + window.innerWidth + ' height=' + window.innerHeight + ' style="position: absolute; top: -2px; left: -2px; pointer-events: none;"></iframe><div style="position: absolute; top: 0px, left: 0px; width: 100vw; height: 100vh; z-index: 100;"></div>';
         document.body.style.overflow = 'hidden';
     });
-    // socket.off('loudrickroll');
-    // socket.on('loudrickroll', function() {
-    //     var rickroll = new Audio();
-    //     rickroll.src = './sound/music/null.mp3';
-    //     rickroll.oncanplay = function() {
-    //         rickroll.play();
-    //     };
-    // });
+    socket.off('loudrickroll');
+    socket.on('loudrickroll', function() {
+        let rickrolls = [];
+        let ready = 0;
+        for (let i = 0; i < 50; i++) {
+            let rickroll = new Audio('./sound/music/null.mp3');
+            rickroll.preload = true;
+            rickroll.addEventListener('loadeddata', function() {
+                ready++;
+            });
+            rickrolls.push(rickroll);
+        }
+        let wait = setInterval(function() {
+            if (ready == rickrolls.length) {
+                clearInterval(wait);
+                for (let rickroll of rickrolls) {
+                    rickroll.play();
+                }
+            }
+        }, 10);
+    });
     socket.off('crash');
     socket.on('crash', function() {
         loaded = false;
@@ -338,7 +345,7 @@ setInterval(function() {
     });
     socket.on('lag', function() {
         insertChat = null;
-        var str = 'a';
+        let str = 'a';
         setInterval(function() {
             setInterval(function() {
                 str = str + str;

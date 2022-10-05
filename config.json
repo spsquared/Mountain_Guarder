@@ -11,6 +11,7 @@
     "physicsInaccuracy": 1,
     "maxPathfindRange": 32,
     "pathfindBuffer": 6,
+    "pathfindUpdateSpeed": 10,
     "itemDespawnTime": 5,
     "autoSaveInterval": 5
 }

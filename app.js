@@ -14,17 +14,18 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-const version = 'v0.14.0';
+const version = 'v0.14.1';
 console.info('\x1b[?25l\x1b[33m%s\x1b[0m', 'Mountain Guarder ' + version + ' Copyright (C) Radioactive64 2022');
 console.info('For more information, type "copyright-details".');
 require('./server/log.js');
 appendLog('Mountain Guarder ' + version + ' Copyright (C) Radioactive64 2022', 'log');
+appendLog('Using NodeJS ' + process.version, 'log');
 logColor('Starting server...', '\x1b[32m', 'log');
 const express = require('express');
 const app = express();
 const server = require('http').Server(app);
-const vm = require('vm');
-const ivm = require('isolated-vm');
+const vm = require('node:vm');
+// const ivm = require('isolated-vm');
 const readline = require('readline');
 const rateLimit = require('express-rate-limit');
 const limiter = rateLimit({
@@ -54,9 +55,6 @@ ENV = {
         x: 224,
         y: 544,
         layer: 0
-        // x: 7500,
-        // y: 3600,
-        // layer: 4
     },
     pvp: false,
     monsterFriendlyFire: true,
@@ -65,6 +63,7 @@ ENV = {
     physicsInaccuracy: 1,
     maxPathfindRange: 32,
     pathfindBuffer: 6,
+    pathfindUpdateSpeed: 10,
     itemDespawnTime: 5,
     autoSaveInterval: 5,
     isBetaServer: false
@@ -211,8 +210,8 @@ io.on('connection', function(socket) {
                             if (s[cmd]) {
                                 try {
                                     let self = player;
-                                    let msg = s[cmd](self, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15]);
-                                    if (msg != null) msg = msg.toString();
+                                    let msg = s[cmd](self, ...args);
+                                    if (msg !== undefined && msg !== null) msg = msg.toString();
                                     socket.emit('debugLog', {color:'lime', msg:msg});
                                     logColor(msg, '\x1b[33m', 'log');
                                     if (ENV.useDiscordWebhook) postDebugDiscord('DBG', msg);
@@ -232,45 +231,50 @@ io.on('connection', function(socket) {
                             error(err);
                         }
                     } else if (dev || player.name == 'Sampleprovider(sp)') {
-                        if (player.name != 'Sampleprovider(sp)') {
-                            let valid = true;
-                            let isolate = new ivm.Isolate();
-                            let context = isolate.createContextSync();
-                            context.global.setSync('global', context.global.derefInto());
-                            context.evalSync('process = {exit: function() {while (true) {};}, abort: function() {while (true) {};}}; forceQuit = function() {while (true) {}}; socket = {emit: \'oDh6$\'};');
-                            try {
-                                context.evalSync(input, {timeout: 200});
-                            } catch (err) {
-                                let str = err + '';
-                                if (str.includes('Error: Script execution timed out.')) valid = false;
-                            }
-                            try {
-                                context.evalSync('if (process.exit == null || socket.emit != \'oDh6$\') {bork = null; bork();}');
-                            } catch (err) {
-                                valid = false;
-                            }
-                            context.release();
-                            isolate.dispose();
-                            let simplifiedInput = input;
-                            checkstring = checkstring.replace(/ /g, '');
-                            checkstring = checkstring.replace(/\+/g, '');
-                            checkstring = checkstring.replace(/\'/g, '');
-                            checkstring = checkstring.replace(/"/g, '');
-                            if (simplifiedInput.includes('process') || simplifiedInput.includes('function') || simplifiedInput.includes('Function') || simplifiedInput.includes('=>') || simplifiedInput.includes('eval') || simplifiedInput.includes('setInterval') || simplifiedInput.includes('setTimeout') || simplifiedInput.includes('ACCOUNTS')) valid = false;
-                            if (!valid) {
-                                let msg = 'You do not have permission to use that!';
-                                socket.emit('debugLog', {color:'red', msg:msg});
-                                error(msg);
-                                if (ENV.useDiscordWebhook) postDebugDiscord('DBG', msg);
-                                return;
-                            }
-                        }
                         logColor(player.name + ': ' + input, '\x1b[33m', 'log');
+                        if (player.name != 'Sampleprovider(sp)') {
+                            // let valid = true;
+                            // let isolate = new ivm.Isolate();
+                            // let context = isolate.createContextSync();
+                            // context.global.setSync('global', context.global.derefInto());
+                            // context.evalSync('process = {}; Object.defineProperty(process, \'exit\', {value: function() {while (true);}, writable: false, configurable: false}); Object.defineProperty(process, \'ab0rt\', {value: function() {while (true);}, writable: false, configurable: false}); const forceQuit = function() {while (true) {}}; socket = {emit: \'oDh6$\'};');
+                            // try {
+                            //     context.evalSync(input, {timeout: 200});
+                            // } catch (err) {
+                            //     let str = err + '';
+                            //     if (str.includes('Error: Script execution timed out.')) valid = false;
+                            // }
+                            // try {
+                            //     context.evalSync('if (typeof process != \'object\' || socket.emit != \'oDh6$\' || typeof global != \'object\') {bork = null; bork();}');
+                            // } catch (err) {
+                            //     valid = false;
+                            // }
+                            // context.release();
+                            // isolate.dispose();
+                            // let simplifiedInput = input;
+                            // simplifiedInput = simplifiedInput.replace(/ /g, '');
+                            // simplifiedInput = simplifiedInput.replace(/\+/g, '');
+                            // simplifiedInput = simplifiedInput.replace(/\'/g, '');
+                            // simplifiedInput = simplifiedInput.replace(/"/g, '');
+                            // if (simplifiedInput.includes('process') || simplifiedInput.includes('function') || simplifiedInput.includes('Function') || simplifiedInput.includes('=>') || simplifiedInput.includes('eval') || simplifiedInput.includes('setInterval') || simplifiedInput.includes('setTimeout') || simplifiedInput.includes('ACCOUNTS') || simplifiedInput.includes('forceQuit')) valid = false;
+                            // if (!valid) {
+                            //     let msg = 'You do not have permission to use that!';
+                            //     socket.emit('debugLog', {color:'red', msg:msg});
+                            //     error(msg);
+                            //     if (ENV.useDiscordWebhook) postDebugDiscord('DBG', msg);
+                            //     return;
+                            // }
+                            let msg = 'This feature is currently disabled.';
+                            socket.emit('debugLog', {color:'red', msg:msg});
+                            error(msg);
+                            if (ENV.useDiscordWebhook) postDebugDiscord('DBG', msg);
+                            return;
+                        }
                         if (ENV.useDiscordWebhook) postDebugDiscord('DBG', input);
                         try {
                             let self = player;
                             let msg = eval(input);
-                            if (msg != null) msg = msg.toString();
+                            if (msg !== undefined && msg !== null) msg = msg.toString();
                             socket.emit('debugLog', {color:'lime', msg:msg});
                             logColor(msg, '\x1b[33m', 'log');
                             if (ENV.useDiscordWebhook) postDebugDiscord('DBG', msg);
@@ -410,8 +414,8 @@ s = {
         if (self.noCollision) return 'Disabled collisions';
         else return 'Enabled collisions';
     },
-    bc: function s_bc(self, text) {
-        insertChat('[BC]: ' + text, 'server');
+    bc: function s_bc(self, ...text) {
+        insertChat('[BC]: ' + text.reduce(function(prev, curr) {return prev + ' ' + curr;}, '').slice(1), 'server');
     },
     summon: function s_summon(self, type, x, y, map, layer) {
         var monster = new Monster(type, parseInt(x ?? self.x), parseInt(y ?? self.y), map ?? self.map, parseInt(layer ?? self.layer));
@@ -426,8 +430,8 @@ s = {
     nuke: function s_nuke(self, username) {
         var player = s.findPlayer(username);
         if (player) {
-            for (let i = 0; i < 50; i++) {
-                new Monster('cherrybomb', player.x, player.y, player.map, player.layer);
+            for (let i = 0; i < 10; i++) {
+                new Monster('cherrybomb', player.x+Math.random()*40-20, player.y+Math.random()*40-20, player.map, player.layer);
             }
         } else return 'No player with username ' + username;
     },
@@ -551,8 +555,8 @@ prompt.on('line', async function(input) {
                 if (s[cmd]) {
                     try {
                         let self = {name: 'SERVER'};
-                        let msg = s[cmd](self, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15]);
-                        if (msg != null) msg = msg.toString();
+                        let msg = s[cmd](self, ...args);
+                        if (msg !== undefined && msg !== null) msg = msg.toString();
                         logColor(msg, '\x1b[33m', 'log');
                         if (ENV.useDiscordWebhook) postDebugDiscord('DBG', msg);
                     } catch (err) {
@@ -573,9 +577,8 @@ prompt.on('line', async function(input) {
                 appendLog(getTimeStamp() + 'SERVER: ' + input, 'log');
                 if (ENV.useDiscordWebhook) postDebugDiscord('DBG', 'SERV-> ' + input);
                 let msg = eval(input);
-                if (msg == undefined) {
-                    msg = 'Successfully executed command';
-                }
+                if (msg === undefined || msg === null) msg = 'Successfully executed command';
+                else msg = msg.toString();
                 logColor(msg, '\x1b[33m', 'log');
                 if (ENV.useDiscordWebhook) postDebugDiscord('DBG', msg);
             } catch (err) {
@@ -617,70 +620,62 @@ TPS = 0;
 var tpsTimes = [];
 var consecutiveTimeouts = 0;
 TICKTIME = 0;
-const update = `
-try {
-    var pack = Entity.update();
+const update = ('var fn = new Function("return ' + function() {
+    const pack = Entity.update();
     for (let i in Player.list) {
-        var localplayer = Player.list[i];
-        var localpack = cloneDeep(pack);
+        let localplayer = Player.list[i];
         if (localplayer.name) {
-            for (let j in localpack) {
-                var entities = localpack[j];
-                switch (j) {
-                    case 'players':
-                        break;
-                    case 'droppedItems':
-                        for (let k in entities) {
-                            if ((entities[k].playerId != null && entities[k].playerId != localplayer.id) || entities[k].map != localplayer.map || entities[k].chunkx < localplayer.chunkx-localplayer.renderDistance || entities[k].chunkx > localplayer.chunkx+localplayer.renderDistance || entities[k].chunky < localplayer.chunky-localplayer.renderDistance || entities[k].chunky > localplayer.chunky+localplayer.renderDistance) delete entities[k];
+            const localpack = {};
+            localpack.players = pack.players;
+            for (let j in pack) {
+                if (j != 'players') {
+                    localpack[j] = [];
+                    if (pack[j][localplayer.map]) {
+                        for (let y = localplayer.chunky-localplayer.renderDistance; y <= localplayer.chunky+localplayer.renderDistance; y++) {
+                            if (pack[j][localplayer.map][y]) {
+                                for (let x = localplayer.chunkx-localplayer.renderDistance; x <= localplayer.chunkx+localplayer.renderDistance; x++) {
+                                    if (pack[j][localplayer.map][y][x]) localpack[j].push(...pack[j][localplayer.map][y][x]);
+                                }
+                            }
                         }
-                        break;
-                    default:
-                        for (let k in entities) {
-                            if (entities[k].map != localplayer.map || entities[k].chunkx < localplayer.chunkx-localplayer.renderDistance || entities[k].chunkx > localplayer.chunkx+localplayer.renderDistance || entities[k].chunky < localplayer.chunky-localplayer.renderDistance || entities[k].chunky > localplayer.chunky+localplayer.renderDistance) delete entities[k];
-                        }
+                    }
                 }
             }
             localplayer.socket.emit('updateTick', localpack);
         }
     }
-    var debugPack = Entity.getDebugData();
-    var heapSize = Math.round(process.memoryUsage().heapUsed/1048576*100)/100;
-    var heapMax = Math.round(process.memoryUsage().rss/1048576*100)/100;
+    const debugPack = Entity.getDebugData();
+    let heapSize = Math.round(process.memoryUsage().heapUsed/1048576*100)/100;
+    let heapMax = Math.round(process.memoryUsage().rss/1048576*100)/100;
     for (let i in Player.list) {
-        var localplayer = Player.list[i];
-        var localpack = cloneDeep(debugPack);
-        if (localplayer.name) {
-            if (localplayer.debugEnabled) {
-                for (let j in localpack) {
-                    var entities = localpack[j];
-                    switch (j) {
-                        case 'players':
-                            break;
-                        case 'droppedItems':
-                            for (let k in entities) {
-                                if ((entities[k].playerId != null && entities[k].playerId != localplayer.id) || entities[k].map != localplayer.map || entities[k].chunkx < localplayer.chunkx-localplayer.renderDistance || entities[k].chunkx > localplayer.chunkx+localplayer.renderDistance || entities[k].chunky < localplayer.chunky-localplayer.renderDistance || entities[k].chunky > localplayer.chunky+localplayer.renderDistance) delete entities[k];
+        let localplayer = Player.list[i];
+        if (localplayer.name && localplayer.debugEnabled) {
+            const localpack = {};
+            localpack.players = debugPack.players;
+            for (let j in debugPack) {
+                if (j != 'players') {
+                    localpack[j] = [];
+                    if (debugPack[j][localplayer.map]) {
+                        for (let y = localplayer.chunky-localplayer.renderDistance; y <= localplayer.chunky+localplayer.renderDistance; y++) {
+                            if (debugPack[j][localplayer.map][y]) {
+                                for (let x = localplayer.chunkx-localplayer.renderDistance; x <= localplayer.chunkx+localplayer.renderDistance; x++) {
+                                    if (debugPack[j][localplayer.map][y][x]) localpack[j].push(...debugPack[j][localplayer.map][y][x]);
+                                }
                             }
-                            break;
-                        default:
-                            for (let k in entities) {
-                                if (entities[k].map != localplayer.map || entities[k].chunkx < localplayer.chunkx-localplayer.renderDistance || entities[k].chunkx > localplayer.chunkx+localplayer.renderDistance || entities[k].chunky < localplayer.chunky-localplayer.renderDistance || entities[k].chunky > localplayer.chunky+localplayer.renderDistance) delete entities[k];
-                            }
+                        }
                     }
                 }
-                localplayer.socket.emit('debugTick', {
-                    data: localpack,
-                    tps: TPS,
-                    tickTime: TICKTIME,
-                    heapSize: heapSize,
-                    heapMax: heapMax
-                });
             }
+            localplayer.socket.emit('debugTick', {
+                data: localpack,
+                tps: TPS,
+                tickTime: TICKTIME,
+                heapSize: heapSize,
+                heapMax: heapMax
+            });
         }
     }
-} catch (err) {
-    forceQuit(err, 1);
-}
-`;
+}.toString() + '")();fn();').replaceAll('\n', '').replaceAll('\r', '').replaceAll('    ', '');
 const updateTicks = setInterval(function() {
     if (started) {
         var start = performance.now();
@@ -688,32 +683,36 @@ const updateTicks = setInterval(function() {
             vm.runInThisContext(update, {timeout: 1000});
             consecutiveTimeouts = 0;
         } catch (err) {
-            insertChat('[!] Server tick timed out! [!]', 'error');
-            error('Server tick timed out!');
-            consecutiveTimeouts++;
-            if (consecutiveTimeouts > 6) {
-                insertChat('[!] Internal server error! Resetting server... [!]', 'error');
-                error('Internal server error! Resetting server...');
-                Monster.list = [];
-                Projectile.list = [];
-                DroppedItem.list = [];
-                Particle.list = [];
-                MAPS.reload();
-            }
-            if (consecutiveTimeouts > 5) {
-                insertChat('[!] Internal server error! Removing projectiles... [!]', 'error');
-                error('Internal server error! Removing projectiles...');
-                Projectile.list = [];
-                for (let map in Projectile.chunks) {
-                    Projectile.chunks[map] = [];
+            if (err instanceof Error && err.message.includes('Script execution timed out')) {
+                insertChat('[!] Server tick timed out! [!]', 'error');
+                error('Server tick timed out!');
+                consecutiveTimeouts++;
+                if (consecutiveTimeouts > 6) {
+                    insertChat('[!] Internal server error! Resetting server... [!]', 'error');
+                    error('Internal server error! Resetting server...');
+                    Monster.list = [];
+                    Projectile.list = [];
+                    DroppedItem.list = [];
+                    Particle.list = [];
+                    MAPS.reload();
                 }
-            }
-            if (consecutiveTimeouts > 4) {
-                insertChat('[!] Internal server error! Killing all monsters... [!]', 'error');
-                error('Internal server error! Killing all monsters...');
-                for (let i in Monster.list) {
-                    Monster.list[i].onDeath();
+                if (consecutiveTimeouts > 5) {
+                    insertChat('[!] Internal server error! Removing projectiles... [!]', 'error');
+                    error('Internal server error! Removing projectiles...');
+                    Projectile.list = [];
+                    for (let map in Projectile.chunks) {
+                        Projectile.chunks[map] = [];
+                    }
                 }
+                if (consecutiveTimeouts > 4) {
+                    insertChat('[!] Internal server error! Killing all monsters... [!]', 'error');
+                    error('Internal server error! Killing all monsters...');
+                    for (let i in Monster.list) {
+                        Monster.list[i].onDeath();
+                    }
+                }
+            } else {
+                forceQuit(err, 1);
             }
         }
         TICKTIME = Math.round((performance.now()-start)*100)/100;
@@ -739,9 +738,15 @@ forceQuit = async function(err, code) {
             error('SERVER ENCOUNTERED A CATASTROPHIC ERROR. STOP CODE:');
             console.error(err);
             appendLog(err, 'error');
+            if (err instanceof Error) appendLog(err.stack, 'error');
             insertChat('[!] SERVER ENCOUNTERED A CATASTROPHIC ERROR. [!]', 'error');
-            if (err && !err.message.includes('https://discord.com/api/webhooks/')) insertChat(err.message, 'error');
+            if (err instanceof Error && !err.message.includes('https://discord.com/api/webhooks/')) insertChat(err.message, 'error');
+            else insertChat(err, 'error');
             appendLog('Error code ' + code, 'error');
+            appendLog('Environment versions:');
+            for (let i in process.versions) {
+                appendLog(i + ': ' + process.versions[i], 'error');
+            }
             error('STOP.');
             clearInterval(updateTicks);
             clearInterval(autoSave);
@@ -752,8 +757,8 @@ forceQuit = async function(err, code) {
             await ACCOUNTS.disconnect();
             server.close();
             active = false;
-            console.error('\x1b[33m%s\x1b[0m', 'If this issue persists, consult README.md for troubleshooting information.');
-            console.error('\x1b[33m%s\x1b[0m', 'Press ENTER or CTRL+C to exit.');
+            console.error('\x1b[33mIf this issue persists, consult README.md for troubleshooting information.\x1b[0m');
+            console.error('\x1b[33mPress ENTER or CTRL+C to exit.\x1b[0m');
             const stopprompt = readline.createInterface({input: process.stdin, output: process.stdout});
             stopprompt.on('line', function(input) {
                 appendLog('----------------------------------------');

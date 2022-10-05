@@ -51,9 +51,9 @@ ACCOUNTS = {
         if (ACCOUNTS.connected) {
             try {
                 if (ENV.useLocalDatabase) {
+                    clearInterval(writeLoop);
                     let bytes = msgpack.serialize(localDatabase);
                     fs.writeFileSync('./database.db', bytes, {flag: 'w'});
-                    clearInterval(writeLoop);
                 } else {
                     await database.end();
                 }

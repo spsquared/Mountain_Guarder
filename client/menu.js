@@ -742,6 +742,21 @@ try {
 }
 
 // customization
+document.getElementById('playerHairType').onfocus = function(e) {
+    releaseAll();
+};
+document.getElementById('playerHairColor').onfocus = function(e) {
+    releaseAll();
+};
+document.getElementById('playerSkinColor').onfocus = function(e) {
+    releaseAll();
+};
+document.getElementById('playerShirtColor').onfocus = function(e) {
+    releaseAll();
+};
+document.getElementById('playerPantsColor').onfocus = function(e) {
+    releaseAll();
+};
 document.getElementById('playerHairType').oninput = function(e) {
     socket.emit('playerStyle', {hair: this.value});
 };

@@ -178,11 +178,11 @@
             }
         },
         "NaN.tmx": {
-            "scale": 1.5,
+            "scale": 32,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 271.66666666666663,
-                "y": 279.99999999999994
+                "x": 271.984375,
+                "y": 280
             }
         },
         "Outpost Cottage 1.tmx": {
@@ -234,11 +234,11 @@
             }
         },
         "Preview.tmx": {
-            "scale": 0.5,
+            "scale": 0.33,
             "selectedLayer": 2,
             "viewCenter": {
-                "x": 399,
-                "y": 1200
+                "x": 416.66666666666674,
+                "y": 2165.151515151515
             }
         },
         "The Void.tmx": {
@@ -251,10 +251,10 @@
         },
         "World.tmx": {
             "scale": 2,
-            "selectedLayer": 7,
+            "selectedLayer": 24,
             "viewCenter": {
-                "x": 1661.75,
-                "y": 864.75
+                "x": 1216.75,
+                "y": 200.75
             }
         },
         "roguelikeSheet.tsx": {

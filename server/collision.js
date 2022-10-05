@@ -612,7 +612,7 @@ Layer.writeCache = function writeCache(map) {
 };
 Layer.generateGraphs = async function generateGraphs(map, lazy) {
     const pathfinder = new PF.JumpPointFinder(PF.JPFMoveDiagonallyIfNoObstacles);
-    // create graphs
+    // create layer lists grouped by layer
     const layers = [];
     for (let z in Layer.grid[map]) {
         layers[z] = [];
@@ -625,15 +625,15 @@ Layer.generateGraphs = async function generateGraphs(map, lazy) {
                         z: parseInt(z),
                         dir: Layer.getColDir(map, parseInt(x), parseInt(y), parseInt(z)),
                         connections: [],
-                        attempts: [],
-                        distances: []
+                        attempts: []
                     });
                 }
             }
             if (lazy) await sleep(1);
         }
     }
-    // create grids
+
+    // create grids by layer
     const grids = [];
     for (let z in layers) {
         const grid = new PF.Grid(Collision.grid[map].width, Collision.grid[map].height);
@@ -649,22 +649,31 @@ Layer.generateGraphs = async function generateGraphs(map, lazy) {
         }
         grids[z] = grid;
     }
+
     // find connected tiles
     for (let z in layers) {
         for (let l1 in layers[z]) {
+            // enumerate all layers after change in layer
             let z2 = layers[z][l1].z+layers[z][l1].dir;
             if (layers[z2]) {
                 for (let l2 in layers[z2]) {
-                    if (layers[z2][l2].z == layers[z][l1].z+layers[z][l1].dir && layers[z][l1].attempts.indexOf(layers[z2][l2]) == -1) {
+                    // ignore if already done
+                    if (layers[z][l1].attempts.indexOf(layers[z2][l2]) == -1) {
                         layers[z][l1].attempts.push(layers[z2][l2]);
                         layers[z2][l2].attempts.push(layers[z][l1]);
+                        // find distance
                         let grid2 = grids[layers[z][l1].z+layers[z][l1].dir].clone();
                         let path = pathfinder.findPath(layers[z][l1].x, layers[z][l1].y, layers[z2][l2].x, layers[z2][l2].y, grid2);
                         if (path[0]) {
-                            layers[z][l1].connections.push(layers[z2][l2]);
-                            layers[z2][l2].connections.push(layers[z][l1]);
-                            layers[z][l1].distances.push(path.length);
-                            layers[z2][l2].distances.push(path.length);
+                            // layers are connected, add to both lists (undirected graph) to avoid recalculation
+                            layers[z][l1].connections.push({
+                                node: layers[z2][l2],
+                                distance: path.length
+                            });
+                            layers[z2][l2].connections.push({
+                                node: layers[z][l1],
+                                distance: path.length
+                            });
                         }
                     }
                 }
@@ -672,34 +681,37 @@ Layer.generateGraphs = async function generateGraphs(map, lazy) {
             }
         }
     }
-    // convert to grid
+
+    // convert to grid-layout graph
     const graph = [];
     for (let z in layers) {
         graph[z] = [];
         for (let i in layers[z]) {
-            if (graph[z][layers[z][i].y+Collision.grid[map].offsetY] == null) {
-                graph[z][layers[z][i].y+Collision.grid[map].offsetY] = [];
+            let x = layers[z][i].x+Collision.grid[map].offsetX;
+            let y = layers[z][i].y+Collision.grid[map].offsetY;
+            // connection list
+            let connections = [];
+            for (let connection of layers[z][i].connections) {
+                connections.push({
+                    x: connection.node.x+Collision.grid[map].offsetX,
+                    y: connection.node.y+Collision.grid[map].offsetY,
+                    distance: connection.distance
+                });
             }
-            graph[z][layers[z][i].y+Collision.grid[map].offsetY][layers[z][i].x+Collision.grid[map].offsetX] = {
-                x: layers[z][i].x+Collision.grid[map].offsetX,
-                y: layers[z][i].y+Collision.grid[map].offsetY,
-                layer: parseInt(z),
-                dir: Layer.getColDir(map, layers[z][i].x+Collision.grid[map].offsetX, layers[z][i].y+Collision.grid[map].offsetY, z),
+            if (graph[z][y] == null) graph[z][y] = [];
+            graph[z][y][x] = {
+                x: x,
+                y: y,
+                layer: layers[z][i].z,
+                dir: layers[z][i].dir,
                 parent: null,
-                connections: [],
+                connections: connections,
                 f: 0,
                 g: 0,
                 h: 0,
                 visited: false,
                 closed: false
             };
-            for (let j in layers[z][i].connections) {
-                graph[z][layers[z][i].y+Collision.grid[map].offsetY][layers[z][i].x+Collision.grid[map].offsetX].connections[j] = {
-                    x: layers[z][i].connections[j].x+Collision.grid[map].offsetX,
-                    y: layers[z][i].connections[j].y+Collision.grid[map].offsetY,
-                    distance: layers[z][i].distances[j]
-                };
-            }
         }
         if (lazy) await sleep(1);
     }
@@ -707,23 +719,9 @@ Layer.generateGraphs = async function generateGraphs(map, lazy) {
     Layer.graph[map] = graph;
 };
 Layer.generateLookupTables = async function generateLookupTables(map, lazy) {
-    // rewrite thing to generate list of all accessible layer changers
-    // rewrite thing to generate list of all accessible layer changers
-    // rewrite thing to generate list of all accessible layer changers
-    // rewrite thing to generate list of all accessible layer changers
-    // rewrite thing to generate list of all accessible layer changers
-    // rewrite thing to generate list of all accessible layer changers
-    // rewrite thing to generate list of all accessible layer changers
-    // rewrite thing to generate list of all accessible layer changers
-    // rewrite thing to generate list of all accessible layer changers
-    // rewrite thing to generate list of all accessible layer changers
-    // rewrite thing to generate list of all accessible layer changers
-    // rewrite thing to generate list of all accessible layer changers
-    // rewrite thing to generate list of all accessible layer changers
-    // rewrite thing to generate list of all accessible layer changers
-    // rewrite thing to generate list of all accessible layer changers
     const pathfinder = new PF.JumpPointFinder(PF.JPFMoveDiagonallyIfNoObstacles);
-    // create grids
+
+    // create grids by layer
     const grids = [];
     for (let z in Layer.grid) {
         const grid = new PF.Grid(Collision.grid[map].width, Collision.grid[map].height);
@@ -739,6 +737,8 @@ Layer.generateLookupTables = async function generateLookupTables(map, lazy) {
         }
         grids[z] = grid;
     }
+
+    // create table
     const table = [];
     for (let z in Collision.grid[map]) {
         table[parseInt(z)] = [];
@@ -746,28 +746,20 @@ Layer.generateLookupTables = async function generateLookupTables(map, lazy) {
             table[parseInt(z)][parseInt(y)] = [];
             for (let x in Collision.grid[map][z][y]) {
                 table[parseInt(z)][parseInt(y)][parseInt(x)] = [];
-                    // let lowest = null;
-                    // for (let y2 in Layer.grid[map][z]) {
-                    //     for (let x2 in Layer.grid[map][z][y2]) {
-                    //         if (Layer.grid[map][z][y2][x2]) {
-                    //             let distance = Math.pow(parseInt(x2)-parseInt(x), 2)+Math.pow(parseInt(y2)-parseInt(y), 2)
-                    //             if (lowest == null || distance < lowest.distance) {
-                    //                 lowest = {
-                    //                     x: parseInt(x2),
-                    //                     y: parseInt(y2),
-                    //                     distance: distance
-                    //                 };
-                    //                 break;
-                    //             }
-                    //         }
-                    //     }
-                    // }
-                    // if (lowest) grid[parseInt(z)][parseInt(y)][parseInt(x)] = lowest;
-                    // else grid[parseInt(z)][parseInt(y)][parseInt(x)] = {x: 0, y: 0, distance: 1000000};
+                    // since it's parsed top down, left to right
+                    // if the neighbor to the left or top has connections
+                    // then this tile has the same connections
+                    for (let y2 in Layer.grid[map][z]) {
+                        for (let x2 in Layer.grid[map][z][y2]) {
+                            if (Layer.grid[map][z][y2][x2]) {
+                            }
+                        }
+                    }
                 }
             if (lazy) await sleep(1);
         }
     }
+
     Layer.lookupTable[map] = table;
 };
 Layer.grid = [];

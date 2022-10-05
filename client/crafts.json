@@ -73,6 +73,15 @@
             "showWhenCraftable": true
         },
         {
+            "item": "stoneshield",
+            "amount": 1,
+            "resources": {
+                "woodenshield": 1,
+                "stone": 2
+            },
+            "showWhenCraftable": true
+        },
+        {
             "item": "quartzcrystal",
             "amount": 1,
             "resources": {

@@ -877,7 +877,7 @@ DroppedItem.update = function update(data) {
         DroppedItem.list[i].updated = false;
     }
     for (let i in data) {
-        if (data[i]) {
+        if (data[i] && data[i].playerId != playerid) {
             if (DroppedItem.list[data[i].id]) {
                 DroppedItem.list[data[i].id].updated = true;
             } else {

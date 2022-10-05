@@ -57,9 +57,8 @@ getTimeStamp = function getTimeStamp() {
 };
 logColor = function logColor(text, colorstring, type) {
     let timestamp = getTimeStamp();
-    if (process.env.DATABASE_URL) console.log(timestamp + colorstring + text + '\x1b[0m');
-    else console.log('\r' + timestamp + colorstring + text + '\x1b[0m');
-    process.stdout.write('> ');
+    if (process.env.DATABASE_URL) process.stdout.write(timestamp + colorstring + text + '\x1b[0m\n\r> ');
+    else process.stdout.write('\r' + timestamp + colorstring + text + '\x1b[0m\n\r> ');
     appendLog(timestamp + text, type);
 };
 log = function log(text) {
@@ -84,4 +83,15 @@ appendLog = function appendLog(text, type) {
     else if (type == 'chat') typestring = 'CHT ';
     fs.appendFileSync('./server/log.log', typestring + text + '\n', {encoding: 'utf-8'}, function() {});
     if (global.ENV && !ENV.offlineMode && ENV.useDiscordWebhook && type != 'chat') try {postDebugDiscord(typestring, text.toString());} catch (err) {error(err);};
+};
+
+const oldLog = console.log;
+console.log = function mod_log(message, ...params) {
+    oldLog(message, ...params);
+    appendLog(message);
+};
+const oldError = console.error;
+console.error = function mod_error(message, ...params) {
+    oldError(message, ...params);
+    appendLog(message);
 };
