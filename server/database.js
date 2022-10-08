@@ -2,8 +2,6 @@
 
 const bcrypt = require('bcrypt');
 const salt = 10;
-const Cryptr = require('cryptr');
-const cryptr = new Cryptr('cachePasswordKey');
 const fs = require('fs');
 const {Client} = require('pg');
 const msgpack = require('@ygoe/msgpack');
@@ -450,7 +448,7 @@ async function updatePassword(username, password) {
 async function getProgress(username, password) {
     var cred = await getCredentials(username);
     if (cred) {
-        if (bcrypt.compareSync(cryptr.decrypt(password), cred.password)) {
+        if (bcrypt.compareSync(password, cred.password)) {
             if (ENV.useLocalDatabase) {
                 let data = localDatabase.find(acc => acc.username == username);
                 if (data != undefined) return data.data;
@@ -467,7 +465,7 @@ async function getProgress(username, password) {
 async function updateProgress(username, password, data) {
     var cred = await getCredentials(username);
     if (cred) {
-        if (bcrypt.compareSync(cryptr.decrypt(password), cred.password)) {
+        if (bcrypt.compareSync(password, cred.password)) {
             try {
                 if (ENV.useLocalDatabase) {
                     let data2 = localDatabase.find(acc => acc.username == username);

@@ -6,34 +6,35 @@ var changePasswordActive = false;
 const signInError = document.getElementById('signInError');
 var signedIn = false;
 var awaitingResponse = false;
-function signIn() {
+var publicKey;
+async function signIn() {
     if (!signedIn && !awaitingResponse) {
         socket.emit('signIn', {
             state: 'signIn',
             username: document.getElementById('username').value,
-            password: document.getElementById('password').value
+            password: await RSAencrypt(document.getElementById('password').value)
         });
         awaitingResponse = true;
     }
 };
-function createAccount() {
+async function createAccount() {
     if (!signedIn && !awaitingResponse) {
         socket.emit('signIn', {
             state: 'signUp',
             username: document.getElementById('username').value,
-            password: document.getElementById('password').value
+            password: await RSAencrypt(document.getElementById('password').value)
         });
         awaitingResponse = true;
     }
 };
-function deleteAccount() {
+async function deleteAccount() {
     if (!signedIn && !awaitingResponse) {
         if (deleteaccountconfirmed) {
             var input = window.prompt('Please enter your password to continue:');
             socket.emit('signIn', {
                 state: 'deleteAccount',
                 username: document.getElementById('username').value,
-                password: input
+                password: await RSAencrypt(document.getElementById('password').value)
             });
             awaitingResponse = true;
         } else {
@@ -42,14 +43,14 @@ function deleteAccount() {
         }
     }
 };
-function changePassword() {
+async function changePassword() {
     if (!signedIn && !awaitingResponse) {
         if (changePasswordActive) {
             socket.emit('signIn', {
                 state: 'changePassword',
                 username: document.getElementById('username').value,
-                oldPassword: document.getElementById('password').value,
-                password: document.getElementById('newpassword').value
+                oldPassword: await RSAencrypt(document.getElementById('password').value),
+                password: await RSAencrypt(document.getElementById('newpassword').value)
             });
             awaitingResponse = true;
         } else {
@@ -278,6 +279,13 @@ socket.on('signInState', async function(state) {
     }
     awaitingResponse = false;
 });
+async function RSAencrypt(text) {
+    return await window.crypto.subtle.encrypt({name: 'RSA-OAEP'}, publicKey, new TextEncoder().encode(text));
+};
+socket.once('publicKey', async function(key) {
+    publicKey = await window.crypto.subtle.importKey('jwk', key, {name: "RSA-OAEP", hash: "SHA-256"}, false, ['encrypt']);
+});
+socket.emit('requestPublicKey');
 
 // window creator
 DraggableWindow = function(id) {

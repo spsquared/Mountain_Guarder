@@ -110,11 +110,11 @@ Entity.draw = function draw() {
 Rig = function(id, map, x, y) {
     const self = new Entity(id, map, x, y);
     self.characterStyle = {
-        hair: 1,
-        hairColor: '#000000',
-        bodyColor: '#FFF0B4',
-        shirtColor: '#FF3232',
-        pantsColor: '#6464FF',
+        hair: 0,
+        hairColor: '',
+        bodyColor: '',
+        shirtColor: '',
+        pantsColor: '',
         texture: null
     };
     self.rawWidth = 0;
@@ -849,8 +849,6 @@ DroppedItem = function(id, map, x, y, itemId, stackSize) {
         x: x,
         y: y,
         layer: 0,
-        width: 48,
-        height: 48,
         itemId: 'missing',
         stackSize: stackSize,
         updated: false
@@ -860,12 +858,12 @@ DroppedItem = function(id, map, x, y, itemId, stackSize) {
     self.animationImage = Inventory.itemImages[itemId];
 
     self.draw = function draw() {
-        LAYERS.elayers[self.layer].drawImage(self.animationImage, self.x-self.width/2+OFFSETX, self.y-self.height/2+OFFSETY, self.width, self.height);
+        LAYERS.elayers[self.layer].drawImage(self.animationImage, self.x-24+OFFSETX, self.y-24+OFFSETY, 48, 48);
         if (self.stackSize != 1) {
             LAYERS.elayers[self.layer].textAlign = 'right';
             LAYERS.elayers[self.layer].font = '14px Pixel';
             LAYERS.elayers[self.layer].fillStyle = '#FFFF00';
-            LAYERS.elayers[self.layer].fillText(self.stackSize, self.x+self.width/2+OFFSETX-4, self.y+self.height/2+OFFSETY-4);
+            LAYERS.elayers[self.layer].fillText(self.stackSize, self.x+24+OFFSETX-4, self.y+24+OFFSETY-4);
         }
     };
 
@@ -877,7 +875,7 @@ DroppedItem.update = function update(data) {
         DroppedItem.list[i].updated = false;
     }
     for (let i in data) {
-        if (data[i] && data[i].playerId != playerid) {
+        if (data[i]) {
             if (DroppedItem.list[data[i].id]) {
                 DroppedItem.list[data[i].id].updated = true;
             } else {
@@ -900,19 +898,19 @@ DroppedItem.updateHighlight = function updateHighlight() {
     for (let i in DroppedItem.list) {
         DroppedItem.list[i].animationImage = Inventory.itemImages[DroppedItem.list[i].itemId];
     }
-    var x = mouseX-OFFSETX;
-    var y = mouseY-OFFSETY;
+    let x = mouseX-OFFSETX;
+    let y = mouseY-OFFSETY;
     if (settings.useController) {
         x = axes.aimx-OFFSETX;
         y = axes.aimy-OFFSETY;
     }
     for (let i in DroppedItem.list) {
-        var localdroppeditem = DroppedItem.list[i];
+        let localdroppeditem = DroppedItem.list[i];
         if (Math.sqrt(Math.pow(player.x2-localdroppeditem.x, 2) + Math.pow(player.y2-localdroppeditem.y, 2)) < 512) {
-            var left = localdroppeditem.x-player.x2-localdroppeditem.width/2;
-            var right = localdroppeditem.x-player.x2+localdroppeditem.width/2;
-            var top = localdroppeditem.y-player.y2-localdroppeditem.height/2;
-            var bottom = localdroppeditem.y-player.y2+localdroppeditem.height/2;
+            let left = localdroppeditem.x-player.x2-24;
+            let right = localdroppeditem.x-player.x2+24;
+            let top = localdroppeditem.y-player.y2-24;
+            let bottom = localdroppeditem.y-player.y2+24;
             if (x >= left && x <= right && y >= top && y <= bottom) {
                 localdroppeditem.animationImage = Inventory.itemHighlightImages[localdroppeditem.itemId];
                 break;

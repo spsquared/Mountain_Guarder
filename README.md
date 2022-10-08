@@ -1,15 +1,31 @@
 # Mountain_Guarder
 Meadow Guarder's sister game!
 
+<p align=center>
+
+<img src="https://img.shields.io/badge/Version-v0.14.2-%233c70ff?style=for-the-badge" alt="version">
+
+<a href="https://mountainguarder.radioactivestuf.repl.co/"><img src="https://img.shields.io/badge/-Public Server-%23000000?style=for-the-badge&logo=replit"></a>
+
+</p>
+
 ***
+
+<p align=center>
+
 ![Banner](https://raw.githubusercontent.com/definitely-nobody-is-here/Mountain_Guarder/master/client/img/assets/banner_small.png)
+
+</p>
+
 ***
 
 # How to Play
 
 ### Public Server
 
-We are currently transitioning to a new host. Please bear with us as we migrate Mountain Guarder's servers.
+Mountain Guarder is available on a Repl!
+
+<a href="https://mountainguarder.radioactivestuf.repl.co/"><img src="https://img.shields.io/badge/-Public Server-%23000000?style=for-the-badge&logo=replit"></a>
 
 ### Hosting Your Own Server
 
@@ -126,6 +142,7 @@ If you can't resolve your problem after trying these solutions or your problem i
 | 0.13.1   | <ul><li>Added projectile reflection</li><li>Shields now slow down the player</li><li>Fixed shield block angles</li><li>Explosives now explode on any impact</li><li>Added stats for shields</li><li>Fixed particle speed dependency on framerate</li><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/247" target="_blank">Fixed NaN-related dupe glitch (Issue #247)</a></li><li>Implemented map caching</li><li>Modified cherry bomb explosion timings</li><li>Fixed fps counter</li><li>Optimizations</li></ul> |
 | 0.14.0   | <ul><li>Added The Rock of SP</li><li>Added the Rock Turret</li><li>Added player customization</li><li>Reworked item drop system</li><li>Added quick-equip hotkey</li><li>Added Mana keys</li><li>Fixed client performance issues on low CPU clock speeds</li><li>Sentient Rocks now exhibit swarming behavior</li><li>Added an upstairs to the Outpost Trader's Store</li><li>Added Entity teams</li><li>Added support for local file-based account databases</li><li>Added the Mountain Guarder Asset Editor</li><li>Fixed random light radius below 0</li><li>Explosions can no longer damage through collisions</li><li>Added scroll bar to banner container on overflow</li><li>Fixed monster stat linking</li><li>Added scroll bar to shop costs on overflow</li><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/257" target="_blank">Fixed pixel bleed in player animation (Issue #257)</a></li><li>Added stack traces to logfiles</li><li>Retextured rocks</li><li>Fixed text misplacement in shops</li><li>Minor bugfixes</li></ul> |
 | 0.14.1   | <ul><li>Fixed crash when anything is entered into debug console</li><li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/259" target="_blank">Fixed crash when quick-equipping into an empty slot (Issue #259)</a></li><li>Made previously unobtainable items obtainable</li><li>Fixed "stuck keys" when customizing characters</li><li>Further improved logfiles</li><li>Optimized server ticks with better chunk filtering</li><li>Patched lag while Mountain Guarder is open in the background</li><li>Removed isolated-vm (precaution)</li></ul> |
+| 0.14.2   | <ul><li>Buffed SP Rock</li><li>Added RSA encryption to password sending</li><li>Piercing projectiles now decrease in damage for every hit</li><li>Fixed unsent particles and dropped items</li><li>Transitioned from numeric IDs to UUIDs</li><li>Fixed incorrect version label and date in menu screen</li><li>Fixed debug errors</li><li>Changed logfile location</li></ul> |
 
 ***
 

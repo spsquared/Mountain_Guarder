@@ -12,7 +12,7 @@ const position = document.getElementById('position');
 // loading
 var loadedassets = 0;
 var totalassets = 1;
-socket.on('mapData', function(data) {
+socket.once('mapData', function(data) {
     load(data);
     socket.off('mapData');
 });
@@ -48,11 +48,11 @@ function load(data) {
             if (loadedassets >= totalassets) {
                 clearInterval(updateLoadBar);
                 document.getElementById('loadingIcon').style.opacity = 0;
-                setTimeout(function() {
+                setTimeout(async function() {
                     socket.emit('signIn', {
                         state: 'loaded',
                         username: document.getElementById('username').value,
-                        password: document.getElementById('password').value
+                        password: await RSAencrypt(document.getElementById('password').value)
                     });
                     loaded = true;
                     resetFPS();

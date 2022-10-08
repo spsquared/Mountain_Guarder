@@ -421,7 +421,7 @@
         "bossData": {
             "stages": [
                 {
-                    "startTrigger": {
+                    "endTrigger": {
                         "type": "hp",
                         "data": {
                             "min": 800
@@ -492,7 +492,7 @@
                                 "data": {
                                     "id": "spike",
                                     "warning": 5,
-                                    "amount": 10,
+                                    "amount": 15,
                                     "stats": {
                                         "damageType": "",
                                         "projectileSpeed": 1,
@@ -515,7 +515,56 @@
                     ]
                 },
                 {
-                    "startTrigger": {
+                    "endTrigger": {
+                        "type": "step",
+                        "data": {}
+                    },
+                    "moveSpeed": 2,
+                    "stats": {
+                        "damageType": "",
+                        "projectileSpeed": 1,
+                        "attack": 1,
+                        "defense": 0.7,
+                        "damageReduction": 2,
+                        "knockbackResistance": 0.95,
+                        "heal": 10,
+                        "speed": 1,
+                        "range": 1,
+                        "accuracy": 0.2,
+                        "critChance": 0,
+                        "critPower": 1,
+                        "knockback": 1,
+                        "maxPierce": 0
+                    },
+                    "attacks": [
+                        {
+                            "chance": 1,
+                            "action": {
+                                "type": "monsters",
+                                "formation": "map",
+                                "data": {
+                                    "name": "sprock2",
+                                    "id": "rockturret"
+                                }
+                            },
+                            "time": 0
+                        },
+                        {
+                            "chance": 1,
+                            "action": {
+                                "type": "cameraShake",
+                                "formation": "cameraShake",
+                                "data": {
+                                    "intensity": 20,
+                                    "time": 40
+                                }
+                            },
+                            "time": 0
+                        }
+                    ]
+                },
+                {
+                    "endTrigger": {
                         "type": "hp",
                         "data": {
                             "min": 0
@@ -610,7 +659,7 @@
                                 "data": {
                                     "id": "spike",
                                     "warning": 5,
-                                    "amount": 14,
+                                    "amount": 20,
                                     "stats": {
                                         "damageType": "",
                                         "projectileSpeed": 1,

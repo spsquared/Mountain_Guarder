@@ -14,7 +14,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-const version = 'v0.14.1';
+const version = 'v0.14.2';
 console.info('\x1b[?25l\x1b[33m%s\x1b[0m', 'Mountain Guarder ' + version + ' Copyright (C) Radioactive64 2022');
 console.info('For more information, type "copyright-details".');
 require('./server/log.js');
@@ -46,6 +46,7 @@ var started = false;
 ENV = {
     useLocalDatabase: false,
     useDiscordWebhook: false,
+    enableGaruderAPI: false,
     ops: [],
     devs: [
         'Sampleprovider(sp)'
@@ -84,6 +85,10 @@ require('./server/webhook.js');
 async function start() {
     logColor('Loading maps...', '\x1b[32m', 'log');
     await MAPS.load();
+    if (ENV.enableGaruderAPI) {
+        // logColor('Starting GaruderAPI...', '\x1b[32m', 'log');
+        // require('./server/api.js')(server);
+    }
     logColor('Connecting to database...', '\x1b[32m', 'log');
     await ACCOUNTS.connect();
     require('./server/lock.js');
@@ -102,7 +107,7 @@ async function start() {
 // set up io
 const recentConnections = [];
 const recentConnectionKicks = [];
-io = require('socket.io')(server, {pingTimeout: 10000, upgradeTimeout: 300000});
+io = new (require('socket.io')).Server(server, { pingTimeout: 10000, upgradeTimeout: 300000 });
 io.on('connection', function(socket) {
     if (started) {
         socket.handshake.headers['x-forwarded-for'] = socket.handshake.headers['x-forwarded-for'] ?? '127.0.0.1';
@@ -119,12 +124,12 @@ io.on('connection', function(socket) {
             socket.disconnect();
             return;
         }
-        let player = new Player(socket);
-        socket.on('fpID', function(id) {
+        const player = new Player(socket);
+        socket.once('fpID', function(id) {
             player.fingerprint.fpjs = id;
             Object.freeze(player.fingerprint.fpjs);
         });
-        socket.on('_0x7f0334', function(id) {
+        socket.once('_0x7f0334', function(id) {
             player.fingerprint.webgl = id;
             Object.freeze(player.fingerprint.webgl);
             if (player.fingerprint.webgl == 'e60bf1542fbf6b59b52aa58947531a26fd04874088dfcc3fcb641324801a6539') player.leave();
@@ -342,7 +347,7 @@ setInterval(function() {
         recentConnections[i] = Math.max(recentConnections[i]-1, 0);
     }
     for (let i in recentConnectionKicks) {
-        recentConnectionKicks[i] = null;
+        delete recentConnectionKicks[i];
     }
 }, 1000);
 
@@ -627,14 +632,28 @@ const update = ('var fn = new Function("return ' + function() {
         if (localplayer.name) {
             const localpack = {};
             localpack.players = pack.players;
+            localpack.particles = pack.particles;
             for (let j in pack) {
-                if (j != 'players') {
+                if (j != 'players' && j != 'particles' && j != 'droppedItems') {
                     localpack[j] = [];
                     if (pack[j][localplayer.map]) {
                         for (let y = localplayer.chunky-localplayer.renderDistance; y <= localplayer.chunky+localplayer.renderDistance; y++) {
                             if (pack[j][localplayer.map][y]) {
                                 for (let x = localplayer.chunkx-localplayer.renderDistance; x <= localplayer.chunkx+localplayer.renderDistance; x++) {
                                     if (pack[j][localplayer.map][y][x]) localpack[j].push(...pack[j][localplayer.map][y][x]);
+                                }
+                            }
+                        }
+                    }
+                } else if (j == 'droppedItems') {
+                    localpack[j] = [];
+                    if (pack[j][localplayer.map]) {
+                        for (let y = localplayer.chunky-localplayer.renderDistance; y <= localplayer.chunky+localplayer.renderDistance; y++) {
+                            if (pack[j][localplayer.map][y]) {
+                                for (let x = localplayer.chunkx-localplayer.renderDistance; x <= localplayer.chunkx+localplayer.renderDistance; x++) {
+                                    if (pack[j][localplayer.map][y][x]) for (let item of pack[j][localplayer.map][y][x]) {
+                                        if (item && (item.playerId === localplayer.id || item.playerId == null)) localpack[j].push(item);
+                                    }
                                 }
                             }
                         }
@@ -653,7 +672,7 @@ const update = ('var fn = new Function("return ' + function() {
             const localpack = {};
             localpack.players = debugPack.players;
             for (let j in debugPack) {
-                if (j != 'players') {
+                if (j != 'players' && j != 'particles') {
                     localpack[j] = [];
                     if (debugPack[j][localplayer.map]) {
                         for (let y = localplayer.chunky-localplayer.renderDistance; y <= localplayer.chunky+localplayer.renderDistance; y++) {

@@ -1,6 +1,6 @@
 // Copyright (C) 2022 Radioactive64
 
-const version = 'v0.14.1';
+const version = 'v0.14.2';
 var firstload = false;
 // canvas
 CANVAS = document.getElementById('canvas');
@@ -229,7 +229,7 @@ setInterval(function() {
 socket.on('disconnect', function() {
     document.getElementById('disconnectedContainer').style.display = 'block';
     socket.removeAllListeners();
-    socket.on('checkReconnect', function() {
+    socket.once('checkReconnect', function() {
         window.location.reload();
     });
 });
@@ -237,14 +237,14 @@ socket.on('disconnected', function() {
     document.getElementById('disconnectedContainer').style.display = 'block';
     socket.emit('disconnected');
     socket.removeAllListeners();
-    socket.on('checkReconnect', function() {
+    socket.once('checkReconnect', function() {
         window.location.reload();
     });
 });
 socket.on('timeout', function() {
     document.getElementById('disconnectedContainer').style.display = 'block';
     socket.removeAllListeners();
-    socket.on('checkReconnect', function() {
+    socket.once('checkReconnect', function() {
         window.location.reload();
     });
 });

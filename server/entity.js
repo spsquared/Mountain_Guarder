@@ -1,10 +1,16 @@
 // Copyright (C) 2022 Radioactive64
 
 const PF = require('pathfinding');
-const Cryptr = require('cryptr');
-const { cloneDeep, clone, range, random } = require('lodash');
+const { subtle } = require('crypto').webcrypto;
+const { cloneDeep } = require('lodash');
 const { lock } = require('object-property-lock');
-const cryptr = new Cryptr('cachePasswordKey');
+const { v1: uuidv1 } = require('uuid');
+const keys = subtle.generateKey({
+    name: "RSA-OAEP",
+    modulusLength: 2048,
+    publicExponent: new Uint8Array([1, 0, 1]),
+    hash: "SHA-256"
+}, false, ['encrypt', 'decrypt']);
 
 // entities
 Entity = function() {
@@ -38,7 +44,7 @@ Entity = function() {
             chunky: 0
         }
     };
-    self.id = Math.random();
+    self.id = uuidv1();
     lock(self, ['id']);
 
     self.update = function update() {
@@ -1478,13 +1484,17 @@ Player = function(socket) {
     for (let i in Collision.grid) {
         maps.push(i);
     }
+    socket.once('requestPublicKey', async function() {
+        socket.emit('publicKey', await subtle.exportKey('jwk', (await keys).publicKey));
+    });
     socket.on('signIn', async function(cred) {
-        if (typeof cred == 'object' && cred != null && typeof cred.username == 'string' && typeof cred.password == 'string') {
+        if (typeof cred == 'object' && cred != null && typeof cred.username == 'string' && cred.password instanceof Buffer) {
             if (ENV.isBetaServer && (cred.state == 'deleteAccount' || cred.state == 'signUp')) {
                 socket.emit('signInState', 'disabled');
                 return;
             }
-            var valid = ACCOUNTS.validateCredentials(cred.username, cred.password);
+            const decryptPassword = await RSAdecrypt(cred.password);
+            let valid = ACCOUNTS.validateCredentials(cred.username, decryptPassword);
             switch (valid) {
                 case 0:
                     if (Filter.check(cred.username)) {
@@ -1494,7 +1504,7 @@ Player = function(socket) {
                     switch (cred.state) {
                         case 'signIn':
                             if (!self.signedIn) {
-                                var status = await ACCOUNTS.login(cred.username, cred.password);
+                                var status = await ACCOUNTS.login(cred.username, decryptPassword);
                                 switch (status) {
                                     case 0:
                                         var signedIn = false;
@@ -1505,7 +1515,7 @@ Player = function(socket) {
                                         }
                                         if (!signedIn) {
                                             self.creds.username = cred.username;
-                                            self.creds.password = cryptr.encrypt(cred.password);
+                                            self.creds.password = cred.password;
                                             Object.freeze(self.creds);
                                             socket.emit('mapData', {maps: maps, self: self.map});
                                             self.updateClient();
@@ -1527,7 +1537,7 @@ Player = function(socket) {
                             }
                             break;
                         case 'loaded':
-                            if (cred.username == self.creds.username && cred.password == cryptr.decrypt(self.creds.password)) {
+                            if (cred.username == self.creds.username && decryptPassword == await RSAdecrypt(self.creds.password)) {
                                 self.name = self.creds.username;
                                 self.loginTime = Date.now();
                                 await self.loadData();
@@ -1557,7 +1567,7 @@ Player = function(socket) {
                             for (let i in Player.list) {
                                 if (Player.list[i].ip == self.ip) Player.list[i].signUpAttempts = highest;
                             }
-                            var status = await ACCOUNTS.signup(cred.username, cred.password);
+                            var status = await ACCOUNTS.signup(cred.username, decryptPassword);
                             switch (status) {
                                 case 0:
                                     socket.emit('signInState', 'signedUp');
@@ -1573,7 +1583,7 @@ Player = function(socket) {
                             }
                             break;
                         case 'deleteAccount':
-                            var status = await ACCOUNTS.deleteAccount(cred.username, cred.password);
+                            var status = await ACCOUNTS.deleteAccount(cred.username, decryptPassword);
                             switch (status) {
                                 case 0:
                                     self.name = cred.username;
@@ -1592,7 +1602,7 @@ Player = function(socket) {
                             break;
                         case 'changePassword':
                             if (cred.oldPassword) {
-                                var status = await ACCOUNTS.changePassword(cred.username, cred.oldPassword, cred.password);
+                                var status = await ACCOUNTS.changePassword(cred.username, cred.oldPassword, decryptPassword);
                                 switch (status) {
                                     case 0:
                                         self.name = cred.username;
@@ -2328,10 +2338,10 @@ Player = function(socket) {
             saveFormat: 2
         };
         let data = JSON.stringify(progress);
-        await ACCOUNTS.saveProgress(self.creds.username, self.creds.password, data);
+        await ACCOUNTS.saveProgress(self.creds.username, await RSAdecrypt(self.creds.password), data);
     };
     self.loadData = async function loadData() {
-        const data = await ACCOUNTS.loadProgress(self.creds.username, self.creds.password);
+        const data = await ACCOUNTS.loadProgress(self.creds.username, await RSAdecrypt(self.creds.password));
         let progress = JSON.parse(data);
         if (progress) {
             if (progress.saveFormat == null) { // support for accounts < v0.10.0
@@ -2666,7 +2676,8 @@ Monster = function(type, x, y, map, layer, params) {
                 currentAttack: 0,
                 attackTimer: 0,
                 attackTime: 0,
-                pendingEvents: []
+                pendingEvents: [],
+                stageTimer: 0
             };
             self.bcDeath = true;
         }
@@ -2719,14 +2730,29 @@ Monster = function(type, x, y, map, layer, params) {
                 }
             }
             if (self.boss) {
-                switch (self.ai.boss.data.stages[self.ai.boss.currentStage].startTrigger.type) {
+                const stage = self.ai.boss.data.stages[self.ai.boss.currentStage]
+                switch (stage.endTrigger.type) {
                     case 'hp':
-                        if (self.hp < self.ai.boss.data.stages[self.ai.boss.currentStage].startTrigger.data.min) {
+                        if (self.hp < stage.endTrigger.data.min) {
+                            self.ai.boss.currentStage = Math.min(self.ai.boss.currentStage+1, self.ai.boss.data.stages.length-1);
+                        }
+                        break;
+                    case 'step':
+                        if (self.ai.boss.stageTimer == 0) {
+                            for (let attack of stage.attacks) {
+                                typeof Monster.bossAttacks[attack.action.formation] == 'function' && Monster.bossAttacks[attack.action.formation](self, attack.action.type, attack.action.data);
+                                typeof Monster.bossAttacks[attack.action.formation] != 'function' && error('Invalid boss attack type "' + attack.action.formation + '"');
+                            }
+                        }
+                        self.ai.boss.stageTimer++;
+                        self.ai.boss.attackTimer = -1;
+                        if (self.ai.boss.stageTimer >= stage.endTrigger.data.time) {
+                            self.ai.boss.stageTimer = 0;
                             self.ai.boss.currentStage = Math.min(self.ai.boss.currentStage+1, self.ai.boss.data.stages.length-1);
                         }
                         break;
                     default:
-                        error('Invalid boss stage trigger "' + self.ai.boss.data.stages[self.ai.boss.currentStage].startTrigger.type + '" for boss "' + self.type + '"');
+                        error('Invalid boss stage trigger "' + stage.endTrigger.type + '" for boss "' + self.type + '"');
                         self.onDeath(self, 'debug');
                 }
             }
@@ -2950,7 +2976,7 @@ Monster = function(type, x, y, map, layer, params) {
                     }
                     min += stage.attacks[i].chance;
                 }
-                var attack = stage.attacks[index];
+                let attack = stage.attacks[index];
                 self.ai.boss.attackTime = attack.time;
                 typeof Monster.bossAttacks[attack.action.formation] == 'function' && Monster.bossAttacks[attack.action.formation](self, attack.action.type, attack.action.data);
                 typeof Monster.bossAttacks[attack.action.formation] != 'function' && error('Invalid boss attack type "' + attack.action.formation + '"');
@@ -3115,8 +3141,6 @@ Monster.update = function update() {
             x: localmonster.x,
             y: localmonster.y,
             layer: localmonster.layer,
-            chunkx: localmonster.chunkx,
-            chunky: localmonster.chunky,
             type: localmonster.type,
             animationStage: localmonster.animationStage,
             hp: localmonster.hp,
@@ -3132,40 +3156,22 @@ Monster.getDebugData = function getDebugData() {
     for (let i in Monster.list) {
         let localmonster = Monster.list[i];
         if (localmonster.active) {
-            if (localmonster.ai.entityTarget) {
-                if (pack[localmonster.map] == null) pack[localmonster.map] = [];
-                if (pack[localmonster.map][localmonster.chunky] == null) pack[localmonster.map][localmonster.chunky] = [];
-                if (pack[localmonster.map][localmonster.chunky][localmonster.chunkx] == null) pack[localmonster.map][localmonster.chunky][localmonster.chunkx] = [];
-                pack[localmonster.map][localmonster.chunky][localmonster.chunkx].push({
-                    map: localmonster.map,
-                    x: localmonster.x,
-                    y: localmonster.y,
-                    width: localmonster.width,
-                    height: localmonster.height,
-                    collisionBoxSize: localmonster.collisionBoxSize,
-                    animationStage: localmonster.animationStage,
-                    path: localmonster.ai.path,
-                    controls: localmonster.controls,
-                    aggroTarget: localmonster.ai.entityTarget.id,
-                    aggroRange: localmonster.ai.maxRange
-                });
-            } else {
-                if (pack[localmonster.map] == null) pack[localmonster.map] = [];
-                if (pack[localmonster.map][localmonster.chunky] == null) pack[localmonster.map][localmonster.chunky] = [];
-                if (pack[localmonster.map][localmonster.chunky][localmonster.chunkx] == null) pack[localmonster.map][localmonster.chunky][localmonster.chunkx] = [];
-                pack[localmonster.map][localmonster.chunky][localmonster.chunkx].push({
-                    map: localmonster.map,
-                    x: localmonster.x,
-                    y: localmonster.y,
-                    width: localmonster.width,
-                    height: localmonster.height,
-                    collisionBoxSize: localmonster.collisionBoxSize,
-                    path: localmonster.ai.path,
-                    controls: localmonster.controls,
-                    aggroTarget: null,
-                    aggroRange: localmonster.ai.maxRange
-                });
-            }
+            if (pack[localmonster.map] == null) pack[localmonster.map] = [];
+            if (pack[localmonster.map][localmonster.chunky] == null) pack[localmonster.map][localmonster.chunky] = [];
+            if (pack[localmonster.map][localmonster.chunky][localmonster.chunkx] == null) pack[localmonster.map][localmonster.chunky][localmonster.chunkx] = [];
+            pack[localmonster.map][localmonster.chunky][localmonster.chunkx].push({
+                map: localmonster.map,
+                x: localmonster.x,
+                y: localmonster.y,
+                width: localmonster.width,
+                height: localmonster.height,
+                collisionBoxSize: localmonster.collisionBoxSize,
+                animationStage: localmonster.animationStage,
+                path: localmonster.ai.path,
+                controls: localmonster.controls,
+                aggroTarget: (localmonster.ai.entityTarget ?? {}).id,
+                aggroRange: localmonster.ai.maxRange
+            });
         }
     }
 
@@ -3518,6 +3524,7 @@ Projectile = function(type, angle, stats, parentID, x, y) {
                     let noDelete = player.onHit(self, 'projectile');
                     self.layer = player.layer;
                     self.pierced++;
+                    self.damage *= 0.7;
                     if (self.pierced > self.maxPierce && !noDelete) self.toDelete = true;
                     return true;
                 }
@@ -3529,6 +3536,7 @@ Projectile = function(type, angle, stats, parentID, x, y) {
                     let noDelete = monster.onHit(self, 'projectile');
                     self.layer = monster.layer;
                     self.pierced++;
+                    self.damage *= 0.7;
                     if (self.pierced > self.maxPierce && !noDelete) self.toDelete = true;
                     return;
                 }
@@ -3677,8 +3685,6 @@ Projectile.update = function update() {
             x: localprojectile.x,
             y: localprojectile.y,
             layer: localprojectile.layer,
-            chunkx: localprojectile.chunkx,
-            chunky: localprojectile.chunky,
             angle: localprojectile.angle,
             type: localprojectile.type
         });
@@ -3898,8 +3904,7 @@ Particle = function(map, x, y, type, value) {
 Particle.update = function update() {
     const pack = [];
     for (let i in Particle.list) {
-        let localparticle = Particle.list[i];
-        pack.push(localparticle);
+        pack.push(Particle.list[i]);
     }
     Particle.list = [];
 
@@ -3925,7 +3930,7 @@ DroppedItem = function(map, x, y, itemId, enchantments, stackSize, playerId, isL
         isLoot: isLoot,
         entType: 'item'
     };
-    self.id = Math.random();
+    self.id = uuidv1();
     var valid = false;
     for (let i in Inventory.items) {
         if (itemId == i) {
@@ -3957,9 +3962,6 @@ DroppedItem.update = function update() {
             map: localdroppeditem.map,
             x: localdroppeditem.x,
             y: localdroppeditem.y,
-            layer: localdroppeditem.layer,
-            chunkx: localdroppeditem.chunkx,
-            chunky: localdroppeditem.chunky,
             itemId: localdroppeditem.itemId,
             stackSize: localdroppeditem.stackSize,
             playerId: localdroppeditem.playerId
@@ -3988,4 +3990,7 @@ function radians(r) {
 };
 function randomRange(lower, upper) {
     return Math.random()*(upper-lower)+lower;
+};
+async function RSAdecrypt(buf) {
+    return new TextDecoder().decode(await subtle.decrypt({name: "RSA-OAEP"}, (await keys).privateKey, buf));
 };

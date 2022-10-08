@@ -27,7 +27,7 @@
         "contactEvents": [],
         "knockback": 0.1,
         "damageType": "ranged",
-        "invincibilityFrame": 2,
+        "invincibilityFrame": 4,
         "deathMessage": "shot",
         "piercing": true,
         "maxPierce": 1,

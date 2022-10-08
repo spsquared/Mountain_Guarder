@@ -81,7 +81,7 @@ appendLog = function appendLog(text, type) {
     else if (type == 'log') typestring = 'LOG ';
     else if (type == 'debug') typestring = 'DBG ';
     else if (type == 'chat') typestring = 'CHT ';
-    fs.appendFileSync('./server/log.log', typestring + text + '\n', {encoding: 'utf-8'}, function() {});
+    fs.appendFileSync('./log.log', typestring + text + '\n', {encoding: 'utf-8'}, function() {});
     if (global.ENV && !ENV.offlineMode && ENV.useDiscordWebhook && type != 'chat') try {postDebugDiscord(typestring, text.toString());} catch (err) {error(err);};
 };
 

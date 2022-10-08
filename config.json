@@ -1,6 +1,7 @@
 {
     "useLocalDatabase": true,
     "useDiscordWebhook": false,
+    "enableGaruderAPI": false,
     "ops": [
         "Sampleprovider(sp)",
         "sp",
