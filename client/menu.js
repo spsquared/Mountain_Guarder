@@ -12,7 +12,7 @@ async function signIn() {
         socket.emit('signIn', {
             state: 'signIn',
             username: document.getElementById('username').value,
-            password: await RSAencrypt(document.getElementById('password').value)
+            password: await RSAencode(document.getElementById('password').value)
         });
         awaitingResponse = true;
     }
@@ -22,7 +22,7 @@ async function createAccount() {
         socket.emit('signIn', {
             state: 'signUp',
             username: document.getElementById('username').value,
-            password: await RSAencrypt(document.getElementById('password').value)
+            password: await RSAencode(document.getElementById('password').value)
         });
         awaitingResponse = true;
     }
@@ -34,7 +34,7 @@ async function deleteAccount() {
             socket.emit('signIn', {
                 state: 'deleteAccount',
                 username: document.getElementById('username').value,
-                password: await RSAencrypt(document.getElementById('password').value)
+                password: await RSAencode(document.getElementById('password').value)
             });
             awaitingResponse = true;
         } else {
@@ -49,8 +49,8 @@ async function changePassword() {
             socket.emit('signIn', {
                 state: 'changePassword',
                 username: document.getElementById('username').value,
-                oldPassword: await RSAencrypt(document.getElementById('password').value),
-                password: await RSAencrypt(document.getElementById('newpassword').value)
+                oldPassword: await RSAencode(document.getElementById('password').value),
+                password: await RSAencode(document.getElementById('newpassword').value)
             });
             awaitingResponse = true;
         } else {
@@ -279,7 +279,7 @@ socket.on('signInState', async function(state) {
     }
     awaitingResponse = false;
 });
-async function RSAencrypt(text) {
+async function RSAencode(text) {
     return await window.crypto.subtle.encrypt({name: 'RSA-OAEP'}, publicKey, new TextEncoder().encode(text));
 };
 socket.once('publicKey', async function(key) {

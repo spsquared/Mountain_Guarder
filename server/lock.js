@@ -13,10 +13,13 @@ lock(ACCOUNTS, ['connect', 'disconnect', 'signup', 'login', 'deleteAccount', 'ch
 // log.js
 lock(global, ['insertChat', 'insertSinglechat', 'logColor', 'log', 'warn', 'error', 'appendLog']);
 // collision.js
-lock(global, ['Collision', 'Layer', 'Slowdown', 'Spawner', 'Teleporter']);
+lock(global, ['Collision', 'Layer', 'Slowdown', 'Spawner', 'BossSpawner', 'Region', 'Teleporter', 'GaruderWarp', 'EventTrigger']);
 lock(global.Collision, ['getColEntity']);
-lock(global.Layer, ['getColEntity', 'getColDir']);
+lock(global.Layer, ['getColEntity', 'getColDir', 'init', 'lazyInit', 'loadCache', 'writeCache', 'generateGraphs', 'generateLookupTables', 'graph', 'lookupTable', 'lazyInitQueue']);
 lock(global.Slowdown, ['getColEntity']);
+lock(global.Spawner, ['init']);
+lock(global.GaruderWarp, ['locations', 'triggers', 'addPosition', 'addWarpAddTrigger']);
+lock(global.EventTrigger, ['triggers']);
 // inventory.js
 lock(global, ['Inventory', 'Shop']);
 lock(global.Inventory, ['Item', 'items']);

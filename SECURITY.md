@@ -6,19 +6,16 @@ The database URI will not be disclosed. Any release of database credentials to t
 
 ## Supported Versions
 
-Supported Versions are stable versions that can run without breaking the format of accounts. Run non-supported versions at your own risk. ("risk" meaning a near-guaranteed inventory loss)
+Supported versions are stable versions free of critical security issues that can run without breaking the format of accounts created on the most recent version. Run unsupported versions at your own risk. ("risk" meaning a near-guaranteed inventory loss and possible crashes) An old version may still run, but cannot load accounts created in later versions.
 
 | Version  | Supported          |
 | -------  | ------------------ |
-| 0.14.2   | :white_check_mark: |
-| 0.14.1   | :white_check_mark: |
+| 0.15.0   | :white_check_mark: |
+| 0.14.2   | :x:                |
+| 0.14.1   | :x:                |
 | 0.14.0   | :x:                |
-| 0.13.1   | :white_check_mark: |
-| 0.13.0   | :white_check_mark: |
-| 0.12.x   | :white_check_mark: |
-| 0.11.1   | :white_check_mark: |
-| 0.11.0   | :x:                |
-| < 0.11.0 | :x:                |
+| 0.13.x   | :x:                |
+| < 0.13.x | :x:                |
 
 ## Reporting a Vulnerability
 

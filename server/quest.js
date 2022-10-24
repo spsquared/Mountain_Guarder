@@ -60,18 +60,19 @@ QuestHandler = function(socket, player) {
         self.lastTick++;
         if (self.lastTick > 3) {
             self.lastTick = 0;
-            var pack = [];
+            const pack = [];
             for (let i in self.current) {
                 pack.push({
                     id: i,
-                    data: self.current[i].objectivesComplete
+                    data: self.current[i].objectivesComplete,
+                    stage: self.current[i].stage
                 });
             }
             socket.emit('questData', pack);
         }
     };
     self.qualifiesFor = function qualifiesFor(id) {
-        var quest = QuestData.quests[id];
+        const quest = QuestData.quests[id];
         if (quest) {
             if (player.xpLevel < quest.requirements.xpLevel) return false;
             for (let i in quest.requirements.completed) {
@@ -134,8 +135,8 @@ QuestData = function(id) {
     }
 
     self.checkRequirements = function checkRequirements(data) {
-        var objectives = self.objectivesComplete;
-        var goals = self.objectives;
+        let objectives = self.objectivesComplete;
+        let goals = self.objectives;
         for (let i in objectives) {
             switch (i) {
                 case 'obtain':
@@ -176,7 +177,7 @@ QuestData = function(id) {
                     break;
             }
         }
-        var completed = true;
+        let completed = true;
         check: for (let j in objectives) {
             if (j == 'killMonster' || j == 'obtain') {
                 for (let k in objectives[j]) {
@@ -188,12 +189,12 @@ QuestData = function(id) {
             } else if (j == 'talk' || j == 'area') {
                 if (objectives[j] == false) {
                     completed = false;
-                    break;
+                    break check;
                 }
             } else {
                 if (objectives[j] < goals[j]) {
                     completed = false;
-                    break;
+                    break check;
                 }
             }
         }

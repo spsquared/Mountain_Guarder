@@ -14,7 +14,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-const version = 'v0.14.2';
+const version = 'v0.15.0';
 console.info('\x1b[?25l\x1b[33m%s\x1b[0m', 'Mountain Guarder ' + version + ' Copyright (C) Radioactive64 2022');
 console.info('For more information, type "copyright-details".');
 require('./server/log.js');
@@ -53,8 +53,8 @@ ENV = {
     ],
     spawnpoint: {
         map: 'World',
-        x: 224,
-        y: 544,
+        x: 3,
+        y: 8,
         layer: 0
     },
     pvp: false,
@@ -110,6 +110,7 @@ const recentConnectionKicks = [];
 io = new (require('socket.io')).Server(server, { pingTimeout: 10000, upgradeTimeout: 300000 });
 io.on('connection', function(socket) {
     if (started) {
+        // connection DOS detection
         socket.handshake.headers['x-forwarded-for'] = socket.handshake.headers['x-forwarded-for'] ?? '127.0.0.1';
         recentConnections[socket.handshake.headers['x-forwarded-for']] = (recentConnections[socket.handshake.headers['x-forwarded-for']] ?? 0)+1;
         if (recentConnections[socket.handshake.headers['x-forwarded-for']] > 3) {
@@ -456,7 +457,6 @@ s = {
         var player = s.findPlayer(username);
         if (player) {
             player.socket.emit('loudrickroll');
-            insertChat(username + ' got rickrolled.', 'fun');
         } else return 'No player with username ' + username;
     },
     lag: function s_lag(self, username) {
@@ -694,6 +694,7 @@ const update = ('var fn = new Function("return ' + function() {
             });
         }
     }
+    GaruderWarp.updateTriggers();
 }.toString() + '")();fn();').replaceAll('\n', '').replaceAll('\r', '').replaceAll('    ', '');
 const updateTicks = setInterval(function() {
     if (started) {
@@ -810,28 +811,27 @@ Filter = {
     words: ['shole', 'hhole', 'ass', 'bastard', 'basterd', 'bitch', 'bich', 'beetch', 'blowjob', 'blow job', 'boob', 'butthole', 'butth0le', 'buthole', 'buth0le', 'clit', 'cock', 'cokk', 'cawk', 'cowk', 'cawc', 'cowc', 'clit', 'cnt', 'crap', ' cum', 'cum ', 'dildo', 'dilldo', 'dominatrix', 'dominatric', 'dominatrik', 'enema', 'fuc', 'fuk', 'foc', 'fok', 'phuc', 'phuk', 'fag', 'faig', 'hoor', 'hor', 'hoar', 'haor', 'jackoff', 'jap', 'jerkoff', 'jisim', 'jism', 'jsm', 'jizim', 'jizm', 'jzm', 'gisim', 'gism', 'gsm', 'gizim', 'gizm', 'gzm', 'knob', 'nob', 'cunt', 'kunt', 'masochist', 'masokist', 'masocist', 'masturbat', 'masterbat', 'masturbait', 'masterbait', 'massturbat', 'massterbat', 'massturbait', 'massterbait', 'mastrbat', 'mastrbait', 'nigger', 'niger', 'niggur', 'nigur', 'niggr', 'nigr', 'orgasm', 'orgasim', 'orgasum', 'orifice', 'orafis', 'orifiss', 'orafiss', 'packie', 'packi', 'packy', 'pakie', 'paki', 'paky', 'pecker', 'peker', 'penis', 'penus', 'penas', 'peenis', 'peenus', 'peenas', 'peeenis', 'peeenus', 'peeenas', 'pinis', 'pinus', 'pinas', 'peniis', 'penuus', 'penaas', 'peeniis', 'peenuus', 'peenaas', 'peeeniis', 'peeenuus', 'peeenaas', 'polac', 'polak', 'pric', 'prik', 'puss', 'rectum', 'rektum', 'recktum', 'retard', 'sadist', 'scank', 'schlong', 'sclong', 'shlong', 'screwin', 'skrewin', 'semen', 'seemen', 'sex', 'secks', 'seks', 'shit', 'shat', 'shiit', 'shaat', 'shyt', 'shyyt', 'skanc', 'skank', 'scanc', 'scank', 'slag', 'slut', 'tit', 'turd', 'vagina', 'vagiina', 'vaigina', 'vaigiina', 'vajina', 'vajiina', 'vaijina', 'vaijiina', 'vulva', 'vullva' , 'whor', 'whoar', 'wop', 'xrated', 'xxx'],
     check: function(string) {
         if (typeof string == 'string') {
-            var checkstring = string.toLowerCase();
-            checkstring = checkstring.replace(/ /g, '');
-            checkstring = checkstring.replace(/./g, '');
-            checkstring = checkstring.replace(/y/g, '');
-            checkstring = checkstring.replace(/_/g, '');
-            checkstring = checkstring.replace(/\+/g, '');
-            checkstring = checkstring.replace(/_/g, '');
-            checkstring = checkstring.replace(/⠀/g, '');
-            checkstring = checkstring.replace(/\'/g, '');
-            checkstring = checkstring.replace(/"/g, '');
-            checkstring = checkstring.replace(/!/g, 'i');
-            checkstring = checkstring.replace(/@/g, 'a');
-            checkstring = checkstring.replace(/$/g, 's');
-            checkstring = checkstring.replace(/0/g, 'o');
-            checkstring = checkstring.replace(/()/g, 'o');
-            checkstring = checkstring.replace(/[]/g, 'o');
-            checkstring = checkstring.replace(/{}/g, 'o');
-            checkstring = checkstring.replace(/|/g, 'i');
-            checkstring = checkstring.replace(/\//g, 'i');
-            checkstring = checkstring.replace(/\\/g, 'i');
-            checkstring = checkstring.replace(/hs/g, 'sh');
-            checkstring = checkstring.replace(/hc/g, 'sh');
+            let checkstring = string.toLowerCase();
+            checkstring = checkstring.replaceAll(' ', '');
+            checkstring = checkstring.replaceAll('.', '');
+            checkstring = checkstring.replaceAll('_', '');
+            checkstring = checkstring.replaceAll('-', '');
+            checkstring = checkstring.replaceAll('+', '');
+            checkstring = checkstring.replaceAll('⠀', '');
+            checkstring = checkstring.replaceAll('\'', '');
+            checkstring = checkstring.replaceAll('"', '');
+            checkstring = checkstring.replaceAll('!', 'i');
+            checkstring = checkstring.replaceAll('@', 'a');
+            checkstring = checkstring.replaceAll('$', 's');
+            checkstring = checkstring.replaceAll('0', 'o');
+            checkstring = checkstring.replaceAll('()', 'o');
+            checkstring = checkstring.replaceAll('[]', 'o');
+            checkstring = checkstring.replaceAll('{}', 'o');
+            checkstring = checkstring.replaceAll('|', 'i');
+            checkstring = checkstring.replaceAll('/', 'i');
+            checkstring = checkstring.replaceAll('\\', 'i');
+            checkstring = checkstring.replaceAll('hs', 'sh');
+            checkstring = checkstring.replaceAll('hc', 'ch');
             for (let i in Filter.words) {
                 if (checkstring.includes(Filter.words[i])) return true;
             }

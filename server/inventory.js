@@ -22,7 +22,7 @@ Inventory = function(socket, player) {
     }
 
     socket.on('item', function(data) {
-        var valid = false;
+        let valid = false;
         if (typeof data == 'object' && data != null && data.action != null) valid = true;
         if (valid) {
             switch (data.action) {
@@ -48,6 +48,9 @@ Inventory = function(socket, player) {
                     break;
                 case 'quickEquip':
                     self.quickEquipItem(data.slot);
+                    break;
+                case 'use':
+                    self.useItem(data.slot);
                     break;
                 case 'craft':
                     self.craftItem(data.slot);
@@ -208,7 +211,7 @@ Inventory = function(socket, player) {
         }
     };
     self.takeItem = function takeItem(slot, amount) {
-        var item;
+        let item;
         if (typeof slot == 'number') {
             item = self.items[slot];
             let valid = false;
@@ -254,7 +257,7 @@ Inventory = function(socket, player) {
         }
     };
     self.placeItem = function placeItem(slot, amount) {
-        var item;
+        let item;
         if (typeof slot == 'number') {
             item = self.items[slot];
             let valid = false;
@@ -360,7 +363,7 @@ Inventory = function(socket, player) {
         }
     };
     self.dropItem = function dropItem(slot, amount) {
-        var item;
+        let item;
         if (typeof slot == 'number') item = self.items[slot];
         else if (typeof slot == 'string') item = self.equips[slot];
         else item = self.cachedItem;
@@ -420,10 +423,10 @@ Inventory = function(socket, player) {
         }
     };
     self.quickEquipItem = function quickEquipItem(slot) {
-        var item;
+        let item;
         if (typeof slot == 'number') {
             item = self.items[slot];
-            var valid = false;
+            let valid = false;
             for (let i in self.items) {
                 if (slot === parseInt(i)) valid = true;
             }
@@ -453,6 +456,28 @@ Inventory = function(socket, player) {
             }
         }
     };
+    self.useItem = function useItem(slot) {
+        let item;
+        if (typeof slot == 'number') {
+            item = self.items[slot];
+            let valid = false;
+            for (let i in self.items) {
+                if (slot === parseInt(i)) valid = true;
+            }
+            if (!valid) {
+                player.kick();
+                return;
+            }
+        } else if (typeof slot == 'string') {
+            return;
+        } else {
+            player.kick();
+            return;
+        }
+        if (item && item.usable) {
+            new Function('return ' + item.useScript)()(player);
+        }
+    }
     self.craftItem = function craftItem(slot) {
         const craft = Inventory.craftingRecipies[slot];
         if (craft) {
@@ -671,7 +696,7 @@ Shop = function(id, socket, inventory, player) {
     player.animationDirection = 'facing';
     
     socket.once('shop', function listener(data) {
-        var valid = false;
+        let valid = false;
         if (typeof data == 'object' && data != null && data.action != null) valid = true;
         if (valid) {
             switch (data.action) {

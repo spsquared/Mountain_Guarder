@@ -4,98 +4,112 @@
         "description": "Invalid item!",
         "slotType": "none",
         "rarity": "missing",
-        "effects": []
+        "effects": [],
+        "usable": false
     },
     "coppercoin": {
         "name": "Copper Coin",
         "description": "A coin minted from copper. Not the most valuable.",
         "slotType": "coin",
         "rarity": "coin",
-        "effects": []
+        "effects": [],
+        "usable": false
     },
     "silvercoin": {
         "name": "Silver Coin",
         "description": "A coin minted from silver. Holds a little value.",
         "slotType": "coin",
         "rarity": "coin",
-        "effects": []
+        "effects": [],
+        "usable": false
     },
     "goldcoin": {
         "name": "Gold Coin",
         "description": "A coin minted from gold. Worth a lot.",
         "slotType": "coin",
         "rarity": "coin",
-        "effects": []
+        "effects": [],
+        "usable": false
     },
     "blucoin": {
         "name": "BluCoin",
         "description": "A special coin made from ultra-rare Montan Blu. Worth a huge amount.",
         "slotType": "coin",
         "rarity": "blucoin",
-        "effects": []
+        "effects": [],
+        "usable": false
     },
     "wood": {
         "name": "Wood",
         "description": "Some raw uncut lumber, ready for crafting",
         "slotType": "material",
         "rarity": 0,
-        "effects": []
+        "effects": [],
+        "usable": false
     },
     "planks": {
         "name": "Planks",
         "description": "Standard wood planks",
         "slotType": "material",
         "rarity": 0,
-        "effects": []
+        "effects": [],
+        "usable": false
     },
     "sticks": {
         "name": "Sticks",
         "description": "It would probably be more fitting to call it a rod",
         "slotType": "material",
         "rarity": 0,
-        "effects": []
+        "effects": [],
+        "usable": false
     },
     "stone": {
         "name": "Stone",
         "description": "A chunk of stone.",
         "slotType": "material",
         "rarity": 0,
-        "effects": []
+        "effects": [],
+        "usable": false
     },
     "quartz": {
         "name": "Quartz",
         "description": "Raw quartz crystals",
         "slotType": "material",
         "rarity": 3,
-        "effects": []
+        "effects": [],
+        "usable": false
     },
     "coal": {
         "name": "Coal",
         "description": "Bituminous coal, good for smelting",
         "slotType": "material",
         "rarity": 0,
-        "effects": []
+        "effects": [],
+        "usable": false
     },
     "ironore": {
         "name": "Iron Ore",
         "description": "Raw iron in the form of a lump",
         "slotType": "material",
         "rarity": 0,
-        "effects": []
+        "effects": [],
+        "usable": false
     },
     "iron": {
         "name": "Iron Ingot",
         "description": "A 5 lb cast iron ingot",
         "slotType": "material",
         "rarity": 0,
-        "effects": []
+        "effects": [],
+        "usable": false
     },
     "lodestone": {
         "name": "Lodestone",
         "description": "Two large Ialite crystals with some strange glowing substances trapped between them. It seems to warp time and space around it...",
         "slotType": "material",
         "rarity": -3,
-        "effects": []
+        "effects": [],
+        "usable": true
     },
     "simplewoodenbow": {
         "name": "Simple Wooden Bow",
@@ -111,7 +125,8 @@
         "manaCost": "0",
         "heldAngle": -45,
         "heldDistance": 24,
-        "effects": []
+        "effects": [],
+        "usable": false
     },
     "simplewoodensword": {
         "name": "Simple Wooden Sword",
@@ -127,7 +142,8 @@
         "manaCost": 0,
         "heldAngle": 45,
         "heldDistance": 48,
-        "effects": []
+        "effects": [],
+        "usable": false
     },
     "simplewoodenstaff": {
         "name": "Simple Wooden Staff",
@@ -143,7 +159,8 @@
         "manaCost": 10,
         "heldAngle": 45,
         "heldDistance": 48,
-        "effects": []
+        "effects": [],
+        "usable": false
     },
     "leatherhood": {
         "name": "Leather Hood",
@@ -171,7 +188,8 @@
                 "id": "critChance",
                 "value": 0.1
             }
-        ]
+        ],
+        "usable": false
     },
     "leatherhat": {
         "name": "Leather Hat",
@@ -199,7 +217,8 @@
                 "id": "critPower",
                 "value": 0.03
             }
-        ]
+        ],
+        "usable": false
     },
     "woodenhelmet": {
         "name": "Wooden Helmet",
@@ -227,7 +246,8 @@
                 "id": "damageReduction",
                 "value": 1
             }
-        ]
+        ],
+        "usable": false
     },
     "leatherarmor": {
         "name": "Leather Armor",
@@ -243,7 +263,8 @@
                 "id": "defense",
                 "value": 0.05
             }
-        ]
+        ],
+        "usable": false
     },
     "woodenshield": {
         "name": "Wooden Shield",
@@ -253,7 +274,8 @@
         "knockbackResistance": 0.2,
         "blockAngle": 90,
         "projectileReflectChance": 0,
-        "effects": []
+        "effects": [],
+        "usable": false
     },
     "steelbow": {
         "name": "Steel Bow",
@@ -269,7 +291,8 @@
         "manaCost": 0,
         "heldAngle": -45,
         "heldDistance": 24,
-        "effects": []
+        "effects": [],
+        "usable": false
     },
     "steelbroadsword": {
         "name": "Steel Broadsword",
@@ -285,7 +308,8 @@
         "manaCost": 0,
         "heldAngle": 45,
         "heldDistance": 48,
-        "effects": []
+        "effects": [],
+        "usable": false
     },
     "steelcutlass": {
         "name": "Steel Cutlass",
@@ -301,7 +325,8 @@
         "manaCost": 0,
         "heldAngle": 45,
         "heldDistance": 48,
-        "effects": []
+        "effects": [],
+        "usable": false
     },
     "steelstaff": {
         "name": "Steel Staff",
@@ -317,7 +342,8 @@
         "manaCost": 9,
         "heldAngle": 45,
         "heldDistance": 48,
-        "effects": []
+        "effects": [],
+        "usable": false
     },
     "simplewizardhat": {
         "name": "Simple Wizard's Hat",
@@ -341,7 +367,8 @@
                 "id": "critPower",
                 "value": 0.1
             }
-        ]
+        ],
+        "usable": false
     },
     "whitefabrichood": {
         "name": "White Fabric Hood",
@@ -361,7 +388,8 @@
                 "id": "magicDamage",
                 "value": 0.95
             }
-        ]
+        ],
+        "usable": false
     },
     "steelhelmet": {
         "name": "Steel Helmet",
@@ -389,7 +417,8 @@
                 "id": "defense",
                 "value": 0.1
             }
-        ]
+        ],
+        "usable": false
     },
     "steelarmor": {
         "name": "Steel Chestplate",
@@ -409,7 +438,8 @@
                 "id": "defense",
                 "value": 0.1
             }
-        ]
+        ],
+        "usable": false
     },
     "steelshield": {
         "name": "Steel Shield",
@@ -419,7 +449,8 @@
         "knockbackResistance": 0.3,
         "blockAngle": 105,
         "projectileReflectChance": 0.02,
-        "effects": []
+        "effects": [],
+        "usable": false
     },
     "stoneshield": {
         "name": "Stone Shield",
@@ -434,7 +465,8 @@
                 "id": "speed",
                 "value": 0.9
             }
-        ]
+        ],
+        "usable": false
     },
     "titaniumbow": {
         "name": "Titanium Bow",
@@ -450,7 +482,8 @@
         "manaCost": 0,
         "heldAngle": -45,
         "heldDistance": 24,
-        "effects": []
+        "effects": [],
+        "usable": false
     },
     "titaniumstaff": {
         "name": "Titanium Staff",
@@ -466,7 +499,8 @@
         "manaCost": 10,
         "heldAngle": 45,
         "heldDistance": 48,
-        "effects": []
+        "effects": [],
+        "usable": false
     },
     "quartzcrystal": {
         "name": "Quartz Crystal",
@@ -491,14 +525,16 @@
                 "id": "critPower",
                 "value": 1.02
             }
-        ]
+        ],
+        "usable": false
     },
     "ialiteshard": {
         "name": "Ialite Shard",
         "description": "A mysterious piece of an unknown sort of crystal. It seems to have some Purple essence...",
         "slotType": "material",
         "rarity": 3,
-        "effects": []
+        "effects": [],
+        "usable": false
     },
     "ialitecrystal": {
         "name": "Ialite Crystal",
@@ -531,7 +567,8 @@
                 "id": "critPower",
                 "value": 1.01
             }
-        ]
+        ],
+        "usable": false
     },
     "ialitekey": {
         "name": "Key of Ialite",
@@ -541,7 +578,8 @@
         "manaIncrease": 10,
         "manaRegenerationSpeed": 5,
         "manaRegenerationAmount": 2,
-        "effects": []
+        "effects": [],
+        "usable": false
     },
     "yeetstick": {
         "name": "Yeet",
@@ -562,7 +600,8 @@
                 "id": "speed",
                 "value": 1.5
             }
-        ]
+        ],
+        "usable": false
     },
     "raresteak": {
         "name": "Rare Steak",
@@ -587,7 +626,8 @@
                 "id": "speed",
                 "value": 0.8
             }
-        ]
+        ],
+        "usable": false
     },
     "christmas2021": {
         "name": "Season's Yeetings",
@@ -608,7 +648,8 @@
                 "id": "damageReduction",
                 "value": -10
             }
-        ]
+        ],
+        "usable": false
     },
     "anniversary": {
         "name": "1-Year Anniversary Thing",
@@ -629,6 +670,7 @@
                 "id": "defense",
                 "value": 0.1
             }
-        ]
+        ],
+        "usable": false
     }
 }

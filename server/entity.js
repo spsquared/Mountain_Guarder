@@ -570,7 +570,7 @@ Rig = function() {
             }
         }
         if (self.animationDirection != 'facing') self.facingDirection = self.animationDirection;
-        var foundregion = false;
+        let foundregion = false;
         if (Region.grid[self.map][self.gridy] && Region.grid[self.map][self.gridy][self.gridx] && Region.grid[self.map][self.gridy][self.gridx].name != self.region.name) {
             self.region = Region.grid[self.map][self.gridy][self.gridx];
             self.onRegionChange();
@@ -585,8 +585,8 @@ Rig = function() {
             self.onRegionChange();
         }
         if (Teleporter.grid[self.map][self.gridy] && Teleporter.grid[self.map][self.gridy][self.gridx] && Teleporter.grid[self.map][self.gridy][self.gridx]) {
-            if (self.yspeed != 00 || self.xspeed != 0) {
-                var direction = Teleporter.grid[self.map][self.gridy][self.gridx].direction;
+            if (self.yspeed != 0 || self.xspeed != 0) {
+                let direction = Teleporter.grid[self.map][self.gridy][self.gridx].direction;
                 if ((direction == 'up' && self.yspeed < 0) || (direction == 'down' && self.yspeed > 0) || (direction == 'left' && self.xspeed < 0) || (direction == 'right' && self.xspeed > 0)) {
                     self.teleport(Teleporter.grid[self.map][self.gridy][self.gridx].map, Teleporter.grid[self.map][self.gridy][self.gridx].x, Teleporter.grid[self.map][self.gridy][self.gridx].y, Teleporter.grid[self.map][self.gridy][self.gridx].layer);
                 }
@@ -1323,8 +1323,8 @@ Player = function(socket) {
     self.ip = socket.handshake.headers['x-forwarded-for'];
     self.fingerprint = {fpjs: Math.random(), webgl: Math.random()};
     self.map = ENV.spawnpoint.map;
-    self.x = ENV.spawnpoint.x;
-    self.y = ENV.spawnpoint.y;
+    self.x = ENV.spawnpoint.x*64+32;
+    self.y = ENV.spawnpoint.y*64+32;
     self.layer = ENV.spawnpoint.layer;
     self.gridx = Math.floor(self.x/64);
     self.gridy = Math.floor(self.y/64);
@@ -1455,6 +1455,7 @@ Player = function(socket) {
         }
     };
     self.trackedData.last = cloneDeep(self.trackedData);
+    self.garuderWarpPositions = [];
     self.playTime = 0;
     self.loginTime = null;
     self.alive = false;
@@ -1480,10 +1481,6 @@ Player = function(socket) {
     self.toKick = false;
     self.disconnected = false;
 
-    var maps = [];
-    for (let i in Collision.grid) {
-        maps.push(i);
-    }
     socket.once('requestPublicKey', async function() {
         socket.emit('publicKey', await subtle.exportKey('jwk', (await keys).publicKey));
     });
@@ -1493,7 +1490,7 @@ Player = function(socket) {
                 socket.emit('signInState', 'disabled');
                 return;
             }
-            const decryptPassword = await RSAdecrypt(cred.password);
+            const decryptPassword = await RSAdecode(cred.password);
             let valid = ACCOUNTS.validateCredentials(cred.username, decryptPassword);
             switch (valid) {
                 case 0:
@@ -1504,12 +1501,12 @@ Player = function(socket) {
                     switch (cred.state) {
                         case 'signIn':
                             if (!self.signedIn) {
-                                var status = await ACCOUNTS.login(cred.username, decryptPassword);
+                                let status = await ACCOUNTS.login(cred.username, decryptPassword);
                                 switch (status) {
                                     case 0:
-                                        var signedIn = false;
+                                        let signedIn = false;
                                         for (let i in Player.list) {
-                                            if (Player.list[i].creds.username == cred.username && Player.list[i].loginTime != null) {
+                                            if (Player.list[i].creds.username == cred.username) {
                                                 signedIn = true;
                                             }
                                         }
@@ -1517,8 +1514,20 @@ Player = function(socket) {
                                             self.creds.username = cred.username;
                                             self.creds.password = cred.password;
                                             Object.freeze(self.creds);
-                                            socket.emit('mapData', {maps: maps, self: self.map});
-                                            self.updateClient();
+                                            let maps = [];
+                                            for (let i in Collision.grid) {
+                                                maps.push(i);
+                                            }
+                                            socket.emit('mapData', {
+                                                maps: maps,
+                                                self: {
+                                                    map: self.map,
+                                                    x: self.x,
+                                                    y: self.y,
+                                                    chunkx: self.chunkx,
+                                                    chunky: self.chunky
+                                                }
+                                            });
                                             self.signedIn = true;
                                         } else {
                                             socket.emit('signInState', 'alreadySignedIn');
@@ -1537,7 +1546,7 @@ Player = function(socket) {
                             }
                             break;
                         case 'loaded':
-                            if (cred.username == self.creds.username && decryptPassword == await RSAdecrypt(self.creds.password)) {
+                            if (cred.username == self.creds.username && decryptPassword == await RSAdecode(self.creds.password)) {
                                 self.name = self.creds.username;
                                 self.loginTime = Date.now();
                                 await self.loadData();
@@ -1666,7 +1675,7 @@ Player = function(socket) {
                     self.mouseY = data.y; 
                 } else if (data.button == 'right') {
                     data.state && self.interact(data.x, data.y);
-                    self.shield = data.state && !self.talking && !self.inShop;
+                    self.shield = data.state && self.inventory.equips.shield && !self.talking && !self.inShop;
                     self.heldItem.usingShield = data.state && self.inventory.equips.shield && !self.talking && !self.inShop;
                     self.mouseX = data.x;
                     self.mouseY = data.y; 
@@ -1717,8 +1726,8 @@ Player = function(socket) {
             self.kick();
         }
     });
-    var charCount = 0;
-    var msgCount = 0;
+    let charCount = 0;
+    let msgCount = 0;
     socket.on('chat', function(msg) {
         if (self.signedIn) {
             if (typeof msg == 'string') {
@@ -1918,7 +1927,7 @@ Player = function(socket) {
     };
     self.updateClient = function updateClient() {
         if (Player.list[self.spectating] == undefined) self.spectating = null;
-        var pack = {
+        const pack = {
             id: self.spectating ?? self.id,
             hp: self.hp,
             maxHP: self.maxHP,
@@ -1961,8 +1970,6 @@ Player = function(socket) {
             for (let i = 0; i < 20; i++) {
                 new Particle(self.map, self.x, self.y, 'teleport');
             }
-            self.gridx = Math.floor(self.x/64);
-            self.gridy = Math.floor(self.y/64);
             socket.emit('teleport2', {map: self.map, x: self.x, y: self.y});
         }
     });
@@ -2008,8 +2015,11 @@ Player = function(socket) {
         }
     };
     self.respawn = function respawn() {
-        self.hp = self.maxHP;
-        self.alive = true;
+        self.teleport(ENV.spawnpoint.map, ENV.spawnpoint.x, ENV.spawnpoint.y, ENV.spawnpoint.layer);
+        socket.once('teleport2', function() {
+            self.hp = self.maxHP;
+            self.alive = true;
+        });
     };
     socket.on('respawn', function() {
         if (self.alive) {
@@ -2312,6 +2322,54 @@ Player = function(socket) {
             }
         }
     });
+    self.openGaruderWarpMenu = function openGaruderWarpMenu() {
+        if (self.alive) socket.emit('openGWSelect', self.garuderWarpPositions);
+    };
+    socket.on('GWChoose', function(location) {
+        if (self.garuderWarpPositions.indexOf(location) != -1) {
+            self.garuderTeleport(location);
+        } else {
+            insertChat(self.name + ' Garuder Warp cheated.', 'anticheat');
+            self.kick();
+        }
+    });
+    self.garuderTeleport = function garuderTeleport(location) {
+        if (!self.teleporting) {
+            self.teleporting = true;
+            self.canMove = false;
+            let warp = GaruderWarp.locations[location];
+            self.teleportLocation.map = warp.map;
+            self.teleportLocation.x = warp.x;
+            self.teleportLocation.y = warp.y;
+            self.teleportLocation.layer = warp.layer;
+            for (let i = 0; i < 40; i++) {
+                new Particle(self.map, self.x, self.y, 'garuderWarp1');
+            }
+            socket.emit('gteleport1');
+        }
+    };
+    socket.on('gteleport1', function() {
+        if (self.teleporting) {
+            for (let i = 0; i < 20; i++) {
+                new Particle(self.map, self.x, self.y, 'garuderWarp2');
+            }
+            self.map = self.teleportLocation.map;
+            self.x = self.teleportLocation.x;
+            self.y = self.teleportLocation.y;
+            self.layer = self.teleportLocation.layer;
+            self.gridx = Math.floor(self.x/64);
+            self.gridy = Math.floor(self.y/64);
+            self.chunkx = Math.floor(self.gridx/Collision.grid[self.map].chunkWidth);
+            self.chunky = Math.floor(self.gridy/Collision.grid[self.map].chunkHeight);
+            self.canMove = true;
+            setTimeout(function() {
+                for (let i = 0; i < 40; i++) {
+                    new Particle(self.map, self.x, self.y, 'garuderWarp2');
+                }
+                socket.emit('teleport2', {map: self.map, x: self.x, y: self.y});
+            }, 500);
+        }
+    });
     self.spectate = function spectate(name) {
         self.spectating = null;
         for (let i in Player.list) {
@@ -2333,16 +2391,17 @@ Player = function(socket) {
             quests: self.quests.getSaveData(),
             trackedData: trackedData,
             spawnpoint: 0,
+            garuderWarpPositions: self.garuderWarpPositions,
             lastLogin: Date.now(),
             playTime: self.playTime,
-            saveFormat: 2
+            saveFormat: 3
         };
-        let data = JSON.stringify(progress);
-        await ACCOUNTS.saveProgress(self.creds.username, await RSAdecrypt(self.creds.password), data);
+        const data = JSON.stringify(progress);
+        await ACCOUNTS.saveProgress(self.creds.username, await RSAdecode(self.creds.password), data);
     };
     self.loadData = async function loadData() {
-        const data = await ACCOUNTS.loadProgress(self.creds.username, await RSAdecrypt(self.creds.password));
-        let progress = JSON.parse(data);
+        const data = await ACCOUNTS.loadProgress(self.creds.username, await RSAdecode(self.creds.password));
+        const progress = JSON.parse(data);
         if (progress) {
             if (progress.saveFormat == null) { // support for accounts < v0.10.0
                 self.inventory.loadSaveData(progress);
@@ -2382,6 +2441,27 @@ Player = function(socket) {
                     self.trackedData.last = {};
                     self.trackedData.last = cloneDeep(self.trackedData);
                     self.trackedData.updateTrackers();
+                    self.playTime = progress.playTime;
+                } catch (err) {
+                    error(err);
+                }
+            } else if (progress.saveFormat == 3) {
+                try {
+                    self.inventory.loadSaveData(progress.inventory);
+                    self.inventory.refresh();
+                    self.characterStyle = progress.characterStyle;
+                    self.characterStyle.texture = null;
+                    self.xpLevel = progress.progress.xpLevel;
+                    self.xp = progress.progress.xp;
+                    self.quests.loadSaveData(progress.quests);
+                    for (let i in progress.trackedData) {
+                        self.trackedData[i] = progress.trackedData[i];
+                    }
+                    self.trackedData.monstersKilled = Array.from(self.trackedData.monstersKilled);
+                    self.trackedData.last = {};
+                    self.trackedData.last = cloneDeep(self.trackedData);
+                    self.trackedData.updateTrackers();
+                    self.garuderWarpPositions = progress.garuderWarpPositions;
                     self.playTime = progress.playTime;
                 } catch (err) {
                     error(err);
@@ -2898,7 +2978,7 @@ Monster = function(type, x, y, map, layer, params) {
                 }
             }
         }
-        var foundregion = false;
+        let foundregion = false;
         if (Region.grid[self.map][self.gridy] && Region.grid[self.map][self.gridy][self.gridx] && Region.grid[self.map][self.gridy][self.gridx].name != self.region.name) {
             self.region = Region.grid[self.map][self.gridy][self.gridx];
             self.onRegionChange();
@@ -2911,6 +2991,14 @@ Monster = function(type, x, y, map, layer, params) {
                 nomonster: false
             };
             self.onRegionChange();
+        }
+        if (Teleporter.grid[self.map][self.gridy] && Teleporter.grid[self.map][self.gridy][self.gridx] && Teleporter.grid[self.map][self.gridy][self.gridx]) {
+            if (self.yspeed != 0 || self.xspeed != 0) {
+                let direction = Teleporter.grid[self.map][self.gridy][self.gridx].direction;
+                if ((direction == 'up' && self.yspeed < 0) || (direction == 'down' && self.yspeed > 0) || (direction == 'left' && self.xspeed < 0) || (direction == 'right' && self.xspeed > 0)) {
+                    self.teleport(Teleporter.grid[self.map][self.gridy][self.gridx].map, Teleporter.grid[self.map][self.gridy][self.gridx].x, Teleporter.grid[self.map][self.gridy][self.gridx].y, Teleporter.grid[self.map][self.gridy][self.gridx].layer);
+                }
+            }
         }
     };
     self.updateAggro = function updateAggro() {
@@ -3991,6 +4079,9 @@ function radians(r) {
 function randomRange(lower, upper) {
     return Math.random()*(upper-lower)+lower;
 };
-async function RSAdecrypt(buf) {
+RSAencode = async function RSAencode(str) {
+    return await subtle.encrypt({name: "RSA-OAEP"}, (await keys).publicKey, new TextEncoder().encode(str));
+};
+RSAdecode = async function RSAdecode(buf) {
     return new TextDecoder().decode(await subtle.decrypt({name: "RSA-OAEP"}, (await keys).privateKey, buf));
 };

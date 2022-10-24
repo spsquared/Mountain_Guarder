@@ -9,14 +9,14 @@ const keys = subtle.generateKey({
 }, false, ['encrypt', 'decrypt']);
 
 module.exports = function GaruderAPIServer(server) {
+    // set io
+    const recentConnections = [];
+    const recentConnectionKicks = [];
     const io = new (require('socket.io')).Server(server, {
-        path: '/guarder-api/',
+        path: '/garuder-api/',
         pingTimeout: 10000,
         upgradeTimeout: 300000
     });
-
-    const recentConnections = [];
-    const recentConnectionKicks = [];
     io.on('connection', function(socket) {
         socket.handshake.headers['x-forwarded-for'] = socket.handshake.headers['x-forwarded-for'] ?? '127.0.0.1';
         recentConnections[socket.handshake.headers['x-forwarded-for']] = (recentConnections[socket.handshake.headers['x-forwarded-for']] ?? 0)+1;
@@ -29,9 +29,108 @@ module.exports = function GaruderAPIServer(server) {
             socket.disconnect();
             return;
         }
+        const player = new Player(socket);
+        // remove unecessary functionality
+        delete player.fingerprint;
+        socket.removeAllListeners('requestPublicKey');
+        socket.removeAllListeners('mouseMove');
+        socket.removeAllListeners('renderDistance');
+        socket.removeAllListeners('debug');
+        socket.removeAllListeners('signIn');
+        // public RSA key
         socket.once('requestPublicKey', async function() {
             socket.emit('publicKey', await subtle.exportKey('jwk', (await keys).publicKey));
         });
+        // mapdata
+        socket.once('requestMapData', function() {
+            let maps = [];
+            for (let i in Collision.grid) {
+                maps.push(i);
+            }
+            socket.emit('mapData', maps);
+        });
+        // sign in
+        socket.on('login', async function(cred) {
+            if (typeof cred == 'object' && cred != null && typeof cred.username == 'string' && cred.password instanceof Buffer) {
+                const decryptPassword = await RSAdecodeAPI(cred.password);
+                let valid = ACCOUNTS.validateCredentials(cred.username, decryptPassword);
+                switch (valid) {
+                    case 0:
+                        if (Filter.check(cred.username)) {
+                            player.leave();
+                            return;
+                        }
+                        if (!player.signedIn) {
+                            let status = await ACCOUNTS.login(cred.username, decryptPassword);
+                            switch (status) {
+                                case 0:
+                                    let signedIn = false;
+                                    for (let i in Player.list) {
+                                        if (Player.list[i].creds.username == cred.username) {
+                                            signedIn = true;
+                                        }
+                                    }
+                                    if (!signedIn) {
+                                        player.creds.username = cred.username;
+                                        player.creds.password = await RSAencode(decryptPassword);
+                                        Object.freeze(player.creds);
+                                        player.name = player.creds.username;
+                                        player.updateClient();
+                                        await player.loadData();
+                                        socket.emit('loggedIn');
+                                        insertChat(player.name + ' joined the game', 'server');
+                                        player.signedIn = true;
+                                        player.invincible = false;
+                                        player.canMove = true;
+                                        player.alive = true;
+                                    } else {
+                                        socket.emit('loginError', 'Already logged in');
+                                    }
+                                    break;
+                                case 1:
+                                    socket.emit('loginError', 'Incorrect password');
+                                    break;
+                                case 2:
+                                    socket.emit('loginError', 'Account not found');
+                                    break;
+                                case 3:
+                                    socket.emit('loginError', 'Account is banned');
+                                    break;
+                            }
+                        }
+                        break;
+                    case 1:
+                        socket.emit('loginError', 'No username');
+                        break;
+                    case 2:
+                        socket.emit('loginError', 'Username too short');
+                        break;
+                    case 3:
+                        socket.emit('loginError', 'Username too long');
+                        break;
+                    case 4:
+                        socket.emit('loginError', 'No Password');
+                        break;
+                    case 5:
+                        socket.emit('loginError', 'Invalid Characters');
+                        break;
+                }
+            } else {
+                player.kick();
+            }
+        });
+
+        // manage disconnections
+        let timeoutdetect = setTimeout(function() {});
+        socket.on('pong', function() {
+            clearTimeout(timeoutdetect);
+        });
+        setInterval(function() {
+            socket.emit('ping');
+            timeoutdetect = setTimeout(async function() {
+                await player.leave();
+            }, 10000);
+        }, 5000);
     });
     setInterval(function() {
         for (let i in recentConnections) {
@@ -41,4 +140,8 @@ module.exports = function GaruderAPIServer(server) {
             delete recentConnectionKicks[i];
         }
     }, 1000);
+};
+
+async function RSAdecodeAPI(buf) {
+    return new TextDecoder().decode(await subtle.decrypt({name: "RSA-OAEP"}, (await keys).privateKey, buf));
 };

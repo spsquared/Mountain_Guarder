@@ -33,7 +33,7 @@ async function loadAll() {
     Layer.lazyInit();
 };
 function loadMap(name) {
-    var raw = require('./../client/maps/' + name + '.json');
+    const raw = require('./../client/maps/' + name + '.json');
     Collision.grid[name] = [];
     Layer.grid[name] = [];
     Region.grid[name] = [];
@@ -45,72 +45,67 @@ function loadMap(name) {
     Collision.grid[name].chunkWidth = 0;
     Collision.grid[name].chunkHeight = 0;
     Collision.grid[name].dark = false;
-    for (let i in raw.layers) {
-        var rawlayer = raw.layers[i];
-        if (raw.layers[i].name == 'Ground Terrain') {
+    for (let rawlayer of raw.layers) {
+        if (rawlayer.name == 'Ground Terrain') {
             Collision.grid[name].width = rawlayer.width;
             Collision.grid[name].height = rawlayer.height;
             Collision.grid[name].chunkWidth = rawlayer.width;
             Collision.grid[name].chunkHeight = rawlayer.height;
             if (rawlayer.chunks) {
-                for (let j in rawlayer.chunks) {
-                    var rawchunk = rawlayer.chunks[j];
+                for (let rawchunk of rawlayer.chunks) {
                     Collision.grid[name].chunkWidth = rawchunk.width;
                     Collision.grid[name].chunkHeight = rawchunk.height;
                     Collision.grid[name].offsetX = Math.min(rawchunk.x, Collision.grid[name].offsetX);
                     Collision.grid[name].offsetY = Math.min(rawchunk.y, Collision.grid[name].offsetY);
                 }
             }
-        } else if (raw.layers[i].name == 'Slowdown') {
+        } else if (rawlayer.name == 'Slowdown') {
             Slowdown.grid[name] = [];
             if (rawlayer.chunks) {
-                for (var j in rawlayer.chunks) {
-                    var rawchunk = rawlayer.chunks[j];
-                    for (var k in rawchunk.data) {
-                        let x = (k % rawchunk.width)+rawchunk.x;
-                        let y = ~~(k / rawchunk.width)+rawchunk.y;
-                        new Slowdown(name, x, y, rawchunk.data[k]-1);
+                for (let rawchunk of rawlayer.chunks) {
+                    for (let i in rawchunk.data) {
+                        let x = (i % rawchunk.width)+rawchunk.x;
+                        let y = ~~(i / rawchunk.width)+rawchunk.y;
+                        new Slowdown(name, x, y, rawchunk.data[i]-1);
                     }
                 }
             } else {
-                for (let j in rawlayer.data) {
-                    let x = (j % rawlayer.width);
-                    let y = ~~(j / rawlayer.width);
-                    new Slowdown(name, x, y, rawlayer.data[j]-1);
+                for (let i in rawlayer.data) {
+                    let x = (i % rawlayer.width);
+                    let y = ~~(i / rawlayer.width);
+                    new Slowdown(name, x, y, rawlayer.data[i]-1);
                 }
             }
-        } else if (raw.layers[i].name.startsWith('Collision:')) {
+        } else if (rawlayer.name.startsWith('Collision:')) {
             let layer = rawlayer.name.replace('Collision:', '');
             Collision.grid[name][layer] = [];
             Layer.grid[name][layer] = [];
             if (rawlayer.chunks) {
-                for (let j in rawlayer.chunks) {
-                    var rawchunk = rawlayer.chunks[j];
-                    for (let k in rawchunk.data) {
-                        let x = (k % rawchunk.width)+rawchunk.x;
-                        let y = ~~(k / rawchunk.width)+rawchunk.y;
-                        new Collision(name, x, y, layer, rawchunk.data[k]-1);
+                for (let rawchunk of rawlayer.chunks) {
+                    for (let i in rawchunk.data) {
+                        let x = (i % rawchunk.width)+rawchunk.x;
+                        let y = ~~(i / rawchunk.width)+rawchunk.y;
+                        new Collision(name, x, y, layer, rawchunk.data[i]-1);
                     }
                 }
             } else {
-                for (let j in rawlayer.data) {
-                    let x = (j % rawlayer.width);
-                    let y = ~~(j / rawlayer.width);
-                    new Collision(name, x, y, layer, rawlayer.data[j]-1);
+                for (let i in rawlayer.data) {
+                    let x = (i % rawlayer.width);
+                    let y = ~~(i / rawlayer.width);
+                    new Collision(name, x, y, layer, rawlayer.data[i]-1);
                 }
             }
-        } else if (raw.layers[i].name.startsWith('Npc:')) {
+        } else if (rawlayer.name.startsWith('Npc:')) {
             if (rawlayer.name.includes(':waypoints')) {
                 var npcId = rawlayer.name.replace('Npc:', '').replace(':waypoints', '');
                 var waypoints = [];
                 if (rawlayer.chunks) {
-                    for (let j in rawlayer.chunks) {
-                        var rawchunk = rawlayer.chunks[j];
-                        for (let k in rawchunk.data) {
-                            if (rawchunk.data[k] != 0) {
-                                let x = (k % rawchunk.width)+rawchunk.x;
-                                let y = ~~(k / rawchunk.width)+rawchunk.y;
-                                if (rawchunk.data[k]-1 == 1777) {
+                    for (let rawchunk of rawlayer.chunks) {
+                        for (let i in rawchunk.data) {
+                            if (rawchunk.data[i] != 0) {
+                                let x = (i % rawchunk.width)+rawchunk.x;
+                                let y = ~~(i / rawchunk.width)+rawchunk.y;
+                                if (rawchunk.data[i]-1 == 1777) {
                                     waypoints.push({
                                         map: name,
                                         x: x,
@@ -123,11 +118,11 @@ function loadMap(name) {
                         }
                     }
                 } else {
-                    for (let j in rawlayer.data) {
-                        if (rawlayer.data[j] != 0) {
-                            let x = (j % rawlayer.width);
-                            let y = ~~(j / rawlayer.width);
-                            if (rawlayer.data[j]-1 == 1777) {
+                    for (let i in rawlayer.data) {
+                        if (rawlayer.data[i] != 0) {
+                            let x = (i % rawlayer.width);
+                            let y = ~~(i / rawlayer.width);
+                            if (rawlayer.data[i]-1 == 1777) {
                                 waypoints.push({
                                     map: name,
                                     x: x,
@@ -144,13 +139,12 @@ function loadMap(name) {
             } else {
                 var npcId = rawlayer.name.replace('Npc:', '');
                 if (rawlayer.chunks) {
-                    for (let j in rawlayer.chunks) {
-                        var rawchunk = rawlayer.chunks[j];
-                        for (let k in rawchunk.data) {
-                            if (rawchunk.data[k] != 0) {
-                                let x = (k % rawchunk.width)+rawchunk.x;
-                                let y = ~~(k / rawchunk.width)+rawchunk.y;
-                                if (rawchunk.data[k]-1 == 1691) {
+                    for (let rawchunk of rawlayer.chunks) {
+                        for (let i in rawchunk.data) {
+                            if (rawchunk.data[i] != 0) {
+                                let x = (i % rawchunk.width)+rawchunk.x;
+                                let y = ~~(i / rawchunk.width)+rawchunk.y;
+                                if (rawchunk.data[i]-1 == 1691) {
                                     new Npc(npcId, x, y, name);
                                 } else {
                                     error('Invalid npc spawner at (' + x + ',' + y + ')');
@@ -159,11 +153,11 @@ function loadMap(name) {
                         }
                     }
                 } else {
-                    for (let j in rawlayer.data) {
-                        if (rawlayer.data[j] != 0) {
-                            let x = (j % rawlayer.width);
-                            let y = ~~(j / rawlayer.width);
-                            if (rawlayer.data[j]-1 == 1691) {
+                    for (let i in rawlayer.data) {
+                        if (rawlayer.data[i] != 0) {
+                            let x = (i % rawlayer.width);
+                            let y = ~~(i / rawlayer.width);
+                            if (rawlayer.data[i]-1 == 1691) {
                                 new Npc(npcId, x, y, name);
                             } else {
                                 error('Invalid npc spawner at (' + x + ',' + y + ')');
@@ -172,19 +166,18 @@ function loadMap(name) {
                     }
                 }
             }
-        } else if (raw.layers[i].name.startsWith('Spawner:')) {
+        } else if (rawlayer.name.startsWith('Spawner:')) {
             var monsterstring = rawlayer.name.replace('Spawner:', '');
             var layer = monsterstring.charAt(0);
             monsterstring = monsterstring.replace(layer + ':', '');
             var spawnmonsters = monsterstring.split(',');
             if (rawlayer.chunks) {
-                for (let j in rawlayer.chunks) {
-                    var rawchunk = rawlayer.chunks[j];
-                    for (let k in rawchunk.data) {
-                        if (rawchunk.data[k] != 0) {
-                            let x = (k % rawchunk.width)+rawchunk.x;
-                            let y = ~~(k / rawchunk.width)+rawchunk.y;
-                            if (rawchunk.data[k]-1 == 1692) {
+                for (let rawchunk of rawlayer.chunks) {
+                    for (let i in rawchunk.data) {
+                        if (rawchunk.data[i] != 0) {
+                            let x = (i % rawchunk.width)+rawchunk.x;
+                            let y = ~~(i / rawchunk.width)+rawchunk.y;
+                            if (rawchunk.data[i]-1 == 1692) {
                                 new Spawner(name, x, y, layer, spawnmonsters);
                             } else {
                                 error('Invalid spawner at (' + name + ', ' + x + ', ' + y + ')');
@@ -193,11 +186,11 @@ function loadMap(name) {
                     }
                 }
             } else {
-                for (let j in rawlayer.data) {
-                    if (rawlayer.data[j] != 0) {
-                        let x = (j % rawlayer.width);
-                        let y = ~~(j / rawlayer.width);
-                        if (rawlayer.data[j]-1 == 1692) {
+                for (let i in rawlayer.data) {
+                    if (rawlayer.data[i] != 0) {
+                        let x = (i % rawlayer.width);
+                        let y = ~~(i / rawlayer.width);
+                        if (rawlayer.data[i]-1 == 1692) {
                             new Spawner(name, x, y, layer, spawnmonsters);
                         } else {
                             error('Invalid spawner at (' + name + ', ' + x + ', ' + y + ')');
@@ -205,18 +198,17 @@ function loadMap(name) {
                     }
                 }
             }
-        } else if (raw.layers[i].name.startsWith('Boss:')) {
+        } else if (rawlayer.name.startsWith('Boss:')) {
             var id = rawlayer.name.replace('Boss:', '');
             var layer = id.charAt(0);
             id = id.replace(layer + ':', '');
             if (rawlayer.chunks) {
-                for (let j in rawlayer.chunks) {
-                    var rawchunk = rawlayer.chunks[j];
-                    for (let k in rawchunk.data) {
-                        if (rawchunk.data[k] != 0) {
-                            let x = (k % rawchunk.width)+rawchunk.x;
-                            let y = ~~(k / rawchunk.width)+rawchunk.y;
-                            if (rawchunk.data[k]-1 == 1692) {
+                for (let rawchunk of rawlayer.chunks) {
+                    for (let i in rawchunk.data) {
+                        if (rawchunk.data[i] != 0) {
+                            let x = (i % rawchunk.width)+rawchunk.x;
+                            let y = ~~(i / rawchunk.width)+rawchunk.y;
+                            if (rawchunk.data[i]-1 == 1692) {
                                 new BossSpawner(name, x, y, layer, id);
                             } else {
                                 error('Invalid boss spawner at (' + name + ', ' + x + ', ' + y + ')');
@@ -225,11 +217,11 @@ function loadMap(name) {
                     }
                 }
             } else {
-                for (let j in rawlayer.data) {
-                    if (rawlayer.data[j] != 0) {
-                        let x = (j % rawlayer.width);
-                        let y = ~~(j / rawlayer.width);
-                        if (rawlayer.data[j]-1 == 1692) {
+                for (let i in rawlayer.data) {
+                    if (rawlayer.data[i] != 0) {
+                        let x = (i % rawlayer.width);
+                        let y = ~~(i / rawlayer.width);
+                        if (rawlayer.data[i]-1 == 1692) {
                             new BossSpawner(name, x, y, layer, id);
                         } else {
                             error('Invalid boss spawner at (' + name + ', ' + x + ', ' + y + ')');
@@ -238,18 +230,17 @@ function loadMap(name) {
                 }
             }
             
-        } else if (raw.layers[i].name.startsWith('Bossdata:')) {
+        } else if (rawlayer.name.startsWith('Bossdata:')) {
             var id = rawlayer.name.replace('Bossdata:', '').substring(0, rawlayer.name.replace('Bossdata:', '').length-2);
             var layer = parseInt(rawlayer.name.charAt(rawlayer.name.length-1));
             var locations = [];
             if (rawlayer.chunks) {
-                for (let j in rawlayer.chunks) {
-                    var rawchunk = rawlayer.chunks[j];
-                    for (let k in rawchunk.data) {
-                        if (rawchunk.data[k] != 0) {
-                            let x = (k % rawchunk.width)+rawchunk.x;
-                            let y = ~~(k / rawchunk.width)+rawchunk.y;
-                            if (rawchunk.data[k]-1 == 1692) {
+                for (let rawchunk of rawlayer.chunks) {
+                    for (let i in rawchunk.data) {
+                        if (rawchunk.data[i] != 0) {
+                            let x = (i % rawchunk.width)+rawchunk.x;
+                            let y = ~~(i / rawchunk.width)+rawchunk.y;
+                            if (rawchunk.data[i]-1 == 1692) {
                                 locations.push({
                                     x: x,
                                     y: y,
@@ -262,11 +253,11 @@ function loadMap(name) {
                     }
                 }
             } else {
-                for (let j in rawlayer.data) {
-                    if (rawlayer.data[j] != 0) {
-                        let x = (j % rawlayer.width);
-                        let y = ~~(j / rawlayer.width);
-                        if (rawlayer.data[j]-1 == 1692) {
+                for (let i in rawlayer.data) {
+                    if (rawlayer.data[i] != 0) {
+                        let x = (i % rawlayer.width);
+                        let y = ~~(i / rawlayer.width);
+                        if (rawlayer.data[i]-1 == 1692) {
                             locations.push({
                                 x: x,
                                 y: y,
@@ -280,16 +271,15 @@ function loadMap(name) {
             }
             if (Monster.bossData[id]) Monster.bossData[id] = Monster.bossData[id].concat(locations);
             else Monster.bossData[id] = locations;
-        } else if (raw.layers[i].name.startsWith('Region:')) {
-            var properties = rawlayer.name.replace('Region:', '').split(':');
+        } else if (rawlayer.name.startsWith('Region:')) {
+            let properties = rawlayer.name.replace('Region:', '').split(':');
             if (rawlayer.chunks) {
-                for (let j in rawlayer.chunks) {
-                    var rawchunk = rawlayer.chunks[j];
-                    for (let k in rawchunk.data) {
-                        if (rawchunk.data[k] != 0) {
-                            let x = (k % rawchunk.width)+rawchunk.x;
-                            let y = ~~(k / rawchunk.width)+rawchunk.y;
-                            if (rawchunk.data[k]-1 == 1695) {
+                for (let rawchunk of rawlayer.chunks) {
+                    for (let i in rawchunk.data) {
+                        if (rawchunk.data[i] != 0) {
+                            let x = (i % rawchunk.width)+rawchunk.x;
+                            let y = ~~(i / rawchunk.width)+rawchunk.y;
+                            if (rawchunk.data[i]-1 == 1695) {
                                 new Region(name, x, y, properties);
                             } else {
                                 error('Invalid region at (' + name + ', ' + x + ', ' + y + ')');
@@ -298,11 +288,11 @@ function loadMap(name) {
                     }
                 }
             } else {
-                for (let j in rawlayer.data) {
-                    if (rawlayer.data[j] != 0) {
-                        let x = (j % rawlayer.width);
-                        let y = ~~(j / rawlayer.width);
-                        if (rawlayer.data[j]-1 == 1695) {
+                for (let i in rawlayer.data) {
+                    if (rawlayer.data[i] != 0) {
+                        let x = (i % rawlayer.width);
+                        let y = ~~(i / rawlayer.width);
+                        if (rawlayer.data[i]-1 == 1695) {
                             new Region(name, x, y, properties);
                         } else {
                             error('Invalid region at (' + name + ', ' + x + ', ' + y + ')');
@@ -310,16 +300,15 @@ function loadMap(name) {
                     }
                 }
             }
-        } else if (raw.layers[i].name.startsWith('Teleporter:')) {
-            var properties = rawlayer.name.replace('Teleporter:', '').split(',');
+        } else if (rawlayer.name.startsWith('Teleporter:')) {
+            let properties = rawlayer.name.replace('Teleporter:', '').split(',');
             if (rawlayer.chunks) {
-                for (let j in rawlayer.chunks) {
-                    var rawchunk = rawlayer.chunks[j];
-                    for (let k in rawchunk.data) {
-                        if (rawchunk.data[k] != 0) {
-                            let x = (k % rawchunk.width)+rawchunk.x;
-                            let y = ~~(k / rawchunk.width)+rawchunk.y;
-                            if (rawchunk.data[k]-1 == 1694) {
+                for (let rawchunk of rawlayer.chunks) {
+                    for (let i in rawchunk.data) {
+                        if (rawchunk.data[i] != 0) {
+                            let x = (i % rawchunk.width)+rawchunk.x;
+                            let y = ~~(i / rawchunk.width)+rawchunk.y;
+                            if (rawchunk.data[i]-1 == 1694) {
                                 new Teleporter(name, x, y, properties);
                             } else {
                                 error('Invalid teleporter at (' + name + ', ' + x + ', ' + y + ')');
@@ -328,14 +317,45 @@ function loadMap(name) {
                     }
                 }
             } else {
-                for (let j in rawlayer.data) {
-                    if (rawlayer.data[j] != 0) {
-                        let x = (j % rawlayer.width);
-                        let y = ~~(j / rawlayer.width);
-                        if (rawlayer.data[j]-1 == 1694) {
+                for (let i in rawlayer.data) {
+                    if (rawlayer.data[i] != 0) {
+                        let x = (i % rawlayer.width);
+                        let y = ~~(i / rawlayer.width);
+                        if (rawlayer.data[i]-1 == 1694) {
                             new Teleporter(name, x, y, properties);
                         } else {
                             error('Invalid teleporter at (' + name + ', ' + x + ', ' + y + ')');
+                        }
+                    }
+                }
+            }
+        } else if (rawlayer.name.startsWith('GaruderWarp:')) {
+            let properties = rawlayer.name.replace('GaruderWarp:', '').split(':');
+            if (rawlayer.chunks) {
+                for (let rawchunk of rawlayer.chunks) {
+                    for (let i in rawchunk.data) {
+                        if (rawchunk.data[i] != 0) {
+                            let x = (i % rawchunk.width)+rawchunk.x;
+                            let y = ~~(i / rawchunk.width)+rawchunk.y;
+                            if (rawchunk.data[i]-1 == 1865) {
+                                GaruderWarp.addPosition(name, x, y, properties[1], properties[0], properties[2]);
+                            } else if (rawchunk.data[i]-1 == 1866) {
+                            } else {
+                                error('Invalid Garuder Warp at (' + name + ', ' + x + ', ' + y + ')');
+                            }
+                        }
+                    }
+                }
+            } else {
+                for (let i in rawlayer.data) {
+                    if (rawlayer.data[i] != 0) {
+                        let x = (i % rawlayer.width);
+                        let y = ~~(i / rawlayer.width);
+                        if (rawlayer.data[i]-1 == 1865) {
+                            GaruderWarp.addPosition(name, x, y, properties[1], properties[0], properties[2]);
+                        } else if (rawlayer.data[i]-1 == 1866) {
+                        } else {
+                            error('Invalid Garuder Warp at (' + name + ', ' + x + ', ' + y + ')');
                         }
                     }
                 }

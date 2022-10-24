@@ -1,6 +1,6 @@
 // Copyright (C) 2022 Radioactive64
 
-const version = 'v0.14.2';
+const version = 'v0.15.0';
 var firstload = false;
 // canvas
 CANVAS = document.getElementById('canvas');
@@ -174,9 +174,15 @@ preventDefaults('deathScreen');
 preventDefaults('regionName');
 preventDefaults('promptContainer');
 preventDefaults('stats');
+preventDefaults('bannerContainer');
+preventDefaults('version');
+preventDefaults('fps');
+preventDefaults('debug');
 preventDefaults('chatText');
+preventDefaults('hotbar');
 preventDefaults('dropdownMenu');
 preventDefaults('windows');
+preventDefaults('garuderWarpSelect');
 preventDefaults('loadingContainer');
 
 // version

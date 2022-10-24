@@ -4,98 +4,113 @@
         "rarity": "missing",
         "maxStackSize": 1000000,
         "effects": [],
-        "enchantments": []
+        "enchantments": [],
+        "usable": false
     },
     "coppercoin": {
         "slotType": "coin",
         "rarity": "coin",
         "maxStackSize": 100000,
         "effects": [],
-        "enchantments": []
+        "enchantments": [],
+        "usable": false
     },
     "silvercoin": {
         "slotType": "coin",
         "rarity": "coin",
         "maxStackSize": 100000,
         "effects": [],
-        "enchantments": []
+        "enchantments": [],
+        "usable": false
     },
     "goldcoin": {
         "slotType": "coin",
         "rarity": "coin",
         "maxStackSize": 100000,
         "effects": [],
-        "enchantments": []
+        "enchantments": [],
+        "usable": false
     },
     "blucoin": {
         "slotType": "coin",
         "rarity": "blucoin",
         "maxStackSize": 100,
         "effects": [],
-        "enchantments": []
+        "enchantments": [],
+        "usable": false
     },
     "wood": {
         "slotType": "material",
         "rarity": 0,
         "maxStackSize": 200,
         "effects": [],
-        "enchantments": []
+        "enchantments": [],
+        "usable": false
     },
     "planks": {
         "slotType": "material",
         "rarity": 0,
         "maxStackSize": 400,
         "effects": [],
-        "enchantments": []
+        "enchantments": [],
+        "usable": false
     },
     "sticks": {
         "slotType": "material",
         "rarity": 0,
         "maxStackSize": 800,
         "effects": [],
-        "enchantments": []
+        "enchantments": [],
+        "usable": false
     },
     "stone": {
         "slotType": "material",
         "rarity": 0,
         "maxStackSize": 80,
         "effects": [],
-        "enchantments": []
+        "enchantments": [],
+        "usable": false
     },
     "quartz": {
         "slotType": "material",
         "rarity": 3,
         "maxStackSize": 80,
         "effects": [],
-        "enchantments": []
+        "enchantments": [],
+        "usable": false
     },
     "coal": {
         "slotType": "material",
         "rarity": 1,
         "maxStackSize": 50,
         "effects": [],
-        "enchantments": []
+        "enchantments": [],
+        "usable": false
     },
     "ironore": {
         "slotType": "material",
         "rarity": 1,
         "maxStackSize": 50,
         "effects": [],
-        "enchantments": []
+        "enchantments": [],
+        "usable": false
     },
     "iron": {
         "slotType": "material",
         "rarity": 1,
         "maxStackSize": 50,
         "effects": [],
-        "enchantments": []
+        "enchantments": [],
+        "usable": false
     },
     "lodestone": {
         "slotType": "material",
         "rarity": 2,
         "maxStackSize": 50,
         "effects": [],
-        "enchantments": []
+        "enchantments": [],
+        "usable": true,
+        "useScript": "function(self) {self.openGaruderWarpMenu();}"
     },
     "simplewoodenbow": {
         "slotType": "weapon",
@@ -119,7 +134,8 @@
             "swiftness",
             "speed",
             "power"
-        ]
+        ],
+        "usable": false
     },
     "simplewoodensword": {
         "slotType": "weapon",
@@ -142,7 +158,8 @@
         "enchantments": [
             "swiftness",
             "speed"
-        ]
+        ],
+        "usable": false
     },
     "simplewoodenstaff": {
         "slotType": "weapon",
@@ -166,7 +183,8 @@
             "swiftness",
             "speed",
             "sorcery"
-        ]
+        ],
+        "usable": false
     },
     "leatherhood": {
         "slotType": "helmet",
@@ -197,7 +215,8 @@
         "enchantments": [
             "swiftness",
             "protection"
-        ]
+        ],
+        "usable": false
     },
     "leatherhat": {
         "slotType": "helmet",
@@ -228,7 +247,8 @@
         "enchantments": [
             "swiftness",
             "protection"
-        ]
+        ],
+        "usable": false
     },
     "woodenhelmet": {
         "slotType": "helmet",
@@ -259,7 +279,8 @@
         "enchantments": [
             "swiftness",
             "protection"
-        ]
+        ],
+        "usable": false
     },
     "leatherarmor": {
         "slotType": "armor",
@@ -278,7 +299,8 @@
         "enchantments": [
             "swiftness",
             "protection"
-        ]
+        ],
+        "usable": false
     },
     "woodenshield": {
         "slotType": "shield",
@@ -288,7 +310,8 @@
         "blockAngle": 90,
         "projectileReflectChance": 0,
         "effects": [],
-        "enchantments": []
+        "enchantments": [],
+        "usable": false
     },
     "steelbow": {
         "slotType": "weapon",
@@ -312,7 +335,8 @@
             "swiftness",
             "speed",
             "power"
-        ]
+        ],
+        "usable": false
     },
     "steelbroadsword": {
         "slotType": "weapon",
@@ -336,7 +360,8 @@
             "swiftness",
             "speed",
             "sharpness"
-        ]
+        ],
+        "usable": false
     },
     "steelcutlass": {
         "slotType": "weapon",
@@ -360,7 +385,8 @@
             "swiftness",
             "speed",
             "sharpness"
-        ]
+        ],
+        "usable": false
     },
     "steelstaff": {
         "slotType": "weapon",
@@ -385,7 +411,8 @@
             "speed",
             "efficiency",
             "sorcery"
-        ]
+        ],
+        "usable": false
     },
     "simplewizardhat": {
         "slotType": "helmet",
@@ -414,7 +441,8 @@
             "focus",
             "protection",
             "smashing"
-        ]
+        ],
+        "usable": false
     },
     "whitefabrichood": {
         "slotType": "helmet",
@@ -438,7 +466,8 @@
             "swiftness",
             "protection",
             "smashing"
-        ]
+        ],
+        "usable": false
     },
     "steelhelmet": {
         "slotType": "helmet",
@@ -470,7 +499,8 @@
             "swiftness",
             "protection",
             "smashing"
-        ]
+        ],
+        "usable": false
     },
     "steelarmor": {
         "slotType": "armor",
@@ -494,7 +524,8 @@
             "swiftness",
             "protection",
             "smashing"
-        ]
+        ],
+        "usable": false
     },
     "steelshield": {
         "slotType": "shield",
@@ -506,7 +537,8 @@
         "effects": [],
         "enchantments": [
             "toughness"
-        ]
+        ],
+        "usable": false
     },
     "stoneshield": {
         "slotType": "shield",
@@ -523,7 +555,8 @@
         ],
         "enchantments": [
             "toughness"
-        ]
+        ],
+        "usable": false
     },
     "titaniumbow": {
         "slotType": "weapon",
@@ -548,7 +581,8 @@
             "speed",
             "power",
             "piercing"
-        ]
+        ],
+        "usable": false
     },
     "titaniumstaff": {
         "slotType": "weapon",
@@ -573,7 +607,8 @@
             "speed",
             "efficiency",
             "focus"
-        ]
+        ],
+        "usable": false
     },
     "quartzcrystal": {
         "slotType": "crystal",
@@ -601,14 +636,16 @@
                 "value": 1.02
             }
         ],
-        "enchantments": []
+        "enchantments": [],
+        "usable": false
     },
     "ialiteshard": {
         "slotType": "material",
         "rarity": 4,
         "maxStackSize": 20,
         "effects": [],
-        "enchantments": []
+        "enchantments": [],
+        "usable": false
     },
     "ialitecrystal": {
         "slotType": "crystal",
@@ -647,7 +684,8 @@
         "enchantments": [
             "efficiency",
             "unlocking"
-        ]
+        ],
+        "usable": false
     },
     "ialitekey": {
         "slotType": "key",
@@ -657,7 +695,8 @@
         "manaRegenerationSpeed": 5,
         "manaRegenerationAmount": 2,
         "effects": [],
-        "enchantments": []
+        "enchantments": [],
+        "usable": false
     },
     "yeetstick": {
         "slotType": "weapon",
@@ -681,7 +720,8 @@
                 "value": 1.5
             }
         ],
-        "enchantments": []
+        "enchantments": [],
+        "usable": false
     },
     "raresteak": {
         "slotType": "weapon",
@@ -712,7 +752,8 @@
         "enchantments": [
             "speed",
             "sweepingedge"
-        ]
+        ],
+        "usable": false
     },
     "christmas2021": {
         "slotType": "weapon",
@@ -744,7 +785,8 @@
             "efficiency",
             "sorcery",
             "focus"
-        ]
+        ],
+        "usable": false
     },
     "anniversary": {
         "slotType": "weapon",
@@ -770,6 +812,7 @@
         ],
         "enchantments": [
             "swiftness"
-        ]
+        ],
+        "usable": false
     }
 }

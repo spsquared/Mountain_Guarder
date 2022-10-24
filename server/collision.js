@@ -995,6 +995,32 @@ Teleporter = function Teleporter(map, x, y, properties) {
 };
 Teleporter.grid = [];
 
+GaruderWarp = {
+    locations: [],
+    triggers: [],
+    addPosition: function addPosition(map, x, y, layer, id, tr) {
+        GaruderWarp.locations[id] = {
+            id: id,
+            map: map,
+            x: parseInt(x)*64+32,
+            y: parseInt(y)*64+32,
+            layer: parseInt(layer),
+            triggerRadius: parseInt(tr)
+        };
+    },
+    updateTriggers: function updateTriggers() {
+        for (let i in GaruderWarp.locations) {
+            let localwarp = GaruderWarp.locations[i];
+            for (let j in Player.list) {
+                let localplayer = Player.list[j];
+                if (localplayer.garuderWarpPositions.indexOf(localwarp.id) == -1 && localplayer.map == localwarp.map && localplayer.getDistance(localwarp) < localwarp.triggerRadius*64) {
+                    localplayer.garuderWarpPositions.push(localwarp.id);
+                }
+            }
+        }
+    }
+};
+
 EventTrigger = function EventTrigger(map, x, y, properties) {
     let data = {
         type: properties[0]

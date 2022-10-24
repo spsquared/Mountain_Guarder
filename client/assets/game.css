@@ -21,6 +21,7 @@
     width: 100vw;
     height: 100vh;
     background-color: black;
+    animation: 2s ease-in;
     cursor: url('/img/assets/crosshair.png') 11 11, crosshair;
     z-index: 0;
 }
@@ -41,7 +42,12 @@
     left: 0px;
     width: 100vw;
     text-align: center;
+    transition: 0.1s linear opacity;
+    cursor: url('/img/assets/crosshair.png') 11 11, crosshair;
     z-index: 4;
+}
+#bossBars:hover {
+    opacity: 0.5;
 }
 .bossBarOuter {
     position: relative;
@@ -54,7 +60,7 @@
 }
 .bossBarInner {
     display: block;
-    position: relative;
+    position: absolute;
     top: 0px;
     left: 0px;
     margin: 0px 0px;
@@ -87,8 +93,12 @@
     margin-right: -50%;
     padding: 8px 20px;
     animation-duration: 1s;
+    transition: 0.1s linear opacity;
     cursor: url('/img/assets/crosshair.png') 11 11, crosshair;
     z-index: 1;
+}
+#regionName:hover {
+    opacity: 0.8;
 }
 
 /* dialogue box */
@@ -143,7 +153,11 @@
     cursor: url('/img/assets/crosshair.png') 11 11, crosshair;
     width: 160px;
     height: 80px;
+    transition: 0.1s linear opacity;
     z-index: 4;
+}
+#stats:hover {
+    opacity: 0.7;
 }
 #statsHP {
     position: absolute;
@@ -226,11 +240,29 @@
     cursor: url('/img/assets/crosshair.png') 11 11, crosshair;
     width: 258px;
     max-height: 100vh;
-    overflow-x: hidden;
-    overflow-y: auto;
+    overflow: clip;
     z-index: 4;
 }
+#bannerContainer:hover {
+    opacity: 0.7;
+}
 #bannerContainer::-webkit-scrollbar {
+    width: 4px;
+}
+#priorityBanners {
+    max-height: 40vh;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+#priorityBanners::-webkit-scrollbar {
+    width: 4px;
+}
+#normalBanners {
+    max-height: 100vh;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+#normalBanners::-webkit-scrollbar {
     width: 4px;
 }
 .banner {
@@ -241,6 +273,7 @@
     margin-right: 8px;
     font-size: 14px;
     transition: 0.2s linear all;
+    transition: 0.1s linear opacity;
     animation: 0.5s ease banner-in;
 }
 @keyframes banner-in {
@@ -265,6 +298,7 @@
     color: cyan;
 }
 .quest-progress {
+    position: relative;
     width: 236px;
     height: 18px;
     border: 2px solid whitesmoke;
@@ -273,6 +307,7 @@
     text-align: center;
 }
 .quest-progressinner {
+    position: absolute;
     width: 0%;
     height: 18px;
     animation: 2s ease-in-out progressbar alternate infinite;
@@ -280,7 +315,6 @@
 }
 .quest-progresstext {
     position: relative;
-    top: -18px;
     font-size: 12px;
     word-break: break-all;
 }
@@ -412,6 +446,41 @@
     }
 }
 
+/* hotbar slots */
+#hotbar {
+    position: absolute;
+    bottom: 8px;
+    left: calc(50vw - 171px);
+    width: 342px;
+    height: 70px;
+    padding-left: 1px;
+    background-color: #362A1EAA;
+    transition: 0.1s linear opacity;
+    cursor: url('/img/assets/crosshair.png') 11 11, crosshair;
+    z-index: 5;
+}
+#hotbar:hover {
+    opacity: 0.7;
+}
+.invHotSlot {
+    display: inline-block;
+    position: relative;
+    top: 0px;
+    left: 0px;
+    width: 64px;
+    height: 64px;
+    margin-top: 2px;
+    margin-left: 1px;
+    margin-right: 1px;
+    background-color: #362A1E;
+    border: 1px solid black;
+}
+.invHotSlot .invSlotImg {
+    top: 0px;
+    left: 0px;
+    cursor: url('/img/assets/crosshair.png') 11 11, crosshair;
+}
+
 /* dropdown menu */
 #dropdownMenu {
     position: absolute;
@@ -513,7 +582,7 @@
 
 /* inventory slot structure */
 .invSlot {
-    display: inline-block;
+    display: inline-table;
     position: relative;
     top: 0px;
     left: 0px;
@@ -672,7 +741,7 @@
 }
 .shopCosts::-webkit-scrollbar {
     height: 6px;
-    opacity: 0.5;
+    opacity: 0.7;
 }
 .costItemBlock {
     display: flex;
@@ -786,16 +855,62 @@
     width: 376px;
     height: 522px;
     margin-bottom: 8px;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
     overflow-y: scroll;
     overflow-x: clip;
     overflow-wrap: break-word;
 }
 #debugInput {
     width: 376px;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
 }
 #debugConsoleSelect {
     display: none;
 }
+
+/* garuder warp select screen */
+#garuderWarpSelect {
+    display: none;
+    position: absolute;
+    top: 50vh;
+    left: 50vw;
+    max-width: 50vw;
+    max-height: 40vh;
+    text-align: center;
+    padding: 8px 8px;
+    background-color: #362A1ECC;
+    transform: translate(-50%, -50%);
+    border: 3px solid black;
+    overflow-y: auto;
+    z-index: 7;
+}
+.locationBlock {
+    display: inline-table;
+    padding: 4px 4px;
+    margin: 8px 8px;
+    width: 140px;
+    height: 80px;
+    text-align: center;
+    cursor: pointer;
+}
+.locationBlock:hover {
+    background-color: #2D2219;
+}
+.locationBlock:active {
+    background-color: #231913;
+}
+/* garuder warp effect */
+@keyframes warpSaturate {
+    from {
+        filter: none;
+    }
+    to {
+        filter: saturate(5);
+    }
+}
+
 
 /* experimental tooltip */
 .experimental {

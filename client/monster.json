@@ -6,7 +6,7 @@
         "rawWidth": 11,
         "rawHeight": 13,
         "offsetX": 0,
-        "offsetY": 0,
+        "offsetY": -6,
         "displayBossBar": false
     },
     "bluebird": {
@@ -16,7 +16,7 @@
         "rawWidth": 11,
         "rawHeight": 13,
         "offsetX": 0,
-        "offsetY": 0,
+        "offsetY": -6,
         "displayBossBar": false
     },
     "snowbird": {
@@ -26,7 +26,7 @@
         "rawWidth": 11,
         "rawHeight": 13,
         "offsetX": 0,
-        "offsetY": 0,
+        "offsetY": -6,
         "displayBossBar": false
     },
     "cherrybomb": {
@@ -56,7 +56,7 @@
         "rawWidth": 11,
         "rawHeight": 13,
         "offsetX": 0,
-        "offsetY": 0,
+        "offsetY": -6,
         "displayBossBar": false
     },
     "sentientrock": {
@@ -76,7 +76,7 @@
         "rawWidth": 9,
         "rawHeight": 16,
         "offsetX": 0,
-        "offsetY": -16,
+        "offsetY": 0,
         "displayBossBar": false
     },
     "sprock": {

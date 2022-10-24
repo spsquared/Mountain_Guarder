@@ -23,14 +23,14 @@ hacks.innerHTML = `
 </div>
 </div>`;
 document.getElementById('gameContainer').appendChild(hacks);
-var mTracers = false;
-var mAttack = 0;
-var PTracers = false;
-var autopickup = false;
-var skiptpwait = false;
-var skiptextscroll = false;
-var autoheal = false;
-var autorespawn = false;
+let mTracers = false;
+let mAttack = 0;
+let PTracers = false;
+let autopickup = false;
+let skiptpwait = false;
+let skiptextscroll = false;
+let autoheal = false;
+let autorespawn = false;
 function toggleMTracers() {
     if (mTracers) {
         document.getElementById('Mtracers').style.backgroundColor = '#FFFFFFAA';
@@ -80,7 +80,7 @@ function toggleItemPickup() {
         document.getElementById('autopickup').style.color = '#FFFFFF';
         autopickup = true;
     }
-}
+};
 function toggleSkipTpWait() {
     if (skiptpwait) {
         document.getElementById('skiptpwait').style.backgroundColor = '#FFFFFFAA';
@@ -91,23 +91,18 @@ function toggleSkipTpWait() {
         document.getElementById('skiptpwait').style.color = '#FFFFFF';
         skiptpwait = true;
     }
-}
+};
 function toggleSkipTextScroll() {
     if (skiptextscroll) {
         document.getElementById('skiptextscroll').style.backgroundColor = '#FFFFFFAA';
         document.getElementById('skiptextscroll').style.color = '#000000';
-        settings.dialogueSpeed = settings.old_dialogueSpeed;
-        updateSetting('dialogueSpeed');
         skiptextscroll = false;
     } else {
         document.getElementById('skiptextscroll').style.backgroundColor = '#000000AA';
         document.getElementById('skiptextscroll').style.color = '#FFFFFF';
-        settings.old_dialogueSpeed = settings.dialogueSpeed;
-        settings.dialogueSpeed = 11;
-        updateSetting('dialogueSpeed');
         skiptextscroll = true;
     }
-}
+};
 function toggleHeal() {
     if (autoheal) {
         document.getElementById('autoheal').style.backgroundColor = '#FFFFFFAA';
@@ -138,7 +133,7 @@ function unlockCrafts() {
     }
     document.getElementById('unlockcrafts').remove();
 };
-var mgtimer = 0;
+let mgtimer = 0;
 MGHC = function () {
     mgtimer++;
     if (mgtimer > settings.fps / 20) { mgtimer = 0; }
@@ -235,33 +230,34 @@ function getDistance(entity) {
     return Math.sqrt(Math.pow(player.x - entity.x, 2) + Math.pow(player.y - entity.y, 2));
 };
 document.onmousemove = function onmousemove(e) {
-    if (loaded && visible && !mAttack) {
+    if (loaded && !document.hidden && !mAttack) {
         if (!e.isTrusted) {
             socket.emit('timeout');
         }
         if (pointerLocked) {
             mouseX += e.movementX;
             mouseY += e.movementY;
-            mouseX = Math.max(-window.innerWidth / 2, Math.min(mouseX, window.innerWidth / 2));
-            mouseY = Math.max(-window.innerHeight / 2, Math.min(mouseY, window.innerHeight / 2));
-            document.getElementById('crossHair').style.left = mouseX + window.innerWidth / 2 - 11 + 'px';
-            document.getElementById('crossHair').style.top = mouseY + window.innerHeight / 2 - 11 + 'px';
+            mouseX = Math.max(-window.innerWidth/2, Math.min(mouseX, window.innerWidth/2));
+            mouseY = Math.max(-window.innerHeight/2, Math.min(mouseY, window.innerHeight/2));
+            document.getElementById('crossHair').style.left = mouseX + window.innerWidth/2-11 + 'px';
+            document.getElementById('crossHair').style.top = mouseY + window.innerHeight/2-11 + 'px';
         } else {
-            mouseX = e.clientX - window.innerWidth / 2;
-            mouseY = e.clientY - window.innerHeight / 2;
+            mouseX = e.clientX-window.innerWidth/2;
+            mouseY = e.clientY-window.innerHeight/2;
         }
     }
 };
 socket.off('teleport1');
 socket.on('teleport1', function () {
     if (skiptpwait) {
-        socket.emit('teleport');
-    } else {
-        document.getElementById('fade').style.display = 'block';
-        document.getElementById('fade').style.animationName = 'fadeIn';
-        document.getElementById('fade').onanimationend = function () {
-            socket.emit('teleport');
-            document.getElementById('fade').onanimationend = function () { };
+        socket.emit('teleport1');
+    } else if (!teleporting) {
+        teleporting = true;
+        fadeScreen.style.display = 'block';
+        fadeScreen.style.animationName = 'fadeIn';
+        fadeScreen.onanimationend = function() {
+            socket.emit('teleport1');
+            fadeScreen.onanimationend = function() {};
         };
     }
 });
@@ -271,15 +267,17 @@ socket.on('teleport2', function (pos) {
     player.x = pos.x;
     player.y = pos.y;
     if (skiptpwait) {
-    } else {
+        socket.emit('teleport2');
+    } else if (teleporting) {
         player.map = pos.map;
         player.x = pos.x;
         player.y = pos.y;
-        document.getElementById('fade').style.animationName = 'fadeOut';
-        document.getElementById('fade').onanimationend = function () {
-            document.getElementById('fade').style.display = 'none';
+        fadeScreen.style.animationName = 'fadeOut';
+        fadeScreen.onanimationend = function() {
+            fadeScreen.style.display = 'none';
             socket.emit('teleport2');
-            document.getElementById('fade').onanimationend = function () { };
+            fadeScreen.onanimationend = function() {};
+            teleporting = false;
         };
     }
 });
@@ -293,9 +291,9 @@ socket.on('playerDied', function () {
         document.getElementById('respawnButton').style.display = 'none';
         document.getElementById('deathScreen').style.display = 'block';
         if (controllerConnected) document.getElementById('respawnButton').innerText = 'Press A to Respawn';
-        var time = 5;
+        let time = 5;
         document.getElementById('respawnTimer').innerText = time;
-        var timer = setInterval(function () {
+        const timer = setInterval(function() {
             time--;
             document.getElementById('respawnTimer').innerText = time;
             if (time == 0) {
@@ -305,15 +303,65 @@ socket.on('playerDied', function () {
         }, 1000);
     }
 });
-drawFrame = function () {
+socket.off('gteleport1');
+socket.on('gteleport1', async function() {
+    if (skiptpwait) {
+        socket.emit('gteleport1');
+    } else if (!teleporting) {
+        teleporting = true;
+        await sleep(1000);
+        fadeScreen.style.backgroundColor = 'white';
+        fadeScreen.style.animationDuration = '2s';
+        fadeScreen.style.animationTimingFunction = 'ease-in';
+        fadeScreen.style.display = 'block';
+        fadeScreen.style.animationName = 'fadeIn';
+        CANVAS.style.animationName = 'warpSaturate';
+        fadeScreen.onanimationend = async function() {
+            socket.emit('gteleport1');
+            fadeScreen.style.backgroundColor = '';
+            fadeScreen.style.animationDuration = '';
+            fadeScreen.style.animationTimingFunction = '';
+            CANVAS.style.animationName = '';
+            fadeScreen.onanimationend = function() {};
+        };
+    }
+});
+async function displayText(text, div) {
+    let questLabel = false;
+    if (skiptextscroll) {
+        let sections = text.split('`');
+        for (let i in sections) {
+            const block = document.createElement('span');
+            block.classList.add('ui-lighttext');
+            if (i % 2 == 1) block.style.color = 'cyan';
+            block.innerText = sections[i];
+            div.appendChild(block);
+        }
+    } else {
+        for (let i in text) {
+            if (text[i] == '`') {
+                questLabel = !questLabel;
+                continue;
+            }
+            const letter = document.createElement('span');
+            letter.classList.add('ui-lighttext');
+            letter.classList.add('promptFade');
+            if (questLabel) letter.style.color = 'cyan';
+            letter.innerText = text[i];
+            div.appendChild(letter);
+            await sleep((11-settings.dialogueSpeed)*2);
+        }
+    }
+};
+function drawFrame() {
     if (loaded && player) {
         if (settings.debug) frameStart = performance.now();
-        for (var i = 0; i < MAPS[player.map].layerCount; i++) {
+        for (let i = 0; i < MAPS[player.map].layerCount; i++) {
             if (LAYERS.entitylayers[i] == null) {
                 LAYERS.entitylayers[i] = createCanvas();
                 LAYERS.elayers[i] = LAYERS.entitylayers[i].getContext('2d');
-                LAYERS.entitylayers[i].width = window.innerWidth * SCALE;
-                LAYERS.entitylayers[i].height = window.innerHeight * SCALE;
+                LAYERS.entitylayers[i].width = window.innerWidth*SCALE;
+                LAYERS.entitylayers[i].height = window.innerHeight*SCALE;
                 LAYERS.elayers[i].scale(SCALE, SCALE);
                 resetCanvas(LAYERS.entitylayers[i]);
             }
@@ -321,18 +369,20 @@ drawFrame = function () {
         CTX.clearRect(0, 0, window.innerWidth, window.innerHeight);
         OFFSETX = 0;
         OFFSETY = 0;
-        if (MAPS[player.map].width * 64 > window.innerWidth) {
-            OFFSETX = -Math.max((window.innerWidth / 2) - (player.x - MAPS[player.map].offsetX), Math.min((MAPS[player.map].offsetX + (MAPS[player.map].width * 64)) - player.x - (window.innerWidth / 2), 0));
-            OFFSETY = -Math.max((window.innerHeight / 2) - (player.y - MAPS[player.map].offsetY), Math.min((MAPS[player.map].offsetY + (MAPS[player.map].height * 64)) - player.y - (window.innerHeight / 2), 0));
+        if (MAPS[player.map].width*64 > window.innerWidth) {
+            OFFSETX = -Math.max((window.innerWidth/2)-(player.x-MAPS[player.map].offsetX), Math.min((MAPS[player.map].offsetX+(MAPS[player.map].width*64))-player.x-(window.innerWidth/2), 0));
+            OFFSETY = -Math.max((window.innerHeight/2)-(player.y-MAPS[player.map].offsetY), Math.min((MAPS[player.map].offsetY+(MAPS[player.map].height*64))-player.y-(window.innerHeight/2), 0));
         }
         OFFSETX += lsdX;
         OFFSETY += lsdY;
         updateCameraShake();
+        OFFSETX = Math.round(OFFSETX);
+        OFFSETY = Math.round(OFFSETY);
         drawMap();
         DroppedItem.updateHighlight();
         Entity.draw();
         CTX.drawImage(LAYERS.map0, 0, 0, window.innerWidth, window.innerHeight);
-        for (var i = 0; i < MAPS[player.map].layerCount + 1; i++) {
+        for (let i = 0; i < MAPS[player.map].layerCount+1; i++) {
             LAYERS.entitylayers[i] != null && CTX.drawImage(LAYERS.entitylayers[i], 0, 0, window.innerWidth, window.innerHeight);
             LAYERS.mapvariables[i] != null && CTX.drawImage(LAYERS.mapvariables[i], 0, 0, window.innerWidth, window.innerHeight);
         }
@@ -344,8 +394,7 @@ drawFrame = function () {
         lastmap = player.map;
         if (settings.debug) {
             var current = performance.now();
-            frameTimeCounter = Math.round((current - frameStart) * 100) / 100;
+            frameTimeCounter = Math.round((current-frameStart)*100)/100;
         }
-        if (!controllerConnected) socket.emit('mouseMove', { x: mouseX - OFFSETX, y: mouseY - OFFSETY });
     }
 };

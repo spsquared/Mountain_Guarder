@@ -1,9 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="9" height="9" tilewidth="16" tileheight="16" infinite="1" nextlayerid="23" nextobjectid="1">
+<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="9" height="9" tilewidth="16" tileheight="16" infinite="1" nextlayerid="24" nextobjectid="1">
  <editorsettings>
   <export target="Caves.json" format="json"/>
  </editorsettings>
  <tileset firstgid="1" source="tiles.tsx"/>
+ <layer id="23" name="GaruderWarp:Lower Mineshaft Entrance:0:3" width="9" height="9" visible="0" locked="1">
+  <data encoding="csv">
+   <chunk x="48" y="16" width="16" height="16">
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,1866,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+</chunk>
+  </data>
+ </layer>
  <layer id="13" name="Darkness:0.9" width="9" height="9" visible="0" locked="1">
   <data encoding="csv"/>
  </layer>
@@ -29,7 +51,7 @@
 </chunk>
   </data>
  </layer>
- <layer id="17" name="Teleporter:Caves,55,21,0,up" width="9" height="9" visible="0" locked="1">
+ <layer id="17" name="Teleporter:Caves,55,31,0,up" width="9" height="9" visible="0" locked="1">
   <data encoding="csv">
    <chunk x="-48" y="0" width="16" height="16">
 0,0,0,0,0,0,1695,1695,1695,0,0,0,0,0,0,0,
@@ -535,7 +557,7 @@
 </chunk>
   </data>
  </layer>
- <layer id="10" name="Collision:0" width="9" height="9">
+ <layer id="10" name="Collision:0" width="9" height="9" visible="0" locked="1">
   <data encoding="csv">
    <chunk x="0" y="-32" width="16" height="16">
 2122,2122,2122,2122,2122,2122,2122,2122,2122,2122,2122,2122,2122,2122,2122,2122,

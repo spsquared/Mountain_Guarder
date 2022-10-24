@@ -3,24 +3,28 @@
 const bcrypt = require('bcrypt');
 const salt = 10;
 const fs = require('fs');
-const {Client} = require('pg');
+const { Client } = require('pg');
 const msgpack = require('@ygoe/msgpack');
-url = null;
-if (process.env.DATABASE_URL) {
-    url = process.env.DATABASE_URL;
-} else if (!ENV.useLocalDatabase) {
-    require('./url.js');
-}
+let url = process.env.DATABASE_URL;
+if (url == undefined && !ENV.useLocalDatabase) url = require('./url.js');
 const database = new Client({
     connectionString: url,
     ssl: {
         rejectUnauthorized: false
     }
 });
-url = null;
+delete url;
+// Replit database support
+let replDB = null;
+if (process.env.REPL_OWNER && !process.env.DATABASE_URL) {
+    const ReplDatabase = require('@replit/database');
+    replDB = new ReplDatabase();
+}
 
+// valid characters
 const chars = ['A', 'B', 'C',  'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N',  'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y',  'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',  'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u',  'v', 'w', 'x', 'y', 'z', '1', '2', '3', '4', '5', '6',  '7', '8', '9', '0', '`', '-', '=', '!', '@', '#', '$',  '%', '^', '&', '*', '(', ')', '_', '+', '[', ']', '{', '}', '|', ';', "'", ':', '"', ',', '.', '/', '?'];
 
+// account controller
 ACCOUNTS = {
     connected: false,
     connect: async function connect() {
@@ -32,7 +36,17 @@ ACCOUNTS = {
                     if (exists) {
                         let bytes = fs.readFileSync('./database.db');
                         let data = msgpack.deserialize(bytes);
-                        data.forEach(e => localDatabase.push(e));
+                        data.forEach(e => {
+                            if (typeof e == 'object' && e != null) localDatabase.push(e);
+                        });
+                    } else if (replDB) {
+                        let raw = await replDB.get('database');
+                        let arr = [];
+                        for (let i in raw) {
+                            arr[parseInt(i)] = raw[i];
+                        }
+                        let data = msgpack.deserialize(Uint8Array.from(arr));
+                        console.log(data)
                     }
                 } else {
                     await database.connect();
@@ -51,7 +65,8 @@ ACCOUNTS = {
                 if (ENV.useLocalDatabase) {
                     clearInterval(writeLoop);
                     let bytes = msgpack.serialize(localDatabase);
-                    fs.writeFileSync('./database.db', bytes, {flag: 'w'});
+                    if (replDB) await replDB.set('database', bytes);
+                    else fs.writeFileSync('./database.db', bytes, {flag: 'w'});
                 } else {
                     await database.end();
                 }
@@ -355,15 +370,16 @@ dbDebug = {
 
 // local database
 const localDatabase = [];
-var pendingLocalWrite = 0;
-var unwrittenData = 0;
+let pendingLocalWrite = 0;
+let unwrittenData = 0;
 const writeLoop = setInterval(function() {
     pendingLocalWrite--;
     if (pendingLocalWrite == 0 || unwrittenData > 10) {
         pendingLocalWrite = 0;
         unwrittenData = 0;
         let bytes = msgpack.serialize(localDatabase);
-        fs.writeFileSync('./database.db', bytes, {flag: 'w'});
+        if (replDB) replDB.set('database', bytes);
+        else fs.writeFileSync('./database.db', bytes, {flag: 'w'});
     }
 }, 2000);
 if (!ENV.useLocalDatabase) clearInterval(writeLoop);

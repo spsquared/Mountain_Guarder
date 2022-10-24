@@ -108,34 +108,35 @@ socket.on('quest', function(data) {
 socket.on('questData', function(data) {
     for (let i in data) {
         const id = data[i].id;
+        const stage = data[i].stage;
         const objectives = data[i].data;
         const goals = Quests[id].objectives;
         for (let j in objectives) {
             if (j == 'obtain') {
                 for (let k in objectives[j]) {
-                    let id2 = data[i].id + j + k;
-                    document.getElementById('quest-bar_' + id2).style.width = Math.min(Math.round(objectives[j][k]/goals[i][j][k]*100), 100) + '%';
+                    let id2 = id + j + k;
+                    document.getElementById('quest-bar_' + id2).style.width = Math.min(Math.round(objectives[j][k]/goals[stage][j][k]*100), 100) + '%';
                     document.getElementById('quest-counter_' + id2).innerText = objectives[j][k];
                 }
             } else if (j == 'area') {
-                let id2 = data[i].id + j;
+                let id2 = id + j;
                 if (objectives[j]) document.getElementById('quest-bar_' + id2).style.width = '100%';
             } else if (j == 'killPlayer') {
-                let id2 = data[i].id + j;
-                document.getElementById('quest-bar_' + id2).style.width = Math.min(Math.round(objectives[j]/goals[i][j]*100), 100) + '%';
+                let id2 = id + j;
+                document.getElementById('quest-bar_' + id2).style.width = Math.min(Math.round(objectives[j]/goals[stage][j]*100), 100) + '%';
                 document.getElementById('quest-counter_' + id2).innerText = objectives[j];
             } else if (j == 'killMonster') {
                 for (let k in objectives[j]) {
-                    let id2 = data[i].id + j + k;
-                    document.getElementById('quest-bar_' + id2).style.width = Math.min(Math.round(objectives[j][k]/goals[i][j][k]*100), 100) + '%';
+                    let id2 = id + j + k;
+                    document.getElementById('quest-bar_' + id2).style.width = Math.min(Math.round(objectives[j][k]/goals[stage][j][k]*100), 100) + '%';
                     document.getElementById('quest-counter_' + id2).innerText = objectives[j][k];
                 }
             } else if (j == 'deal damage') {
-                let id2 = data[i].id + j;
+                let id2 = id + j;
             } else if (j == 'dps') {
-                let id2 = data[i].id + j;
+                let id2 = id + j;
             } else if (j == 'talk') {
-                let id2 = data[i].id + j;
+                let id2 = id + j;
                 if (objectives[j]) document.getElementById('quest-bar_' + id2).style.width = '100%';
             }
         }
@@ -154,14 +155,11 @@ async function getQuestData() {
                 loadedassets++;
                 resolve();
             } else {
-                console.error('Error: Server returned status ' + this.status);
-                await sleep(1000);
-                request.send();
+                reject('Error: Server returned status ' + this.status);
             }
         };
-        request.onerror = function(){
-            console.error('There was a connection error. Please retry');
-            reject();
+        request.onerror = function(err) {
+            reject(err);
         };
         request.send();
     });

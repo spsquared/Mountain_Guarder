@@ -88,6 +88,28 @@
                 </div> -->
                 <div class="stack ui-block ui-lighttext">
                     <div class="ui-lighttext stackHeader">
+                        v0.15.0 - 10/24/22
+                    </div>
+                    <div class="ui-lighttext stackBody">
+                        Quick-use hotbar and Lodestone warping! (Of course, bugfixes and minor changes)
+                        <ul>
+                            <li>Added a quick-use hotbar</li>
+                            <li>Lodestones now have the ability to warp</li>
+                            <li>Respawning now teleports the player to spawn</li>
+                            <li>Non-clickable UI elements now go translucent when hovered over</li>
+                            <li>Patched shielding without shields</li>
+                            <li>Fixed unloaded chunks on join</li>
+                            <li>Added support for Replit databases</li>
+                            <li>Patched logging in while logging in on loading screen</li>
+                            <li>Changelog is now from newest to oldest</li>
+                            <li>Monsters can now use teleporters</li>
+                            <li>Fixed offsets in bird hitboxes</li>
+                            <li>Fixed right click on debug text and version label</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="stack ui-block ui-lighttext">
+                    <div class="ui-lighttext stackHeader">
                         v0.14.2 - 10/8/22
                     </div>
                     <div class="ui-lighttext stackBody">
@@ -97,6 +119,7 @@
                             <li>Added RSA encryption to password sending</li>
                             <li>Piercing projectiles now decrease in damage for every hit</li>
                             <li>Fixed unsent particles and dropped items</li>
+                            <li>Fixed invisible players</li>
                             <li>Transitioned from numeric IDs to UUIDs</li>
                             <li>Fixed incorrect version label and date in menu screen</li>
                             <li>Fixed debug errors</li>
@@ -1197,15 +1220,11 @@
                     <div class="ui-lighttext stackBody">
                         Games by <a href="https://github.com/definitely-nobody-is-here/" target="_blank">Radioactive64</a> and <a href="https://github.com/maitian352/" target="_blank">Maitian</a>:
                         <ul>
-                            <li><a href="https://mountainguarder.herokuapp.com/" target="_blank">Mountain Guarder</a></li>
+                            <li><a href="https://MountainGuarder.radioactivestuf.repl.co/" target="_blank">Mountain Guarder</a></li>
                             <li><a href="https://meadowguarder.herokuapp.com/" target="_blank">Meadow Guarder</a></li>
                             <li><a href="https://meadowguarderold.herokuapp.com/" target="_blank">Meadow Guarder Old</a></li>
-                            <li><a href="https://bobguarder.herokuapp.com/" target="_blank">Bob Guarder</a></li>
                             <li><a href="https://battleboxes2.herokuapp.com/" target="_blank">BattleBoxes Multiplayer</a></li>
-                            <li><a href="https://BattleBoxesMultiplayer.jackiegao1.repl.co" target="_blank">BattleBoxes Multiplayer (alt)</a></li>
-                            <li><a href="https://cubieworld.herokuapp.com/" target="_blank">CubieWorld</a></li>
-                            <li><a href="https://platformertemplate.herokuapp.com/" target="_blank">Platformer Template</a></li>
-                            <li><a href="https://still-mesa-50010.herokuapp.com/" target="_blank">Maitian Game</a></li>
+                            <li><a href="https://BattleBoxesMultiplayer.radioactivestuf.repl.co/" target="_blank">BattleBoxes Multiplayer (alt)</a></li>
                         </ul>
                     </div>
                 </div>
@@ -1227,7 +1246,7 @@
                     <div class="ui-lighttext stackBody">
                         Here are some tools (both internal and external) for creating and editing game assets.<br>
                         <a href="./itemcreator/" target="_blank">Mountain Guarder Item Creator (depracated)</a><br>
-                        <a href="./asseteditor/" target="_blank">Mountain Guarder Asset Editor</a><br>
+                        <a href="./asseteditor/" target="_blank">Mountain Guarder Asset Editor (unfinished)</a><br>
                         <a href="https://thorbjorn.itch.io/tiled" target="_blank">Tiled</a>
                     </div>
                 </div>
@@ -1264,7 +1283,10 @@
                     <div id="statsMNtext" class="ui-lighttext">0/200</div>
                 </div>
             </div>
-            <div id="bannerContainer" class="ui-lighttext noSelect"></div>
+            <div id="bannerContainer" class="ui-lighttext noSelect">
+                <div id="priorityBanners"></div>
+                <div id="normalBanners"></div>
+            </div>
             <div class="ui-lighttext noSelect">
                 <div id="version">v0.0.0</div>
                 <div id="fps" class="debugOverlay">FPS: 0</div>
@@ -1300,6 +1322,7 @@
                 <div id="chatText"></div>
                 <input type="text" id="chatInput" class="ui-textInput" maxlength="128" autocomplete="off" spellcheck="false">
             </div>
+            <div id="hotbar" class="ui-block ui-lighttext noSelect"></div>
             <div id="dropdownMenu" class="noSelect">
                 <button id="dMenuButton" class="ui-lightbutton" onclick="toggleDropdown();">Menu &#x25BC;</button>
                 <div id="dropdownMenuItems">
@@ -1944,6 +1967,7 @@
                     </div>
                 </div>
             </div>
+            <div id="garuderWarpSelect" class="ui-block ui-lighttext noSelect"></div>
             <div id="invHoverTooltip" class="ui-block ui-lighttext noSelect">Tooltip</div>
             <div id="invDrag" class="noSelect">
                 <img id="invDragImg" class="invSlotImg noSelect">

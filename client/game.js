@@ -10,13 +10,10 @@ const mousepos = document.getElementById('mousepos');
 const position = document.getElementById('position');
 
 // loading
-var loadedassets = 0;
-var totalassets = 1;
-socket.once('mapData', function(data) {
-    load(data);
-    socket.off('mapData');
-});
-var tilesetloaded = false;
+let loadedassets = 0;
+let totalassets = 2;
+socket.once('mapData', load);
+let tilesetloaded = false;
 const tileset = new Image();
 tileset.onload = function() {
     tilesetloaded = true;
@@ -25,7 +22,6 @@ tileset.onload = function() {
 function load(data) {
     document.getElementById('loadingContainer').style.animationName = 'fadeIn';
     document.getElementById('loadingContainer').style.display = 'block';
-    totalassets = 2;
     for (let i in data.maps) {
         totalassets++;
     }
@@ -41,8 +37,8 @@ function load(data) {
         map.src = '/img/World.png';
         const loadingBarText = document.getElementById('loadingBarText');
         const loadingBarInner = document.getElementById('loadingBarInner');
-        var updateLoadBar = setInterval(function() {
-            var percent = Math.round(loadedassets/totalassets*100) + '%';
+        const updateLoadBar = setInterval(function() {
+            let percent = Math.round(loadedassets/totalassets*100) + '%';
             loadingBarText.innerText = loadedassets + '/' + totalassets + ' (' + percent + ')';
             loadingBarInner.style.width = percent;
             if (loadedassets >= totalassets) {
@@ -52,7 +48,7 @@ function load(data) {
                     socket.emit('signIn', {
                         state: 'loaded',
                         username: document.getElementById('username').value,
-                        password: await RSAencrypt(document.getElementById('password').value)
+                        password: await RSAencode(document.getElementById('password').value)
                     });
                     loaded = true;
                     resetFPS();
@@ -68,6 +64,9 @@ function load(data) {
         for (let i in data.maps) {
             await loadMap(data.maps[i]);
         }
+        player = data.self;
+        lastmap = player.map;
+        await updateRenderedChunks();
         loadedassets++;
     }, 500);
 };
@@ -171,14 +170,13 @@ async function loadMap(name) {
                         }
                     }
                     loadedassets++;
+                    resolve();
                 } else {
-                    console.error('Error: Server returned status ' + this.status);
+                    reject('Error: Server returned status ' + this.status);
                 }
-                resolve();
             };
-            request.onerror = function() {
-                console.error('There was a connection error. Please retry');
-                reject();
+            request.onerror = function(err) {
+                reject(err);
             };
             request.send();
         });
@@ -190,7 +188,7 @@ async function loadMap(name) {
 function MGHC() {};
 
 // draw
-var drawLoop = null;
+let drawLoop = null;
 function drawFrame() {
     if (loaded && player) {
         if (settings.debug) frameStart = performance.now();
@@ -208,8 +206,8 @@ function drawFrame() {
         OFFSETX = 0;
         OFFSETY = 0;
         if (MAPS[player.map].width*64 > window.innerWidth) {
-            OFFSETX = -Math.max((window.innerWidth/2)-(player.x2-MAPS[player.map].offsetX), Math.min((MAPS[player.map].offsetX+(MAPS[player.map].width*64))-player.x2-(window.innerWidth/2), 0));
-            OFFSETY = -Math.max((window.innerHeight/2)-(player.y2-MAPS[player.map].offsetY), Math.min((MAPS[player.map].offsetY+(MAPS[player.map].height*64))-player.y2-(window.innerHeight/2), 0));
+            OFFSETX = -Math.max((window.innerWidth/2)-(player.x-MAPS[player.map].offsetX), Math.min((MAPS[player.map].offsetX+(MAPS[player.map].width*64))-player.x-(window.innerWidth/2), 0));
+            OFFSETY = -Math.max((window.innerHeight/2)-(player.y-MAPS[player.map].offsetY), Math.min((MAPS[player.map].offsetY+(MAPS[player.map].height*64))-player.y-(window.innerHeight/2), 0));
         }
         OFFSETX += lsdX;
         OFFSETY += lsdY;
@@ -288,14 +286,6 @@ function drawMap() {
     if (settings.debug) {
         let current = performance.now();
         mapTimeCounter = Math.round((current-mapStart)*100)/100;
-    }
-};
-function resetRenderedChunks() {
-    if (player) {
-        MAPS[player.map].chunks.length = 0;
-        LAYERS.mapvariables.length = 0;
-        LAYERS.mvariables.length = 0;
-        updateRenderedChunks();
     }
 };
 async function updateRenderedChunks() {
@@ -871,15 +861,16 @@ socket.on('region', async function(name) {
         }, 4000);
     }
 });
-var teleporting = false;
+const fadeScreen = document.getElementById('fade');
+let teleporting = false;
 socket.on('teleport1', function() {
     if (!teleporting) {
         teleporting = true;
-        document.getElementById('fade').style.display = 'block';
-        document.getElementById('fade').style.animationName = 'fadeIn';
-        document.getElementById('fade').onanimationend = function() {
+        fadeScreen.style.display = 'block';
+        fadeScreen.style.animationName = 'fadeIn';
+        fadeScreen.onanimationend = function() {
             socket.emit('teleport1');
-            document.getElementById('fade').onanimationend = function() {};
+            fadeScreen.onanimationend = function() {};
         };
     }
 });
@@ -888,11 +879,11 @@ socket.on('teleport2', function(pos) {
         player.map = pos.map;
         player.x = pos.x;
         player.y = pos.y;
-        document.getElementById('fade').style.animationName = 'fadeOut';
-        document.getElementById('fade').onanimationend = function() {
-            document.getElementById('fade').style.display = 'none';
+        fadeScreen.style.animationName = 'fadeOut';
+        fadeScreen.onanimationend = function() {
+            fadeScreen.style.display = 'none';
             socket.emit('teleport2');
-            document.getElementById('fade').onanimationend = function() {};
+            fadeScreen.onanimationend = function() {};
             teleporting = false;
         };
     }
@@ -901,9 +892,9 @@ socket.on('playerDied', function() {
     document.getElementById('respawnButton').style.display = 'none';
     document.getElementById('deathScreen').style.display = 'block';
     if (controllerConnected) document.getElementById('respawnButton').innerText = 'Press A to Respawn';
-    var time = 5;
+    let time = 5;
     document.getElementById('respawnTimer').innerText = time;
-    var timer = setInterval(function() {
+    const timer = setInterval(function() {
         time--;
         document.getElementById('respawnTimer').innerText = time;
         if (time == 0) {
@@ -963,7 +954,7 @@ socket.on('prompt', async function(conversation) {
 });
 Prompts = [];
 async function displayText(text, div) {
-    var questLabel = false;
+    let questLabel = false;
     for (let i in text) {
         const letter = document.createElement('span');
         letter.classList.add('ui-lighttext');
@@ -990,14 +981,11 @@ async function getNpcDialogues() {
                 loadedassets++;
                 resolve();
             } else {
-                console.error('Error: Server returned status ' + this.status);
-                await sleep(1000);
-                request.send();
+                reject('Error: Server returned status ' + this.status);
             }
         };
-        request.onerror = function() {
-            console.error('There was a connection error. Please retry');
-            reject();
+        request.onerror = function(err) {
+            reject(err);
         };
         request.send();
     });
@@ -1005,7 +993,8 @@ async function getNpcDialogues() {
 async function loadNpcDialogues() {};
 
 // Banners
-const bannerContainer = document.getElementById('bannerContainer');
+const bannerContainer = document.getElementById('normalBanners');
+const priorityBannerContainer = document.getElementById('priorityBanners');
 Banners = [];
 socket.on('banner', function(data) {
     new Banner(data.html, {
@@ -1030,24 +1019,63 @@ Banner = function(html, param) {
         } else {
             console.error('invalid banner type ' + param.type);
         }
-        div.priority = param.priority;
-        if (param.priority) bannerContainer.insertBefore(div, bannerContainer.firstChild);
-        else {
-            let children = Array.from(bannerContainer.children);
-            let added = false;
-            for (let i = children.length-1; i > 0; i--) {
-                if (children[i].priority) {
-                    children[i].after(div);
-                    added = true;
-                }
-            }
-            if (!added) bannerContainer.insertBefore(div, bannerContainer.firstChild);
-        }
+        div.priority = param.priority ?? false;
+        if (param.priority) priorityBannerContainer.insertBefore(div, priorityBannerContainer.firstChild);
+        else bannerContainer.insertBefore(div, bannerContainer.firstChild);
     }
 
     Banners.unshift(div);
     return div;
 };
+setInterval(function() {
+    // dynamic sizing to fill screen is not possible with pure css
+    bannerContainer.style.maxHeight = window.innerHeight-priorityBannerContainer.offsetHeight + 'px';
+}, 20);
+
+// garuder warp menu & garuder warp
+const garuderWarpSelect = document.getElementById('garuderWarpSelect');
+socket.on('openGWSelect', function(choices) {
+    garuderWarpSelect.innerHTML = '';
+    function cancelKey(e) {
+        if (e.key == 'Escape') {
+            garuderWarpSelect.style.display = '';
+            document.removeEventListener('keydown', cancelKey);
+        }
+    };
+    for (let n of choices) {
+        const button = document.createElement('div');
+        button.classList.add('locationBlock', 'ui-block');
+        button.innerText = n;
+        button.onclick = function() {
+            garuderWarpSelect.style.display = '';
+            document.removeEventListener('keydown', cancelKey);
+            socket.emit('GWChoose', n);
+        };
+        garuderWarpSelect.appendChild(button);
+    }
+    document.addEventListener('keydown', cancelKey);
+    garuderWarpSelect.style.display = 'block';
+});
+socket.on('gteleport1', async function() {
+    if (!teleporting) {
+        teleporting = true;
+        await sleep(1000);
+        fadeScreen.style.backgroundColor = 'white';
+        fadeScreen.style.animationDuration = '2s';
+        fadeScreen.style.animationTimingFunction = 'ease-in';
+        fadeScreen.style.display = 'block';
+        fadeScreen.style.animationName = 'fadeIn';
+        CANVAS.style.animationName = 'warpSaturate';
+        fadeScreen.onanimationend = async function() {
+            socket.emit('gteleport1');
+            fadeScreen.style.backgroundColor = '';
+            fadeScreen.style.animationDuration = '';
+            fadeScreen.style.animationTimingFunction = '';
+            CANVAS.style.animationName = '';
+            fadeScreen.onanimationend = function() {};
+        };
+    }
+});
 
 // camera shake
 var cameraShake = [];

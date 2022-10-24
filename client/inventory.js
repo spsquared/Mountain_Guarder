@@ -3,6 +3,7 @@
 // inventory
 const inventoryItems = document.getElementById('inventoryItemsBody');
 const inventoryEquips = document.getElementById('inventoryEquipsBody');
+const hotBarItems = document.getElementById('hotbar');
 const dragDiv = document.getElementById('invDrag');
 const dragImg = document.getElementById('invDragImg');
 const dragStackSize = document.getElementById('invDragStackSize');
@@ -47,7 +48,7 @@ Inventory.Item = function Item(id, slot, amount, enchantments) {
     }
     return self;
 };
-Inventory.Slot = function Slot() {
+Inventory.Slot = function Slot(i) {
     const slot = document.createElement('div');
     slot.className = 'invSlot';
     slot.draggable = false;
@@ -57,13 +58,24 @@ Inventory.Slot = function Slot() {
         slot: slot,
         mousedOver: false
     };
+    if (i < 5) {
+        self.slot2 = document.createElement('div');
+        self.slot2.className = 'invHotSlot';
+        self.slot2.draggable = false;
+    }
 
     self.refresh = function() {
         if (self.item) {
-            if (self.item.stackSize != 1) slot.innerHTML = '<img src="/img/item/' + self.item.id + '.png" class="invSlotImg noSelect"><div class="invSlotStackSize noSelect">' + self.item.stackSize + '</div>';
-            else slot.innerHTML = '<img src="/img/item/' + self.item.id + '.png" class="invSlotImg noSelect">';
+            let html;
+            if (self.item.stackSize != 1) html = '<img src="/img/item/' + self.item.id + '.png" class="invSlotImg noSelect"><div class="invSlotStackSize noSelect">' + self.item.stackSize + '</div>';
+            else html = '<img src="/img/item/' + self.item.id + '.png" class="invSlotImg noSelect">';
+            slot.innerHTML = html;
+            if (self.slot2) self.slot2.innerHTML = html;
         } else {
-            slot.innerHTML = '<img src="/img/item/empty.png" class="invSlotImgNoGrab noSelect">';
+            let html;
+            html = '<img src="/img/item/empty.png" class="invSlotImgNoGrab noSelect">';
+            slot.innerHTML = html;
+            if (self.slot2) self.slot2.innerHTML = html;
         }
     };
     slot.onmouseover = function(e) {
@@ -79,6 +91,7 @@ Inventory.Slot = function Slot() {
     };
 
     inventoryItems.appendChild(slot);
+    if (self.slot2) hotBarItems.appendChild(self.slot2);
     Inventory.items.push(self);
     self.refresh();
     return self;
@@ -159,7 +172,7 @@ Inventory.loadTooltip = function loadTooltip(slot) {
     var item;
     if (typeof slot == 'number') item = Inventory.items[slot].item;
     else item = Inventory.equips[slot].item;
-    tooltip.innerHTML = '<span style="font-size: 16px; ' + Inventory.getRarityColor(item.rarity) + '">' + item.name + '</span><br><span style="font-size: 14px;">' + item.slotType.charAt(0).toUpperCase()+item.slotType.slice(1) + '</span><br><div style="font-size: 12px; line-height: 14px;">' + item.description + '</div>' + Inventory.loadEffects(item);
+    tooltip.innerHTML = '<span style="font-size: 16px; ' + Inventory.getRarityColor(item.rarity) + '">' + item.name + '</span><br><span style="font-size: 14px;">' + item.slotType.charAt(0).toUpperCase()+item.slotType.slice(1) + '</span><br><div style="font-size: 12px; line-height: 14px;">' + item.description + '</div>' + Inventory.loadEffects(item) + (item.usable ? '<span style="font-size: 10px; line-height: 12px; color: yellow;">Has use function</span>' : '');
 };
 Inventory.getRarityColor = function getRarityColor(rarity) {
     var str = '';
@@ -201,7 +214,7 @@ Inventory.getRarityColor = function getRarityColor(rarity) {
     return str;
 };
 Inventory.loadEffects = function loadEffects(item) {
-    var str = '<div style="font-size: 12px; line-height: 14px;">';
+    let str = '<div style="font-size: 12px; line-height: 14px;">';
     if (typeof item === 'object') {
         if (item.slotType == 'weapon' || item.slotType == 'crystal') {
             let damageType = 'Damage';
@@ -442,6 +455,22 @@ document.addEventListener('keydown', function(e) {
                         });
                     }
                 }
+            } else if (e.key.length == 1 && parseInt(e.key) >= 1 && parseInt(e.key) <= 5) {
+                let slot = parseInt(e.key)-1;
+                let item = Inventory.items[slot].item;
+                if (item) {
+                    if (item.usable) {
+                        socket.emit('item', {
+                            action: 'use',
+                            slot: slot
+                        });
+                    } else if (Inventory.equips[item.slotType]) {
+                        socket.emit('item', {
+                            action: 'quickEquip',
+                            slot: slot
+                        });
+                    }
+                }
             }
         }
     }
@@ -494,7 +523,7 @@ socket.on('item', function(data) {
         case 'maxItems':
             Inventory.maxItems = data.slots;
             for (let i = 0; i < Inventory.maxItems; i++) {
-                new Inventory.Slot();
+                new Inventory.Slot(i);
             }
             break;
         case 'add':
@@ -546,14 +575,11 @@ async function getInventoryData() {
                 }
                 resolve();
             } else {
-                console.error('Error: Server returned status ' + this.status);
-                await sleep(1000);
-                request.send();
+                reject('Error: Server returned status ' + this.status);
             }
         };
-        request.onerror = function() {
-            console.error('There was a connection error. Please retry');
-            reject();
+        request.onerror = function(err) {
+            reject(err);
         };
         request.send();
     });
@@ -692,14 +718,11 @@ async function getCraftingData() {
                 }
                 resolve();
             } else {
-                console.error('Error: Server returned status ' + this.status);
-                await sleep(1000);
-                request.send();
+                reject('Error: Server returned status ' + this.status);
             }
         };
-        request.onerror = function() {
-            console.error('There was a connection error. Please retry');
-            reject();
+        request.onerror = function(err) {
+            reject(err);
         };
         request.send();
     });
@@ -832,14 +855,11 @@ async function getShopData() {
                 loadedassets++;
                 resolve();
             } else {
-                console.error('Error: Server returned status ' + this.status);
-                await sleep(1000);
-                request.send();
+                reject('Error: Server returned status ' + this.status);
             }
         };
-        request.onerror = function() {
-            console.error('There was a connection error. Please retry');
-            reject();
+        request.onerror = function(err) {
+            reject(err);
         };
         request.send();
     });

@@ -361,8 +361,8 @@
     "rockturret": {
         "name": "Rock Turret",
         "spawnChance": 0.1,
-        "width": 32,
-        "height": 32,
+        "width": 36,
+        "height": 64,
         "attackType": "rockturret",
         "aggroRange": 40,
         "deaggroTime": 30,

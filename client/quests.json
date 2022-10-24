@@ -59,7 +59,7 @@
                 "silvercoin": 4
             }
         },
-        "failOnDeath": true
+        "failOnDeath": false
     },
     "sprock": {
         "name": "Lodestone Mystery",
@@ -100,6 +100,6 @@
                 "iron": 5
             }
         },
-        "failOnDeath": false
+        "failOnDeath": true
     }
 }

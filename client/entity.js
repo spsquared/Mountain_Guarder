@@ -491,7 +491,7 @@ Particle = function(map, x, y, type, value) {
             self.identifier = 3;
             break;
         case 'teleport':
-            var angle = Math.random()*360*(Math.PI/180);
+            var angle = Math.random()*2*Math.PI;
             self.xspeed = Math.sin(angle)*Math.random()*3;
             self.yspeed = Math.cos(angle)*Math.random()*3;
             self.opacity = Math.round(Math.random()*50)+100;
@@ -514,7 +514,7 @@ Particle = function(map, x, y, type, value) {
                 self.color = 'rgba(50, 50, 50, ';
                 self.identifier = 5.4;
             }
-            var angle = Math.random()*360*(Math.PI/180);
+            var angle = Math.random()*2*Math.PI;
             var speed = Math.random()*20;
             self.xspeed = Math.sin(angle)*speed;
             self.yspeed = Math.cos(angle)*speed;
@@ -525,7 +525,7 @@ Particle = function(map, x, y, type, value) {
             self.identifier = 6;
             break;
         case 'spawn':
-            self.angle = Math.random()*360*(Math.PI/180);
+            self.angle = Math.random()*2*Math.PI;
             self.radius = Math.random()*80;
             self.rotationspeed = Math.random()*0.2;
             self.x = x+Math.cos(self.angle)*self.radius;
@@ -541,7 +541,7 @@ Particle = function(map, x, y, type, value) {
             self.identifier = 8;
             break;
         case 'playerdeath':
-            var angle = Math.random()*360*(Math.PI/180);
+            var angle = Math.random()*2*Math.PI;
             self.xspeed = Math.sin(angle)*Math.random()*6-3;
             self.yspeed = Math.cos(angle)*Math.random()*5-10;
             self.opacity = Math.round(Math.random()*50)+100;
@@ -553,6 +553,48 @@ Particle = function(map, x, y, type, value) {
             self.opacity = self.value*20+10;
             self.identifier = 10;
             break;
+        case 'garuderWarp1':
+            var random = Math.floor(Math.random()*3);
+            if (random == 0) {
+                self.color = 'rgba(60, 112, 255, ';
+                self.opacity -= 60;
+                self.identifier = 11.1;
+            } else if (random == 1) {
+                self.color = 'rgba(255, 0, 153, ';
+                self.identifier = 11.2;
+            } else {
+                self.color = 'rgba(71, 216, 159, ';
+                self.identifier = 11.3;
+            }
+            self.angle = Math.random()*2*Math.PI;
+            self.radius = Math.random()*32+16;
+            self.rotationspeed = Math.random()*0.2;
+            self.x = x+Math.cos(self.angle)*self.radius;
+            self.y = y+Math.sin(self.angle)*self.radius;
+            self.opacity = 60;
+            self.op2 = Math.random()*-50;
+            self.size = Math.random()*5+10;
+            break;
+        case 'garuderWarp2':
+        var random = Math.floor(Math.random()*3);
+        if (random == 0) {
+            self.color = 'rgba(60, 112, 255, ';
+            self.opacity -= 60;
+            self.identifier = 12.1;
+        } else if (random == 1) {
+            self.color = 'rgba(255, 0, 153, ';
+            self.identifier = 12.2;
+        } else {
+            self.color = 'rgba(71, 216, 159, ';
+            self.identifier = 12.3;
+        }
+        var angle = Math.random()*2*Math.PI;
+        var speed = Math.random()*25;
+        self.xspeed = Math.sin(angle)*speed;
+        self.yspeed = Math.cos(angle)*speed;
+        self.opacity = Math.round(Math.random()*50)+100;
+        self.size = Math.random()*20+10;
+        break;
         case 'cameraShake':
             startCameraShake(value.intensity, value.time);
             return self;
@@ -617,6 +659,23 @@ Particle = function(map, x, y, type, value) {
             case 'warning':
                 self.opacity -= 10/tpsFpsRatio;
                 break;
+            case 'garuderWarp1':
+                self.radius += 0.5/tpsFpsRatio;
+                self.angle += self.rotationspeed/tpsFpsRatio;
+                self.x = x+Math.cos(self.angle)*self.radius;
+                self.y = y+Math.sin(self.angle)*self.radius;
+                self.rotationspeed += self.rotationspeed/20/tpsFpsRatio;
+                self.opacity -= 1/tpsFpsRatio;
+                self.op2 += 8/tpsFpsRatio;
+                if (self.opacity < 5) {
+                    self.radius -= self.radius/2/tpsFpsRatio;
+                };
+                break;
+            case 'garuderWarp2':
+                self.xspeed *= 1-(0.2/tpsFpsRatio);
+                self.yspeed *= 1-(0.2/tpsFpsRatio);
+                self.opacity -= 5/tpsFpsRatio;
+                break;
             default:
                 delete Particle.list.get(self.identifier)[self.id];
                 break;
@@ -624,47 +683,67 @@ Particle = function(map, x, y, type, value) {
     };
     self.draw = function draw() {
         if (self.update()) return;
+        let type = 0;
         switch (self.type) {
             case 'damage':
                 // #FF0000
                 LAYERS.eupper.fillStyle = 'rgba(255, 0, 0, ' + self.opacity/100 + ')';
-                LAYERS.eupper.fillText(self.value, self.x+OFFSETX, self.y+OFFSETY);
+                type = 0;
                 break;
             case 'critdamage':
                 // #FF0000
                 LAYERS.eupper.fillStyle = 'rgba(255, 0, 0, ' + self.opacity/100 + ')';
-                LAYERS.eupper.fillText(self.value, self.x+OFFSETX, self.y+OFFSETY);
+                type = 0;
                 break;
             case 'heal':
                 // #00FF00
                 LAYERS.eupper.fillStyle = 'rgba(0, 255, 0, ' + self.opacity/100 + ')';
-                LAYERS.eupper.fillText(self.value, self.x+OFFSETX, self.y+OFFSETY);
+                type = 0;
                 break;
             case 'teleport':
                 // #9900CC
                 LAYERS.eupper.fillStyle = 'rgba(153, 0, 204, ' + Math.min(self.opacity, 50)/100 + ')';
-                LAYERS.eupper.fillRect(self.x-self.size/2+OFFSETX, self.y-self.size/2+OFFSETY, self.size, self.size);
+                type = 1;
                 break;
             case 'explosion':
                 LAYERS.eupper.fillStyle = self.color + Math.min(self.opacity, 50)/100 + ')';
-                LAYERS.eupper.fillRect(self.x-self.size/2+OFFSETX, self.y-self.size/2+OFFSETY, self.size, self.size);
+                type = 1;
                 break;
             case 'spawn':
                 // #0000FF
                 let opacity = self.opacity > 100 ? 50-self.opacity+100 : self.opacity;
                 LAYERS.eupper.fillStyle = 'rgba(0, 0, 255, ' + Math.min(opacity, 50)/100 + ')';
-                LAYERS.eupper.fillRect(self.x-self.size/2+OFFSETX, self.y-self.size/2+OFFSETY, self.size, self.size);
+                type = 1;
                 break;
             case 'death':
                 LAYERS.eupper.fillStyle = 'rgba(255, 0, 0, ' + Math.min(self.opacity, 50)/100 + ')';
-                LAYERS.eupper.fillRect(self.x-self.size/2+OFFSETX, self.y-self.size/2+OFFSETY, self.size, self.size);
+                type = 1;
                 break;
             case 'playerdeath':
                 LAYERS.eupper.fillStyle = 'rgba(255, 0, 0, ' + Math.min(self.opacity, 50)/100 + ')';
-                LAYERS.eupper.fillRect(self.x-self.size/2+OFFSETX, self.y-self.size/2+OFFSETY, self.size, self.size);
+                type = 1;
                 break;
             case 'warning':
                 LAYERS.eupper.fillStyle = 'rgba(255, 0, 0, ' + self.opacity/100 + ')';
+                type = 1;
+                break;
+            case 'garuderWarp1':
+                LAYERS.eupper.fillStyle = self.color + Math.max(self.op2, 0)/100 + ')';
+                type = 1;
+                break;
+            case 'garuderWarp2':
+                LAYERS.eupper.fillStyle = self.color + self.opacity/100 + ')';
+                type = 1;
+                break;
+            default:
+                delete Particle.list.get(self.identifier)[self.id];
+                break;
+        }
+        switch (type) {
+            case 0:
+                LAYERS.eupper.fillText(self.value, self.x+OFFSETX, self.y+OFFSETY);
+                break;
+            case 1:
                 LAYERS.eupper.fillRect(self.x-self.size/2+OFFSETX, self.y-self.size/2+OFFSETY, self.size, self.size);
                 break;
             default:
@@ -674,32 +753,50 @@ Particle = function(map, x, y, type, value) {
     };
     self.drawFast = function drawFast() {
         if (self.update()) return;
+        let type = 0;
         switch (self.type) {
             case 'damage':
-                LAYERS.eupper.fillText(self.value, self.x+OFFSETX, self.y+OFFSETY);
+                type = 0;
                 break;
             case 'critdamage':
-                LAYERS.eupper.fillText(self.value, self.x+OFFSETX, self.y+OFFSETY);
+                type = 0;
                 break;
             case 'heal':
-                LAYERS.eupper.fillText(self.value, self.x+OFFSETX, self.y+OFFSETY);
+                type = 0;
                 break;
             case 'teleport':
-                LAYERS.eupper.fillRect(self.x-self.size/2+OFFSETX, self.y-self.size/2+OFFSETY, self.size, self.size);
+                type = 1;
                 break;
             case 'explosion':
-                LAYERS.eupper.fillRect(self.x-self.size/2+OFFSETX, self.y-self.size/2+OFFSETY, self.size, self.size);
+                type = 1;
                 break;
             case 'spawn':
-                LAYERS.eupper.fillRect(self.x-self.size/2+OFFSETX, self.y-self.size/2+OFFSETY, self.size, self.size);
+                type = 1;
                 break;
             case 'death':
-                LAYERS.eupper.fillRect(self.x-self.size/2+OFFSETX, self.y-self.size/2+OFFSETY, self.size, self.size);
+                type = 1;
                 break;
             case 'playerdeath':
-                LAYERS.eupper.fillRect(self.x-self.size/2+OFFSETX, self.y-self.size/2+OFFSETY, self.size, self.size);
+                type = 1;
                 break;
             case 'warning':
+                type = 1;
+                break;
+            case 'garuderTeleport1':
+                type = 1;
+                break;
+            case 'garuderTeleport2':
+                type = 1;
+                break;
+            default:
+                delete Particle.list.get(self.identifier)[self.id];
+                break;
+        }
+        switch (type) {
+            case 0:
+                LAYERS.eupper.fillText(self.value, self.x+OFFSETX, self.y+OFFSETY);
+                break;
+            case 1:
                 LAYERS.eupper.fillRect(self.x-self.size/2+OFFSETX, self.y-self.size/2+OFFSETY, self.size, self.size);
                 break;
             default:
@@ -947,12 +1044,12 @@ Light = function(x, y, map, radius, r, g, b, a, parent, above) {
             self.map = self.parent.map;
         }
         if (settings.flickeringLights && self.map == player.map) {
-            self.radius = Math.round(Math.max(0, self.radius2-40, Math.min(self.radius+Math.random()*4-2, self.radius2+40)));
+            self.radius = Math.round(Math.max(1, self.radius2-40, Math.min(self.radius+Math.random()*4-2, self.radius2+40)));
             self.a = Math.max(0, self.a2-0.1, Math.min(self.a+Math.random()*0.04-0.02, self.a2+0.1, 1));
         }
     };
     self.drawAlpha = function drawAlpha() {
-        var gradient = LAYERS.lights.createRadialGradient(self.x+OFFSETX, self.y+OFFSETY, 0, self.x+OFFSETX, self.y+OFFSETY, self.radius);
+        let gradient = LAYERS.lights.createRadialGradient(self.x+OFFSETX, self.y+OFFSETY, 0, self.x+OFFSETX, self.y+OFFSETY, self.radius);
         gradient.addColorStop(0, 'rgba(0, 0, 0, ' + self.a + ')');
         gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
         LAYERS.lights.fillStyle = gradient;
@@ -960,7 +1057,7 @@ Light = function(x, y, map, radius, r, g, b, a, parent, above) {
     };
     self.drawColor = function drawColor() {
         if (self.hasColor) {
-            var gradient = LAYERS.lights.createRadialGradient(self.x+OFFSETX, self.y+OFFSETY, self.radius/5, self.x+OFFSETX, self.y+OFFSETY, self.radius);
+            let gradient = LAYERS.lights.createRadialGradient(self.x+OFFSETX, self.y+OFFSETY, self.radius/5, self.x+OFFSETX, self.y+OFFSETY, self.radius);
             gradient.addColorStop(0, 'rgba(' + self.r + ', ' + self.g + ', ' + self.b + ', ' + self.a + ')');
             gradient.addColorStop(1, 'rgba(' + self.r + ', ' + self.g + ', ' + self.b + ', 0)');
             LAYERS.lights.fillStyle = gradient;
@@ -1043,14 +1140,11 @@ async function getEntityData() {
                     }
                     resolve();
                 } else {
-                    console.error('Error: Server returned status ' + this.status);
-                    await sleep(1000);
-                    request.send();
+                    reject('Error: Server returned status ' + this.status);
                 }
             };
-            request.onerror = function() {
-                console.error('There was a connection error. Please retry');
-                reject();
+            request.onerror = function(err) {
+                reject(err);
             };
             request.send();
         });
@@ -1070,14 +1164,11 @@ async function getEntityData() {
                     }
                     resolve();
                 } else {
-                    console.error('Error: Server returned status ' + this.status);
-                    await sleep(1000);
-                    request.send();
+                    reject('Error: Server returned status ' + this.status);
                 }
             };
-            request.onerror = function() {
-                console.error('There was a connection error. Please retry');
-                reject();
+            request.onerror = function(err) {
+                reject(err);
             };
             request.send();
         });
