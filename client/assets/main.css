@@ -1,4 +1,4 @@
-/* Copyright (C) 2022 Radioactive64 */
+/* Copyright (C) 2023 Sampleprovider(sp) */
 
 /* font */
 @font-face {
@@ -207,6 +207,7 @@ a:focus {
     text-align: center;
     font-family: 'pixel';
     font-size: 100px;
+    font-weight: 500;
     color: #000000;
     padding-top: 10vh;
     text-shadow: 5px 5px 0px #00000055;
@@ -243,9 +244,13 @@ a:focus {
     line-height: 20px;
     padding: 0px 0px;
     margin: 0px 0px;
+    text-align: justify;
 }
 
 /* login */
+#signIn {
+    width: 80px;
+}
 #signInError {
     color: red;
     font-weight: lighter;
@@ -349,7 +354,7 @@ a:focus {
 }
 
 /* dark mode for whatever reason */
-@media (prefers-color-scheme: light) {
+/* @media (prefers-color-scheme: light) {
     #loadingContainer {
         background-color: white;
     }
@@ -362,4 +367,10 @@ a:focus {
     .window-body {
         background-color: white;
     }
-}
+    .ui-block {
+        background-color: white;
+    }
+    .ui-lighttext {
+        color: black;
+    }
+} */

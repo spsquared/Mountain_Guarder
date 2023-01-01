@@ -91,6 +91,42 @@
         },
         "above": true
     },
+    "homingmagicball2": {
+        "width": 36,
+        "height": 36,
+        "rawWidth": 9,
+        "rawHeight": 9,
+        "offsetX": 0,
+        "offsetY": 0,
+        "glow": {
+            "radius": 48,
+            "color": {
+                "r": 200,
+                "g": 100,
+                "b": 220
+            },
+            "intensity": 0.2
+        },
+        "above": false
+    },
+    "homingmagicballnoclip2": {
+        "width": 36,
+        "height": 36,
+        "rawWidth": 9,
+        "rawHeight": 9,
+        "offsetX": 0,
+        "offsetY": 0,
+        "glow": {
+            "radius": 48,
+            "color": {
+                "r": 190,
+                "g": 60,
+                "b": 240
+            },
+            "intensity": 0.2
+        },
+        "above": true
+    },
     "meleedamage": {
         "width": 0,
         "height": 0,
@@ -112,11 +148,11 @@
         "above": false
     },
     "aiminglaser": {
-        "width": 1024,
+        "width": 2048,
         "height": 3,
         "rawWidth": 1,
         "rawHeight": 1,
-        "offsetX": 0,
+        "offsetX": 1024,
         "offsetY": 0,
         "glow": false,
         "above": false
@@ -206,5 +242,23 @@
             "intensity": 0.3
         },
         "above": true
+    },
+    "firework": {
+        "width": 51,
+        "height": 15,
+        "rawWidth": 17,
+        "rawHeight": 5,
+        "offsetX": 0,
+        "offsetY": 0,
+        "glow": {
+            "radius": 74,
+            "color": {
+                "r": 255,
+                "g": 200,
+                "b": 200
+            },
+            "intensity": 0.2
+        },
+        "above": false
     }
 }

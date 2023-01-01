@@ -1,0 +1,22 @@
+{
+    "lowermineshaft": {
+        "default": [
+            {
+                "x": 77,
+                "y": -16,
+                "data": [293],
+                "width": 1,
+                "above": false
+            }
+        ],
+        "active": [
+            {
+                "x": 77,
+                "y": -16,
+                "data": [379, 2642],
+                "width": 1,
+                "above": false
+            }
+        ]
+    }
+}

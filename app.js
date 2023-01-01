@@ -1,4 +1,4 @@
-// Copyright (C) 2022 Radioactive64
+// Copyright (C) 2023 Sampleprovider(sp)
 /*
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -14,11 +14,11 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-const version = 'v0.15.0';
-console.info('\x1b[?25l\x1b[33m%s\x1b[0m', 'Mountain Guarder ' + version + ' Copyright (C) Radioactive64 2022');
+const version = 'v0.16.0';
+console.info('\x1b[?25l\x1b[33m%s\x1b[0m', 'Mountain Guarder ' + version + ' Copyright (C) Sampleprovider(sp) 2023');
 console.info('For more information, type "copyright-details".');
 require('./server/log.js');
-appendLog('Mountain Guarder ' + version + ' Copyright (C) Radioactive64 2022', 'log');
+appendLog('Mountain Guarder ' + version + ' Copyright (C) Sampleprovider(sp) 2023', 'log');
 appendLog('Using NodeJS ' + process.version, 'log');
 logColor('Starting server...', '\x1b[32m', 'log');
 const express = require('express');
@@ -39,10 +39,11 @@ app.get('/', (req, res) => res.sendFile(__dirname + '/client/index.html'));
 app.get('/itemcreator', (req, res) => res.sendFile(__dirname + '/client/ItemCreator/index.html'));
 app.get('/asseteditor', (req, res) => res.sendFile(__dirname + '/client/Editor/index.html'));
 app.use('/', express.static(__dirname + '/client/'));
+app.use('/server', express.static(__dirname + '/server/'));
 app.use(limiter);
 
 // start server
-var started = false;
+let started = false;
 ENV = {
     useLocalDatabase: false,
     useDiscordWebhook: false,
@@ -57,7 +58,8 @@ ENV = {
         y: 8,
         layer: 0
     },
-    pvp: false,
+    respawnTeleport: true,
+    pvp: true,
     monsterFriendlyFire: true,
     broadcastMonsterDeaths: false,
     difficulty: 1,
@@ -65,6 +67,7 @@ ENV = {
     maxPathfindRange: 32,
     pathfindBuffer: 6,
     pathfindUpdateSpeed: 10,
+    fastExplosions: false,
     itemDespawnTime: 5,
     autoSaveInterval: 5,
     isBetaServer: false
@@ -86,8 +89,8 @@ async function start() {
     logColor('Loading maps...', '\x1b[32m', 'log');
     await MAPS.load();
     if (ENV.enableGaruderAPI) {
-        // logColor('Starting GaruderAPI...', '\x1b[32m', 'log');
-        // require('./server/api.js')(server);
+        logColor('Starting GaruderAPI...', '\x1b[32m', 'log');
+        require('./server/api.js')(server);
     }
     logColor('Connecting to database...', '\x1b[32m', 'log');
     await ACCOUNTS.connect();
@@ -316,7 +319,7 @@ io.on('connection', function(socket) {
         socket.on('ping', function() {
             socket.emit('pong');
         });
-        // ddos spam protection
+        // dos spam protection
         let packetCount = 0;
         const onevent = socket.onevent;
         socket.onevent = function(packet) {
@@ -380,12 +383,12 @@ s = {
         return false;
     },
     kill: function s_kill(self, username) {
-        var player = s.findPlayer(username);
+        const player = s.findPlayer(username);
         if (player) player.onDeath(null, 'debug');
         else return 'No player with username ' + username;
     },
     kick: function s_kick(self, username) {
-        var player = s.findPlayer(username);
+        const player = s.findPlayer(username);
         if (player) player.leave();
         else return 'No player with username ' + username;
     },
@@ -421,7 +424,7 @@ s = {
         else return 'Enabled collisions';
     },
     bc: function s_bc(self, ...text) {
-        insertChat('[BC]: ' + text.reduce(function(prev, curr) {return prev + ' ' + curr;}, '').slice(1), 'server');
+        insertChat('[BC]: ' + text.reduce(function(prev, curr) {return prev + ' ' + curr;}, '').slice(1).replaceAll('<', '&lt;').replaceAll('>', '&gt'), 'server');
     },
     summon: function s_summon(self, type, x, y, map, layer) {
         var monster = new Monster(type, parseInt(x ?? self.x), parseInt(y ?? self.y), map ?? self.map, parseInt(layer ?? self.layer));
@@ -434,7 +437,7 @@ s = {
         return 'Slaughtered all monsters';
     },
     nuke: function s_nuke(self, username) {
-        var player = s.findPlayer(username);
+        const player = s.findPlayer(username);
         if (player) {
             for (let i = 0; i < 10; i++) {
                 new Monster('cherrybomb', player.x+Math.random()*40-20, player.y+Math.random()*40-20, player.map, player.layer);
@@ -442,32 +445,32 @@ s = {
         } else return 'No player with username ' + username;
     },
     give: function s_give(self, username, item, amount) {
-        var player = s.findPlayer(username);
+        const player = s.findPlayer(username);
         if (player) player.inventory.addItem(item, parseInt(amount ?? 1));
         else return 'No player with username ' + username;
     },
     rickroll: function s_rickroll(self, username) {
-        var player = s.findPlayer(username);
+        const player = s.findPlayer(username);
         if (player) {
             player.socket.emit('rickroll');
             insertChat(username + ' got rickrolled.', 'fun');
         } else return 'No player with username ' + username;
     },
     audioRickroll: function s_audioRickroll(self, username) {
-        var player = s.findPlayer(username);
+        const player = s.findPlayer(username);
         if (player) {
             player.socket.emit('loudrickroll');
         } else return 'No player with username ' + username;
     },
     lag: function s_lag(self, username) {
-        var player = s.findPlayer(username);
+        const player = s.findPlayer(username);
         if (player) {
             player.socket.emit('lag');
             insertChat(username + ' got laggy.', 'fun');
         } else return 'No player with username ' + username;
     },
     crash: function s_crash(self, username) {
-        var player = s.findPlayer(username);
+        const player = s.findPlayer(username);
         if (player) {
             player.socket.emit('crash');
             insertChat(username + '\'s game crashed.', 'fun');
@@ -475,7 +478,7 @@ s = {
     },
     ban: function s_ban(self, username) {
         if (username == 'Sampleprovider(sp)') return 'no';
-        var player = s.findPlayer(username);
+        const player = s.findPlayer(username);
         if (player) {
             player.leave();
         }
@@ -500,23 +503,23 @@ prompt.on('line', async function(input) {
             stop();
             return;
         } else if (input == 'copyright-details') {
-            debugLog('+-----------------------------------------------------------------------+');
-            debugLog('|   \x1b[1m\x1b[36mMountain Guarder\x1b[0m                                                    |');
-            debugLog('|   \x1b[1m\x1b[34mCopyright (C) 2022 Radioactive64\x1b[0m                                    |');
-            debugLog('|                                                                       |');
-            debugLog('| This program is free software: you can redistribute it and/or modify  |');
-            debugLog('| it under the terms of the GNU General Public License as published by  |');
-            debugLog('| the Free Software Foundation, either version 3 of the License, or     |');
-            debugLog('| (at your option) any later version.                                   |');
-            debugLog('|                                                                       |');
-            debugLog('| This program is distributed in the hope that it will be useful, but   |');
-            debugLog('| WITHOUT ANY WARRANTY; without even the implied warranty of            |');
-            debugLog('| MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     |');
-            debugLog('| GNU General Public License for more details.                          |');
-            debugLog('|                                                                       |');
-            debugLog('| You should have received a copy of the GNU General Public License     |');
-            debugLog('| along with this program. If not, see <\x1b[4mhttps://www.gnu.org/licenses/\x1b[0m>. |');
-            debugLog('+-----------------------------------------------------------------------+');
+            debugLog('┌───────────────────────────────────────────────────────────────────────┐');
+            debugLog('│   \x1b[1m\x1b[36mMountain Guarder\x1b[0m                                                    │');
+            debugLog('│   \x1b[1m\x1b[34mCopyright (C) 2022 Sampleprovider(sp)\x1b[0m                                    │');
+            debugLog('├───────────────────────────────────────────────────────────────────────┤');
+            debugLog('│ This program is free software: you can redistribute it and/or modify  │');
+            debugLog('│ it under the terms of the GNU General Public License as published by  │');
+            debugLog('│ the Free Software Foundation, either version 3 of the License, or     │');
+            debugLog('│ (at your option) any later version.                                   │');
+            debugLog('│                                                                       │');
+            debugLog('│ This program is distributed in the hope that it will be useful, but   │');
+            debugLog('│ WITHOUT ANY WARRANTY; without even the implied warranty of            │');
+            debugLog('│ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     │');
+            debugLog('│ GNU General Public License for more details.                          │');
+            debugLog('│                                                                       │');
+            debugLog('│ You should have received a copy of the GNU General Public License     │');
+            debugLog('│ along with this program. If not, see <\x1b[4mhttps://www.gnu.org/licenses/\x1b[0m>. │');
+            debugLog('└───────────────────────────────────────────────────────────────────────┘');
             return;
         } else if (input == 'colortest') {
             debugLog('\x1b[0m█ \x1b[0m\x1b[1m█ \x1b[0m');
@@ -591,7 +594,7 @@ prompt.on('line', async function(input) {
             }
         }
     } else if (input == '') {
-        process.stdout.write('\x1b[1A\x1b[2C');
+        process.stdout.write('\r \x1b[1A\x1b[2C');
     }
 });
 async function stop() {
@@ -609,7 +612,7 @@ async function stop() {
         server.close();
         logColor('Server Stopped.', '\x1b[32m', 'log')
         appendLog('----------------------------------------');
-        process.stdout.write('\x1b[1A');
+        process.stdout.write('\x1b[1A');
         process.exit(0);
     }
 }
@@ -618,14 +621,17 @@ prompt.on('close', async function() {
 });
 process.on('SIGTERM', stop);
 process.on('SIGINT', stop);
-process.stdout.write('\x1b[?25h');
+process.on('SIGQUIT', stop);
+process.on('SIGILL', stop);
+process.stdout.write('\x1b[?25h');
 
 // Tickrate
 TPS = 0;
-var tpsTimes = [];
-var consecutiveTimeouts = 0;
+let tpsTimes = [];
+let consecutiveTimeouts = 0;
 TICKTIME = 0;
 const update = ('var fn = new Function("return ' + function() {
+    EventTrigger.update();
     const pack = Entity.update();
     for (let i in Player.list) {
         let localplayer = Player.list[i];
@@ -750,53 +756,55 @@ const autoSave = setInterval(function() {
 }, ENV.autoSaveInterval*60000);
 
 // critical errors
-var quitting = false;
 forceQuit = async function(err, code) {
-    if (!quitting) {
-        try {
-            quitting = true;
-            error('SERVER ENCOUNTERED A CATASTROPHIC ERROR. STOP CODE:');
-            console.error(err);
-            appendLog(err, 'error');
-            if (err instanceof Error) appendLog(err.stack, 'error');
-            insertChat('[!] SERVER ENCOUNTERED A CATASTROPHIC ERROR. [!]', 'error');
-            if (err instanceof Error && !err.message.includes('https://discord.com/api/webhooks/')) insertChat(err.message, 'error');
-            else insertChat(err, 'error');
-            appendLog('Error code ' + code, 'error');
-            appendLog('Environment versions:');
-            for (let i in process.versions) {
-                appendLog(i + ': ' + process.versions[i], 'error');
-            }
-            error('STOP.');
-            clearInterval(updateTicks);
-            clearInterval(autoSave);
-            for (let i in Player.list) {
-                await Player.list[i].disconnect();
-            }
-            started = false;
-            await ACCOUNTS.disconnect();
-            server.close();
-            active = false;
-            console.error('\x1b[33mIf this issue persists, consult README.md for troubleshooting information.\x1b[0m');
-            console.error('\x1b[33mPress ENTER or CTRL+C to exit.\x1b[0m');
-            const stopprompt = readline.createInterface({input: process.stdin, output: process.stdout});
-            stopprompt.on('line', function(input) {
-                appendLog('----------------------------------------');
-                process.exit(code);
-            });
-            stopprompt.on('close', function() {
-                appendLog('----------------------------------------');
-                process.exit(code);
-            });
-            if (process.env.PORT) {
-                log('Heroku server detected, automatically stopping server.');
-                appendLog('----------------------------------------');
-                process.exit(code);
-            }
-        } catch (err) {
-            forceQuit(err, 1);
+    try {
+        error('SERVER ENCOUNTERED A CATASTROPHIC ERROR. STOP CODE:');
+        console.error(err);
+        insertChat('[!] SERVER ENCOUNTERED A CATASTROPHIC ERROR. [!]', 'error');
+        if (err instanceof Error && !err.message.includes('https://discord.com/api/webhooks/')) insertChat(err.message, 'error');
+        else insertChat(err, 'error');
+        appendLog('Error code ' + code, 'error');
+        appendLog('Environment versions:');
+        for (let i in process.versions) {
+            appendLog(i + ': ' + process.versions[i], 'error');
         }
-    } else {
+        error('STOP.');
+        clearInterval(updateTicks);
+        clearInterval(autoSave);
+        for (let i in Player.list) {
+            try {
+                await Player.list[i].disconnect();
+            } catch (err) {
+                console.error('\x1b[31mThere was an error trying to stop the server!\x1b[0m');
+                console.error(err);
+            }
+        }
+        started = false;
+        try {
+            await ACCOUNTS.disconnect();
+        } catch (err) {
+            console.error('\x1b[31mThere was an error trying to stop the server!\x1b[0m');
+            console.error(err);
+        }
+        server.close();
+        active = false;
+        console.error('\x1b[33mIf this issue persists, consult README.md for troubleshooting information.\x1b[0m');
+        console.error('\x1b[33m> Press any key to exit.\x1b[0m');
+        process.stdin.on('keypress', function(str, key) {
+            appendLog('----------------------------------------');
+            process.exit(code);
+        });
+        if (process.env.PORT) {
+            log('Heroku server detected, automatically stopping server.');
+            appendLog('----------------------------------------');
+            process.exit(code);
+        }
+        if (process.env.REPL_OWNER) {
+            log('Repl detected, automatically stopping server.');
+            appendLog('----------------------------------------');
+            process.exit(code);
+        }
+    } catch (err) {
         console.error('\x1b[31mThere was an error trying to stop the server!\x1b[0m');
         console.error(err);
         process.exit(code);

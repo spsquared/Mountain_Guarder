@@ -59,7 +59,7 @@
                 "silvercoin": 4
             }
         },
-        "failOnDeath": false
+        "failOnDeath": true
     },
     "sprock": {
         "name": "Lodestone Mystery",

@@ -1,4 +1,4 @@
-// Copyright (C) 2022 Radioactive64
+// Copyright (C) 2023 Sampleprovider(sp)
 
 // inventory
 const inventoryItems = document.getElementById('inventoryItemsBody');
@@ -21,6 +21,7 @@ Inventory = {
         shield: null,
         key: null,
         crystal: null,
+        sell: null
     },
     currentDrag: null,
     dragOffsetX: 0,
@@ -34,10 +35,10 @@ Inventory.Item = function Item(id, slot, amount, enchantments) {
     self.slot = slot;
     self.stackSize = amount || 1;
     self.enchantments = enchantments || [];
-    self.refresh = function() {
+    self.refresh = function refresh() {
         Inventory.items[self.slot].refresh();
     };
-    self.enchant = function(enchantments) {
+    self.enchant = function enchant(enchantments) {
         // set enchant html string (<span style="color: #009900">Speed +10%</span>)
     };
 
@@ -64,7 +65,7 @@ Inventory.Slot = function Slot(i) {
         self.slot2.draggable = false;
     }
 
-    self.refresh = function() {
+    self.refresh = function refresh() {
         if (self.item) {
             let html;
             if (self.item.stackSize != 1) html = '<img src="/img/item/' + self.item.id + '.png" class="invSlotImg noSelect"><div class="invSlotStackSize noSelect">' + self.item.stackSize + '</div>';
@@ -76,18 +77,26 @@ Inventory.Slot = function Slot(i) {
             html = '<img src="/img/item/empty.png" class="invSlotImgNoGrab noSelect">';
             slot.innerHTML = html;
             if (self.slot2) self.slot2.innerHTML = html;
+            // prevent loitering tooltips
+            if (self.mousedOver) {
+                self.mousedOver = false;
+                Inventory.hovering = false;
+                tooltip.style.opacity = 0;
+            }
         }
     };
-    slot.onmouseover = function(e) {
+    slot.onmouseover = function onmouseover(e) {
         self.mousedOver = true;
         if (self.item) {
             Inventory.hovering = true;
             Inventory.loadTooltip(self.slotId);
+            invMouseMove(e);
         }
     };
-    slot.onmouseout = function(e) {
+    slot.onmouseout = function onmouseout(e) {
         self.mousedOver = false;
         Inventory.hovering = false;
+        invMouseMove(e);
     };
 
     inventoryItems.appendChild(slot);
@@ -108,26 +117,36 @@ Inventory.EquipSlot = function EquipSlot(equip) {
         mousedOver: false
     };
 
-    self.refresh = function() {
+    self.refresh = function refresh() {
         if (self.item) {
-            slot.innerHTML = '<img src="/img/item/' + self.item.id + '.png" class="invSlotImg noSelect">';
+            if (self.item.stackSize != 1) slot.innerHTML = '<img src="/img/item/' + self.item.id + '.png" class="invSlotImg noSelect"><div class="invSlotStackSize noSelect">' + self.item.stackSize + '</div>';
+            else slot.innerHTML = '<img src="/img/item/' + self.item.id + '.png" class="invSlotImg noSelect">';
         } else {
             slot.innerHTML = '<img src="/img/item/emptySlot' + self.slotId + '.png" class="invSlotImgNoGrab noSelect">';
+            // prevent loitering tooltips
+            if (self.mousedOver) {
+                self.mousedOver = false;
+                Inventory.hovering = false;
+                tooltip.style.opacity = 0;
+            }
         }
     };
-    slot.onmouseover = function(e) {
+    slot.onmouseover = function onmouseover(e) {
         self.mousedOver = true;
         if (self.item) {
             Inventory.hovering = true;
             Inventory.loadTooltip(self.slotId);
+            invMouseMove(e);
         }
     };
-    slot.onmouseout = function(e) {
+    slot.onmouseout = function onmouseout(e) {
         self.mousedOver = false;
         Inventory.hovering = false;
+        invMouseMove(e);
     };
 
-    inventoryEquips.appendChild(slot);
+    if (equip == 'sell') inventorySellShop.appendChild(slot);
+    else inventoryEquips.appendChild(slot);
     Inventory.equips[self.slotId] = self;
     self.refresh();
     return self;
@@ -169,10 +188,10 @@ Inventory.contains = function contains(id, amount) {
     return count >= amount;
 };
 Inventory.loadTooltip = function loadTooltip(slot) {
-    var item;
+    let item;
     if (typeof slot == 'number') item = Inventory.items[slot].item;
     else item = Inventory.equips[slot].item;
-    tooltip.innerHTML = '<span style="font-size: 16px; ' + Inventory.getRarityColor(item.rarity) + '">' + item.name + '</span><br><span style="font-size: 14px;">' + item.slotType.charAt(0).toUpperCase()+item.slotType.slice(1) + '</span><br><div style="font-size: 12px; line-height: 14px;">' + item.description + '</div>' + Inventory.loadEffects(item) + (item.usable ? '<span style="font-size: 10px; line-height: 12px; color: yellow;">Has use function</span>' : '');
+    tooltip.innerHTML = '<span style="font-size: 16px; ' + Inventory.getRarityColor(item.rarity) + '">' + item.name + '</span><br>' + '<span style="font-size: 14px;">' + item.slotType.charAt(0).toUpperCase()+item.slotType.slice(1) + '</span>' + '<br><div style="font-size: 12px; line-height: 14px;">' + item.description + '</div>' + Inventory.loadEffects(item) + (item.usable ? '<span style="font-size: 10px; line-height: 12px; color: yellow;">Has use function</span>' : '');
 };
 Inventory.getRarityColor = function getRarityColor(rarity) {
     var str = '';
@@ -206,9 +225,6 @@ Inventory.getRarityColor = function getRarityColor(rarity) {
             break;
         case 3:
             str = 'color: #CDE6FA;';
-            break;
-        case 4:
-            str = 'color: #7E32C2;';
             break;
     }
     return str;
@@ -246,7 +262,7 @@ Inventory.loadEffects = function loadEffects(item) {
         } else if (item.slotType == 'key') {
             if (item.manaIncrease != 0) str += '<span style="color: lime;">+' + item.manaIncrease + ' Max Mana</span><br>';
             let regen = Math.round(item.manaRegenerationAmount*(20/item.manaRegenerationSpeed)*10)/10;
-            str += '<span style="color: lime;">Regenerates ' + regen + ' Mana/second</span><br>';
+            str += '<span style="color: lime;">+' + regen + ' Mana/second</span><br>';
         }
         for (let i in item.effects) {
             let color = '';
@@ -369,6 +385,8 @@ Inventory.loadEffects = function loadEffects(item) {
         }
     }
     if (str == '<div style="font-size: 12px; line-height: 12px;">') str = '<br><div style="font-size: 12px; line-height: 12px;">No Effects';
+    if (item.manaCost > 0) str += '<span style="color: red;">-' + item.manaCost + ' Mana per use</span><br>';
+    if (item.manaCost < 0) str += '<span style="color: lime;">+' + item.manaCost + ' Mana per use</span><br>';
     str += '</div>';
     return str;
 };
@@ -407,13 +425,12 @@ document.addEventListener('mousedown', function(e) {
         }
     }
 });
-document.addEventListener('mousemove', function(e) {
+function invMouseMove(e) {
     if (loaded) {
         if (Inventory.currentDrag != null) {
             dragDiv.style.left = e.clientX-32 + 'px';
             dragDiv.style.top = e.clientY-32 + 'px';
-        }
-        if (Inventory.hovering && Inventory.currentDrag == null) {
+        } else if (Inventory.hovering) {
             tooltip.style.opacity = 1;
             tooltip.style.left = e.clientX + 'px';
             tooltip.style.top = e.clientY + 'px';
@@ -421,7 +438,8 @@ document.addEventListener('mousemove', function(e) {
             tooltip.style.opacity = 0;
         }
     }
-});
+};
+document.addEventListener('mousemove', invMouseMove);
 document.addEventListener('keydown', function(e) {
     if (loaded) {
         if (!inchat && !indebug) {
@@ -445,7 +463,6 @@ document.addEventListener('keydown', function(e) {
                 socket.emit('item', {
                     action: 'swap'
                 });
-                e.preventDefault();
             } else if (e.key.toLowerCase() == keybinds.quickEquip) {
                 for (let i in Inventory.items) {
                     if (Inventory.items[i].item && Inventory.items[i].mousedOver) {
@@ -533,11 +550,14 @@ socket.on('item', function(data) {
             Inventory.removeItem(data.data.slot);
             break;
         case 'banner':
-            var str = '<span style="' + Inventory.getRarityColor(Inventory.itemTypes[data.data.id].rarity) + ';">+' + data.data.amount + ' ' + Inventory.itemTypes[data.data.id].name + '</span>';
+            let str = `<span style="${data.data.amount > 0 ? `${Inventory.getRarityColor(Inventory.itemTypes[data.data.id].rarity)}">+` : 'color: red;">'}${data.data.amount} ${Inventory.itemTypes[data.data.id].name}</span>`;
             new Banner(str, {
                 type: 'time',
                 time: 3000
             });
+            break;
+        case 'itemvalue':
+            sellShopWorth.innerText = data.data.value;
             break;
         default:
             console.error('Invalid item action ' + data.action);
@@ -555,11 +575,11 @@ socket.on('item', function(data) {
 async function getInventoryData() {
     await new Promise(function(resolve, reject) {
         totalassets++;
-        var request = new XMLHttpRequest();
+        let request = new XMLHttpRequest();
         request.open('GET', '/item.json', true);
         request.onload = async function() {
             if (this.status >= 200 && this.status < 400) {
-                var json = JSON.parse(this.response);
+                const json = JSON.parse(this.response);
                 Inventory.itemTypes = json;
                 loadedassets++;
                 for (let i in Inventory.itemTypes) {
@@ -634,7 +654,7 @@ const inventoryCrafting = document.getElementById('inventoryCraftingBody');
 Crafting = {
     slots: [],
 };
-Crafting.slot = function(slot) {
+Crafting.slot = function slot(slot) {
     const craft = Crafting.slots[slot];
     const item = Object.assign({}, Inventory.itemTypes[craft.item]);
     item.stackSize = craft.amount;
@@ -657,10 +677,12 @@ Crafting.slot = function(slot) {
     block.onmouseover = function onmouseover(e) {
         Inventory.hovering = true;
         tooltip.innerHTML = popupItemText + craft.updateMaterials();
+        invMouseMove(e);
     };
     block.onmouseout = function onmouseout(e) {
         Inventory.hovering = false;
         tooltip.innerHTML = '';
+        invMouseMove(e);
     };
     block.onclick = function onclick(e) {
         socket.emit('item', {
@@ -706,11 +728,11 @@ Crafting.slot = function(slot) {
 async function getCraftingData() {
     await new Promise(function(resolve, reject) {
         totalassets++;
-        var request = new XMLHttpRequest();
+        let request = new XMLHttpRequest();
         request.open('GET', '/crafts.json', true);
         request.onload = async function() {
             if (this.status >= 200 && this.status < 400) {
-                var json = JSON.parse(this.response);
+                const json = JSON.parse(this.response);
                 Crafting.slots = json.items;
                 loadedassets++;
                 for (let i in Crafting.slots) {
@@ -739,7 +761,7 @@ const inventoryShop = document.getElementById('inventoryShopBody');
 const shopName = document.getElementById('inventoryShopName');
 
 // shops
-Shop = function(id) {
+Shop = function Shop(id) {
     const self = Object.assign({}, Shop.shops[id]);
     self.id = id;
     self.divs = [];
@@ -767,7 +789,10 @@ Shop = function(id) {
             counts[j] = costcount;
         }
         costs.addEventListener('wheel', e => {
-            costs.scrollLeft += e.deltaY/5;
+            costs.scrollBy({
+                left: e.deltaY/2,
+                behavior: "smooth"
+            });
         }, {passive: true});
         const arrow = document.createElement('div');
         arrow.className = 'shopArrow';
@@ -837,20 +862,55 @@ Shop = function(id) {
 Shop.currentShop = null;
 Shop.shops = {};
 
+// sell shops
+const inventorySellShop = document.getElementById('inventorySellShopBody');
+const sellShopItem = document.getElementById('sellShopItemSlot');
+const sellShopWorth = document.getElementById('sellShopItemWorthInner');
+const sellShopButton = document.getElementById('sellShopSell');
+
+// sell shops
+SellShop = {};
+SellShop.open = function() {
+    inventoryWindow.changeTab('inventorySellShop');
+    inventoryWindow.show();
+    SellShop.inShop = true;
+};
+SellShop.close = function() {
+    socket.emit('sellshop', {
+        action: 'close'
+    });
+    SellShop.inShop = false;
+};
+SellShop.inShop = false;
+SellShop.sellItem = function() {
+    socket.emit('sellshop', {action: 'sell'});
+};
+
 // io
 socket.on('shop', function(data) {
     new Shop(data.id);
+});
+socket.on('shopClose', function() {
+    if (Shop.currentShop) Shop.currentShop.close();
+    if (inventoryWindow.currentTab == 'inventoryShop') inventoryWindow.changeTab('inventoryEquips');
+});
+socket.on('sellshop', function() {
+    SellShop.open();
+});
+socket.on('sellshopClose', function() {
+    if (SellShop.inShop) SellShop.close();
+    if (inventoryWindow.currentTab == 'inventorySellShop') inventoryWindow.changeTab('inventoryEquips');
 });
 
 // loading
 async function getShopData() {
     await new Promise(function(resolve, reject) {
         totalassets++;
-        var request = new XMLHttpRequest();
+        let request = new XMLHttpRequest();
         request.open('GET', '/shop.json', true);
         request.onload = async function() {
             if (this.status >= 200 && this.status < 400) {
-                var json = JSON.parse(this.response);
+                const json = JSON.parse(this.response);
                 Shop.shops = json;
                 loadedassets++;
                 resolve();

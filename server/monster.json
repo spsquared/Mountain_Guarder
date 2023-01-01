@@ -33,6 +33,9 @@
             "knockback": 1,
             "maxPierce": 0
         },
+        "immuneTo": [],
+        "resistantTo": [],
+        "vulnerableTo": [],
         "animationLength": 1,
         "animationSpeed": 100,
         "xpDrop": 5,
@@ -84,6 +87,9 @@
             "knockback": 1,
             "maxPierce": 0
         },
+        "immuneTo": [],
+        "resistantTo": [],
+        "vulnerableTo": [],
         "animationLength": 1,
         "animationSpeed": 100,
         "xpDrop": 5,
@@ -134,6 +140,9 @@
             "knockback": 2,
             "maxPierce": 0
         },
+        "immuneTo": [],
+        "resistantTo": [],
+        "vulnerableTo": [],
         "animationLength": 1,
         "animationSpeed": 100,
         "xpDrop": 10,
@@ -185,19 +194,21 @@
             "knockback": 20,
             "maxPierce": 0
         },
+        "immuneTo": [],
+        "resistantTo": [],
+        "vulnerableTo": [],
         "animationLength": 1,
         "animationSpeed": 200,
         "xpDrop": 20,
         "drops": {
             "chance": {
                 "nothing": 15,
-                "coins": 8,
                 "woodenhelmet": 0.4,
                 "steelhelmet": 0.1,
                 "steelarmor": 0.1
             },
             "amount": {
-                "coppercoin": 50
+                "coppercoin": 60
             },
             "constant": {}
         }
@@ -236,6 +247,13 @@
             "knockback": 2,
             "maxPierce": 0
         },
+        "immuneTo": [],
+        "resistantTo": [
+            "poison"
+        ],
+        "vulnerableTo": [
+            "burning"
+        ],
         "animationLength": 0,
         "animationSpeed": 100,
         "xpDrop": 10,
@@ -249,7 +267,8 @@
                 "titaniumbow": 0.1
             },
             "amount": {
-                "coppercoin": 80
+                "silvercoin": 1,
+                "coppercoin": 30
             },
             "constant": {}
         }
@@ -288,18 +307,21 @@
             "knockback": 1.5,
             "maxPierce": 0
         },
+        "immuneTo": [],
+        "resistantTo": [],
+        "vulnerableTo": [],
         "animationLength": 1,
         "animationSpeed": 150,
         "xpDrop": 15,
         "drops": {
             "chance": {
-                "nothing": 20,
-                "stone": 30,
-                "ironore": 3,
-                "coal": 8,
+                "nothing": 10,
+                "ironore": 10,
+                "coal": 10,
                 "quartz": 1
             },
             "amount": {
+                "stone": 3,
                 "coppercoin": 40,
                 "silvercoin": 1
             },
@@ -340,20 +362,27 @@
             "knockback": 0.8,
             "maxPierce": 0
         },
+        "immuneTo": [
+            "poison"
+        ],
+        "resistantTo": [
+            "burning"
+        ],
+        "vulnerableTo": [],
         "animationLength": 0,
         "animationSpeed": 100,
         "xpDrop": 40,
         "drops": {
             "chance": {
-                "nothing": 40,
-                "ironore": 8,
-                "coal": 30,
+                "nothing": 10,
+                "ironore": 12,
+                "coal": 20,
                 "quartz": 3,
                 "ialiteshard": 1
             },
             "amount": {
                 "coppercoin": 30,
-                "silvercoin": 1
+                "silvercoin": 2
             },
             "constant": {}
         }
@@ -392,19 +421,26 @@
             "knockback": 1,
             "maxPierce": 0
         },
+        "immuneTo": [
+            "poison"
+        ],
+        "resistantTo": [
+            "burning"
+        ],
+        "vulnerableTo": [],
         "animationLength": 7,
         "animationSpeed": 50,
         "xpDrop": 50,
         "drops": {
             "chance": {
-                "nothing": 10,
+                "nothing": 2,
                 "iron": 5,
                 "quartz": 9,
                 "stoneshield": 1
             },
             "amount": {
                 "coppercoin": 80,
-                "silvercoin": 1
+                "silvercoin": 5
             },
             "constant": {}
         }
@@ -422,12 +458,55 @@
             "stages": [
                 {
                     "endTrigger": {
-                        "type": "hp",
+                        "type": "step",
                         "data": {
-                            "min": 800
+                            "time": 20
                         }
                     },
                     "moveSpeed": 2,
+                    "hp": 1400,
+                    "reviveHP": false,
+                    "stats": {
+                        "damageType": "",
+                        "projectileSpeed": 1,
+                        "attack": 1,
+                        "defense": 0.4,
+                        "damageReduction": 2,
+                        "knockbackResistance": 0.95,
+                        "heal": 8,
+                        "speed": 1,
+                        "range": 1,
+                        "accuracy": 0.2,
+                        "critChance": 0,
+                        "critPower": 1,
+                        "knockback": 1,
+                        "maxPierce": 0
+                    },
+                    "attacks": [
+                        {
+                            "chance": 1,
+                            "action": {
+                                "type": "cameraShake",
+                                "formation": "cameraShake",
+                                "data": {
+                                    "intensity": 20,
+                                    "time": 40
+                                }
+                            },
+                            "time": 0
+                        }
+                    ]
+                },
+                {
+                    "endTrigger": {
+                        "type": "hp",
+                        "data": {
+                            "min": 200
+                        }
+                    },
+                    "moveSpeed": 2,
+                    "hp": 1400,
+                    "reviveHP": false,
                     "stats": {
                         "damageType": "",
                         "projectileSpeed": 1,
@@ -452,7 +531,8 @@
                                 "formation": "surround",
                                 "data": {
                                     "amount": 5,
-                                    "id": "sentientrock"
+                                    "id": "sentientrock",
+                                    "waitForDeath": false
                                 }
                             },
                             "time": 200
@@ -517,14 +597,18 @@
                 {
                     "endTrigger": {
                         "type": "step",
-                        "data": {}
+                        "data": {
+                            "time": 200
+                        }
                     },
                     "moveSpeed": 2,
+                    "hp": 1400,
+                    "reviveHP": true,
                     "stats": {
                         "damageType": "",
                         "projectileSpeed": 1,
                         "attack": 1,
-                        "defense": 0.7,
+                        "defense": 2,
                         "damageReduction": 2,
                         "knockbackResistance": 0.95,
                         "heal": 10,
@@ -544,7 +628,8 @@
                                 "formation": "map",
                                 "data": {
                                     "name": "sprock2",
-                                    "id": "rockturret"
+                                    "id": "rockturret",
+                                    "waitForDeath": false
                                 }
                             },
                             "time": 0
@@ -571,6 +656,8 @@
                         }
                     },
                     "moveSpeed": 2,
+                    "hp": 1400,
+                    "reviveHP": false,
                     "stats": {
                         "damageType": "",
                         "projectileSpeed": 1,
@@ -595,7 +682,8 @@
                                 "formation": "surround",
                                 "data": {
                                     "amount": 6,
-                                    "id": "sentientrock"
+                                    "id": "sentientrock",
+                                    "waitForDeath": false
                                 }
                             },
                             "time": 200
@@ -607,22 +695,11 @@
                                 "formation": "map",
                                 "data": {
                                     "name": "sprock1",
-                                    "id": "sentientrock"
+                                    "id": "sentientrock",
+                                    "waitForDeath": false
                                 }
                             },
                             "time": 400
-                        },
-                        {
-                            "chance": 1,
-                            "action": {
-                                "type": "monsters",
-                                "formation": "map",
-                                "data": {
-                                    "name": "sprock2",
-                                    "id": "rockturret"
-                                }
-                            },
-                            "time": 200
                         },
                         {
                             "chance": 50,
@@ -719,6 +796,12 @@
             "knockback": 1,
             "maxPierce": 0
         },
+        "immuneTo": [
+            "poison",
+            "burning"
+        ],
+        "resistantTo": [],
+        "vulnerableTo": [],
         "animationLength": 0,
         "animationSpeed": 500,
         "xpDrop": 200,

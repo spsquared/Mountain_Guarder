@@ -1,12 +1,12 @@
-// Copyright (C) 2022 Radioactive64
+// Copyright (C) 2023 Sampleprovider(sp)
 
 // sign in
-var deleteaccountconfirmed = false;
-var changePasswordActive = false;
+let deleteaccountconfirmed = false;
+let changePasswordActive = false;
 const signInError = document.getElementById('signInError');
-var signedIn = false;
-var awaitingResponse = false;
-var publicKey;
+let signedIn = false;
+let awaitingResponse = false;
+let publicKey;
 async function signIn() {
     if (!signedIn && !awaitingResponse) {
         socket.emit('signIn', {
@@ -280,10 +280,16 @@ socket.on('signInState', async function(state) {
     awaitingResponse = false;
 });
 async function RSAencode(text) {
-    return await window.crypto.subtle.encrypt({name: 'RSA-OAEP'}, publicKey, new TextEncoder().encode(text));
+    if (publicKey) return await window.crypto.subtle.encrypt({name: 'RSA-OAEP'}, publicKey, new TextEncoder().encode(text));
+    else return text;
 };
 socket.once('publicKey', async function(key) {
-    publicKey = await window.crypto.subtle.importKey('jwk', key, {name: "RSA-OAEP", hash: "SHA-256"}, false, ['encrypt']);
+    if (window.crypto.subtle === undefined) {
+        signInError.style.color = '#FFFF00';
+        signInError.innerText = 'Insecure context detected! Passwords will be sent in PLAIN TEXT!';
+    } else {
+        publicKey = await window.crypto.subtle.importKey('jwk', key, {name: "RSA-OAEP", hash: "SHA-256"}, false, ['encrypt']);
+    }
 });
 socket.emit('requestPublicKey');
 
@@ -372,9 +378,10 @@ DraggableWindow = function(id) {
     return self;
 };
 function resetZIndex() {
-    document.getElementById('inventory').style.zIndex = 5;
-    document.getElementById('settings').style.zIndex = 5;
-    document.getElementById('debugConsole').style.zIndex = 5;
+    inventoryWindow.window.style.zIndex = 5;
+    mapWindow.window.style.zIndex = 5;
+    settingsWindow.window.style.zIndex = 5;
+    debugConsoleWindow.window.style.zIndex = 5;
 };
 
 // menu buttons
@@ -392,7 +399,14 @@ const inventoryWindow = new DraggableWindow('inventory');
 const mapWindow = new DraggableWindow('map');
 const settingsWindow = new DraggableWindow('settings');
 const debugConsoleWindow = new DraggableWindow('debugConsole');
-inventoryWindow.hide = function hide() {
+inventoryWindow.show = function inv_show() {
+    inventoryWindow.window.style.display = 'block';
+    document.getElementById('inventoryItemsBody').scrollTop = 0;
+    resetZIndex();
+    inventoryWindow.window.style.zIndex = 6;
+    inventoryWindow.open = true;
+};
+inventoryWindow.hide = function inv_hide() {
     inventoryWindow.window.style.display = 'none';
     inventoryWindow.open = false;
     document.getElementById('invHoverTooltip').style.opacity = 0;
@@ -409,14 +423,19 @@ inventoryWindow.hide = function hide() {
         Shop.currentShop.close();
         inventoryWindow.changeTab('inventoryEquips');
     }
+    if (SellShop.inShop) {
+        SellShop.close();
+        inventoryWindow.changeTab('inventoryEquips');
+    }
 };
-inventoryWindow.changeTab = function changeTab(tab) {
+inventoryWindow.changeTab = function inv_changeTab(tab) {
     for (let i in inventoryWindow.tabs) {
         document.getElementById(inventoryWindow.tabs[i]).style.display = 'none';
     }
     document.getElementById(tab).style.display = '';
     inventoryWindow.currentTab = tab;
     if (Shop.currentShop) Shop.currentShop.close();
+    if (SellShop.inShop) SellShop.close();
     if (tab == 'inventoryCrafting') {
         for (let i in Crafting.slots) {
             Crafting.slots[i].updateMaterials();
@@ -473,6 +492,7 @@ function toggleDebugConsole() {
 };
 function snapWindows() {
     inventoryWindow.renderWindow();
+    mapWindow.renderWindow;
     settingsWindow.renderWindow();
     debugConsoleWindow.renderWindow();
 };
@@ -489,7 +509,7 @@ function slider(setting) {
     saveSettings();
 };
 function updateSetting(setting) {
-    var indicatorText = settings[setting];
+    let indicatorText = settings[setting];
     switch (setting) {
         case 'fps':
             resetFPS();
@@ -583,6 +603,15 @@ function updateSetting(setting) {
                 settings.coloredLights = optP;
                 settings.flickeringLights = optP2;
             }
+            break;
+        case 'animatedTiles':
+            for (let i in MAPS) {
+                MAPS[i].chunks = [];
+            }
+            AnimatedTile.list.clear();
+            if (loaded && Player.list.has(playerid)) updateRenderedChunks();
+            if (settings.animatedTiles) indicatorText = 'on';
+            else indicatorText = 'off';
             break;
         case 'dialogueSpeed':
             document.getElementById('promptContainer').style.setProperty('--transitionSpeed', ((11-settings.dialogueSpeed)*5) + 'ms');

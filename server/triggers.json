@@ -1,3 +1,20 @@
 {
-    
+    "spawnsprock": {
+        "criteria": [
+            {
+                "type": "playerDistance",
+                "data": 5
+            }
+        ],
+        "action": [
+            {
+                "type": "activateBossSpawner",
+                "data": {
+                    "x": 10,
+                    "y": 19,
+                    "map": "Mysterious Cave 1"
+                }
+            }
+        ]
+    }
 }

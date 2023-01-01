@@ -1,4 +1,4 @@
-// Copyright (C) 2022 Radioactive64
+// Copyright (C) 2023 Sampleprovider(sp)
 
 const bcrypt = require('bcrypt');
 const salt = 10;
@@ -6,7 +6,7 @@ const fs = require('fs');
 const { Client } = require('pg');
 const msgpack = require('@ygoe/msgpack');
 let url = process.env.DATABASE_URL;
-if (url == undefined && !ENV.useLocalDatabase) url = require('./url.js');
+if (url == undefined && !ENV.useLocalDatabase && process.env.REPL_OWNER == undefined) url = require('./url.js');
 const database = new Client({
     connectionString: url,
     ssl: {
@@ -39,15 +39,17 @@ ACCOUNTS = {
                         data.forEach(e => {
                             if (typeof e == 'object' && e != null) localDatabase.push(e);
                         });
-                    } else if (replDB) {
-                        let raw = await replDB.get('database');
-                        let arr = [];
-                        for (let i in raw) {
-                            arr[parseInt(i)] = raw[i];
-                        }
-                        let data = msgpack.deserialize(Uint8Array.from(arr));
-                        console.log(data)
                     }
+                } else if (replDB) {
+                    let raw = await replDB.get('database');
+                    let arr = [];
+                    for (let i in raw) {
+                        arr[parseInt(i)] = raw[i];
+                    }
+                    let data = msgpack.deserialize(Uint8Array.from(arr));
+                    data.forEach(e => {
+                        if (typeof e == 'object' && e != null) localDatabase.push(e);
+                    });
                 } else {
                     await database.connect();
                 }
@@ -82,7 +84,7 @@ ACCOUNTS = {
         if (username == 'unavailable') return 3;
         if (await getCredentials(username) == false) {
             if (typeof username == 'string' && typeof password == 'string') {
-                var status = await writeCredentials(username, password);
+                let status = await writeCredentials(username, password);
                 if (status) {
                     return 0;
                 }
@@ -93,7 +95,7 @@ ACCOUNTS = {
         return 1;
     },
     login: async function login(username, password) {
-        var cred = await getCredentials(username);
+        let cred = await getCredentials(username);
         if (cred) {
             if (bcrypt.compareSync(password, cred.password)) {
                 if (await getBanned(username)) {
@@ -106,11 +108,11 @@ ACCOUNTS = {
         return 2;
     },
     deleteAccount: async function deleteAccount(username, password) {
-        var cred = await getCredentials(username);
+        let cred = await getCredentials(username);
         if (cred) {
             if (bcrypt.compareSync(password, cred.password)) {
                 if (await getBanned(username)) return 1;
-                var status = await deleteCredentials(username);
+                let status = await deleteCredentials(username);
                 if (status) {
                     return 0;
                 }
@@ -121,10 +123,10 @@ ACCOUNTS = {
         return 2;
     },
     changePassword: async function changePassword(username, oldpassword, password) {
-        var cred = await getCredentials(username);
+        let cred = await getCredentials(username);
         if (cred) {
             if (bcrypt.compareSync(oldpassword, cred.password)) {
-                var status = await updatePassword(username, password);
+                let status = await updatePassword(username, password);
                 if (status) {
                     return 0;
                 } else {
@@ -163,7 +165,7 @@ ACCOUNTS = {
         }
     },
     loadProgress: async function loadProgress(username, password) {
-        var progress = await getProgress(username, password);
+        let progress = await getProgress(username, password);
         if (progress != false) {
             return progress;
         }
@@ -171,7 +173,7 @@ ACCOUNTS = {
         return false;
     },
     saveProgress: async function saveProgress(username, password, data) {
-        var status = await updateProgress(username, password, data);
+        let status = await updateProgress(username, password, data);
         if (status) {
             return true;
         }
@@ -191,7 +193,7 @@ ACCOUNTS = {
         if (status) {
             return true;
         }
-        warn('Failed to ban user!');
+        warn('Failed to unban user!');
         return false;
     // },
     // ipban: async function ban(ip) {
@@ -382,12 +384,12 @@ const writeLoop = setInterval(function() {
         else fs.writeFileSync('./database.db', bytes, {flag: 'w'});
     }
 }, 2000);
-if (!ENV.useLocalDatabase) clearInterval(writeLoop);
+if (!ENV.useLocalDatabase && !replDB) clearInterval(writeLoop);
 
 // credential read/write
 async function getCredentials(username) {
     try {
-        if (ENV.useLocalDatabase) {
+        if (ENV.useLocalDatabase || replDB) {
             let data = localDatabase.find(acc => acc.username == username);
             if (data != undefined) return {username: data.username, password: data.password};
         } else {
@@ -406,7 +408,7 @@ async function writeCredentials(username, password) {
         forceQuit(err, 3);
     }
     try {
-        if (ENV.useLocalDatabase) {
+        if (ENV.useLocalDatabase || replDB) {
             localDatabase.push({username: username, password: encryptedpassword, data: null, banned: false});
             pendingLocalWrite = 10;
             unwrittenData++;
@@ -421,7 +423,7 @@ async function writeCredentials(username, password) {
 };
 async function deleteCredentials(username) {
     try {
-        if (ENV.useLocalDatabase) {
+        if (ENV.useLocalDatabase || replDB) {
             let index = localDatabase.findIndex(acc => acc.username == username);
             if (index != -1) {
                 localDatabase.splice(index, 1);
@@ -438,13 +440,15 @@ async function deleteCredentials(username) {
     return false;
 };
 async function updatePassword(username, password) {
+    let encryptedpassword;
     try {
-        var encryptedpassword = bcrypt.hashSync(password, salt);
+        encryptedpassword = bcrypt.hashSync(password, salt);
     } catch (err) {
         forceQuit(err, 3);
+        return;
     }
     try {
-        if (ENV.useLocalDatabase) {
+        if (ENV.useLocalDatabase || replDB) {
             let data = localDatabase.find(acc => acc.username == username);
             if (data != undefined) {
                 data.password = encryptedpassword;
@@ -462,10 +466,10 @@ async function updatePassword(username, password) {
 };
 // progress read/write
 async function getProgress(username, password) {
-    var cred = await getCredentials(username);
+    let cred = await getCredentials(username);
     if (cred) {
         if (bcrypt.compareSync(password, cred.password)) {
-            if (ENV.useLocalDatabase) {
+            if (ENV.useLocalDatabase || replDB) {
                 let data = localDatabase.find(acc => acc.username == username);
                 if (data != undefined) return data.data;
             } else {
@@ -479,11 +483,11 @@ async function getProgress(username, password) {
     return false;
 };
 async function updateProgress(username, password, data) {
-    var cred = await getCredentials(username);
+    let cred = await getCredentials(username);
     if (cred) {
         if (bcrypt.compareSync(password, cred.password)) {
             try {
-                if (ENV.useLocalDatabase) {
+                if (ENV.useLocalDatabase || replDB) {
                     let data2 = localDatabase.find(acc => acc.username == username);
                     if (data2 != undefined) {
                         data2.data = data;
@@ -505,7 +509,7 @@ async function updateProgress(username, password, data) {
 };
 async function getBanned(username) {
     try {
-        if (ENV.useLocalDatabase) {
+        if (ENV.useLocalDatabase || replDB) {
             let data = localDatabase.find(acc => acc.username == username);
             if (data != undefined) return data.banned;
         } else {
@@ -519,7 +523,7 @@ async function getBanned(username) {
 };
 async function setBanned(username, banned) {
     try {
-        if (ENV.useLocalDatabase) {
+        if (ENV.useLocalDatabase || replDB) {
             let data = localDatabase.find(acc => acc.username == username);
             if (data != undefined) {
                 data.banned = banned;

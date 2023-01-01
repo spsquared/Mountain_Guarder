@@ -89,6 +89,21 @@
             ]
         }
     ],
+    "adicyte": [
+        {
+            "text": "Welcome to the Outpost Trader! What can I do for you?",
+            "options": [
+                {
+                    "text": "*Buy items*",
+                    "action": "shop_adicyte:outposttrader"
+                },
+                {
+                    "text": "*Sell items*",
+                    "action": "sellshop_adicyte"
+                }
+            ]
+        }
+    ],
     "tammy1": [
         {
             "text": "Uhhhh... hi?",
@@ -245,6 +260,43 @@
         {
             "text": "noot noot",
             "options": [
+            ]
+        }
+    ],
+    "specialevent": [
+        {
+            "text": "Happy New Year!!!!! Don't worry, I won't kill you this time.",
+            "options": [
+                {
+                    "text": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "action": "continue"
+                },
+                {
+                    "text": "Oh wow!",
+                    "action": "continue"
+                },
+                {
+                    "text": "*End conversation*",
+                    "action": "close"
+                }
+            ]
+        },
+        {
+            "text": "Anyways, here's a firework launcher, so you can celebrate the new year. I know it's a little past the start of the year, but you can use it to celebrate other things, too.",
+            "options": [
+                {
+                    "text": "Oh, thanks!",
+                    "action": "continue"
+                }
+            ]
+        },
+        {
+            "text": "Off you go! Have a great day!",
+            "options": [
+                {
+                    "text": "*End conversation*",
+                    "action": "script-end_function(self) {if (self.trackedData.events.indexOf('newyear2023') == -1) {self.trackedData.events.push('newyear2023'); self.inventory.addItem('fireworklauncher', 1, [], true); setTimeout(function() {self.onDeath(null, 'fire'); insertChat('Friendly Fire: oops, not again!', 'color: #FF5500;');}, 3000);}}"
+                }
             ]
         }
     ]

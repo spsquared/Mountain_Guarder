@@ -1,4 +1,4 @@
-// Copyright (C) 2022 Radioactive64
+// Copyright (C) 2023 Sampleprovider(sp)
 
 QuestHandler = function(socket, player) {
     const self = {

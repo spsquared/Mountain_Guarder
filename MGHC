@@ -143,44 +143,55 @@ MGHC = function () {
     }
     if (mTracers) {
         for (var i in Monster.list) {
-            switch (Monster.list[i].type) {
-                case ('greenbird'):
-                    CTX.lineWidth = 2;
-                    CTX.strokeStyle = '#00DD00';
-                    break;
-                case ('bluebird'):
-                    CTX.lineWidth = 2;
-                    CTX.strokeStyle = '#00DD00';
-                    break;
-                case ('snowbird'):
-                    CTX.lineWidth = 4;
-                    CTX.strokeStyle = '#EEEEEE';
-                    break;
-                case ('cherrybomb'):
-                    CTX.lineWidth = 6;
-                    CTX.strokeStyle = '#FF0000';
-                    break;
-                case ('snowball'):
-                    CTX.lineWidth = 4;
-                    CTX.strokeStyle = '#EEEEEE';
-                    break;
-                case ('cavebird'):
-                    CTX.lineWidth = 4;
-                    CTX.strokeStyle = '#884488';
-                    break;
-                case ('sentientrock'):
-                    CTX.lineWidth = 6;
-                    CTX.strokeStyle = '#884488';
-                    break;
-                default:
-                    CTX.lineWidth = 2;
-                    CTX.strokeStyle = '#000000';
-                    break;
+            if (Monster.list[i].map == player.map) {
+
+                switch (Monster.list[i].type) {
+                    case ('greenbird'):
+                        CTX.lineWidth = 2;
+                        CTX.strokeStyle = '#00DD00';
+                        break;
+                    case ('bluebird'):
+                        CTX.lineWidth = 2;
+                        CTX.strokeStyle = '#00DD00';
+                        break;
+                    case ('snowbird'):
+                        CTX.lineWidth = 4;
+                        CTX.strokeStyle = '#EEEEEE';
+                        break;
+                    case ('cherrybomb'):
+                        CTX.lineWidth = 6;
+                        CTX.strokeStyle = '#FF0000';
+                        break;
+                    case ('snowball'):
+                        CTX.lineWidth = 4;
+                        CTX.strokeStyle = '#EEEEEE';
+                        break;
+                    case ('cavebird'):
+                        CTX.lineWidth = 4;
+                        CTX.strokeStyle = '#884488';
+                        break;
+                    case ('sentientrock'):
+                        CTX.lineWidth = 6;
+                        CTX.strokeStyle = '#884488';
+                        break;
+                    case ('sentientrock'):
+                        CTX.lineWidth = 6;
+                        CTX.strokeStyle = '#884444';
+                        break;
+                    case ('sprock'):
+                        CTX.lineWidth = 8;
+                        CTX.strokeStyle = '#FF0090';
+                        break;
+                    default:
+                        CTX.lineWidth = 2;
+                        CTX.strokeStyle = '#000000';
+                        break;
+                }
+                CTX.beginPath();
+                CTX.moveTo(player.x + OFFSETX, player.y + OFFSETY);
+                CTX.lineTo(Monster.list[i].x + OFFSETX, Monster.list[i].y + OFFSETY);
+                CTX.stroke();
             }
-            CTX.beginPath();
-            CTX.moveTo(player.x + OFFSETX, player.y + OFFSETY);
-            CTX.lineTo(Monster.list[i].x + OFFSETX, Monster.list[i].y + OFFSETY);
-            CTX.stroke();
         }
     }
     if (PTracers) {
@@ -188,11 +199,12 @@ MGHC = function () {
         CTX.strokeStyle = '#99FF00';
         CTX.beginPath();
         for (var i in Player.list) {
-            CTX.moveTo(player.x + OFFSETX, player.y + OFFSETY);
-            CTX.lineTo(Player.list[i].x + OFFSETX, Player.list[i].y + OFFSETY);
+            if (Player.list[i].map == player.map) {
+                CTX.moveTo(player.x + OFFSETX, player.y + OFFSETY);
+                CTX.lineTo(Player.list[i].x + OFFSETX, Player.list[i].y + OFFSETY);
+            }
         }
         CTX.stroke();
-
     }
     if (mTracers || PTracers) {
         CTX.restore();
@@ -209,8 +221,9 @@ MGHC = function () {
                 }
             }
             if (lowest != null) {
-                console.log(lowest);
-                socket.emit('click', { button: 'left', x: Monster.list[lowest].x - player.x - OFFSETX, y: Monster.list[lowest].y - player.y - OFFSETY, state: true });
+                mouseX = Monster.list[lowest].x-player.x-OFFSETX;
+                mouseY = Monster.list[lowest].y-player.y-OFFSETY;
+                socket.emit('click', { button: 'left', x: mouseX, y: mouseY, state: true });
             }
         }
         if (autopickup) {

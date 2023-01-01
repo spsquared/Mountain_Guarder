@@ -1,4 +1,4 @@
-// Copyright (C) 2021 Radioactive64
+// Copyright (C) 2023 Sampleprovider(sp)
 
 function updateItemPreviewImage(e) {
 	var image = document.getElementById('itemPreviewImg');

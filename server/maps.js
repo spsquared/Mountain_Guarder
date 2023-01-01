@@ -1,4 +1,4 @@
-// Copyright (C) 2022 Radioactive64
+// Copyright (C) 2023 Sampleprovider(sp)
 
 MAPS = {
     loaded: false,
@@ -11,7 +11,7 @@ MAPS = {
     }
 };
 
-var npcWaypoints = {};
+let npcWaypoints = {};
 async function loadAll() {
     loadMap('World');
     loadMap('Caves');
@@ -29,6 +29,7 @@ async function loadAll() {
     }
     await Layer.init();
     Spawner.init();
+    EventTrigger.init();
     Npc.init();
     Layer.lazyInit();
 };
@@ -300,6 +301,35 @@ function loadMap(name) {
                     }
                 }
             }
+        } else if (rawlayer.name.startsWith('EventTrigger:')) {
+            let id = rawlayer.name.replace('EventTrigger:', '');
+            if (rawlayer.chunks) {
+                for (let rawchunk of rawlayer.chunks) {
+                    for (let i in rawchunk.data) {
+                        if (rawchunk.data[i] != 0) {
+                            let x = (i % rawchunk.width)+rawchunk.x;
+                            let y = ~~(i / rawchunk.width)+rawchunk.y;
+                            if (rawchunk.data[i]-1 == 1693) {
+                                new EventTrigger(name, x, y, id);
+                            } else {
+                                error('Invalid event trigger at (' + name + ', ' + x + ', ' + y + ')');
+                            }
+                        }
+                    }
+                }
+            } else {
+                for (let i in rawlayer.data) {
+                    if (rawlayer.data[i] != 0) {
+                        let x = (i % rawlayer.width);
+                        let y = ~~(i / rawlayer.width);
+                        if (rawlayer.data[i]-1 == 1693) {
+                            new EventTrigger(name, x, y, id);
+                        } else {
+                            error('Invalid event trigger at (' + name + ', ' + x + ', ' + y + ')');
+                        }
+                    }
+                }
+            }
         } else if (rawlayer.name.startsWith('Teleporter:')) {
             let properties = rawlayer.name.replace('Teleporter:', '').split(',');
             if (rawlayer.chunks) {
@@ -376,6 +406,7 @@ function resetMaps() {
     Layer.grid = [];
     Slowdown.grid = [];
     Spawner.list = [];
+    Spawner.bossList = [];
     Region.grid = [];
     Teleporter.grid = [];
     loadAll();

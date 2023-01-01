@@ -13,6 +13,7 @@
         "deathMessage": "shot",
         "piercing": false,
         "maxPierce": 0,
+        "contactEventsOnRange": false,
         "noCollision": false,
         "patternUpdateSpeed": 0,
         "reflectable": true
@@ -31,6 +32,7 @@
         "deathMessage": "shot",
         "piercing": true,
         "maxPierce": 1,
+        "contactEventsOnRange": false,
         "noCollision": false,
         "patternUpdateSpeed": 0,
         "reflectable": false
@@ -49,6 +51,7 @@
         "deathMessage": "purpled to death",
         "piercing": false,
         "maxPierce": 0,
+        "contactEventsOnRange": false,
         "noCollision": false,
         "patternUpdateSpeed": 0,
         "reflectable": true
@@ -67,6 +70,7 @@
         "deathMessage": "purpled to death",
         "piercing": false,
         "maxPierce": 0,
+        "contactEventsOnRange": false,
         "noCollision": true,
         "patternUpdateSpeed": 0,
         "reflectable": false
@@ -85,6 +89,7 @@
         "deathMessage": "purpled to death",
         "piercing": false,
         "maxPierce": 0,
+        "contactEventsOnRange": false,
         "noCollision": false,
         "patternUpdateSpeed": 1,
         "reflectable": true
@@ -103,6 +108,45 @@
         "deathMessage": "purpled to death",
         "piercing": false,
         "maxPierce": 0,
+        "contactEventsOnRange": false,
+        "noCollision": true,
+        "patternUpdateSpeed": 1,
+        "reflectable": false
+    },
+    "homingmagicball2": {
+        "width": 40,
+        "height": 40,
+        "speed": 20,
+        "pattern": "weakhoming",
+        "damage": 1,
+        "range": 5,
+        "knockback": 0,
+        "contactEvents": [],
+        "damageType": "magic",
+        "invincibilityFrame": 0,
+        "deathMessage": "purpled to death",
+        "piercing": false,
+        "maxPierce": 0,
+        "contactEventsOnRange": false,
+        "noCollision": false,
+        "patternUpdateSpeed": 1,
+        "reflectable": true
+    },
+    "homingmagicballnoclip2": {
+        "width": 40,
+        "height": 40,
+        "speed": 20,
+        "pattern": "weakhoming",
+        "damage": 1,
+        "range": 5,
+        "knockback": 0,
+        "contactEvents": [],
+        "damageType": "magic",
+        "invincibilityFrame": 0,
+        "deathMessage": "purpled to death",
+        "piercing": false,
+        "maxPierce": 0,
+        "contactEventsOnRange": false,
         "noCollision": true,
         "patternUpdateSpeed": 1,
         "reflectable": false
@@ -121,6 +165,7 @@
         "deathMessage": "slain",
         "piercing": true,
         "maxPierce": 2,
+        "contactEventsOnRange": false,
         "noCollision": true,
         "patternUpdateSpeed": 0,
         "reflectable": false
@@ -139,6 +184,7 @@
         "deathMessage": "impaled",
         "piercing": true,
         "maxPierce": 5,
+        "contactEventsOnRange": false,
         "noCollision": true,
         "patternUpdateSpeed": 0,
         "reflectable": false
@@ -155,7 +201,7 @@
             {
                 "type": "explosion",
                 "data": {
-                    "size": 2
+                    "size": 3
                 }
             }
         ],
@@ -164,13 +210,14 @@
         "deathMessage": "blown up",
         "piercing": false,
         "maxPierce": 0,
+        "contactEventsOnRange": true,
         "noCollision": false,
         "patternUpdateSpeed": 0,
         "reflectable": false
     },
     "aiminglaser": {
-        "width": 1024,
-        "height": 3,
+        "width": 0,
+        "height": 0,
         "speed": 0,
         "pattern": "followDir",
         "damage": 0,
@@ -182,6 +229,7 @@
         "deathMessage": "somehow was aiming lasered to death",
         "piercing": true,
         "maxPierce": 1000000,
+        "contactEventsOnRange": false,
         "noCollision": true,
         "patternUpdateSpeed": 0,
         "reflectable": false
@@ -200,6 +248,7 @@
         "deathMessage": "shurikened",
         "piercing": false,
         "maxPierce": 0,
+        "contactEventsOnRange": false,
         "noCollision": false,
         "patternUpdateSpeed": 0,
         "reflectable": true
@@ -218,6 +267,7 @@
         "deathMessage": "snowballed",
         "piercing": false,
         "maxPierce": 0,
+        "contactEventsOnRange": false,
         "noCollision": false,
         "patternUpdateSpeed": 1,
         "reflectable": true
@@ -236,6 +286,7 @@
         "deathMessage": "snowballed",
         "piercing": false,
         "maxPierce": 0,
+        "contactEventsOnRange": false,
         "noCollision": false,
         "patternUpdateSpeed": 0,
         "reflectable": true
@@ -253,7 +304,7 @@
                 "type": "effect",
                 "data": {
                     "id": "stun",
-                    "time": 5
+                    "time": 2
                 }
             }
         ],
@@ -262,6 +313,7 @@
         "deathMessage": "pelted with rocks",
         "piercing": false,
         "maxPierce": 0,
+        "contactEventsOnRange": false,
         "noCollision": false,
         "patternUpdateSpeed": 1,
         "reflectable": true
@@ -269,7 +321,7 @@
     "explodingrock": {
         "width": 30,
         "height": 30,
-        "speed": 25,
+        "speed": 30,
         "pattern": "spin",
         "damage": 9,
         "range": 3,
@@ -279,13 +331,13 @@
                 "type": "effect",
                 "data": {
                     "id": "stun",
-                    "time": 5
+                    "time": 2
                 }
             },
             {
                 "type": "explosion",
                 "data": {
-                    "size": 1
+                    "size": 2
                 }
             },
             {
@@ -302,6 +354,7 @@
         "deathMessage": "exploded with rocks",
         "piercing": false,
         "maxPierce": 0,
+        "contactEventsOnRange": true,
         "noCollision": false,
         "patternUpdateSpeed": 0,
         "reflectable": false
@@ -320,7 +373,44 @@
         "deathMessage": "made festive",
         "piercing": false,
         "maxPierce": 0,
+        "contactEventsOnRange": false,
         "noCollision": true,
+        "patternUpdateSpeed": 1,
+        "reflectable": false
+    },
+    "firework": {
+        "width": 51,
+        "height": 15,
+        "speed": 40,
+        "pattern": "none",
+        "damage": 16,
+        "range": 2,
+        "knockback": 0.5,
+        "contactEvents": [
+            {
+                "type": "areadamage",
+                "data": {
+                    "size": 2,
+                    "damage": 12
+                }
+            },
+            {
+                "type": "particles",
+                "data": {
+                    "pattern": "point",
+                    "particle": "firework",
+                    "amount": 64,
+                    "spread": 0
+                }
+            }
+        ],
+        "damageType": "ranged",
+        "invincibilityFrame": 0,
+        "deathMessage": "fireworked",
+        "piercing": false,
+        "maxPierce": 0,
+        "contactEventsOnRange": true,
+        "noCollision": false,
         "patternUpdateSpeed": 1,
         "reflectable": false
     }

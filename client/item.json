@@ -106,7 +106,7 @@
     "lodestone": {
         "name": "Lodestone",
         "description": "Two large Ialite crystals with some strange glowing substances trapped between them. It seems to warp time and space around it...",
-        "slotType": "material",
+        "slotType": "none",
         "rarity": -3,
         "effects": [],
         "usable": true
@@ -574,7 +574,7 @@
         "name": "Key of Ialite",
         "description": "A key that seems useless as a key, but contains a small Ialite crystal within.",
         "slotType": "key",
-        "rarity": 4,
+        "rarity": 3,
         "manaIncrease": 10,
         "manaRegenerationSpeed": 5,
         "manaRegenerationAmount": 2,
@@ -672,5 +672,26 @@
             }
         ],
         "usable": false
+    },
+    "fireworklauncher": {
+        "name": "Firework Rocket Launcher",
+        "description": "Celebrate the beginning of 2023 (and everything else) by blowing up your friends!",
+        "slotType": "weapon",
+        "rarity": 2,
+        "damage": 16,
+        "damageType": "ranged",
+        "critChance": 0.2,
+        "critPower": 0.1,
+        "knockback": 1,
+        "useTime": 30,
+        "manaCost": 0,
+        "heldAngle": 45,
+        "heldDistance": 36,
+        "effects": [
+            {
+                "id": "speed",
+                "value": 1.1
+            }
+        ]
     }
 }

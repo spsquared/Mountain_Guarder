@@ -1,4 +1,4 @@
-/* Copyright (C) 2022 Radioactive64 */
+/* Copyright (C) 2023 Sampleprovider(sp) */
 
 /* game container */
 #gameContainer {
@@ -105,7 +105,7 @@
 #promptContainer {
     display: none;
     position: absolute;
-    bottom: 10%;
+    bottom: 92px;
     left: 25%;
     width: 50%;
     z-index: 5;
@@ -345,6 +345,7 @@
     padding: 2px 4px;
     padding-right: 2px;
     cursor: url('/img/assets/crosshair.png') 11 11, crosshair;
+    pointer-events: none;
     z-index: 4;
 }
 #debug {
@@ -591,6 +592,7 @@
     margin: 8px 8px;
     background-color: #362A1E;
     border: 1px solid black;
+    scroll-snap-align: start;
 }
 .invSlotStackSize {
     position: absolute;
@@ -738,6 +740,7 @@
     white-space: nowrap;
     overflow-x: auto;
     overflow-y: hidden;
+    scroll-snap-type: x mandatory;
 }
 .shopCosts::-webkit-scrollbar {
     height: 6px;
@@ -752,6 +755,7 @@
     margin-right: 2px;
     aspect-ratio: 1;
     border: 1px solid black;
+    scroll-snap-align: end;
 }
 .costItemImg {
     width: 48px;
@@ -796,6 +800,47 @@
     bottom: -28px;
     text-align: right;
     transform: translateX(-100%);
+}
+
+/* sell shop */
+#invSlotEquipsell {
+    position: absolute;
+    top: 80px;
+    left: 105px;
+}
+#sellShopItemWorth {
+    position: absolute;
+    top: 170px;
+    left: 150px;
+    transform: translateX(-50%) translateY(-12px);
+    white-space: nowrap;
+}
+#sellShopItemWorthLabel {
+    display: inline-block;
+}
+#sellShopItemWorthInner {
+    display: inline-block;
+}
+#sellShopItemWorthImage {
+    display: inline-block;
+    height: 24px;
+    transform: translateY(6px);
+}
+#sellShopSell {
+    position: absolute;
+    top: 222px;
+    left: 110px;
+    width: 80px;
+    height: 40px;
+    background-color: green;
+    border: 4px outset gray;
+    cursor: pointer;
+}
+#sellShopSell:hover {
+    background-color: forestgreen;
+}
+#sellShopSell:active {
+    border-style: inset;
 }
 
 /* world map */

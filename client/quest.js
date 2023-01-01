@@ -1,3 +1,5 @@
+// Copyright (C) 2023 Sampleprovider(sp)
+
 socket.on('quest', function(data) {
     const quest = Quests[data.id];
     function createProgressBar(id, text, max) {
@@ -146,11 +148,11 @@ Quests = [];
 async function getQuestData() {
     await new Promise(async function(resolve, reject) {
         totalassets++;
-        var request = new XMLHttpRequest();
+        let request = new XMLHttpRequest();
         request.open('GET', '/quests.json', true);
         request.onload = async function() {
             if (this.status >= 200 && this.status < 400) {
-                var json = JSON.parse(this.response);
+                const json = JSON.parse(this.response);
                 Quests = json;
                 loadedassets++;
                 resolve();

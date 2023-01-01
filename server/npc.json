@@ -39,7 +39,7 @@
         "rightClickEvents": [
             {
                 "condition": "any",
-                "event": "function(player, self) {self.openShop('outposttrader', player);}",
+                "event": "function(player, self) {self.startConversation(player, 'adicyte');}",
                 "breakSearch": true
             }
         ],
@@ -142,5 +142,23 @@
         },
         "width": 64,
         "height": 64
+    },
+    "friendlyfire": {
+        "type": "static",
+        "rightClickEvent": "function(player, self) {if (player.trackedData.events.indexOf) {self.startConversation(player, 'specialevent');}};",
+        "rightClickEvents": [],
+        "data": {
+            "name": "Friendly Fire",
+            "characterStyle": {
+                "hair": 1,
+                "hairColor": "#000000",
+                "bodyColor": "#000000",
+                "shirtColor": "#000000",
+                "pantsColor": "#000000",
+                "texture": "/misc/friendlyfire.png"
+            }
+        },
+        "width": 72,
+        "height": 84
     }
 }

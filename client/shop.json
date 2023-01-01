@@ -49,6 +49,26 @@
             },
             {
                 "item": {
+                    "id": "simplewoodenbow",
+                    "amount": 1,
+                    "enchantments": []
+                },
+                "costs": {
+                    "coppercoin": 90
+                }
+            },
+            {
+                "item": {
+                    "id": "simplewoodensword",
+                    "amount": 1,
+                    "enchantments": []
+                },
+                "costs": {
+                    "coppercoin": 80
+                }
+            },
+            {
+                "item": {
                     "id": "steelarmor",
                     "amount": 1,
                     "enchantments": []
@@ -159,6 +179,19 @@
                     "sticks": 2,
                     "coal": 1,
                     "iron": 2
+                }
+            },
+            {
+                "item": {
+                    "id": "steelstaff",
+                    "amount": 1,
+                    "enchantments": []
+                },
+                "costs": {
+                    "sticks": 2,
+                    "coal": 1,
+                    "iron": 1,
+                    "ialiteshard": 1
                 }
             },
             {

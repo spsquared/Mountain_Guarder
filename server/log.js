@@ -1,4 +1,4 @@
-// Copyright (C) 2022 Radioactive64
+// Copyright (C) 2023 Sampleprovider(sp)
 
 const fs = require('fs');
 
@@ -57,8 +57,8 @@ getTimeStamp = function getTimeStamp() {
 };
 logColor = function logColor(text, colorstring, type) {
     let timestamp = getTimeStamp();
-    if (process.env.DATABASE_URL) process.stdout.write(timestamp + colorstring + text + '\x1b[0m\n\r> ');
-    else process.stdout.write('\r' + timestamp + colorstring + text + '\x1b[0m\n\r> ');
+    if (process.env.DATABASE_URL) process.stdout.write(`${timestamp}${colorstring}${text}\x1b[0m\n\r> `);
+    else process.stdout.write(`\r${timestamp}${colorstring}${text}\x1b[0m\n\r> `);
     appendLog(timestamp + text, type);
 };
 log = function log(text) {
@@ -75,23 +75,32 @@ error = function error(text) {
     if (text instanceof Error) appendLog(text.stack, 'error');
 };
 appendLog = function appendLog(text, type) {
-    var typestring = '--- ';
+    let typestring = '--- ';
     if (type == 'error') typestring = 'ERR ';
     else if (type == 'warn') typestring = '!WN ';
     else if (type == 'log') typestring = 'LOG ';
     else if (type == 'debug') typestring = 'DBG ';
     else if (type == 'chat') typestring = 'CHT ';
-    fs.appendFileSync('./log.log', typestring + text + '\n', {encoding: 'utf-8'}, function() {});
+    fs.appendFileSync('./log.log', `${typestring}${text.replaceAll('\n', `\n${typestring}`)}\n`, {encoding: 'utf-8'}, function() {});
     if (global.ENV && !ENV.offlineMode && ENV.useDiscordWebhook && type != 'chat') try {postDebugDiscord(typestring, text.toString());} catch (err) {error(err);};
 };
 
-const oldLog = console.log;
-console.log = function mod_log(message, ...params) {
-    oldLog(message, ...params);
-    appendLog(message);
+// console hooking (U-009E signifies message already put in logs or except from logging)
+let exempt = '';
+process.stdin.addListener('data', function(data) {
+    exempt = data;
+});
+const stdout_write = process.stdout.write;
+process.stdout.write = function mod_write(str, encode, fd) {
+    stdout_write.apply(process.stdout, arguments);
+    if (exempt == str || str == '\r\n' || str == '\n\r' || str == '\n') {
+        exempt = '';
+        return;
+    }
+    (typeof str != 'string' || (typeof str == 'string' && str[0] != '')) && appendLog(str, 'log');
 };
-const oldError = console.error;
-console.error = function mod_error(message, ...params) {
-    oldError(message, ...params);
-    appendLog(message);
+const stderr_write = process.stderr.write;
+process.stderr.write = function mod_write(str, encode, fd) {
+    stderr_write.apply(process.stderr, arguments);
+    (typeof str != 'string' || (typeof str == 'string' && str[0] != '')) && appendLog(str, 'error');
 };

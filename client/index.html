@@ -1,4 +1,4 @@
-<!-- Copyright (C) 2022 Radioactive64 -->
+<!-- Copyright (C) 2023 Sampleprovider(sp) -->
 
 <!DOCTYPE html>
 <html>
@@ -12,13 +12,13 @@
         script-src 'self' 'unsafe-eval' 'unsafe-inline';
         script-src-elem 'self' https://openfpcdn.io/fingerprintjs/v3 'unsafe-eval' 'unsafe-inline';
         img-src 'self' data:;
-        frame-src 'self' https://www.youtube.com/ https://meadowguarderold.herokuapp.com/ https://www.herokucdn.com/error-pages/application-error.html 'unsafe-eval' 'unsafe-inline';
+        frame-src 'self' https://www.youtube.com/ https://meadowguarderold.herokuapp.com/ 'unsafe-eval' 'unsafe-inline';
         connect-src 'self' https://tls-use1.fpapi.io/ https://api.fpjs.io/ 'unsafe-eval' 'unsafe-inline';
         ">
         <meta name="title" content="Mountain Guarder">
         <meta name="description" content="Mountain Guarder - A free-to-play indie RPG.">
-        <meta name="url" content="https://mountainguarder.herokuapp.com">
-        <meta name="image" content="https://mountainguarder.herokuapp.com/img/banner_small.png">
+        <meta name="url" content="https://mountainguarder.radioactivestuf.repl.co/">
+        <meta name="image" content="https://mountainguarder.radioactivestuf.repl.co/img/assets/banner-small.png">
         <link rel="icon" href="/assets/favicon.ico" type="image/x-icon">
         <noscript><meta http-equiv="refresh" content="0; url=/nojs.html"/></noscript>
         <script src="/socket.io/socket.io.js"></script>
@@ -71,7 +71,7 @@
                         </tbody></table>
                     </form>
                     <div style="margin-top: 8px;">
-                        <button id="signIn" class="ui-lightbutton" onclick="signIn();">Sign In</button>
+                        <button id="signIn" class="ui-lightbutton" onclick="signIn();">Play</button>
                         <button id="createAccount" class="ui-lightbutton" onclick="createAccount();">Create Account</button>
                         <button id="deleteAccount" class="ui-lightbutton" onclick="deleteAccount();">Delete Account</button>
                         <button id="changePassword" class="ui-lightbutton" onclick="changePassword();">Change Password</button>
@@ -86,6 +86,42 @@
                         insert changes here
                     </div>
                 </div> -->
+                <div class="stack ui-block ui-lighttext">
+                    <div class="ui-lighttext stackHeader">
+                        v0.16.0 - 1/1/23
+                    </div>
+                    <div class="ui-lighttext stackBody">
+                        It's been 2 months! For the new year's update, a cumulative update featuring effects (like burning!), sell shops, expansions to maps, and LOTS of bugfixes and balancing! Most of Mountain Guarder was rebalanced (again). There's a lot of things that should have been put into a smaller update (v0.15.1) but it's here instead. Enjoy the new Firework Launcher!
+                        <ul>
+                            <li>Added effects</li>
+                            <li>Added sell item shops</li>
+                            <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/8" target=_blank>Added animated tiles (Issue #8)</a></li>
+                            <li>Expanded Mineshaft</li>
+                            <li>Buffed Rock of SP</li>
+                            <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/269" target=_blank>Patched dupe bug caused by picking up items with a full inventory (Issue #269)</a></li>
+                            <li>Buffed Titanium Staff</li>
+                            <li>Fixed Replit database compatibility</li>
+                            <li>Optimized entity lists</li>
+                            <li>Fixed numerous inventory-related crashes</li>
+                            <li>Patched coin duping with crafting</li>
+                            <li>Increased raw resource drop rates</li>
+                            <li>Modified explosion knockback</li>
+                            <li>Patched nonexistent Garuder Warp particles with fast particles turned on</li>
+                            <li>Fixed non-rendering custom textures on NPCs</li>
+                            <li>Implemented entity culling (over existing chunk culling)</li>
+                            <li>Fixed prompt clipping into hotbar</li>
+                            <li>Fixed incorrect collisions</li>
+                            <li>Fixed incorrect rotation interpolation</li>
+                            <li>Enabled PVP by default</li>
+                            <li>Patched health overflow</li>
+                            <li>Fixed unmatched rarity color of Ialite Key</li>
+                            <li>Nerfed rock turret</li>
+                            <li>Changed names of some assets</li>
+                            <li>Adjustments to accuracy curve</li>
+                            <li>Minor changes to all code</li>
+                        </ul>
+                    </div>
+                </div>
                 <div class="stack ui-block ui-lighttext">
                     <div class="ui-lighttext stackHeader">
                         v0.15.0 - 10/24/22
@@ -1125,6 +1161,12 @@
                     </div>
                     <div class="ui-lighttext stackBody">
                         <div class="stackSub">
+                            1/1/23
+                        </div>
+                        <div class="stackBody">
+                            Happy New Year! (?) After forgetting to do a <span style="animation: christmas 2s infinite;">christmas update</span>, here's a new year's update. Like last year, we're giving you a fireworks launcher! Use it to celebrate things... by blowing up your friends.<br><span style="font-style: italic;">There seems to be a recurring theme for blowing things up in this game...</span>
+                        </div><br>
+                        <div class="stackSub">
                             8/9/22
                         </div>
                         <div class="stackBody">
@@ -1206,7 +1248,7 @@
                         <a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder" target="_blank">GitHub repository</a><br>
                         <a href="https://discord.gg/y2pMjrwZGr" target="_blank">Join our Discord!</a><br>
                         <br>
-                        <a href="./license.html" target="_blank" class="ui-lighttext">Mountain Guarder Copyright &copy; Radioactive64 2022</a><br>
+                        <a href="./license.html" target="_blank" class="ui-lighttext">Mountain Guarder Copyright &copy; Sampleprovider(sp) 2023</a><br>
                         <br>
                         Would you like to contribute? Contributing can range from <a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/new?assignees=&labels=bug&template=bug-report.md&title=BUG+-+%5BSummary+here%5D" target="_blank">submitting a bug report</a> or <a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/new?assignees=&labels=suggestion&template=feature_request.md&title=SUGGESTION+-+%5BSummary+here%5D" target="_blank">creating a suggestion</a> to sending a pull request stating the reason the pull request was created and what it changes. For more information visit the <a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder" target="_blank">GitHub repository</a>.<br>
                         <br>
@@ -1218,7 +1260,7 @@
                         More Games!
                     </div>
                     <div class="ui-lighttext stackBody">
-                        Games by <a href="https://github.com/definitely-nobody-is-here/" target="_blank">Radioactive64</a> and <a href="https://github.com/maitian352/" target="_blank">Maitian</a>:
+                        Games by <a href="https://github.com/definitely-nobody-is-here/" target="_blank">Sampleprovider(sp)</a> and <a href="https://github.com/maitian352/" target="_blank">Maitian</a>:
                         <ul>
                             <li><a href="https://MountainGuarder.radioactivestuf.repl.co/" target="_blank">Mountain Guarder</a></li>
                             <li><a href="https://meadowguarder.herokuapp.com/" target="_blank">Meadow Guarder</a></li>
@@ -1360,10 +1402,22 @@
                         <div id="inventoryShopName">Shop Name</div>
                         <div id="inventoryShopBody" class="ui-block inventory-body"></div>
                     </div>
+                    <div id="inventorySellShop" class="window-body inventory-right">
+                        <div id="inventorySellShopName">Sell Items</div>
+                        <div id="inventorySellShopBody" class="ui-block inventory-body">
+                            <div id="sellShopItemWorth">
+                                <span id="sellShopItemWorthLabel">Worth: </span>
+                                <span id="sellShopItemWorthInner">0</span>
+                                <img id="sellShopItemWorthImage" src="./img/item/coppercoin.png">
+                            </div>
+                            <button id="sellShopSell" class="ui-lightbutton" onclick="SellShop.sellItem();">SELL</button>
+                        </div>
+                    </div>
                     <div id="inventorySelect" class="window-select">
                         <button id="inventoryEquipsSelect" class="window-select-button ui-lightbutton">Equips</button>
                         <button id="inventoryCraftingSelect" class="window-select-button ui-lightbutton">Crafting</button>
                         <span id="inventoryShopSelect" style="display: none;"></span>
+                        <span id="inventorySellShopSelect" style="display: none;"></span>
                     </div>
                 </div>
                 <div id="map" class="window ui-block ui-lighttext noSelect">
@@ -1522,7 +1576,21 @@
                                     <input type="range" id="dialogueSpeedSlider" class="ui-slider" min="1" max="10" value="5" step="1" oninput="slider('dialogueSpeed');">
                                 </td>
                                 <td>
-                                    <div id="dialogueSpeedIndicator" class="ui-lighttext"></div>
+                                    <div id="dialogueSpeedIndicator" class="ui-lighttext">5</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: right;">
+                                    Animated Tiles:
+                                </td>
+                                <td>
+                                    <label class="ui-toggle">
+                                        <input type="checkbox" id="animatedTilesToggle" class="ui-toggleInput" onclick="toggle('animatedTiles');" checked>
+                                        <span class="ui-toggleSlider"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <div id="animatedTilesIndicator" class="ui-lighttext">on</div>
                                 </td>
                             </tr>
                             <!-- <tr>
@@ -1716,7 +1784,7 @@
                                 </tr>
                                 <tr>
                                     <td>
-                                        Use Item&nbsp;
+                                        Use Held Item&nbsp;
                                     </td>
                                     <td>
                                         <button id="keybind_use" class="ui-lightbutton keyBindButton" onclick="changeKeybind('use');">LMB</button>
@@ -1724,7 +1792,7 @@
                                 </tr>
                                 <tr>
                                     <td>
-                                        Use Secondary&nbsp;
+                                        Interact/Shield&nbsp;
                                     </td>
                                     <td>
                                         <button id="keybind_second" class="ui-lightbutton keyBindButton" onclick="changeKeybind('second');">RMB</button>
@@ -1764,7 +1832,7 @@
                                 </tr>
                                 <tr>
                                     <td>
-                                        Open chat&nbsp;
+                                        Open Chat&nbsp;
                                     </td>
                                     <td>
                                         <button id="keybind_chat" class="ui-lightbutton keyBindButton" onclick="changeKeybind('chat');">T</button>
@@ -1783,15 +1851,15 @@
                                         Toggle Inventory&nbsp;
                                     </td>
                                     <td>
-                                        <button id="keybind_inventory" class="ui-lightbutton keyBindButton" onclick="changeKeybind('inventory');">E</button>
+                                        <button id="keybind_inventory" class="ui-lightbutton keyBindButton" onclick="changeKeybind('inventory');">I</button>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td>
-                                        Open Items&nbsp;
+                                        Open Equips&nbsp;
                                     </td>
                                     <td>
-                                        <button id="keybind_inventoryEquips" class="ui-lightbutton keyBindButton" onclick="changeKeybind('inventoryEquips');">I</button>
+                                        <button id="keybind_inventoryEquips" class="ui-lightbutton keyBindButton" onclick="changeKeybind('inventoryEquips');">E</button>
                                     </td>
                                 </tr>
                                 <tr>

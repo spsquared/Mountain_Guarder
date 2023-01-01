@@ -1,4 +1,4 @@
-// Copyright (C) 2022 Radioactive64
+// Copyright (C) 2023 Sampleprovider(sp)
 
 // entities
 Entity = function(id, map, x, y) {
@@ -7,8 +7,6 @@ Entity = function(id, map, x, y) {
         map: map,
         x: x,
         y: y,
-        x2: Math.round(x),
-        y2: Math.round(x),
         layer: 0,
         xspeed: 0,
         yspeed: 0,
@@ -19,7 +17,6 @@ Entity = function(id, map, x, y) {
         rotation: 0,
         interpolationStage: 0,
         animationImage: new Image(),
-        animationImage2: null,
         updated: true
     };
 
@@ -36,7 +33,7 @@ Entity = function(id, map, x, y) {
         self.updated = true;
     };
     self.draw = function draw() {
-        LAYERS.elayers[self.layer].fillText('MISSING TEXTURE', self.x2+OFFSETX, self.y2+OFFSETY);
+        LAYERS.elayers[self.layer].drawImage(self.animationImage, self.x-self.animationImage.width*2+OFFSETX, self.y-self.animationImage.height*2+OFFSETY, self.animationImage.width*4, self.animationImage.height*4);
         self.updateFrame();
     };
     self.updateFrame = function updateFrame() {
@@ -45,11 +42,10 @@ Entity = function(id, map, x, y) {
             self.y += self.yspeed;
             self.chunkx = Math.floor(self.x/(64*MAPS[self.map].chunkwidth));
             self.chunky = Math.floor(self.y/(64*MAPS[self.map].chunkheight));
-            self.x2 = Math.round(self.x);
-            self.y2 = Math.round(self.y);
             self.interpolationStage++;
         }
     };
+    self.remove = function remove() {};
 
     return self;
 };
@@ -65,24 +61,13 @@ Entity.update = function update(data) {
 Entity.draw = function draw() {
     if (settings.debug) entStart = performance.now();
     Light.draw();
-    var entities = [];
-    for (let i in Player.list) {
-        entities.push(Player.list[i]);
-    }
-    for (let i in Monster.list) {
-        entities.push(Monster.list[i]);
-    }
-    for (let i in Projectile.list) {
-        entities.push(Projectile.list[i]);
-    }
-    for (let i in DroppedItem.list) {
-        entities.push(DroppedItem.list[i]);
-    }
+    const entities = [...[...Player.list.values(), ...Monster.list.values(), ...Projectile.list.values(), ...DroppedItem.list.values()]];
     for (let i in entities) {
         entities[i].map != player.map && delete entities[i];
+        // entity culling
     }
-    let translatex = (window.innerWidth/2)-player.x2;
-    let translatey = (window.innerHeight/2)-player.y2;
+    let translatex = (window.innerWidth/2)-player.x;
+    let translatey = (window.innerHeight/2)-player.y;
     for (let i in LAYERS.elayers) {
         LAYERS.elayers[i].clearRect(0, 0, window.innerWidth, window.innerHeight);
         LAYERS.elayers[i].save();
@@ -91,7 +76,7 @@ Entity.draw = function draw() {
     LAYERS.eupper.clearRect(0, 0, window.innerWidth, window.innerHeight);
     LAYERS.eupper.save();
     LAYERS.eupper.translate(translatex, translatey);
-    entities = entities.sort(function(a, b) {return a.y-b.y;});
+    entities.sort(function(a, b) {return a.y-b.y;});
     for (let entity of entities) {
         entity && entity.draw();
     }
@@ -102,7 +87,7 @@ Entity.draw = function draw() {
     LAYERS.eupper.restore();
     if (settings.debug) {
         let current = performance.now();
-        entTimeCounter = Math.round((current-entStart)*100)/100;
+        entTimeCounter = current-entStart;
     }
 };
 
@@ -122,7 +107,7 @@ Rig = function(id, map, x, y) {
     self.hp = 0;
     self.maxHP = 0;
     self.xp = 0;
-    self.manaFull = false;
+    self
     
     const old_update = self.update;
     self.update = function update(data) {
@@ -133,9 +118,9 @@ Rig = function(id, map, x, y) {
         self.updated = true;
     };
     self.draw = function() {
-        LAYERS.elayers[self.layer].drawImage(self.animationImage, self.x2-self.animationImage.width*2+OFFSETX, self.y2-self.animationImage.height*2+OFFSETY, self.animationImage.width*4, self.animationImage.height*4);
-        LAYERS.eupper.drawImage(Rig.healthBarR, 0, 0, 42, 5, self.x2-63+OFFSETX, self.y2-52+OFFSETY, 126, 15);
-        LAYERS.eupper.drawImage(Rig.healthBarR, 1, 5, (self.hp/self.maxHP)*40, 5, self.x2-60+OFFSETX, self.y2-52+OFFSETY, (self.hp/self.maxHP)*120, 15);
+        LAYERS.elayers[self.layer].drawImage(self.animationImage, self.x-self.animationImage.width*2+OFFSETX, self.y-self.animationImage.height*2+OFFSETY, self.animationImage.width*4, self.animationImage.height*4);
+        LAYERS.eupper.drawImage(Rig.healthBarR, 0, 0, 42, 5, self.x-63+OFFSETX, self.y-52+OFFSETY, 126, 15);
+        LAYERS.eupper.drawImage(Rig.healthBarR, 1, 5, (self.hp/self.maxHP)*40, 5, self.x-60+OFFSETX, self.y-52+OFFSETY, (self.hp/self.maxHP)*120, 15);
         self.updateFrame();
     };
 
@@ -161,6 +146,7 @@ Player = function(id, map, x, y, name, isNPC, npcId) {
     self.nameColor = '#FF9900';
     if (self.name == 'Sampleprovider(sp)') self.nameColor = '#3C70FF';
     if (self.name == 'sp') self.nameColor = '#FF0090';
+    if (self.name == 'Unknown') self.nameColor = '#00000000';
     self.light = new Light(self.x, self.y, self.map, 320, 0, 0, 0, 1, self, false);
 
     const old_update = self.update;
@@ -195,23 +181,23 @@ Player = function(id, map, x, y, name, isNPC, npcId) {
     };
     self.draw = function draw() {
         if (!self.isNPC && self.heldItem.angle <= 0) self.drawHeldItem();
-        if (self.characterStyle.texture) LAYERS.elayers[self.layer].drawImage(self.animationImage, self.x2-self.animationImage.width*2+OFFSETX, self.y2-self.animationImage.height*2+OFFSETY, self.animationImage.width*4, self.animationImage.height*4);
-        else LAYERS.elayers[self.layer].drawImage(self.animationImage, (self.animationStage % 6)*8, (~~(self.animationStage / 6))*16, 8, 16, self.x2-16+OFFSETX, self.y2-52+OFFSETY, 32, 64);
+        if (self.characterStyle.texture) LAYERS.elayers[self.layer].drawImage(self.animationImage, self.x-self.animationImage.width*2+OFFSETX, self.y-self.animationImage.height*2+OFFSETY, self.animationImage.width*4, self.animationImage.height*4);
+        else LAYERS.elayers[self.layer].drawImage(self.animationImage, (self.animationStage % 6)*8, (~~(self.animationStage / 6))*16, 8, 16, self.x-16+OFFSETX, self.y-52+OFFSETY, 32, 64);
         if (!self.isNPC && self.heldItem.angle > 0) self.drawHeldItem();
         if (!self.isNPC) {
-            LAYERS.eupper.drawImage(Rig.healthBarG, 0, 0, 42, 5, self.x2-63+OFFSETX, self.y2-72+OFFSETY, 126, 15);
-            LAYERS.eupper.drawImage(Rig.healthBarG, 1, 5, (self.hp/self.maxHP)*40, 5, self.x2-60+OFFSETX, self.y2-72+OFFSETY, (self.hp/self.maxHP)*120, 15);
+            LAYERS.eupper.drawImage(Rig.healthBarG, 0, 0, 42, 5, self.x-63+OFFSETX, self.y-72+OFFSETY, 126, 15);
+            LAYERS.eupper.drawImage(Rig.healthBarG, 1, 5, (self.hp/self.maxHP)*40, 5, self.x-60+OFFSETX, self.y-72+OFFSETY, (self.hp/self.maxHP)*120, 15);
         }
         LAYERS.eupper.textAlign = 'center';
         LAYERS.eupper.font = '12px Pixel';
         LAYERS.eupper.fillStyle = self.nameColor;
-        self.isNPC && LAYERS.eupper.fillText(self.name, self.x2+OFFSETX, self.y2-58+OFFSETY);
-        !self.isNPC && LAYERS.eupper.fillText(self.name, self.x2+OFFSETX, self.y2-80+OFFSETY);
+        self.isNPC && LAYERS.eupper.fillText(self.name, self.x+OFFSETX, self.y-58+OFFSETY);
+        !self.isNPC && LAYERS.eupper.fillText(self.name, self.x+OFFSETX, self.y-80+OFFSETY);
         self.updateFrame();
     };
     self.drawHeldItem = function drawHeldItem() {
         LAYERS.elayers[self.layer].save();
-        LAYERS.elayers[self.layer].translate(self.x2+OFFSETX, self.y2-8+OFFSETY);
+        LAYERS.elayers[self.layer].translate(self.x+OFFSETX, self.y-8+OFFSETY);
         LAYERS.elayers[self.layer].rotate(self.heldItem.angle);
         if (self.heldItem.id && !self.heldItem.usingShield) {
             LAYERS.elayers[self.layer].translate(Inventory.itemTypes[self.heldItem.id].heldDistance, 0);
@@ -226,9 +212,10 @@ Player = function(id, map, x, y, name, isNPC, npcId) {
     };
     self.updateAnimationImage = function updateAnimationImage() {
         const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
         canvas.width = 48;
         canvas.height = 128;
-        const ctx = canvas.getContext('2d');
+        resetCanvas(ctx);
         ctx.drawImage(self.drawTintedCanvas('body'), 0, 0);
         ctx.drawImage(self.drawTintedCanvas('shirt'), 0, 0);
         ctx.drawImage(self.drawTintedCanvas('pants'), 0, 0);
@@ -238,6 +225,7 @@ Player = function(id, map, x, y, name, isNPC, npcId) {
     self.drawTintedCanvas = function drawTintedCanvas(asset) {
         const buffer = createCanvas(48, 128);
         const btx = buffer.getContext('2d');
+        resetCanvas(btx);
         if (asset == 'hair') btx.drawImage(Player.animations[asset][self.characterStyle.hair], 0, 0);
         else btx.drawImage(Player.animations[asset], 0, 0);
         btx.fillStyle = self.characterStyle[asset + 'Color'];
@@ -250,33 +238,33 @@ Player = function(id, map, x, y, name, isNPC, npcId) {
     };
     self.remove = function remove() {
         self.light.remove();
-        delete Player.list[self.id];
+        Player.list.delete(self.id);
     };
 
-    Player.list[self.id] = self;
+    Player.list.set(self.id, self);
     return self;
 };
 Player.update = function update(data) {
-    for (let i in Player.list) {
-        Player.list[i].updated = false;
-    }
+    Player.list.forEach(function(localplayer, i) {
+        localplayer.updated = false;
+    });
     for (let localplayer of data) {
-        if (Player.list[localplayer.id]) {
-            Player.list[localplayer.id].update(localplayer);
+        if (Player.list.has(localplayer.id)) {
+            Player.list.get(localplayer.id).update(localplayer);
         } else {
             try {
-                new Player(localplayer.id, localplayer.map, localplayer.x, localplayer.y, localplayer.name, localplayer.isNPC, localplayer.npcId);
-                Player.list[localplayer.id].update(localplayer);
+                let newplayer = new Player(localplayer.id, localplayer.map, localplayer.x, localplayer.y, localplayer.name, localplayer.isNPC, localplayer.npcId);
+                newplayer.update(localplayer);
             } catch (err) {
                 console.error(err);
             }
         }
     }
-    for (let i in Player.list) {
-        !Player.list[i].updated && Player.list[i].remove();
-    }
+    Player.list.forEach(function(localplayer, i) {
+        !localplayer.updated && localplayer.remove();
+    });
 };
-Player.list = [];
+Player.list = new Map();
 Player.animations = {
     hair: [
         new Image(),
@@ -334,43 +322,41 @@ Monster = function(id, map, x, y, type, boss) {
     delete tempmonster;
 
     self.draw = function draw() {
-        if (self.characterStyle.texture) LAYERS.elayers[self.layer].drawImage(self.animationImage, self.x2-self.animationImage.width*2+self.offsetX+OFFSETX, self.y2-self.animationImage.height*2+self.offsetY+OFFSETY, self.animationImage.width*4, self.animationImage.height*4);
-        else LAYERS.elayers[self.layer].drawImage(self.animationImage, self.animationStage*self.rawWidth, 0, self.rawWidth, self.rawHeight, self.x2-self.width/2+self.offsetX+OFFSETX, self.y2-self.height/2+self.offsetY+OFFSETY, self.width, self.height);
-        LAYERS.eupper.drawImage(Rig.healthBarR, 0, 0, 42, 5, self.x2-63+self.offsetX+OFFSETX, self.y2-self.height/2-20+self.offsetY+OFFSETY, 126, 15);
-        LAYERS.eupper.drawImage(Rig.healthBarR, 1, 5, (self.hp/self.maxHP)*40, 5, self.x2-60+self.offsetX+OFFSETX, self.y2-self.height/2-20+self.offsetY+OFFSETY, (self.hp/self.maxHP)*120, 15);
+        if (self.characterStyle.texture) LAYERS.elayers[self.layer].drawImage(self.animationImage, self.x-self.animationImage.width*2+self.offsetX+OFFSETX, self.y-self.animationImage.height*2+self.offsetY+OFFSETY, self.animationImage.width*4, self.animationImage.height*4);
+        else LAYERS.elayers[self.layer].drawImage(self.animationImage, self.animationStage*self.rawWidth, 0, self.rawWidth, self.rawHeight, self.x-self.width/2+self.offsetX+OFFSETX, self.y-self.height/2+self.offsetY+OFFSETY, self.width, self.height);
+        LAYERS.eupper.drawImage(Rig.healthBarR, 0, 0, 42, 5, self.x-63+self.offsetX+OFFSETX, self.y-self.height/2-20+self.offsetY+OFFSETY, 126, 15);
+        LAYERS.eupper.drawImage(Rig.healthBarR, 1, 5, (self.hp/self.maxHP)*40, 5, self.x-60+self.offsetX+OFFSETX, self.y-self.height/2-20+self.offsetY+OFFSETY, (self.hp/self.maxHP)*120, 15);
         self.updateFrame();
     };
     self.remove = function remove() {
-        delete Monster.list[self.id];
+        Monster.list.delete(self.id);
         self.isBoss && self.bossBar.outer.remove();
     };
 
-    Monster.list[self.id] = self;
+    Monster.list.set(self.id, self);
     return self;
 };
 Monster.update = function update(data) {
-    for (let i in Monster.list) {
-        Monster.list[i].updated = false;
-    }
+    Monster.list.forEach(function(localmonster, i) {
+        localmonster.updated = false;
+    });
     for (let localmonster of data) {
-        if (localmonster) {
-            if (Monster.list[localmonster.id]) {
-                Monster.list[localmonster.id].update(localmonster);
-            } else {
-                try {
-                    new Monster(localmonster.id, localmonster.map, localmonster.x, localmonster.y, localmonster.type, localmonster.boss);
-                    Monster.list[localmonster.id].update(localmonster);
-                } catch (err) {
-                    console.error(err);
-                }
+        if (Monster.list.has(localmonster.id)) {
+            Monster.list.get(localmonster.id).update(localmonster);
+        } else {
+            try {
+                let newmonster = new Monster(localmonster.id, localmonster.map, localmonster.x, localmonster.y, localmonster.type, localmonster.boss);
+                newmonster.update(localmonster);
+            } catch (err) {
+                console.error(err);
             }
         }
     }
-    for (let i in Monster.list) {
-        !Monster.list[i].updated && Monster.list[i].remove();
-    }
+    Monster.list.forEach(function(localmonster, i) {
+        !localmonster.updated && localmonster.remove();
+    });
 };
-Monster.list = [];
+Monster.list = new Map();
 Monster.types = {};
 Monster.images = {};
 
@@ -397,19 +383,19 @@ Projectile = function(id, map, x, y, angle, type) {
     self.update = function update(data) {
         old_update(data);
         let diff = (data.angle-self.angle) % (2*Math.PI);
-        self.rotationspeed = (2*diff) % (2*Math.PI) - diff;
+        self.rotationspeed = ((2*diff) % (2*Math.PI) - diff)/tpsFpsRatio;
         self.updated = true;
     };
     self.draw = function draw() {
         if (self.above) {
             LAYERS.eupper.save();
-            LAYERS.eupper.translate(self.x2+OFFSETX, self.y2+OFFSETY);
+            LAYERS.eupper.translate(self.x+OFFSETX, self.y+OFFSETY);
             LAYERS.eupper.rotate(self.angle);
             LAYERS.eupper.drawImage(self.animationImage, self.animationStage*self.rawWidth, 0, self.rawWidth, self.rawHeight, -self.width/2+self.offsetX, -self.height/2+self.offsetY, self.width, self.height);
             LAYERS.eupper.restore();
         } else {
             LAYERS.elayers[self.layer].save();
-            LAYERS.elayers[self.layer].translate(self.x2+OFFSETX, self.y2+OFFSETY);
+            LAYERS.elayers[self.layer].translate(self.x+OFFSETX, self.y+OFFSETY);
             LAYERS.elayers[self.layer].rotate(self.angle);
             LAYERS.elayers[self.layer].drawImage(self.animationImage, self.animationStage*self.rawWidth, 0, self.rawWidth, self.rawHeight, -self.width/2+self.offsetX, -self.height/2+self.offsetY, self.width, self.height);
             LAYERS.elayers[self.layer].restore();
@@ -418,40 +404,38 @@ Projectile = function(id, map, x, y, angle, type) {
     };
     const old_updateFrame = self.updateFrame;
     self.updateFrame = function updateFrame() {
-        old_updateFrame();
         if (self.interpolationStage < (settings.fps/20)) self.angle += self.rotationspeed;
+        old_updateFrame();
     }
     self.remove = function remove() {
         self.light && self.light.remove();
-        delete Projectile.list[self.id];
+        Projectile.list.delete(self.id);
     };
 
-    Projectile.list[self.id] = self;
+    Projectile.list.set(self.id, self);
     return self;
 };
 Projectile.update = function update(data) {
-    for (let i in Projectile.list) {
-        Projectile.list[i].updated = false;
-    }
+    Projectile.list.forEach(function(localprojectile, i) {
+        localprojectile.updated = false;
+    });
     for (let localprojectile of data) {
-        if (localprojectile) {
-            if (Projectile.list[localprojectile.id]) {
-                Projectile.list[localprojectile.id].update(localprojectile);
-            } else {
-                try {
-                    new Projectile(localprojectile.id, localprojectile.map, localprojectile.x, localprojectile.y, localprojectile.angle, localprojectile.type);
-                    Projectile.list[localprojectile.id].update(localprojectile);
-                } catch (err) {
-                    console.error(err);
-                }
+        if (Projectile.list.has(localprojectile.id)) {
+            Projectile.list.get(localprojectile.id).update(localprojectile);
+        } else {
+            try {
+                let newprojectile = new Projectile(localprojectile.id, localprojectile.map, localprojectile.x, localprojectile.y, localprojectile.angle, localprojectile.type);
+                newprojectile.update(localprojectile);
+            } catch (err) {
+                console.error(err);
             }
         }
     }
-    for (let i in Projectile.list) {
-        !Projectile.list[i].updated && Projectile.list[i].remove();
-    }
+    Projectile.list.forEach(function(localprojectile, i) {
+        !localprojectile.updated && localprojectile.remove();
+    });
 };
-Projectile.list = [];
+Projectile.list = new Map();
 Projectile.types = {};
 Projectile.images = {};
 
@@ -500,14 +484,14 @@ Particle = function(map, x, y, type, value) {
             break;
         case 'explosion':
             var random = Math.random();
-            if (random <= 0.4) {
+            if (random < 0.4) {
                 self.color = 'rgba(250, 50, 50, ';
                 self.opacity -= 60;
                 self.identifier = 5.1;
-            } else if (random <= 0.6) {
+            } else if (random < 0.6) {
                 self.color = 'rgba(255, 255, 255, ';
                 self.identifier = 5.2;
-            } else if (random <= 0.8) {
+            } else if (random < 0.8) {
                 self.color = 'rgba(150, 150, 150, ';
                 self.identifier = 5.3;
             } else {
@@ -541,9 +525,8 @@ Particle = function(map, x, y, type, value) {
             self.identifier = 8;
             break;
         case 'playerdeath':
-            var angle = Math.random()*2*Math.PI;
-            self.xspeed = Math.sin(angle)*Math.random()*6-3;
-            self.yspeed = Math.cos(angle)*Math.random()*5-10;
+            self.xspeed = Math.random()*6-3;
+            self.yspeed = Math.random()*5-10;
             self.opacity = Math.round(Math.random()*50)+100;
             self.size = Math.random()*5+15;
             self.identifier = 9;
@@ -598,6 +581,49 @@ Particle = function(map, x, y, type, value) {
         case 'cameraShake':
             startCameraShake(value.intensity, value.time);
             return self;
+        case 'fire':
+            var random = Math.floor(Math.random()*3);
+            if (random == 0) {
+                self.color = 'rgba(255, 0, 0, ';
+                self.identifier = 14.1;
+            } else if (random == 1) {
+                self.color = 'rgba(255, 200, 0, ';
+                self.identifier = 14.2;
+            } else {
+                self.color = 'rgba(255, 140, 0, ';
+                self.identifier = 14.3;
+            }
+            self.x += Math.random()*24-12;
+            self.y += Math.random()*24-12;
+            self.yspeed = -4;
+            self.size = Math.random()*4+8;
+            break;
+        case 'firework':
+            var random = Math.random();
+            if (random < 0.2) {
+                self.color = 'rgba(255, 0, 0, ';
+                self.opacity -= 60;
+                self.identifier = 15.1;
+            } else if (random < 0.4) {
+                self.color = 'rgba(0, 255, 0, ';
+                self.identifier = 15.2;
+            } else if (random < 0.6) {
+                self.color = 'rgba(0, 100, 255, ';
+                self.identifier = 15.3;
+            } else if (random < 0.8) {
+                self.color = 'rgba(255, 255, 0, ';
+                self.identifier = 15.4;
+            } else {
+                self.color = 'rgba(255, 255, 255, ';
+                self.identifier = 15.5;
+            }
+            var angle = Math.random()*2*Math.PI;
+            var speed = Math.random()*30;
+            self.xspeed = Math.sin(angle)*speed;
+            self.yspeed = Math.cos(angle)*speed;
+            self.opacity = Math.round(Math.random()*100)+50;
+            self.size = Math.random()*10+10;
+            break;
         default:
             console.error('invalid particle type ' + self.type);
             return;
@@ -676,6 +702,16 @@ Particle = function(map, x, y, type, value) {
                 self.yspeed *= 1-(0.2/tpsFpsRatio);
                 self.opacity -= 5/tpsFpsRatio;
                 break;
+            case 'fire':
+                self.yspeed *= 1-(0.1/tpsFpsRatio);
+                self.opacity -= 8/tpsFpsRatio;
+                self.size -= 0.5/tpsFpsRatio;
+                break;
+            case 'firework':
+                self.xspeed *= 1-(0.3/tpsFpsRatio);
+                self.yspeed *= 1-(0.3/tpsFpsRatio);
+                self.opacity -= 6/tpsFpsRatio;
+                break;
             default:
                 delete Particle.list.get(self.identifier)[self.id];
                 break;
@@ -686,22 +722,18 @@ Particle = function(map, x, y, type, value) {
         let type = 0;
         switch (self.type) {
             case 'damage':
-                // #FF0000
                 LAYERS.eupper.fillStyle = 'rgba(255, 0, 0, ' + self.opacity/100 + ')';
                 type = 0;
                 break;
             case 'critdamage':
-                // #FF0000
                 LAYERS.eupper.fillStyle = 'rgba(255, 0, 0, ' + self.opacity/100 + ')';
                 type = 0;
                 break;
             case 'heal':
-                // #00FF00
                 LAYERS.eupper.fillStyle = 'rgba(0, 255, 0, ' + self.opacity/100 + ')';
                 type = 0;
                 break;
             case 'teleport':
-                // #9900CC
                 LAYERS.eupper.fillStyle = 'rgba(153, 0, 204, ' + Math.min(self.opacity, 50)/100 + ')';
                 type = 1;
                 break;
@@ -710,7 +742,6 @@ Particle = function(map, x, y, type, value) {
                 type = 1;
                 break;
             case 'spawn':
-                // #0000FF
                 let opacity = self.opacity > 100 ? 50-self.opacity+100 : self.opacity;
                 LAYERS.eupper.fillStyle = 'rgba(0, 0, 255, ' + Math.min(opacity, 50)/100 + ')';
                 type = 1;
@@ -732,6 +763,14 @@ Particle = function(map, x, y, type, value) {
                 type = 1;
                 break;
             case 'garuderWarp2':
+                LAYERS.eupper.fillStyle = self.color + self.opacity/100 + ')';
+                type = 1;
+                break;
+            case 'fire':
+                LAYERS.eupper.fillStyle = self.color + Math.min(self.opacity, 50)/100 + ')';
+                type = 1;
+                break;
+            case 'firework':
                 LAYERS.eupper.fillStyle = self.color + self.opacity/100 + ')';
                 type = 1;
                 break;
@@ -788,9 +827,15 @@ Particle = function(map, x, y, type, value) {
             case 'garuderTeleport2':
                 type = 1;
                 break;
+            case 'fire':
+                type = 1;
+                break;
+            case 'firework':
+                type = 1;
+                break;
             default:
                 delete Particle.list.get(self.identifier)[self.id];
-                break;
+                return;
         }
         switch (type) {
             case 0:
@@ -801,12 +846,12 @@ Particle = function(map, x, y, type, value) {
                 break;
             default:
                 delete Particle.list.get(self.identifier)[self.id];
-                break;
+                return;
         }
     };
 
-    if (Particle.list.get(self.identifier) == null) Particle.list.set(self.identifier, []);
-    Particle.list.get(self.identifier)[self.id] = self;
+    if (Particle.list.get(self.identifier) == null) Particle.list.set(self.identifier, new Map());
+    Particle.list.get(self.identifier).set(self.id, self);
     return self;
 };
 Particle.update = function update(data) {
@@ -820,48 +865,40 @@ Particle.draw = function draw() {
             switch (i) {
                 case 1:
                     // damage
-                    // #FF0000
                     LAYERS.eupper.fillStyle = '#FF0000';
                     LAYERS.eupper.textAlign = 'center';
                     LAYERS.eupper.font = '24px Pixel';
                     break;
                 case 2:
                     // crit damage
-                    // #FF0000
                     LAYERS.eupper.fillStyle = '#FF0000';
                     LAYERS.eupper.textAlign = 'center';
                     LAYERS.eupper.font = 'bold 36px Pixel';
                     break;
                 case 3:
                     // heal
-                    // #00FF00
                     LAYERS.eupper.fillStyle = '#00FF00';
                     LAYERS.eupper.textAlign = 'center';
                     LAYERS.eupper.font = '24px Pixel';
                     break;
                 case 4:
                     // teleport
-                    // #9900CC
                     LAYERS.eupper.fillStyle = '#9900CC';
                     break;
                 case 5.1:
                     // explosion 1
-                    // rgba(240, 50, 50, 1)
                     LAYERS.eupper.fillStyle = '#F03232';
                     break;
                 case 5.2:
                     // explosion 2
-                    // rgba(255, 255, 255, 1)
                     LAYERS.eupper.fillStyle = '#FFFFFF';
                     break;
                 case 5.3:
                     // explosion 3
-                    // rgba(150, 150, 150, 1)
                     LAYERS.eupper.fillStyle = '#969696';
                     break;
                 case 5.4:
                     // explosion 4
-                    // rgba(50, 50, 50, 1)
                     LAYERS.eupper.fillStyle = '#323232';
                     break;
                 case 6:
@@ -869,32 +906,83 @@ Particle.draw = function draw() {
                     break;
                 case 7:
                     // spawn
-                    // #0000FF
                     LAYERS.eupper.fillStyle = '#0000FF';
                     break;
                 case 8:
                     // death
-                    // #FF0000
                     LAYERS.eupper.fillStyle = '#FF0000';
                     break;
                 case 9:
                     // player death
-                    // #FF0000
                     LAYERS.eupper.fillStyle = '#FF0000';
                     break;
                 case 10:
                     // warning
-                    // #FF0000
                     LAYERS.eupper.fillStyle = '#FF0000';
+                    break;
+                case 11.1:
+                    // garuder warp 1
+                    LAYERS.eupper.fillStyle = '#3C70FF';
+                    break;
+                case 11.2:
+                    // garuder warp 1
+                    LAYERS.eupper.fillStyle = '#FF0099';
+                    break;
+                case 11.3:
+                    // garuder warp 1
+                    LAYERS.eupper.fillStyle = '#47D89F';
+                    break;
+                case 12.1:
+                    // garuder warp 2
+                    LAYERS.eupper.fillStyle = '#3C70FF';
+                    break;
+                case 12.2:
+                    // garuder warp 2
+                    LAYERS.eupper.fillStyle = '#FF0099';
+                    break;
+                case 12.3:
+                    // garuder warp 2
+                    LAYERS.eupper.fillStyle = '#47D89F';
+                    break;
+                case 14.1:
+                    // fire
+                    LAYERS.eupper.fillStyle = '#FF0000';
+                    break;
+                case 14.2:
+                    // fire
+                    LAYERS.eupper.fillStyle = '#FFC800';
+                    break;
+                case 14.3:
+                    // fire
+                    LAYERS.eupper.fillStyle = '#FF9000';
+                    break;
+                case 15.1:
+                    // firework
+                    LAYERS.eupper.fillStyle = '#FF0000';
+                    break;
+                case 15.2:
+                    // firework
+                    LAYERS.eupper.fillStyle = '#00FF00';
+                    break;
+                case 15.3:
+                    // firework
+                    LAYERS.eupper.fillStyle = '#0064FF';
+                    break;
+                case 15.4:
+                    // firework
+                    LAYERS.eupper.fillStyle = '#FFFF00';
+                    break;
+                case 15.5:
+                    // firework
+                    LAYERS.eupper.fillStyle = '#FFFFFF';
                     break;
                 default:
                     return;
             }
-            for (let j in arr) {
-                var localparticle = arr[j];
+            arr.forEach(function(localparticle, j) {
                 localparticle.map == player.map && localparticle.drawFast();
                 localparticle.map != player.map && localparticle.update();
-            }
+            });
         } else {
             switch (i) {
                 case 1:
@@ -909,30 +997,11 @@ Particle.draw = function draw() {
                     LAYERS.eupper.textAlign = 'center';
                     LAYERS.eupper.font = '24px Pixel';
                     break;
-                case 4:
-                    break;
-                case 5.1:
-                    break;
-                case 5.2:
-                    break;
-                case 5.3:
-                    break;
-                case 5.4:
-                    break;
-                case 6:
-                    break;
-                case 7:
-                    break;
-                case 8:
-                    break;
-                case 8:
-                    break;
-            }
-            for (let j in arr) {
-                var localparticle = arr[j];
+                }
+            arr.forEach(function(localparticle, j) {
                 localparticle.map == player.map && localparticle.draw();
                 localparticle.map != player.map && localparticle.update();
-            }
+            });
         }
     });
 };
@@ -948,6 +1017,7 @@ DroppedItem = function(id, map, x, y, itemId, stackSize) {
         layer: 0,
         itemId: 'missing',
         stackSize: stackSize,
+        animationImage: new Image(),
         updated: false
     };
     self.id = id;
@@ -963,59 +1033,59 @@ DroppedItem = function(id, map, x, y, itemId, stackSize) {
             LAYERS.elayers[self.layer].fillText(self.stackSize, self.x+24+OFFSETX-4, self.y+24+OFFSETY-4);
         }
     };
+    self.remove = function remove() {
+        DroppedItem.list.delete(self.id);
+    };
 
-    DroppedItem.list[self.id] = self;
+    DroppedItem.list.set(self.id, self);
     return self;
 };
 DroppedItem.update = function update(data) {
-    for (let i in DroppedItem.list) {
-        DroppedItem.list[i].updated = false;
-    }
-    for (let i in data) {
-        if (data[i]) {
-            if (DroppedItem.list[data[i].id]) {
-                DroppedItem.list[data[i].id].updated = true;
-            } else {
-                try {
-                    new DroppedItem(data[i].id, data[i].map, data[i].x, data[i].y, data[i].itemId, data[i].stackSize);
-                    DroppedItem.list[data[i].id].updated = true;
-                } catch (err) {
-                    console.error(err);
-                }
+    DroppedItem.list.forEach(function(localdroppeditem, i) {
+        localdroppeditem.updated = false;
+    });
+    for (let localdroppeditem of data) {
+        if (DroppedItem.list.has(localdroppeditem.id)) {
+            DroppedItem.list.get(localdroppeditem.id).updated = true;
+        } else {
+            try {
+                let newdroppeditem = new DroppedItem(localdroppeditem.id, localdroppeditem.map, localdroppeditem.x, localdroppeditem.y, localdroppeditem.itemId, localdroppeditem.stackSize);
+                newdroppeditem.updated = true;
+            } catch (err) {
+                console.error(err);
             }
         }
     }
-    for (let i in DroppedItem.list) {
-        if (DroppedItem.list[i].updated == false) {
-            delete DroppedItem.list[i];
-        }
-    }
+    DroppedItem.list.forEach(function(localdroppeditem, i) {
+        !localdroppeditem.updated && localdroppeditem.remove();
+    });
 };
 DroppedItem.updateHighlight = function updateHighlight() {
-    for (let i in DroppedItem.list) {
-        DroppedItem.list[i].animationImage = Inventory.itemImages[DroppedItem.list[i].itemId];
-    }
+    DroppedItem.list.forEach(function(localdroppeditem, i) {
+        localdroppeditem.animationImage = Inventory.itemImages[localdroppeditem.itemId];
+    });
     let x = mouseX-OFFSETX;
     let y = mouseY-OFFSETY;
     if (settings.useController) {
         x = axes.aimx-OFFSETX;
         y = axes.aimy-OFFSETY;
     }
-    for (let i in DroppedItem.list) {
-        let localdroppeditem = DroppedItem.list[i];
-        if (Math.sqrt(Math.pow(player.x2-localdroppeditem.x, 2) + Math.pow(player.y2-localdroppeditem.y, 2)) < 512) {
-            let left = localdroppeditem.x-player.x2-24;
-            let right = localdroppeditem.x-player.x2+24;
-            let top = localdroppeditem.y-player.y2-24;
-            let bottom = localdroppeditem.y-player.y2+24;
+    let found = false;
+    DroppedItem.list.forEach(function(localdroppeditem, i) {
+        if (found) return;
+        if (Math.sqrt(Math.pow(player.x-localdroppeditem.x, 2) + Math.pow(player.y-localdroppeditem.y, 2)) < 512) {
+            let left = localdroppeditem.x-player.x-24;
+            let right = localdroppeditem.x-player.x+24;
+            let top = localdroppeditem.y-player.y-24;
+            let bottom = localdroppeditem.y-player.y+24;
             if (x >= left && x <= right && y >= top && y <= bottom) {
                 localdroppeditem.animationImage = Inventory.itemHighlightImages[localdroppeditem.itemId];
-                break;
+                found = true;
             }
         }
-    }
+    });
 };
-DroppedItem.list = [];
+DroppedItem.list = new Map();
 
 // lights
 Light = function(x, y, map, radius, r, g, b, a, parent, above) {
@@ -1024,6 +1094,8 @@ Light = function(x, y, map, radius, r, g, b, a, parent, above) {
         x: x,
         y: y,
         map: map,
+        chunkx: Math.floor(x/(64*MAPS[map].chunkwidth)),
+        chunky: Math.floor(y/(64*MAPS[map].chunkheight)),
         radius: radius,
         radius2: radius,
         r: r,
@@ -1032,6 +1104,7 @@ Light = function(x, y, map, radius, r, g, b, a, parent, above) {
         a: a,
         a2: a,
         hasColor: true,
+        toRender: -1,
         parent: parent,
         above: above
     };
@@ -1042,7 +1115,10 @@ Light = function(x, y, map, radius, r, g, b, a, parent, above) {
             self.x = self.parent.x;
             self.y = self.parent.y;
             self.map = self.parent.map;
+            self.chunkx = self.parent.chunkx;
+            self.chunky = self.parent.chunky;
         }
+        self.toRender = -1;
         if (settings.flickeringLights && self.map == player.map) {
             self.radius = Math.round(Math.max(1, self.radius2-40, Math.min(self.radius+Math.random()*4-2, self.radius2+40)));
             self.a = Math.max(0, self.a2-0.1, Math.min(self.a+Math.random()*0.04-0.02, self.a2+0.1, 1));
@@ -1064,29 +1140,32 @@ Light = function(x, y, map, radius, r, g, b, a, parent, above) {
             LAYERS.lights.fillRect(self.x-self.radius+OFFSETX, self.y-self.radius+OFFSETY, self.radius*2, self.radius*2);
         }
     };
+    self.inRenderDistance = function inRenderDistance() {
+        return self.toRender != -1 ? self.toRender : self.toRender = self.map == player.map && self.chunkx >= player.chunkx-settings.renderDistance && self.chunkx <= player.chunkx+settings.renderDistance && self.chunky >= player.chunky-settings.renderDistance && self.chunky <= player.chunky+settings.renderDistance;
+    };
     self.remove = function remove() {
-        delete Light.list[self.id];
+        Light.list.delete(self.id);
     };
 
-    Light.list[self.id] = self;
+    Light.list.set(self.id, self);
     return self;
 };
 Light.draw = function draw() {
     if (settings.debug) lightStart = performance.now();
-    for (let i in Light.list) {
-        Light.list[i].update();
-    }
-    let translatex = (window.innerWidth/2)-player.x2;
-    let translatey = (window.innerHeight/2)-player.y2;
+    Light.list.forEach(function(locallight, i) {
+        locallight.update();
+    });
+    let translatex = (window.innerWidth/2)-player.x;
+    let translatey = (window.innerHeight/2)-player.y;
     LAYERS.lights.clearRect(0, 0, window.innerWidth, window.innerHeight);
     if (settings.lights) {
         LAYERS.lights.save();
         LAYERS.lights.translate(translatex, translatey);
         if (MAPS[player.map].isDark) {
             LAYERS.lights.globalCompositeOperation = 'darken';
-            for (let i in Light.list) {
-                Light.list[i].map == player.map && Light.list[i].drawAlpha();
-            }
+            Light.list.forEach(function(locallight, i) {
+                locallight.inRenderDistance() && locallight.drawAlpha();
+            });
             LAYERS.lights.restore();
             LAYERS.lights.globalCompositeOperation = 'xor';
             LAYERS.lights.fillStyle = 'rgba(0, 0, 0, ' + MAPS[player.map].darknessOpacity + ')';
@@ -1096,18 +1175,18 @@ Light.draw = function draw() {
         }
         if (settings.coloredLights) {
             LAYERS.lights.globalCompositeOperation = 'source-over';
-            for (let i in Light.list) {
-                Light.list[i].map == player.map && Light.list[i].drawColor();
-            }
+            Light.list.forEach(function(locallight, i) {
+                locallight.inRenderDistance() && locallight.drawColor();
+            });
         }
         LAYERS.lights.restore();
     }
     if (settings.debug) {
         let current = performance.now();
-        lightTimeCounter = Math.round((current-lightStart)*100)/100;
+        lightTimeCounter = current-lightStart;
     }
 };
-Light.list = [];
+Light.list = new Map();
 
 // load data
 async function getEntityData() {
@@ -1127,11 +1206,11 @@ async function getEntityData() {
         // monsters
         totalassets++;
         await new Promise(async function(resolve, reject) {
-            var request = new XMLHttpRequest();
+            let request = new XMLHttpRequest();
             request.open('GET', '/monster.json', true);
             request.onload = async function() {
                 if (this.status >= 200 && this.status < 400) {
-                    var json = JSON.parse(this.response);
+                    const json = JSON.parse(this.response);
                     Monster.types = json;
                     loadedassets++;
                     for (let i in Monster.types) {
@@ -1151,11 +1230,11 @@ async function getEntityData() {
         // // projectiles
         totalassets++;
         await new Promise(async function(resolve, reject) {
-            var request = new XMLHttpRequest();
+            let request = new XMLHttpRequest();
             request.open('GET', '/projectile.json', true);
             request.onload = async function() {
                 if (this.status >= 200 && this.status < 400) {
-                    var json = JSON.parse(this.response);
+                    const json = JSON.parse(this.response);
                     Projectile.types = json;
                     loadedassets++;
                     for (let i in Projectile.types) {
@@ -1226,59 +1305,132 @@ async function loadEntityData() {
 };
 
 // animated tiles
-AnimatedTile = function(map, x, y, id, above) {
+AnimatedTile = function(map, x, y, layer, tile, above) {
     const self = {
-        id: id,
-        index: 0,
+        id: Math.random(),
         map: map,
         x: x*64,
         y: y*64,
+        layer: layer,
         above: above,
-        chunkx: 0,
-        chunky: 0,
-        animationImage: null
+        chunkx: Math.floor(x/MAPS[map].chunkwidth),
+        chunky: Math.floor(y/MAPS[map].chunkheight),
+        tile: tile,
+        animationImage: new Image(),
+        timings: [],
+        timer: 0,
+        index: 0
+    };
+    self.animationImage = AnimatedTile.tiles.get(tile).animationImage ?? new Image('./img/misc/missing-texture.png');
+    self.timings = AnimatedTile.tiles.get(tile).timings ?? [];
+    let last = performance.now();
+
+    self.update = function update() {
+        let now = performance.now();
+        self.timer += now-last;
+        last = now;
+        if (self.timer >= self.timings[self.index]) {
+            self.index = (self.index+1) % self.timings.length;
+            self.timer = 0;
+        }
+        if (self.map != player.map || self.chunkx < player.chunkx-settings.renderDistance || self.chunkx > player.chunkx+settings.renderDistance || self.chunky < player.chunky-settings.renderDistance || self.chunky > player.chunky+settings.renderDistance) {
+            self.remove();
+        }
+    };
+    self.draw = function draw() {
+        if (self.above) {
+            LAYERS.mupper.drawImage(self.animationImage, self.index*16, 0, 16, 16, self.x+OFFSETX, self.y+OFFSETY, 64, 64);
+        } else if (self.layer >= 0) {
+            LAYERS.mvariables[self.layer].drawImage(self.animationImage, self.index*16, 0, 16, 16, self.x+OFFSETX, self.y+OFFSETY, 64, 64);
+        } else {
+            LAYERS.mlower.drawImage(self.animationImage, self.index*16, 0, 16, 16, self.x+OFFSETX, self.y+OFFSETY, 64, 64);
+        }
+    };
+    self.remove = function remove() {
+        AnimatedTile.list.delete(self.id);
     };
 
+    AnimatedTile.list.set(self.id, self);
     return self;
 };
-AnimatedTile.animations = [];
+AnimatedTile.update = function update() {
+    AnimatedTile.list.forEach(function(localanimatedtile, i) {
+        localanimatedtile.update();
+    });
+};
+AnimatedTile.draw = function draw() {
+    AnimatedTile.list.forEach(function(localanimatedtile, i) {
+        localanimatedtile.draw();
+    });
+};
+AnimatedTile.list = new Map();
+AnimatedTile.tiles = new Map();
 
 // load data
 async function getAnimatedTileData() {
-    // totalassets++;
-    // var request = new XMLHttpRequest(); 
-    // request.open('GET', '/maps/tiles.tsx', false);
-    // request.onload = async function() {
-    //     if (this.status >= 200 && this.status < 400) {
-    //         var parser = new DOMParser();
-    //         var raw = parser.parseFromString(this.response, 'text/xml');
-    //         for (let i in raw) {
-    //             if (raw[i])
-    //             for (let j in raw) {
-    //                 if (raw[i][j])console.log(raw[i][j])
-    //             }
-    //         }
-    //         loadedassets++;
-    //     } else {
-    //         console.error('Error: Server returned status ' + this.status);
-    //         await sleep(1000);
-    //         request.send();
-    //     }
-    // };
-    // request.onerror = function() {
-    //     console.error('There was a connection error. Please retry');
-    // };
-    // request.send();
+    totalassets++;
+    await new Promise(async function(resolve, reject) {
+        let request = new XMLHttpRequest();
+        request.open('GET', '/maps/tiles.tsx', true);
+        request.onload = async function() {
+            if (this.status >= 200 && this.status < 400) {
+                const parser = new DOMParser();
+                const raw = parser.parseFromString(this.response, 'text/xml');
+                for (let i = 0; i < raw.documentElement.children.length; i++) {
+                    if (raw.documentElement.children[i].tagName == 'tile') {
+                        for (let j = 0; j < raw.documentElement.children[i].children.length; j++) {
+                            if (raw.documentElement.children[i].children[j].tagName == 'animation') {
+                                totalassets += 2;
+                                const animation = raw.documentElement.children[i].children[j];
+                                const tile = {
+                                    tileids: [],
+                                    timings: [],
+                                    animationImage: new Image()
+                                };
+                                for (let k = 0; k < animation.children.length; k++) {
+                                    if (animation.children[k].tagName == 'frame') {
+                                        tile.tileids.push(parseInt(animation.children[k].getAttribute('tileid') ?? 0));
+                                        tile.timings.push(parseInt(animation.children[k].getAttribute('duration') ?? 0));
+                                    }
+                                }
+                                AnimatedTile.tiles.set(parseInt(raw.documentElement.children[i].getAttribute('id') ?? -1), tile);
+                                loadedassets++;
+                            }
+                        }
+                    }
+                }
+                loadedassets++;
+                resolve();
+            } else {
+                reject('Error: Server returned status ' + this.status);
+            }
+        };
+        request.onerror = function(err) {
+            reject(err);
+        };
+        request.send();
+    });
 };
 async function loadAnimatedTileData() {
-    // // monsters
-    // for (let i in Monster.types) {
-    //     await new Promise(function(resolve, reject) {
-    //         Monster.images[i].onload = function() {
-    //             loadedassets++;
-    //             resolve();
-    //         };
-    //         Monster.images[i].src = '/img/monster/' + i + '.png';
-    //     });
-    // }
+    for (const animation of AnimatedTile.tiles.entries()) {
+        await new Promise(function (resolve, reject) {
+            const tile = animation[1];
+            tile.animationImage.onload = function() {
+                loadedassets++;
+                resolve();
+            };
+            const tempcanvas = document.createElement('canvas');
+            const tempctx = tempcanvas.getContext('2d');
+            tempcanvas.width = tile.tileids.length*16;
+            tempcanvas.height = 16;
+            resetCanvas(tempctx);
+            for (let i in tile.tileids) {
+                let tileid = tile.tileids[i];
+                let imgx = (tileid % tileset.columns)*17;
+                let imgy = ~~(tileid / tileset.columns)*17;
+                tempctx.drawImage(tileset, imgx, imgy, 16, 16, parseInt(i)*16, 0, 16, 16);
+            }
+            tile.animationImage.src = tempcanvas.toDataURL('image/png');
+        });
+    };
 };

@@ -1,7 +1,7 @@
-// Copyright (C) 2022 Radioactive64
+// Copyright (C) 2023 Sampleprovider(sp)
 
-const version = 'v0.15.0';
-var firstload = false;
+const version = 'v0.16.0';
+let firstload = false;
 // canvas
 CANVAS = document.getElementById('canvas');
 CTX = CANVAS.getContext('2d');
@@ -53,6 +53,7 @@ settings = {
     coloredLights: true,
     flickeringLights: true,
     lights: true,
+    animatedTiles: true,
     dialogueSpeed: 5,
     pointerLock: false,
     useController: false,
@@ -82,8 +83,8 @@ keybinds = {
     drop: 'q',
     chat: 't',
     settings: null,
-    inventory: 'e',
-    inventoryEquips: 'i',
+    inventory: 'i',
+    inventoryEquips: 'e',
     inventoryCrafting: 'c',
     map: 'm'
 };
@@ -109,59 +110,59 @@ window.onresize = function() {
     }
 };
 function resetCanvas(ctx) {
-    ctx.getContext('2d').imageSmoothingEnabled = false;
-    ctx.getContext('2d').webkitImageSmoothingEnabled = false;
-    ctx.getContext('2d').mozImageSmoothingEnabled = false;
+    ctx.imageSmoothingEnabled = false;
+    ctx.webkitImageSmoothingEnabled = false;
+    ctx.mozImageSmoothingEnabled = false;
 };
 function resetCanvases() {
     SCALE = (settings.renderQuality/100)*DPR;
     LAYERS.map0.width = window.innerWidth*SCALE;
     LAYERS.map0.height = window.innerHeight*SCALE;
     LAYERS.mlower.scale(SCALE, SCALE);
-    resetCanvas(LAYERS.map0);
+    resetCanvas(LAYERS.mlower);
     for (let i in LAYERS.mapvariables) {
         LAYERS.mapvariables[i].width = window.innerWidth*SCALE;
         LAYERS.mapvariables[i].height = window.innerHeight*SCALE;
         LAYERS.mvariables[i].scale(SCALE, SCALE);
-        resetCanvas(LAYERS.mapvariables[i]);
+        resetCanvas(LAYERS.mvariables[i]);
     }
     for (let i in LAYERS.entitylayers) {
         LAYERS.entitylayers[i].width = window.innerWidth*SCALE;
         LAYERS.entitylayers[i].height = window.innerHeight*SCALE;
         LAYERS.elayers[i].scale(SCALE, SCALE);
-        resetCanvas(LAYERS.entitylayers[i]);
+        resetCanvas(LAYERS.elayers[i]);
     }
     LAYERS.map1.width = window.innerWidth*SCALE;
     LAYERS.map1.height = window.innerHeight*SCALE;
     LAYERS.mupper.scale(SCALE, SCALE);
-    resetCanvas(LAYERS.map1);
+    resetCanvas(LAYERS.mupper);
     LAYERS.entity1.width = window.innerWidth*SCALE;
     LAYERS.entity1.height = window.innerHeight*SCALE;
     LAYERS.eupper.scale(SCALE, SCALE);
-    resetCanvas(LAYERS.entity1);
+    resetCanvas(LAYERS.eupper);
     LAYERS.lightCanvas.width = window.innerWidth*SCALE;
     LAYERS.lightCanvas.height = window.innerHeight*SCALE;
     LAYERS.lights.scale(SCALE, SCALE);
-    resetCanvas(LAYERS.lightCanvas);
+    resetCanvas(LAYERS.lights);
     CANVAS.width = window.innerWidth*SCALE;
     CANVAS.height = window.innerHeight*SCALE;
     CTX.scale(SCALE, SCALE);
-    resetCanvas(CANVAS);
+    resetCanvas(CTX);
     for (let i in MAPS) {
         for (let j in MAPS[i].chunks) {
             for (let k in MAPS[i].chunks[j]) {
-                resetCanvas(MAPS[i].chunks[j][k].upper);
-                resetCanvas(MAPS[i].chunks[j][k].lower);
+                resetCanvas(MAPS[i].chunks[j][k].upper.getContext('2d'));
+                resetCanvas(MAPS[i].chunks[j][k].lower.getContext('2d'));
             }
         }
     }
-    resetCanvas(document.getElementById('playerPreview'));
+    resetCanvas(document.getElementById('playerPreview').getContext('2d'));
 };
 resetCanvases();
 
 // right click and highlight prevention
-document.querySelectorAll("input").forEach(function(item) {if (item.type != 'text' && item.type != 'password') {item.addEventListener('focus', function() {this.blur();});}});
-document.querySelectorAll("button").forEach(function(item) {item.addEventListener('focus', function() {this.blur();});});
+document.querySelectorAll("input").forEach(function(item) {if (item.type != 'text' && item.type != 'password') {item.addEventListener('keydown', function() {this.blur();});}});
+document.querySelectorAll("button").forEach(function(item) {item.addEventListener('keydown', function() {this.blur();});});
 function preventDefaults(id) {
     const element = document.getElementById(id);
     element.addEventListener('contextmenu', function(e) {e.preventDefault()});

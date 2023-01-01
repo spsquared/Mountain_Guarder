@@ -1,4 +1,4 @@
-// Copyright (C) 2022 Radioactive64
+// Copyright (C) 2023 Sampleprovider(sp)
 
 const { subtle } = require('crypto').webcrypto;
 const keys = subtle.generateKey({
@@ -72,12 +72,13 @@ module.exports = function GaruderAPIServer(server) {
                                     }
                                     if (!signedIn) {
                                         player.creds.username = cred.username;
-                                        player.creds.password = await RSAencode(decryptPassword);
+                                        player.creds.password = decryptPassword;
                                         Object.freeze(player.creds);
                                         player.name = player.creds.username;
-                                        player.updateClient();
+                                        player.loginTime = Date.now();
                                         await player.loadData();
                                         socket.emit('loggedIn');
+                                        player.updateClient();
                                         insertChat(player.name + ' joined the game', 'server');
                                         player.signedIn = true;
                                         player.invincible = false;
@@ -121,16 +122,16 @@ module.exports = function GaruderAPIServer(server) {
         });
 
         // manage disconnections
-        let timeoutdetect = setTimeout(function() {});
-        socket.on('pong', function() {
-            clearTimeout(timeoutdetect);
-        });
-        setInterval(function() {
+        const disconnectPings = setInterval(function() {
             socket.emit('ping');
-            timeoutdetect = setTimeout(async function() {
+            let timeoutdetect = setTimeout(async function() {
                 await player.leave();
+                clearInterval(disconnectPings);
             }, 10000);
-        }, 5000);
+            socket.once('pong', function() {
+                clearTimeout(timeoutdetect);
+            });
+        }, 1000);
     });
     setInterval(function() {
         for (let i in recentConnections) {

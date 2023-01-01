@@ -1,3 +1,5 @@
+// Copyright (C) 2023 Sampleprovider(sp)
+
 if (ENV.useDiscordWebhook) {
     const { Webhook } = require('discord-webhook-node');
     if (process.env.WEBHOOK_TOKEN) {

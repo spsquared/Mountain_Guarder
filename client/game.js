@@ -1,13 +1,10 @@
-// Copyright (C) 2022 Radioactive64
+// Copyright (C) 2023 Sampleprovider(sp)
 
-var player;
-var playerid = 0;
-var mapnameFade, mapnameWait;
-var lastmap;
-var debugData = {};
-const debug = document.getElementById('debug');
-const mousepos = document.getElementById('mousepos');
-const position = document.getElementById('position');
+let player;
+let playerid = 0;
+let mapnameFade, mapnameWait;
+let lastmap;
+let debugData = {};
 
 // loading
 let loadedassets = 0;
@@ -17,6 +14,7 @@ let tilesetloaded = false;
 const tileset = new Image();
 tileset.onload = function() {
     tilesetloaded = true;
+    tileset.columns = (tileset.width+1)/17;
     loadedassets++;
 };
 function load(data) {
@@ -27,6 +25,7 @@ function load(data) {
     }
     setTimeout(async function() {
         await getEntityData();
+        await getAnimatedTileData();
         await getInventoryData();
         await getCraftingData();
         await getShopData();
@@ -56,6 +55,7 @@ function load(data) {
             }
         }, 5);
         await loadEntityData();
+        await loadAnimatedTileData();
         await loadInventoryData();
         await loadCraftingData();
         await loadShopData();
@@ -74,10 +74,10 @@ async function loadMap(name) {
     if (tilesetloaded) {
         await new Promise(async function(resolve, reject) {
             let request = new XMLHttpRequest();
-            request.open('GET', '/maps/' + name + '.json', true);
+            request.open('GET', `/maps/${name}.json`, true);
             request.onload = function() {   
                 if (this.status >= 200 && this.status < 400) {
-                    let json = JSON.parse(this.response);
+                    const json = JSON.parse(this.response);
                     MAPS[name] = {
                         width: 0,
                         height: 0,
@@ -91,6 +91,7 @@ async function loadMap(name) {
                         isDark: false,
                         darknessOpacity: 0
                     };
+                    const lights = [];
                     for (let i in json.layers) {
                         if (json.layers[i].visible) {
                             if (json.layers[i].name == 'Ground Terrain') {
@@ -138,7 +139,7 @@ async function loadMap(name) {
                             MAPS[name].isDark = true;
                             MAPS[name].darknessOpacity = parseFloat(json.layers[i].name.replace('Darkness:', ''));
                         } else if (json.layers[i].name.startsWith('Light:')) {
-                            var properties = json.layers[i].name.replace('Light:', '').split(',');
+                            const properties = json.layers[i].name.replace('Light:', '').split(',');
                             if (json.layers[i].chunks) {
                                 for (let j in json.layers[i].chunks) {
                                     let rawchunk = json.layers[i].chunks[j];
@@ -147,7 +148,7 @@ async function loadMap(name) {
                                             let x = ((k % rawchunk.width)+rawchunk.x)*64+32;
                                             let y = (~~(k / rawchunk.width)+rawchunk.y)*64+32;
                                             if (rawchunk.data[k]-1 == 1867) {
-                                                new Light(x, y, name, parseInt(properties[4]), parseInt(properties[0]), parseInt(properties[1]), parseInt(properties[2]), parseFloat(properties[3]));
+                                                lights.push([x, y, name, parseInt(properties[4]), parseInt(properties[0]), parseInt(properties[1]), parseInt(properties[2]), parseFloat(properties[3])]);
                                             } else {
                                                 console.error('Invalid region at (' + name + ', ' + x + ', ' + y + ')');
                                             }
@@ -160,7 +161,7 @@ async function loadMap(name) {
                                         let x = (j % json.layers[i].width)*64+32;
                                         let y = ~~(j / json.layers[i].width)*64+32;
                                         if (json.layers[i].data[j]-1 == 1867) {
-                                            new Light(x, y, name, parseInt(properties[4]), parseInt(properties[0]), parseInt(properties[1]), parseInt(properties[2]), parseFloat(properties[3]));
+                                            lights.push([x, y, name, parseInt(properties[4]), parseInt(properties[0]), parseInt(properties[1]), parseInt(properties[2]), parseFloat(properties[3])]);
                                         } else {
                                             console.error('Invalid region at (' + name + ', ' + x + ', ' + y + ')');
                                         }
@@ -168,6 +169,9 @@ async function loadMap(name) {
                                 }
                             }
                         }
+                    }
+                    for (let params of lights) {
+                        new Light(...params);
                     }
                     loadedassets++;
                     resolve();
@@ -199,7 +203,7 @@ function drawFrame() {
                 LAYERS.entitylayers[i].width = window.innerWidth*SCALE;
                 LAYERS.entitylayers[i].height = window.innerHeight*SCALE;
                 LAYERS.elayers[i].scale(SCALE, SCALE);
-                resetCanvas(LAYERS.entitylayers[i]);
+                resetCanvas(LAYERS.elayers[i]);
             }
         }
         CTX.clearRect(0, 0, window.innerWidth, window.innerHeight);
@@ -226,10 +230,22 @@ function drawFrame() {
         CTX.drawImage(LAYERS.entity1, 0, 0, window.innerWidth, window.innerHeight);
         CTX.drawImage(LAYERS.lightCanvas, 0, 0, window.innerWidth, window.innerHeight);
         drawDebug();
+        if (settings.superSecretRGBSplitFilter) {
+            let rOffset = Math.floor(-256*SCALE);
+            let bOffset = Math.floor(256*SCALE);
+            const imagedata = CTX.getImageData(0, 0, CANVAS.width, CANVAS.height);
+            const newdata = new Uint8ClampedArray(imagedata.data);
+            for (let i = 0; i < imagedata.data.length; i += 4) {
+                newdata[i + rOffset*4] = imagedata.data[i];
+                newdata[i+1] = imagedata.data[i+1];
+                newdata[i+2 + bOffset*4] = imagedata.data[i+2];
+            }
+            CTX.putImageData(new ImageData(newdata, imagedata.width, imagedata.height), 0, 0);
+        }
         lastmap = player.map;
         if (settings.debug) {
-            var current = performance.now();
-            frameTimeCounter = Math.round((current-frameStart)*100)/100;
+            let current = performance.now();
+            frameTimeCounter = current-frameStart;
         }
     }
 };
@@ -242,11 +258,11 @@ function drawMap() {
             LAYERS.mapvariables[i].width = window.innerWidth*SCALE;
             LAYERS.mapvariables[i].height = window.innerHeight*SCALE;
             LAYERS.mvariables[i].scale(SCALE, SCALE);
-            resetCanvas(LAYERS.mapvariables[i]);
+            resetCanvas(LAYERS.mvariables[i]);
         }
     }
-    let translatex = (window.innerWidth/2)-player.x2;
-    let translatey = (window.innerHeight/2)-player.y2;
+    let translatex = (window.innerWidth/2)-player.x;
+    let translatey = (window.innerHeight/2)-player.y;
     LAYERS.mlower.clearRect(0, 0, window.innerWidth, window.innerHeight);
     LAYERS.mlower.save();
     LAYERS.mlower.translate(translatex, translatey);
@@ -269,6 +285,7 @@ function drawMap() {
             }
         }
     }
+    AnimatedTile.draw();
     LAYERS.mupper.fillStyle = '#000000';
     let mwidth = MAPS[player.map].width*64;
     let mheight = MAPS[player.map].height*64;
@@ -285,10 +302,13 @@ function drawMap() {
     LAYERS.mupper.restore();
     if (settings.debug) {
         let current = performance.now();
-        mapTimeCounter = Math.round((current-mapStart)*100)/100;
+        mapTimeCounter = current-mapStart;
     }
 };
 async function updateRenderedChunks() {
+    for (let i in MAPS) {
+        if (i != player.map && MAPS[i].chunks.length != 0) MAPS[i].chunks = [];
+    }
     for (let y in MAPS[player.map].chunks) {
         for (let x in MAPS[player.map].chunks[y]) {
             if (Math.abs(player.chunkx-x) > settings.renderDistance || Math.abs(player.chunky-y) > settings.renderDistance) {
@@ -311,14 +331,14 @@ async function updateRenderedChunks() {
     }
 };
 function renderChunk(x, y, map) {
-    let templower = createCanvas(MAPS[map].chunkwidth * 64, MAPS[map].chunkheight * 64);
-    let tempupper = createCanvas(MAPS[map].chunkwidth * 64, MAPS[map].chunkheight * 64);
-    let tlower = templower.getContext('2d');
-    let tupper = tempupper.getContext('2d');
-    resetCanvas(tempupper);
-    resetCanvas(templower);
-    let tempvariables = [];
-    let tvariables = [];
+    const templower = createCanvas(MAPS[map].chunkwidth * 64, MAPS[map].chunkheight * 64);
+    const tempupper = createCanvas(MAPS[map].chunkwidth * 64, MAPS[map].chunkheight * 64);
+    const tlower = templower.getContext('2d');
+    const tupper = tempupper.getContext('2d');
+    resetCanvas(tlower);
+    resetCanvas(tupper);
+    const tempvariables = [];
+    const tvariables = [];
     for (let i in MAPS[player.map].chunkJSON[y][x]) {
         let above = false;
         let variable = -1;
@@ -327,22 +347,27 @@ function renderChunk(x, y, map) {
             variable = parseInt(i.replace('Variable', ''));
             tempvariables[variable] = createCanvas(MAPS[map].chunkwidth * 64, MAPS[map].chunkheight * 64);
             tvariables[variable] = tempvariables[variable].getContext('2d');
-            resetCanvas(tempvariables[variable]);
+            resetCanvas(tvariables[variable]);
         }
         for (let j in MAPS[player.map].chunkJSON[y][x][i]) {
-            let tileid = MAPS[player.map].chunkJSON[y][x][i][j];
-            if (tileid != 0) {
-                tileid--;
-                let imgx = (tileid % 86)*17;
-                let imgy = ~~(tileid / 86)*17;
-                let dx = (j % MAPS[map].chunkwidth)*16+MAPS[player.map].chunkJSON[y][x][i].offsetX;
-                let dy = ~~(j / MAPS[map].chunkwidth)*16+MAPS[player.map].chunkJSON[y][x][i].offsetY;
-                if (above) {
-                    tupper.drawImage(tileset, imgx, imgy, 16, 16, dx*4, dy*4, 64, 64);
-                } else if (variable != -1) {
-                    tvariables[variable].drawImage(tileset, imgx, imgy, 16, 16, dx*4, dy*4, 64, 64);
+            let tileid = MAPS[player.map].chunkJSON[y][x][i][j]-1;
+            if (tileid != -1) {
+                if (AnimatedTile.tiles.has(tileid) && settings.animatedTiles) {
+                    let dx = (j % MAPS[map].chunkwidth)+(MAPS[player.map].chunkJSON[y][x][i].offsetX/16);
+                    let dy = ~~(j / MAPS[map].chunkwidth)+(MAPS[player.map].chunkJSON[y][x][i].offsetY/16);
+                    new AnimatedTile(map, dx, dy, variable, tileid, above);
                 } else {
-                    tlower.drawImage(tileset, imgx, imgy, 16, 16, dx*4, dy*4, 64, 64);
+                    let imgx = (tileid % tileset.columns)*17;
+                    let imgy = ~~(tileid / tileset.columns)*17;
+                    let dx = (j % MAPS[map].chunkwidth)*16+MAPS[player.map].chunkJSON[y][x][i].offsetX;
+                    let dy = ~~(j / MAPS[map].chunkwidth)*16+MAPS[player.map].chunkJSON[y][x][i].offsetY;
+                    if (above) {
+                        tupper.drawImage(tileset, imgx, imgy, 16, 16, dx*4, dy*4, 64, 64);
+                    } else if (variable != -1) {
+                        tvariables[variable].drawImage(tileset, imgx, imgy, 16, 16, dx*4, dy*4, 64, 64);
+                    } else {
+                        tlower.drawImage(tileset, imgx, imgy, 16, 16, dx*4, dy*4, 64, 64);
+                    }
                 }
             }
         }
@@ -362,10 +387,10 @@ function drawDebug() {
         let temp = new createCanvas(window.innerWidth, window.innerHeight);
         let tempctx = temp.getContext('2d');
         function getManhattanDistance(entity) {
-            return Math.abs(player.x2-entity.x) + Math.abs(player.y2-entity.y);
+            return Math.abs(player.x-entity.x) + Math.abs(player.y-entity.y);
         };
         tempctx.save();
-        tempctx.translate((window.innerWidth/2)-player.x2, (window.innerHeight/2)-player.y2);
+        tempctx.translate((window.innerWidth/2)-player.x, (window.innerHeight/2)-player.y);
         // chunk borders
         let width = MAPS[player.map].chunkwidth*64;
         let height = MAPS[player.map].chunkheight*64;
@@ -546,9 +571,9 @@ function drawDebug() {
         for (let i in debugData.monsters) {
             let localmonster = debugData.monsters[i];
             if (localmonster && localmonster.map == player.map) {
-                if (Player.list[localmonster.aggroTarget]) {
+                if (Player.list.has(localmonster.aggroTarget)) {
                     tempctx.moveTo(localmonster.x+OFFSETX, localmonster.y+OFFSETY);
-                    tempctx.lineTo(Player.list[localmonster.aggroTarget].x+OFFSETX, Player.list[localmonster.aggroTarget].y+OFFSETY);
+                    tempctx.lineTo(Player.list.get(localmonster.aggroTarget).x+OFFSETX, Player.list.get(localmonster.aggroTarget).y+OFFSETY);
                 }
             }
         }
@@ -627,7 +652,7 @@ function drawDebug() {
         mousepos.innerText = 'Mouse: (' + Math.floor((player.x+mouseX-OFFSETX)/64) + ', ' + Math.floor((player.y+mouseY-OFFSETY)/64) + ')';
         position.innerText = 'Player: (' + Math.floor(player.x/64) + ', ' + Math.floor(player.y/64) + ')';
         let current = performance.now();
-        debugTimeCounter = Math.round((current-debugStart)*100)/100;
+        debugTimeCounter = current-debugStart;
     } else {
         debug.style.display = '';
     }
@@ -649,11 +674,14 @@ function resetFPS() {
 socket.on('updateTick', function(data) {
     if (loaded && !document.hidden) {
         Entity.update(data);
-        player = Player.list[playerid];
-        if (lastmap != player.map) MAPS[player.map].chunks = [];
-        updateRenderedChunks();
-        if (!controllerConnected) socket.emit('mouseMove', {x: mouseX-OFFSETX, y: mouseY-OFFSETY});
-        if (settings.useController) sendControllers();
+        if (Player.list.has(playerid)) {
+            player = Player.list.get(playerid);
+            if (lastmap != player.map) MAPS[player.map].chunks = [];
+            updateRenderedChunks();
+            if (!controllerConnected) socket.emit('mouseMove', {x: mouseX-OFFSETX, y: mouseY-OFFSETY});
+            if (settings.useController) sendControllers();
+        }
+        AnimatedTile.update();
     }
 });
 socket.on('debugTick', function(debug) {
@@ -670,7 +698,7 @@ document.onkeydown = function onkeydown(e) {
         if (!e.isTrusted) {
             socket.emit('timeout');
         } else if (!inchat && !indebug && !changingKeyBind) {
-            var key = e.key.toLowerCase();
+            const key = e.key.toLowerCase();
             switch (key) {
                 case keybinds.up:
                     socket.emit('keyPress', {key: 'up', state: true});
@@ -692,7 +720,6 @@ document.onkeydown = function onkeydown(e) {
                     break;
                 case keybinds.chat:
                     document.getElementById('chatInput').focus();
-                    e.preventDefault();
                     break;
                 default:
                 if (!e.getModifierState('Shift') && !e.getModifierState('Control') && !e.getModifierState('Alt') && !e.getModifierState('Meta')) {
@@ -715,11 +742,15 @@ document.onkeydown = function onkeydown(e) {
                     }
                 } else if (key == 'i' && !e.getModifierState('Shift') && e.getModifierState('Control') && debugConsoleEnabled) {
                     toggleDebugConsole();
-                } else if (e.key == 'Meta' || e.key == 'Alt' || e.key == 'Control') {
+                } else if (key == 'meta' || key == 'alt' || key == 'control') {
                     releaseAll();
                 }
             }
         }
+        if ((e.key.toLowerCase() != 'i' || !e.getModifierState('Shift') || !e.getModifierState('Control')) && e.key != 'F5' && !document.activeElement.matches('#chatInput, #debugInput')) {
+            e.preventDefault();
+        }
+        if (e.target.matches('button')) e.target.blur();
     }
 };
 document.onkeyup = function onkeyup(e) {
@@ -748,7 +779,7 @@ document.onkeyup = function onkeyup(e) {
                     socket.emit('keyPress', {key: 'disableSecond', state: false});
                     break;
                 case '\\':
-                    if (!inchat) {
+                    if (!inchat && !forceDebug) {
                         toggle('debug');
                         document.getElementById('debugToggle').checked = settings.debug;
                     }
@@ -766,7 +797,7 @@ document.onmousedown = function onmousedown(e) {
             mouseX = e.clientX-window.innerWidth/2;
             mouseY = e.clientY-window.innerHeight/2;
         }
-        if (!changingKeyBind && !document.getElementById('chat').contains(e.target) && !document.getElementById('dropdownMenu').contains(e.target) && !document.getElementById('windows').contains(e.target) && !document.getElementById('deathScreen').contains(e.target)) {
+        if (!changingKeyBind && !document.getElementById('menuContainer').contains(e.target) && !e.target.matches('#chatInput') && !document.getElementById('dropdownMenu').contains(e.target) && !document.getElementById('windows').contains(e.target) && !document.getElementById('deathScreen').contains(e.target) && !document.getElementById('garuderWarpSelect').contains(e.target)) {
             switch (e.button) {
                 case keybinds.use:
                     socket.emit('click', {button: 'left', x: mouseX-OFFSETX, y: mouseY-OFFSETY, state: true});
@@ -788,7 +819,7 @@ document.onmouseup = function onmouseup(e) {
             mouseX = e.clientX-window.innerWidth/2;
             mouseY = e.clientY-window.innerHeight/2;
         }
-        if (!e.target.matches('#menuContainer') && !e.target.matches('#chatInput') && !e.target.matches('#windows') && !e.target.matches('#dropdownMenu') && !e.target.matches('#regionName')) {
+        if (!document.getElementById('menuContainer').contains(e.target)) {
             switch (e.button) {
                 case keybinds.use:
                     socket.emit('click', {button: 'left', x: mouseX-OFFSETX, y: mouseY-OFFSETY, state: false});
@@ -972,11 +1003,11 @@ async function displayText(text, div) {
 async function getNpcDialogues() {
     await new Promise(async function(resolve, reject) {
         totalassets++;
-        var request = new XMLHttpRequest();
+        let request = new XMLHttpRequest();
         request.open('GET', '/prompts.json', true);
         request.onload = async function() {
             if (this.status >= 200 && this.status < 400) {
-                var json = JSON.parse(this.response);
+                const json = JSON.parse(this.response);
                 Prompts = json;
                 loadedassets++;
                 resolve();
@@ -1116,8 +1147,8 @@ socket.on('cameraShake', function(intensity) {
 });
 
 // chat
-var inchat = false;
-var messages = [];
+let inchat = false;
+let messages = [];
 const chat = document.getElementById('chatText');
 const chatInput = document.getElementById('chatInput');
 chatInput.onfocus = function() {
@@ -1166,7 +1197,7 @@ function insertChat(data) {
 
 // world map
 const map = document.getElementById('worldMap');
-var worldMap = {
+const worldMap = {
     x: 0,
     y: 0,
     map: 'World',
@@ -1207,48 +1238,50 @@ map.addEventListener('wheel', function(e) {
 updateWorldMap();
 
 // performance metrics
-var fpsTimes = [];
-var tpsCounter = 0;
-var pingCounter = 0;
-var pingSend = 0;
-var frameTimeCounter = 0;
-var frameStart = 0;
-var entTimeCounter = 0;
-var entStart = 0;
-var lightTimeCounter = 0;
-var lightStart = 0;
-var mapTimeCounter = 0;
-var mapStart = 0;
-var debugTimeCounter = 0;
-var debugStart = 0;
-var tickTime = 0;
-var entTime = 0;
-var packetTime = 0;
-var serverHeapUsed = 0;
-var serverHeapMax = 0;
+let fpsTimes = [];
+let tpsCounter = 0;
+let pingCounter = 0;
+let pingSend = 0;
+let frameTimeCounter = 0;
+let frameStart = 0;
+let entTimeCounter = 0;
+let entStart = 0;
+let lightTimeCounter = 0;
+let lightStart = 0;
+let mapTimeCounter = 0;
+let mapStart = 0;
+let debugTimeCounter = 0;
+let debugStart = 0;
+let tickTime = 0;
+let entTime = 0;
+let packetTime = 0;
+let serverHeapUsed = 0;
+let serverHeapMax = 0;
+let forceDebug = false;
+const debug = document.getElementById('debug');
+const mousepos = document.getElementById('mousepos');
+const position = document.getElementById('position');
 setInterval(function() {
     if (loaded && !document.hidden) {
         while (performance.now()-fpsTimes[0] > 1000) fpsTimes.shift();
         document.getElementById('fps').innerText = 'FPS: ' + fpsTimes.length;
         document.getElementById('tps').innerText = 'TPS: ' + tpsCounter;
-        document.getElementById('ping').innerText = 'Ping: ' + pingCounter + 'ms';
+        document.getElementById('ping').innerText = 'Ping: ' + Math.round(pingCounter*100)/100 + 'ms';
         pingSend = performance.now();
         socket.emit('ping');
         if (settings.debug) {
-            var entities = 0, monsters = 0, projectiles = 0, particles = 0;
-            for (let i in Player.list) {entities++;}
-            for (let i in Monster.list) {entities++; monsters++;}
-            for (let i in Projectile.list) {entities++; projectiles++;}
-            for (let i in Particle.list) {entities++; particles++;}
-            for (let i in DroppedItem.list) {entities++;}
+            let monsters = Monster.list.size;
+            let projectiles = Projectile.list.size;
+            let particles = Particle.list.size;
+            let entities = Player.list.size + monsters + projectiles + particles + DroppedItem.list.size;
             document.getElementById('enttotal').innerText = 'Ent: ' + entities;
             document.getElementById('entmonst').innerText = 'Mon: ' + monsters;
             document.getElementById('entproj').innerText = 'Proj: ' + projectiles;
             document.getElementById('entpart').innerText = 'Part: ' + particles;
-            document.getElementById('drawTime').innerText = 'Frame: ' + frameTimeCounter + 'ms';
-            document.getElementById('entdrawTime').innerText = 'Entity: ' + entTimeCounter + 'ms';
-            document.getElementById('mapdrawTime').innerText = 'Map: ' + mapTimeCounter + 'ms';
-            document.getElementById('debugdrawTime').innerText = 'Debug: ' + debugTimeCounter + 'ms';
+            document.getElementById('drawTime').innerText = 'Frame: ' + Math.round(frameTimeCounter*100)/100 + 'ms';
+            document.getElementById('entdrawTime').innerText = 'Entity: ' + Math.round(entTimeCounter*100)/100 + 'ms';
+            document.getElementById('mapdrawTime').innerText = 'Map: ' + Math.round(mapTimeCounter*100)/100 + 'ms';
+            document.getElementById('debugdrawTime').innerText = 'Debug: ' + Math.round(debugTimeCounter*100)/100 + 'ms';
             document.getElementById('tickTime').innerText = 'Tick: ' + tickTime + 'ms';
             document.getElementById('serverHeap').innerText = 'Server Heap: ' + serverHeapUsed + '/' + serverHeapMax + 'MB';
             document.getElementById('clientHeap').innerText = 'Heap: ' + Math.round(performance.memory.usedJSHeapSize/1048576*100)/100 + '/' + Math.round(performance.memory.jsHeapSizeLimit/1048576*100)/100 + 'MB';
@@ -1256,9 +1289,67 @@ setInterval(function() {
     }
 }, 500);
 socket.on('pong', function() {
-    var current = performance.now();
-    pingCounter = Math.round((current-pingSend)*100)/100;
+    let current = performance.now();
+    pingCounter = current-pingSend;
 });
+function performanceLog(s) {
+    forceDebug = true;
+    toggle('debug');
+    document.getElementById('debugToggle').checked = settings.debug;
+    document.body.focus();
+    const raw = {
+        fps: [],
+        ping: [],
+        frameTime: [],
+        entTime: [],
+        lightTime: [],
+        mapTime: [],
+        debugTime: [],
+        heap: []
+    };
+    let log = setInterval(function() {
+        settings.debug = true;
+        raw.fps.push(fpsTimes.length);
+        raw.ping.push(pingCounter);
+        raw.frameTime.push(frameTimeCounter);
+        raw.entTime.push(entTimeCounter);
+        raw.lightTime.push(lightTimeCounter);
+        raw.mapTime.push(mapTimeCounter);
+        raw.debugTime.push(debugTimeCounter);
+        raw.heap.push(performance.memory.usedJSHeapSize/1048576);
+    }, 100);
+    setTimeout(function() {
+        clearInterval(log);
+        forceDebug = false;
+        function process(raw) {
+            let average = raw.reduce(function(acc, curr) {
+                return acc + curr;
+            }, 0)/raw.length;
+            let min = Math.min(...raw);
+            let max = Math.max(...raw);
+            let stddeviation = Math.sqrt(raw.reduce(function(acc, curr) {
+                return acc + Math.pow(average-curr, 2);
+            }, 0)/raw.length);
+            return {
+                average: average,
+                min: min,
+                max: max,
+                standarddeviation: stddeviation
+            };
+        };
+        const processed = {
+            fps: process(raw.fps),
+            ping: process(raw.ping),
+            frameTime: process(raw.frameTime),
+            entTime: process(raw.entTime),
+            lightTime: process(raw.lightTime),
+            mapTime: process(raw.mapTime),
+            debugTime: process(raw.debugTime),
+            heap: process(raw.heap)
+        };
+        console.table(processed);
+    }, s*1000);
+};
 
 // debug console
 var indebug = false;

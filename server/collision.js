@@ -1,4 +1,4 @@
-// Copyright (C) 2022 Radioactive64
+// Copyright (C) 2023 Samleprovider(sp)
 
 const PF = require('pathfinding');
 const msgpack = require('@ygoe/msgpack');
@@ -182,35 +182,35 @@ Collision = function Collision(map, x, y, layer, type) {
             new Layer(map, x, y, layer, 10);
             break;
         case 2302:
-            coltype = 19;
+            coltype = 21;
             new Layer(map, x, y, layer, 2);
             break;
         case 2303:
-            coltype = 18;
+            coltype = 20;
             new Layer(map, x, y, layer, 3);
             break;
         case 2304:
-            coltype = 21;
+            coltype = 23;
             new Layer(map, x, y, layer, 4);
             break;
         case 2305:
-            coltype = 20;
+            coltype = 22;
             new Layer(map, x, y, layer, 5);
             break;
         case 2388:
-            coltype = 19;
+            coltype = 21;
             new Layer(map, x, y, layer, 7);
             break;
         case 2389:
-            coltype = 18;
+            coltype = 20;
             new Layer(map, x, y, layer, 8);
             break;
         case 2390:
-            coltype = 21;
+            coltype = 23;
             new Layer(map, x, y, layer, 9);
             break;
         case 2391:
-            coltype = 20;
+            coltype = 22;
             new Layer(map, x, y, layer, 10);
             break;
         default:
@@ -869,11 +869,15 @@ Spawner = function Spawner(map, x, y, layer, types) {
         x: x*64+32,
         y: y*64+32,
         map: map,
+        gridx: x,
+        gridy: y,
         layer: parseInt(layer),
-        types: types
+        types: types,
+        spawned: false
     };
 
     self.spawnMonster = function spawnMonster() {
+        if (self.spawned) return;
         try {
             let multiplier = 0;
             for (let id of Array.from(self.types)) multiplier += Monster.types[id].spawnChance;
@@ -906,11 +910,13 @@ Spawner = function Spawner(map, x, y, layer, types) {
             setTimeout(function() {
                 localmonster.canMove = true;
             }, 3000);
+            self.spawned = true;
         } catch (err) {
             error(err);
         }
     };
     self.onMonsterDeath = function onMonsterDeath() {
+        self.spawned = false;
         let time = Math.random()*10000+10000;
         setTimeout(function() {
             self.spawnMonster();
@@ -922,44 +928,25 @@ Spawner = function Spawner(map, x, y, layer, types) {
 };
 BossSpawner = function BossSpawner(map, x, y, layer, id) {
     const self = new Spawner(map, x, y, layer, [id]);
+    self.isBossSpawner = true;
 
     self.onMonsterDeath = function onMonsterDeath() {
-        let time = Math.random()*10000+60000;
-        setTimeout(function() {
-            let wait = setInterval(function() {
-                if (Player.chunks[self.map]) {
-                    let range = 2;
-                    let chunkx = Math.floor(self.x/64/Collision.grid[self.map].chunkWidth);
-                    let chunky = Math.floor(self.y/64/Collision.grid[self.map].chunkHeight);
-                    for (let z in Player.chunks[self.map]) {
-                        for (let y = chunky-range; y <= chunky+range; y++) {
-                            for (let x = chunkx-range; x <= chunkx+range; x++) {
-                                if (Player.chunks[self.map][z][y] && Player.chunks[self.map][z][y][x]) {
-                                    for (let i in Player.chunks[self.map][z][y][x]) {
-                                        if (Player.chunks[self.map][z][y][x][i] != null) {
-                                            return;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                self.spawnMonster();
-                clearInterval(wait);
-            }, 1000);
-        }, time);
+        self.spawned = false;
     };
+
+    Spawner.bossList.push(self);
+    return self;
 };
 Spawner.init = function init() {
     for (let localspawner of Spawner.list) {
-        localspawner.spawnMonster();
+        !localspawner.isBossSpawner && localspawner.spawnMonster();
     }
 };
 Spawner.list = [];
+Spawner.bossList = [];
 
 Region = function Region(map, x, y, properties) {
-    let data = {
+    const data = {
         name: 'missing name',
         noattack: false,
         nomonster: false
@@ -979,12 +966,13 @@ Region = function Region(map, x, y, properties) {
 Region.grid = [];
 
 Teleporter = function Teleporter(map, x, y, properties) {
-    let data = {
+    const data = {
         map: properties[0],
         x: parseInt(properties[1]),
         y: parseInt(properties[2]),
         layer: parseInt(properties[3]),
-        direction: properties[4]
+        direction: properties[4],
+        criteria: properties[5]
     };
 
     if (Teleporter.grid[map][parseInt(y)] == null) {
@@ -1021,12 +1009,79 @@ GaruderWarp = {
     }
 };
 
-EventTrigger = function EventTrigger(map, x, y, properties) {
-    let data = {
-        type: properties[0]
+EventTrigger = function EventTrigger(map, x, y, id) {
+    const self = {
+        id: id,
+        x: x*64+32,
+        y: y*64+32,
+        gridx: x,
+        gridy: y,
+        chunkx: 0,
+        chunky: 0,
+        map: map,
+        criteria: EventTrigger.triggers[id].criteria,
+        action: EventTrigger.triggers[id].action
+    };
+
+    self.update = function update() {
+        for (let criteria of self.criteria) {
+            if (typeof EventTrigger.criteria[criteria.type] == 'function') {
+                if (!EventTrigger.criteria[criteria.type](self, criteria.data)) {
+                    return;
+                }
+            } else {
+                error('Invalid EventTrigger criteria ' + criteria.type);
+            }
+        }
+        for (let action of self.action) {
+            typeof EventTrigger.actions[action.type] == 'function' && EventTrigger.actions[action.type](self, action.data);
+            typeof EventTrigger.actions[action.type] != 'function' && error('Invalid EventTrigger action ' + action.type);
+        }
+    };
+
+    EventTrigger.list.push(self);
+    return self;
+};
+EventTrigger.update = function update() {
+    for (let trigger of EventTrigger.list) {
+        trigger.update();
+    }
+};
+EventTrigger.init = function init() {
+    for (let trigger of EventTrigger.list) {
+        trigger.chunkx = Math.floor(trigger.gridx/Collision.grid[trigger.map].chunkWidth);
+        trigger.chunky = Math.floor(trigger.gridy/Collision.grid[trigger.map].chunkHeight);
     }
 };
 EventTrigger.triggers = require('./triggers.json');
+EventTrigger.criteria = {
+    playerDistance: function criteria_playerDistance(self, value) {
+        for (let z in Player.chunks[self.map]) {
+            for (let y = self.chunky-1; y <= self.chunky+1; y++) {
+                if (Player.chunks[self.map][z][y]) for (let x = self.chunkx-1; x <= self.chunkx+1; x++) {
+                    if (Player.chunks[self.map][z][y][x]) {
+                        let players = Player.chunks[self.map][z][y][x];
+                        for (let i in players) {
+                            if (players[i].getGridDistance(self) <= value) return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+};
+EventTrigger.actions = {
+    activateBossSpawner: function action_activateBossSpawner(self, data) {
+        for (let spawner of Spawner.bossList) {
+            if (spawner.map == data.map && spawner.gridx == data.x && spawner.gridy == data.y) {
+                spawner.spawnMonster();
+                return;
+            }
+        }
+    }
+};
+EventTrigger.list = [];
 
 async function sleep(ms) {
     await new Promise((resolve, reject) => setTimeout(resolve, ms));
