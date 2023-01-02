@@ -100,6 +100,10 @@
                 {
                     "text": "*Sell items*",
                     "action": "sellshop_adicyte"
+                },
+                {
+                    "text": "*End conversation*",
+                    "action": "close"
                 }
             ]
         }

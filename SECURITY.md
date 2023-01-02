@@ -10,7 +10,8 @@ Supported versions are stable versions free of critical security issues that can
 
 | Version  | Supported          |
 | -------  | ------------------ |
-| 0.16.0   | :white_check_mark: |
+| 0.16.1   | :white_check_mark: |
+| 0.16.0   | :x:                |
 | 0.15.0   | :white_check_mark: |
 | 0.14.x   | :x:                |
 | 0.13.x   | :x:                |

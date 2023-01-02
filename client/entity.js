@@ -62,10 +62,6 @@ Entity.draw = function draw() {
     if (settings.debug) entStart = performance.now();
     Light.draw();
     const entities = [...[...Player.list.values(), ...Monster.list.values(), ...Projectile.list.values(), ...DroppedItem.list.values()]];
-    for (let i in entities) {
-        entities[i].map != player.map && delete entities[i];
-        // entity culling
-    }
     let translatex = (window.innerWidth/2)-player.x;
     let translatey = (window.innerHeight/2)-player.y;
     for (let i in LAYERS.elayers) {
@@ -78,7 +74,7 @@ Entity.draw = function draw() {
     LAYERS.eupper.translate(translatex, translatey);
     entities.sort(function(a, b) {return a.y-b.y;});
     for (let entity of entities) {
-        entity && entity.draw();
+        entity.map == player.map && entity.draw();
     }
     settings.particles && Particle.draw();
     for (let i in LAYERS.elayers) {
@@ -635,7 +631,8 @@ Particle = function(map, x, y, type, value) {
         self.chunkx = Math.floor(self.x/(64*MAPS[self.map].chunkwidth));
         self.chunky = Math.floor(self.y/(64*MAPS[self.map].chunkheight));
         if (self.opacity <= 0) {
-            delete Particle.list.get(self.identifier)[self.id];
+            Particle.optimizedList.get(self.identifier).delete(self.id);
+            Particle.list.delete(self.id);
             return true;
         }
         switch (self.type) {
@@ -713,7 +710,7 @@ Particle = function(map, x, y, type, value) {
                 self.opacity -= 6/tpsFpsRatio;
                 break;
             default:
-                delete Particle.list.get(self.identifier)[self.id];
+                delete Particle.optimizedList.get(self.identifier)[self.id];
                 break;
         }
     };
@@ -722,14 +719,17 @@ Particle = function(map, x, y, type, value) {
         let type = 0;
         switch (self.type) {
             case 'damage':
+                LAYERS.eupper.font = '24px Pixel';
                 LAYERS.eupper.fillStyle = 'rgba(255, 0, 0, ' + self.opacity/100 + ')';
                 type = 0;
                 break;
             case 'critdamage':
+                LAYERS.eupper.font = 'bold 36px Pixel';
                 LAYERS.eupper.fillStyle = 'rgba(255, 0, 0, ' + self.opacity/100 + ')';
                 type = 0;
                 break;
             case 'heal':
+                LAYERS.eupper.font = '24px Pixel';
                 LAYERS.eupper.fillStyle = 'rgba(0, 255, 0, ' + self.opacity/100 + ')';
                 type = 0;
                 break;
@@ -775,7 +775,7 @@ Particle = function(map, x, y, type, value) {
                 type = 1;
                 break;
             default:
-                delete Particle.list.get(self.identifier)[self.id];
+                delete Particle.optimizedList.get(self.identifier)[self.id];
                 break;
         }
         switch (type) {
@@ -786,7 +786,7 @@ Particle = function(map, x, y, type, value) {
                 LAYERS.eupper.fillRect(self.x-self.size/2+OFFSETX, self.y-self.size/2+OFFSETY, self.size, self.size);
                 break;
             default:
-                delete Particle.list.get(self.identifier)[self.id];
+                delete Particle.optimizedList.get(self.identifier)[self.id];
                 break;
         }
     };
@@ -834,7 +834,7 @@ Particle = function(map, x, y, type, value) {
                 type = 1;
                 break;
             default:
-                delete Particle.list.get(self.identifier)[self.id];
+                delete Particle.optimizedList.get(self.identifier)[self.id];
                 return;
         }
         switch (type) {
@@ -845,13 +845,14 @@ Particle = function(map, x, y, type, value) {
                 LAYERS.eupper.fillRect(self.x-self.size/2+OFFSETX, self.y-self.size/2+OFFSETY, self.size, self.size);
                 break;
             default:
-                delete Particle.list.get(self.identifier)[self.id];
+                delete Particle.optimizedList.get(self.identifier)[self.id];
                 return;
         }
     };
 
-    if (Particle.list.get(self.identifier) == null) Particle.list.set(self.identifier, new Map());
-    Particle.list.get(self.identifier).set(self.id, self);
+    if (Particle.optimizedList.get(self.identifier) == null) Particle.optimizedList.set(self.identifier, new Map());
+    Particle.optimizedList.get(self.identifier).set(self.id, self);
+    Particle.list.set(self.id, self)
     return self;
 };
 Particle.update = function update(data) {
@@ -860,8 +861,8 @@ Particle.update = function update(data) {
     }
 };
 Particle.draw = function draw() {
-    Particle.list.forEach((arr, i) => {
-        if (settings.fastParticles) {
+    if (settings.fastParticles) {
+        Particle.optimizedList.forEach((arr, i) => {
             switch (i) {
                 case 1:
                     // damage
@@ -983,29 +984,17 @@ Particle.draw = function draw() {
                 localparticle.map == player.map && localparticle.drawFast();
                 localparticle.map != player.map && localparticle.update();
             });
-        } else {
-            switch (i) {
-                case 1:
-                    LAYERS.eupper.textAlign = 'center';
-                    LAYERS.eupper.font = '24px Pixel';
-                    break;
-                case 2:
-                    LAYERS.eupper.textAlign = 'center';
-                    LAYERS.eupper.font = 'bold 36px Pixel';
-                    break;
-                case 3:
-                    LAYERS.eupper.textAlign = 'center';
-                    LAYERS.eupper.font = '24px Pixel';
-                    break;
-                }
-            arr.forEach(function(localparticle, j) {
-                localparticle.map == player.map && localparticle.draw();
-                localparticle.map != player.map && localparticle.update();
-            });
-        }
-    });
+        });
+    } else {
+        LAYERS.eupper.textAlign = 'center';
+        Particle.list.forEach(function(localparticle, j) {
+            localparticle.map == player.map && localparticle.draw();
+            localparticle.map != player.map && localparticle.update();
+        });
+    }
 };
 Particle.list = new Map();
+Particle.optimizedList = new Map();
 
 // dropped items
 DroppedItem = function(id, map, x, y, itemId, stackSize) {

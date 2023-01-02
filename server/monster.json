@@ -315,7 +315,7 @@
         "xpDrop": 15,
         "drops": {
             "chance": {
-                "nothing": 10,
+                "nothing": 2,
                 "ironore": 10,
                 "coal": 10,
                 "quartz": 1
@@ -374,7 +374,7 @@
         "xpDrop": 40,
         "drops": {
             "chance": {
-                "nothing": 10,
+                "nothing": 5,
                 "ironore": 12,
                 "coal": 20,
                 "quartz": 3,
@@ -433,7 +433,6 @@
         "xpDrop": 50,
         "drops": {
             "chance": {
-                "nothing": 2,
                 "iron": 5,
                 "quartz": 9,
                 "stoneshield": 1

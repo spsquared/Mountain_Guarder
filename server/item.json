@@ -145,7 +145,6 @@
         "maxStackSize": 1,
         "effects": [],
         "enchantments": [
-            "swiftness",
             "speed",
             "power"
         ],
@@ -171,7 +170,6 @@
         "maxStackSize": 1,
         "effects": [],
         "enchantments": [
-            "swiftness",
             "speed"
         ],
         "value": 28,
@@ -196,9 +194,7 @@
         "maxStackSize": 1,
         "effects": [],
         "enchantments": [
-            "swiftness",
-            "speed",
-            "sorcery"
+            "speed"
         ],
         "value": 68,
         "usable": false
@@ -230,7 +226,7 @@
             }
         ],
         "enchantments": [
-            "swiftness",
+            "lightness",
             "protection"
         ],
         "value": 40,
@@ -263,8 +259,7 @@
             }
         ],
         "enchantments": [
-            "swiftness",
-            "protection"
+            "lightness"
         ],
         "value": 40,
         "usable": false
@@ -296,7 +291,7 @@
             }
         ],
         "enchantments": [
-            "swiftness",
+            "lightness",
             "protection"
         ],
         "value": 35,
@@ -317,7 +312,7 @@
             }
         ],
         "enchantments": [
-            "swiftness",
+            "lightness",
             "protection"
         ],
         "value": 40,
@@ -354,7 +349,7 @@
         "maxStackSize": 1,
         "effects": [],
         "enchantments": [
-            "swiftness",
+            "lightness",
             "speed",
             "power"
         ],
@@ -380,7 +375,7 @@
         "maxStackSize": 1,
         "effects": [],
         "enchantments": [
-            "swiftness",
+            "lightness",
             "speed",
             "sharpness"
         ],
@@ -406,9 +401,9 @@
         "maxStackSize": 1,
         "effects": [],
         "enchantments": [
-            "swiftness",
+            "lightness",
             "speed",
-            "sharpness"
+            "knockback"
         ],
         "value": 105,
         "usable": false
@@ -432,7 +427,7 @@
         "maxStackSize": 1,
         "effects": [],
         "enchantments": [
-            "swiftness",
+            "lightness",
             "speed",
             "efficiency",
             "sorcery"
@@ -463,10 +458,8 @@
             }
         ],
         "enchantments": [
-            "swiftness",
-            "focus",
-            "protection",
-            "smashing"
+            "lightness",
+            "protection"
         ],
         "value": 82,
         "usable": false
@@ -490,7 +483,7 @@
             }
         ],
         "enchantments": [
-            "swiftness",
+            "lightness",
             "protection",
             "smashing"
         ],
@@ -524,9 +517,9 @@
             }
         ],
         "enchantments": [
-            "swiftness",
+            "lightness",
             "protection",
-            "smashing"
+            "spikes"
         ],
         "value": 95,
         "usable": false
@@ -550,9 +543,9 @@
             }
         ],
         "enchantments": [
-            "swiftness",
+            "lightness",
             "protection",
-            "smashing"
+            "spikes"
         ],
         "value": 120,
         "usable": false
@@ -609,7 +602,7 @@
         "maxStackSize": 1,
         "effects": [],
         "enchantments": [
-            "swiftness",
+            "lightness",
             "speed",
             "power",
             "piercing"
@@ -636,10 +629,9 @@
         "maxStackSize": 1,
         "effects": [],
         "enchantments": [
-            "swiftness",
+            "lightness",
             "speed",
-            "efficiency",
-            "focus"
+            "efficiency"
         ],
         "value": 390,
         "usable": false
@@ -719,7 +711,7 @@
         ],
         "enchantments": [
             "efficiency",
-            "unlocking"
+            "spuhrpling"
         ],
         "value": 1440,
         "usable": false
@@ -790,7 +782,7 @@
         ],
         "enchantments": [
             "speed",
-            "sweepingedge"
+            "reach"
         ],
         "value": 472662,
         "usable": false
@@ -818,13 +810,10 @@
             }
         ],
         "enchantments": [
-            "swiftness",
+            "lightness",
             "speed",
-            "accuracy",
-            "power",
             "efficiency",
-            "sorcery",
-            "focus"
+            "sorcery"
         ],
         "value": 471661,
         "usable": false
@@ -836,7 +825,7 @@
         "projectile": "explosive",
         "projectilePattern": "triangle",
         "projectileSpeed": 1,
-        "projectileRange": 2,
+        "projectileRange": 1,
         "accuracy": 0,
         "damage": 20,
         "damageType": "ranged",
@@ -852,7 +841,7 @@
             }
         ],
         "enchantments": [
-            "swiftness"
+            "lightness"
         ],
         "value": 286624,
         "usable": false
@@ -880,7 +869,10 @@
             }
         ],
         "enchantments": [
-            "swiftness"
-        ]
+            "lightness",
+            "range"
+        ],
+        "value": 57275,
+        "usable": false
     }
 }

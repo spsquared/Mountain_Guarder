@@ -23,20 +23,30 @@ function updateItemBaseStats() {
 updateItemBaseStats();
 
 const effects = ['health', 'damage', 'rangedDamage', 'meleeDamage', 'magicDamage', 'critChance', 'critPower', 'damageReduction', 'defense', 'speed'];
-const enchantments = ['speed', 'poisonEffect', 'burningEffect', 'range', 'accuracy', 'power', 'piercing', 'sharpness', 'reach', 'force', 'efficiency', 'sorcery', 'focus', 'spuhrpling', 'protection', 'spikes', 'swiftness', 'toughness', 'mirroring'];
+const enchantments = ['lightness', 'speed', 'poisonEffect', 'burningEffect', 'range', 'accuracy', 'power', 'piercing', 'sharpness', 'reach', 'force', 'efficiency', 'sorcery', 'focus', 'spuhrpling', 'protection', 'spikes', 'swiftness', 'toughness', 'mirroring'];
 
 function generateServerItem() {
-    var item = {
+    let id = document.getElementById('id').value;
+    if (id == '') {
+        window.alert('Please fill out all values');
+        return;
+    }
+    if (id.includes(' ')) {
+        window.alert('Invalid characters.');
+        return;
+    }
+    const item = {
         slotType: null,
         rarity: null,
         maxStackSize: 1
     };
-    var slotType = document.getElementById('slotType').value;
+    let slotType = document.getElementById('slotType').value;
     if (slotType == 'weapon' || slotType == 'crystal') {
         item.projectile = null;
         item.projectilePattern = null;
         item.projectileSpeed = null;
         item.projectileRange = null;
+        item.accuracy = null;
         item.damage = null;
         item.damageType = null;
         item.critChance = null;
@@ -53,8 +63,8 @@ function generateServerItem() {
         item.manaRegenerationSpeed = null;
         item.manaRegenerationAmount = null;
     }
-    for (var i in item) {
-        var value = document.getElementById(i).value;
+    for (let i in item) {
+        let value = document.getElementById(i).value;
         if (value == '') {
             window.alert('Please fill out all values');
             return;
@@ -67,8 +77,8 @@ function generateServerItem() {
         item[i] = value;
     }
     item.effects = [];
-    for (var i in effects) {
-        var value = document.getElementById('effect' + effects[i]).value;
+    for (let i in effects) {
+        let value = document.getElementById('effect' + effects[i]).value;
         if (value != '') {
             if (isNaN(value*2) == false) value = parseFloat(value);
             item.effects.push({
@@ -78,18 +88,18 @@ function generateServerItem() {
         }
     }
     item.enchantments = [];
-    for (var i in enchantments) {
-        var checked = document.getElementById(enchantments[i]).checked;
+    for (let i in enchantments) {
+        let checked = document.getElementById('enchant' + enchantments[i]).checked;
         if (checked) {
             item.enchantments.push(enchantments[i]);
         }
     }
-    var temparray = {};
-    temparray[document.getElementById('id').value] = item;
-    var jsonStr = JSON.stringify(temparray, null, 4);
+    let temparray = {};
+    temparray[id] = item;
+    let jsonStr = JSON.stringify(temparray, null, 4);
     jsonStr = jsonStr.replace('{\n    ', '');
-    var modified = '';
-    for (var i = 0; i < jsonStr.length-2; i++) {
+    let modified = '';
+    for (let i = 0; i < jsonStr.length-2; i++) {
         modified += jsonStr[i];
     }
     modified += ',';
@@ -97,13 +107,22 @@ function generateServerItem() {
     window.alert('Copied to clipboard!');
 };
 function generateClientItem() {
-    var item = {
+    let id = document.getElementById('id').value;
+    if (id == '') {
+        window.alert('Please fill out all values');
+        return;
+    }
+    if (id.includes(' ')) {
+        window.alert('Invalid characters.');
+        return;
+    }
+    const item = {
         name: null,
         description: null,
         slotType: null,
         rarity: null
     };
-    var slotType = document.getElementById('slotType').value;
+    let slotType = document.getElementById('slotType').value;
     if (slotType == 'weapon' || slotType == 'crystal') {
         item.damage = null;
         item.damageType = null;
@@ -123,8 +142,8 @@ function generateClientItem() {
         item.manaRegenerationSpeed = null;
         item.manaRegenerationAmount = null;
     }
-    for (var i in item) {
-        var value = document.getElementById(i).value;
+    for (let i in item) {
+        let value = document.getElementById(i).value;
         if (value == '') {
             window.alert('Please fill out all values');
             return;
@@ -137,8 +156,8 @@ function generateClientItem() {
         item[i] = value;
     }
     item.effects = [];
-    for (var i in effects) {
-        var value = document.getElementById('effect' + effects[i]).value;
+    for (let i in effects) {
+        let value = document.getElementById('effect' + effects[i]).value;
         if (value != '') {
             if (isNaN(value*2) == false) value = parseFloat(value);
             item.effects.push({
@@ -147,12 +166,12 @@ function generateClientItem() {
             });
         }
     }
-    var temparray = {};
-    temparray[document.getElementById('id').value] = item;
-    var jsonStr = JSON.stringify(temparray, null, 4);
+    let temparray = {};
+    temparray[id] = item;
+    let jsonStr = JSON.stringify(temparray, null, 4);
     jsonStr = jsonStr.replace('{\n    ', '');
-    var modified = '';
-    for (var i = 0; i < jsonStr.length-2; i++) {
+    let modified = '';
+    for (let i = 0; i < jsonStr.length-2; i++) {
         modified += jsonStr[i];
     }
     modified += ',';

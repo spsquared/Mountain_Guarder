@@ -2065,6 +2065,9 @@ Player = function(socket) {
             if (Npc.list[self.talkingWith]) Npc.list[self.talkingWith].endConversation();
             self.talkingWith = null;
         }
+        self.attacking = false;
+        self.shield = false;
+        self.heldItem.usingShield = false;
         if (!self.invincible) {
             socket.emit('playerDied');
             self.controls = {
@@ -3227,26 +3230,26 @@ Monster = function(type, x, y, map, layer, params) {
         if (self.dropItems) {
             try {
                 let multiplier = 0;
-                for (let chance of Array.from(self.drops.chance)) multiplier += chance;
+                for (let i in self.drops.chance) multiplier += self.drops.chance[i];
                 let random = randomRange(0, multiplier);
                 let min = 0;
                 let max = 0;
-                var items = [];
+                let items = [];
                 for (let i in self.drops.chance) {
                     max += self.drops.chance[i];
                     if (random >= min && random <= max) {
-                        items[i] = 1;
+                        items[i] = (items[i] ?? 0) + 1;
                         break;
                     }
                     min += self.drops.chance[i];
                 }
                 for (let i in self.drops.amount) {
-                    items[i] = Math.round(Math.random()**1.2*self.drops.amount[i]);
+                    items[i] = (items[i] ?? 0) + Math.round(Math.random()**1.2*self.drops.amount[i]);
                 }
                 for (let i in self.drops.constant) {
-                    items[i] = self.drops.constant[i];
+                    items[i] = (items[i] ?? 0) + self.drops.constant[i];
                 }
-                var id;
+                let id;
                 if (entity) id = entity.id;
                 for (let i in items) {
                     if (i != 'nothing' && items[i] != 0) {
@@ -4106,7 +4109,7 @@ Projectile.contactEvents = {
         });
     },
     effect: function contactEvent_effect(self, entity, data) {
-        if (entity) {
+        if (entity) if (entity.entType == 'player' || entity.entType == 'monster') {
             entity.effectTimers[data.id] = Math.max(entity.effectTimers[data.id] ?? 0, data.time);
         }
     },

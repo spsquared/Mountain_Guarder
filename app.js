@@ -14,7 +14,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-const version = 'v0.16.0';
+const version = 'v0.16.1';
 console.info('\x1b[?25l\x1b[33m%s\x1b[0m', 'Mountain Guarder ' + version + ' Copyright (C) Sampleprovider(sp) 2023');
 console.info('For more information, type "copyright-details".');
 require('./server/log.js');

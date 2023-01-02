@@ -15,6 +15,11 @@ QuestHandler = function(socket, player) {
                 type: 'start',
                 id: id
             });
+        } else {
+            socket.emit('quest', {
+                type: 'qualification',
+                id: id
+            });
         }
     };
     self.advanceQuestStage = function advanceQuestStage(id) {

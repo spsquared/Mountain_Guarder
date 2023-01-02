@@ -199,6 +199,14 @@
         "knockback": 1,
         "contactEvents": [
             {
+                "type": "areaeffect",
+                "data": {
+                    "size": 2,
+                    "effect": "burning",
+                    "time": 40
+                }
+            },
+            {
                 "type": "explosion",
                 "data": {
                     "size": 3
@@ -335,17 +343,17 @@
                 }
             },
             {
-                "type": "explosion",
-                "data": {
-                    "size": 2
-                }
-            },
-            {
                 "type": "areaeffect",
                 "data": {
                     "size": 1,
                     "effect": "burning",
                     "time": 40
+                }
+            },
+            {
+                "type": "explosion",
+                "data": {
+                    "size": 2
                 }
             }
         ],
@@ -367,7 +375,22 @@
         "damage": 8,
         "range": 10,
         "knockback": 0.5,
-        "contactEvents": [],
+        "contactEvents": [
+            {
+                "type": "effect",
+                "data": {
+                    "id": "stun",
+                    "time": 3
+                }
+            },
+            {
+                "type": "effect",
+                "data": {
+                    "id": "burning",
+                    "time": 40
+                }
+            }
+        ],
         "damageType": "ranged",
         "invincibilityFrame": 1,
         "deathMessage": "made festive",

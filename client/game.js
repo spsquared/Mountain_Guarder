@@ -1273,7 +1273,7 @@ setInterval(function() {
             let monsters = Monster.list.size;
             let projectiles = Projectile.list.size;
             let particles = Particle.list.size;
-            let entities = Player.list.size + monsters + projectiles + particles + DroppedItem.list.size;
+            let entities = Player.list.size + monsters + projectiles + DroppedItem.list.size;
             document.getElementById('enttotal').innerText = 'Ent: ' + entities;
             document.getElementById('entmonst').innerText = 'Mon: ' + monsters;
             document.getElementById('entproj').innerText = 'Proj: ' + projectiles;

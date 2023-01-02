@@ -103,6 +103,13 @@ socket.on('quest', function(data) {
                 }
             }
             break;
+        case 'qualification':
+            if (quest) {
+                new Banner(`<span style="color: red;">You cannot start <span class="quest-title">${quest.name}</span>!</span>`);
+            } else {
+                console.error('Invalid quest id ' + data.id);
+            }
+            break;
         default:
             console.error('Invalid quest action ' + data.type);
     }

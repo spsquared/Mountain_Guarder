@@ -46,6 +46,7 @@
                 </select><br>
                 &emsp;Projectile Speed:&nbsp;<input type="number" id="projectileSpeed" class="text-small" min="0" max="999999999" step="0.1" value="1"><br>
                 &emsp;Projectile Range:&nbsp;<input type="number" id="projectileRange" class="text-small" min="0" max="999999999" step="0.1" value="1"><br>
+                &emsp;Accuracy:&nbsp;<input type="number" id="accuracy" class="text-small" min="0" max="1" step="0.05" value="0.5"><br>
                 &emsp;Damage:&nbsp;<input type="number" id="damage" class="text-small" min="0" max="999999999" value="10"><br>
                 &emsp;Damage Type:<select id="damageType" class="select">
                     <option value="ranged">Ranged</option>
@@ -112,33 +113,33 @@
             <b>Enchantments:</b><br>
             <div id="enchantments">
                 <b>All</b><br>
-                &emsp;<input type="checkbox" id="swiftness" class="checkBox">Swiftness (movespeed)<br>
+                &emsp;<input type="checkbox" id="enchantlightness" class="checkBox">Lightness (movespeed)<br>
                 <b>Weapons</b><br>
-                &emsp;<input type="checkbox" id="speed" class="checkBox">Speed (attackspeed)<br>
-                &emsp;<input type="checkbox" id="poisonEffect" class="checkBox">Poison (poison effect)<br>
-                &emsp;<input type="checkbox" id="burningEffect" class="checkBox">Blazing (fire effect)<br>
+                &emsp;<input type="checkbox" id="enchantspeed" class="checkBox">Speed (attackspeed)<br>
+                &emsp;<input type="checkbox" id="enchantpoisonEffect" class="checkBox">Poison (poison effect)<br>
+                &emsp;<input type="checkbox" id="enchantburningEffect" class="checkBox">Blazing (fire effect)<br>
                 &emsp;<b>Ranged</b><br>
-                &emsp;&emsp;<input type="checkbox" id="range" class="checkBox">Range (range)<br>
-                &emsp;&emsp;<input type="checkbox" id="accuracy" class="checkBox">Accuracy (crit chance)<br>
-                &emsp;&emsp;<input type="checkbox" id="power" class="checkBox">Power (damage)<br>
-                &emsp;&emsp;<input type="checkbox" id="piercing" class="checkBox">Piercing (max entities)<br>
+                &emsp;&emsp;<input type="checkbox" id="enchantrange" class="checkBox">Range (range)<br>
+                &emsp;&emsp;<input type="checkbox" id="enchantaccuracy" class="checkBox">Accuracy (accuracy)<br>
+                &emsp;&emsp;<input type="checkbox" id="enchantpower" class="checkBox">Power (damage)<br>
+                &emsp;&emsp;<input type="checkbox" id="enchantpiercing" class="checkBox">Piercing (max entities)<br>
                 &emsp;<b>Melee</b><br>
-                &emsp;&emsp;<input type="checkbox" id="sharpness" class="checkBox">Sharpness (damage)<br>
-                &emsp;&emsp;<input type="checkbox" id="reach" class="checkBox">Reach (reach)<br>
-                &emsp;&emsp;<input type="checkbox" id="force" class="checkBox">Knockback (knockback)<br>
+                &emsp;&emsp;<input type="checkbox" id="enchantsharpness" class="checkBox">Sharpness (damage)<br>
+                &emsp;&emsp;<input type="checkbox" id="enchantreach" class="checkBox">Reach (reach)<br>
+                &emsp;&emsp;<input type="checkbox" id="enchantforce" class="checkBox">Knockback (knockback)<br>
                 &emsp;<b>Purple</b><br>
-                &emsp;&emsp;<input type="checkbox" id="efficiency" class="checkBox">Efficiency (manacost)<br>
-                &emsp;&emsp;<input type="checkbox" id="sorcery" class="checkBox">Sorcery (damage)<br>
-                &emsp;&emsp;<input type="checkbox" id="focus" class="checkBox">Focus (crit chance)<br>
-                &emsp;&emsp;<input type="checkbox" id="spuhrpling" class="checkBox">Spuhrpling (crit damage)<br>
+                &emsp;&emsp;<input type="checkbox" id="enchantefficiency" class="checkBox">Efficiency (manacost)<br>
+                &emsp;&emsp;<input type="checkbox" id="enchantsorcery" class="checkBox">Sorcery (damage)<br>
+                &emsp;&emsp;<input type="checkbox" id="enchantfocus" class="checkBox">Focus (crit chance)<br>
+                &emsp;&emsp;<input type="checkbox" id="enchantspuhrpling" class="checkBox">Spuhrpling (crit damage)<br>
                 <b>Armor</b><br>
-                &emsp;<input type="checkbox" id="protection" class="checkBox">Protection (defense)<br>
-                &emsp;<input type="checkbox" id="spikes" class="checkBox">Spikes (touch damage)<br>
+                &emsp;<input type="checkbox" id="enchantprotection" class="checkBox">Protection (defense)<br>
+                &emsp;<input type="checkbox" id="enchantspikes" class="checkBox">Spikes (touch damage)<br>
                 <b>Boots</b><br>
-                &emsp;<input type="checkbox" id="swiftness" class="checkBox">Swiftness (movespeed)<br>
+                &emsp;<input type="checkbox" id="enchantswiftness" class="checkBox">Swiftness (movespeed)<br>
                 <b>Shields</b><br>
-                &emsp;<input type="checkbox" id="toughness" class="checkBox">Toughness (knockback resistance)<br>
-                &emsp;<input type="checkbox" id="mirroring" class="checkBox">Mirroring (reflection)<br>
+                &emsp;<input type="checkbox" id="enchanttoughness" class="checkBox">Toughness (knockback resistance)<br>
+                &emsp;<input type="checkbox" id="enchantmirroring" class="checkBox">Mirroring (reflection)<br>
             </div>
             <input type="button" id="generateServerItem" class="button" value="GENERATE SERVER ITEM" onclick="generateServerItem();">
             <input type="button" id="generateClientItem" class="button" value="GENERATE CLIENT ITEM" onclick="generateClientItem();">
