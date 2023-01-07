@@ -3,7 +3,7 @@ Meadow Guarder's sister game!
 
 <p align=center>
 
-<img src="https://img.shields.io/badge/Version-v0.14.2-%233c70ff?style=for-the-badge" alt="version">
+<img src="https://img.shields.io/badge/Version-v0.16.2-%233c70ff?style=for-the-badge" alt="version">
 
 <a href="https://mountainguarder.radioactivestuf.repl.co/"><img src="https://img.shields.io/badge/-Public Server-%23000000?style=for-the-badge&logo=replit"></a>
 
