@@ -402,7 +402,7 @@
         "circleDistance": 0,
         "hp": 200,
         "fleeThreshold": 0,
-        "swarm": true,
+        "swarm": false,
         "moveSpeed": 0,
         "touchDamage": 40,
         "stats": {
@@ -466,7 +466,7 @@
                     "hp": 1400,
                     "reviveHP": false,
                     "stats": {
-                        "damageType": "",
+                        "damageType": "melee",
                         "projectileSpeed": 1,
                         "attack": 1,
                         "defense": 0.4,
@@ -507,7 +507,7 @@
                     "hp": 1400,
                     "reviveHP": false,
                     "stats": {
-                        "damageType": "",
+                        "damageType": "melee",
                         "projectileSpeed": 1,
                         "attack": 1,
                         "defense": 0.4,
@@ -545,7 +545,7 @@
                                     "id": "spike",
                                     "warning": 5,
                                     "stats": {
-                                        "damageType": "",
+                                        "damageType": "melee",
                                         "projectileSpeed": 1,
                                         "attack": 38,
                                         "defense": 0.4,
@@ -573,7 +573,7 @@
                                     "warning": 5,
                                     "amount": 15,
                                     "stats": {
-                                        "damageType": "",
+                                        "damageType": "melee",
                                         "projectileSpeed": 1,
                                         "attack": 30,
                                         "defense": 0.4,
@@ -607,7 +607,7 @@
                         "damageType": "",
                         "projectileSpeed": 1,
                         "attack": 1,
-                        "defense": 2,
+                        "defense": 1000,
                         "damageReduction": 2,
                         "knockbackResistance": 0.95,
                         "heal": 10,
@@ -709,7 +709,7 @@
                                     "id": "spike",
                                     "warning": 5,
                                     "stats": {
-                                        "damageType": "",
+                                        "damageType": "melee",
                                         "projectileSpeed": 1,
                                         "attack": 38,
                                         "defense": 0.7,
@@ -737,7 +737,7 @@
                                     "warning": 5,
                                     "amount": 20,
                                     "stats": {
-                                        "damageType": "",
+                                        "damageType": "melee",
                                         "projectileSpeed": 1,
                                         "attack": 30,
                                         "defense": 0.7,
@@ -777,10 +777,11 @@
         "circleDistance": 0,
         "hp": 1400,
         "fleeThreshold": 0,
+        "swarm": false,
         "moveSpeed": 2,
         "touchDamage": 80,
         "stats": {
-            "damageType": "",
+            "damageType": "melee",
             "projectileSpeed": 1,
             "attack": 1,
             "defense": 0.4,

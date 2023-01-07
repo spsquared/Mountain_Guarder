@@ -145,7 +145,7 @@
     },
     "friendlyfire": {
         "type": "static",
-        "rightClickEvent": "function(player, self) {if (player.trackedData.events.indexOf) {self.startConversation(player, 'specialevent');}};",
+        "rightClickEvent": "function(player, self) {self.startConversation(player, 'specialevent');};",
         "rightClickEvents": [],
         "data": {
             "name": "Friendly Fire",

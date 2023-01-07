@@ -53,7 +53,7 @@
         "maxPierce": 0,
         "contactEventsOnRange": false,
         "noCollision": false,
-        "patternUpdateSpeed": 0,
+        "patternUpdateSpeed": 1,
         "reflectable": true
     },
     "magicballnoclip": {
@@ -72,7 +72,7 @@
         "maxPierce": 0,
         "contactEventsOnRange": false,
         "noCollision": true,
-        "patternUpdateSpeed": 0,
+        "patternUpdateSpeed": 1,
         "reflectable": false
     },
     "homingmagicball": {
@@ -220,7 +220,7 @@
         "maxPierce": 0,
         "contactEventsOnRange": true,
         "noCollision": false,
-        "patternUpdateSpeed": 0,
+        "patternUpdateSpeed": 2,
         "reflectable": false
     },
     "aiminglaser": {
@@ -364,7 +364,7 @@
         "maxPierce": 0,
         "contactEventsOnRange": true,
         "noCollision": false,
-        "patternUpdateSpeed": 0,
+        "patternUpdateSpeed": 1,
         "reflectable": false
     },
     "christmas2021": {
@@ -434,7 +434,7 @@
         "maxPierce": 0,
         "contactEventsOnRange": true,
         "noCollision": false,
-        "patternUpdateSpeed": 1,
+        "patternUpdateSpeed": 0,
         "reflectable": false
     }
 }

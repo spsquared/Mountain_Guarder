@@ -1,6 +1,6 @@
 // Copyright (C) 2023 Sampleprovider(sp)
 
-const version = 'v0.16.1';
+const version = 'v0.16.2';
 let firstload = false;
 // canvas
 CANVAS = document.getElementById('canvas');

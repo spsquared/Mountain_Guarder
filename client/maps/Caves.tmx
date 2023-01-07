@@ -95,7 +95,7 @@
 </chunk>
   </data>
  </layer>
- <layer id="25" name="Teleporter:Caves,0,0,0,up,lowermineshaft" width="9" height="9" visible="0" locked="1">
+ <layer id="25" name="Teleporter:Caves,0,0,0,up,tp_lowermineshaft" width="9" height="9" visible="0" locked="1">
   <data encoding="csv"/>
  </layer>
  <layer id="15" name="Region:Abandoned Mineshaft" width="9" height="9" visible="0" locked="1">

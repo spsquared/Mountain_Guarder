@@ -37,10 +37,10 @@ socket.on('quest', function(data) {
                 html += 'Oh no, this is an unfinished feature! Please post a bug report!';
             } else if (i == 'talk') {
                 let id = data.id + i;
-                let name = 'Non-Existent NPC';
-                for (let j in Player.list) {
-                    if (Player.list[j].npcId == quest.objectives[stage][i]) name = Player.list[j].name;
-                }
+                let name = 'Unknown NPC';
+                Player.list.forEach(function(player, j) {
+                    if (player.npcId == quest.objectives[stage][i]) name = player.name;
+                });
                 html += createTaskBar(id, 'Talk to ' + name);
             }
         }

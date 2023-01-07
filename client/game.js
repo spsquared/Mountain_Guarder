@@ -572,8 +572,13 @@ function drawDebug() {
             let localmonster = debugData.monsters[i];
             if (localmonster && localmonster.map == player.map) {
                 if (Player.list.has(localmonster.aggroTarget)) {
+                    let localplayer = Player.list.get(localmonster.aggroTarget);
                     tempctx.moveTo(localmonster.x+OFFSETX, localmonster.y+OFFSETY);
-                    tempctx.lineTo(Player.list.get(localmonster.aggroTarget).x+OFFSETX, Player.list.get(localmonster.aggroTarget).y+OFFSETY);
+                    tempctx.lineTo(localplayer.x+OFFSETX, localplayer.y+OFFSETY);
+                } else if (Monster.list.has(localmonster.aggroTarget)) {
+                    let localmonster2 = Monster.list.get(localmonster.aggroTarget);
+                    tempctx.moveTo(localmonster.x+OFFSETX, localmonster.y+OFFSETY);
+                    tempctx.lineTo(localmonster2.x+OFFSETX, localmonster2.y+OFFSETY);
                 }
             }
         }
@@ -959,10 +964,10 @@ document.onvisibilitychange = function() {
 // npc prompts
 const promptContainer = document.getElementById('promptContainer');
 socket.on('prompt', async function(conversation) {
-    var data = Prompts[conversation.id][conversation.i];
+    const data = Prompts[conversation.id][conversation.i];
     promptContainer.style.display = 'block';
     await sleep((11-settings.dialogueSpeed)*10);
-    var optionDivs = [];
+    const optionDivs = [];
     for (let i in data.options) {
         const div = document.createElement('div');
         div.classList.add('promptChoice');
@@ -983,6 +988,10 @@ socket.on('prompt', async function(conversation) {
         await displayText(data.options[i].text, optionDivs[i]);
     }
 });
+socket.on('clearPrompt', function() {
+    promptContainer.style.display = 'none';
+    promptContainer.innerHTML = '<div id="promptText"></div><div id="promptChoices"></div>';
+})
 Prompts = [];
 async function displayText(text, div) {
     let questLabel = false;
@@ -1355,8 +1364,8 @@ function performanceLog(s) {
 var indebug = false;
 const debugConsoleEnabled = new URLSearchParams(window.location.search).get('console');
 if (debugConsoleEnabled) {
-    var consoleHistory = [];
-    var historyIndex = 0;
+    const consoleHistory = [];
+    let historyIndex = 0;
     const consoleInput = document.getElementById('debugInput');
     const consoleLog = document.getElementById('debugLog');
     consoleInput.onkeydown = function(event) {
@@ -1368,7 +1377,7 @@ if (debugConsoleEnabled) {
                 const log = document.createElement('div');
                 log.className = 'ui-darkText';
                 log.innerText = '> ' + consoleInput.value;
-                var scroll = false;
+                let scroll = false;
                 if (consoleLog.scrollTop + consoleLog.clientHeight >= consoleLog.scrollHeight - 5) scroll = true;
                 consoleLog.appendChild(log);
                 if (scroll) consoleLog.scrollTop = consoleLog.scrollHeight;
@@ -1396,7 +1405,7 @@ if (debugConsoleEnabled) {
         log.className = 'ui-darkText';
         log.style.color = msg.color;
         log.innerText = msg.msg;
-        var scroll = false;
+        let scroll = false;
         if (consoleLog.scrollTop + consoleLog.clientHeight >= consoleLog.scrollHeight - 5) scroll = true;
         consoleLog.appendChild(log);
         if (scroll) consoleLog.scrollTop = consoleLog.scrollHeight;

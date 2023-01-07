@@ -931,7 +931,9 @@ BossSpawner = function BossSpawner(map, x, y, layer, id) {
     self.isBossSpawner = true;
 
     self.onMonsterDeath = function onMonsterDeath() {
-        self.spawned = false;
+        setTimeout(function() {
+            self.spawned = false;
+        }, 30000);
     };
 
     Spawner.bossList.push(self);

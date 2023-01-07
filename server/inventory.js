@@ -625,6 +625,13 @@ Inventory.items = require('./item.json');
 Inventory.craftingRecipies = require('./../client/crafts.json').items;
 Inventory.enchantments = null;
 
+Enchanter = function(socket, inventory, player) {
+    // player goes to ialite crystal in abandoned mineshaft
+    // ialite crystal takes xp and mana to enchant item
+    // using quartz crystals or ialite shards changes the level enchant recieved
+    // sort of like enchanting table in minced raft
+};
+
 Shop = function(id, socket, inventory, player, npc) {
     const self = {
         id: id,
@@ -741,6 +748,7 @@ SellShop = function(socket, inventory, player, npc) {
         heal: false
     };
     player.inShop = true;
+    player.shop = self;
     player.animationDirection = 'facing';
     
     socket.on('sellshop', function listener(data) {

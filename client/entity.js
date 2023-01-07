@@ -102,8 +102,6 @@ Rig = function(id, map, x, y) {
     self.rawHeight = 0;
     self.hp = 0;
     self.maxHP = 0;
-    self.xp = 0;
-    self
     
     const old_update = self.update;
     self.update = function update(data) {
@@ -450,8 +448,7 @@ Particle = function(map, x, y, type, value) {
         size: 20,
         chunkx: 0,
         chunky: 0,
-        identifier: 0,
-        particle: true
+        identifier: 0
     };
     self.id = Math.random();
     switch (self.type) {

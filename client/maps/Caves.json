@@ -164,7 +164,7 @@
          "chunks":[],
          "height":0,
          "id":25,
-         "name":"Teleporter:Caves,0,0,0,up,lowermineshaft",
+         "name":"Teleporter:Caves,0,0,0,up,tp_lowermineshaft",
          "opacity":1,
          "startx":0,
          "starty":0,

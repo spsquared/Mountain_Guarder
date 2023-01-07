@@ -729,51 +729,48 @@ function updateControllerSetting(setting) {
     document.getElementById(setting + 'Indicator').innerText = indicatorText;
 };
 function saveSettings() {
-    var cookiestring = JSON.stringify(settings);
-    var cookiestring2 = JSON.stringify(controllerSettings);
-    var date = new Date();
-    date.setUTCFullYear(date.getUTCFullYear()+10, date.getUTCMonth(), date.getUTCDate());
-    document.cookie = 'settings=' + cookiestring + '; expires=' + date + ';';
-    document.cookie = 'controllerSettings=' + cookiestring2 + '; expires=' + date + ';';
+    let settingJSON = JSON.stringify(settings);
+    let controllerJSON = JSON.stringify(controllerSettings);
+    localStorage.setItem('settings', settingJSON);
+    localStorage.setItem('controllerSettings', controllerJSON);
 };
 try {
-    document.cookie.split('; ').forEach(function(cookie) {
-        if (cookie.startsWith('settings=')) {
-            cookiesettings = JSON.parse(cookie.replace('settings=', ''));
-            for (let i in cookiesettings) {
-                if (settings[i] != null) settings[i] = cookiesettings[i];
-            }
-            settings.debug = false;
-            settings.fullscreen = false;
-            document.getElementById('fpsSlider').value = settings.fps;
-            document.getElementById('renderDistanceSlider').value = settings.renderDistance;
-            document.getElementById('renderQualitySlider').value = settings.renderQuality;
-            document.getElementById('fastParticlesToggle').checked = settings.fastParticles;
-            document.getElementById('particlesToggle').checked = settings.particles;
-            document.getElementById('coloredLightsToggle').checked = settings.coloredLights;
-            document.getElementById('lightsToggle').checked = settings.lights;
-            document.getElementById('dialogueSpeedSlider').value = settings.dialogueSpeed;
-            // document.getElementById('pointerLockToggle').checked = settings.pointerLock;
-            document.getElementById('useControllerToggle').checked = settings.useController;
-            document.getElementById('chatBackgroundToggle').checked = settings.chatBackground;
-            document.getElementById('chatSizeSlider').value = settings.chatSize;
-            document.getElementById('highContrastToggle').checked = settings.highContrast;
-            for (let i in settings) {
-                if (i != 'fullscreen') try {updateSetting(i);} catch (err) {console.error(err);}
-            }
-        } else if (cookie.startsWith('controllerSettings=')) {
-            cookiesettings = JSON.parse(cookie.replace('controllerSettings=', ''));
-            for (let i in cookiesettings) {
-                if (controllerSettings[i] != null) controllerSettings[i] = cookiesettings[i];
-            }
-            document.getElementById('sensitivitySlider').value = controllerSettings.sensitivity;
-            document.getElementById('driftXSlider').value = controllerSettings.driftX;
-            document.getElementById('driftYSlider').value = controllerSettings.driftY;
-            for (let i in controllerSettings) {
-                updateControllerSetting(i);
-            }
+    const settingData = JSON.parse(localStorage.getItem('settings'));
+    const controllerData = JSON.parse(localStorage.getItem('controllerSettings'));
+    if (settingData) {
+        for (let i in settingData) {
+            if (settings[i] != null) settings[i] = settingData[i];
         }
-    });
+        settings.debug = false;
+        settings.fullscreen = false;
+        document.getElementById('fpsSlider').value = settings.fps;
+        document.getElementById('renderDistanceSlider').value = settings.renderDistance;
+        document.getElementById('renderQualitySlider').value = settings.renderQuality;
+        document.getElementById('fastParticlesToggle').checked = settings.fastParticles;
+        document.getElementById('particlesToggle').checked = settings.particles;
+        document.getElementById('coloredLightsToggle').checked = settings.coloredLights;
+        document.getElementById('lightsToggle').checked = settings.lights;
+        document.getElementById('dialogueSpeedSlider').value = settings.dialogueSpeed;
+        // document.getElementById('pointerLockToggle').checked = settings.pointerLock;
+        document.getElementById('useControllerToggle').checked = settings.useController;
+        document.getElementById('chatBackgroundToggle').checked = settings.chatBackground;
+        document.getElementById('chatSizeSlider').value = settings.chatSize;
+        document.getElementById('highContrastToggle').checked = settings.highContrast;
+    }
+    if (controllerData) {
+        for (let i in controllerData) {
+            if (controllerSettings[i] != null) controllerSettings[i] = controllerData[i];
+        }
+        document.getElementById('sensitivitySlider').value = controllerSettings.sensitivity;
+        document.getElementById('driftXSlider').value = controllerSettings.driftX;
+        document.getElementById('driftYSlider').value = controllerSettings.driftY;
+    }
+    for (let i in settings) {
+        if (i != 'fullscreen') try {updateSetting(i);} catch (err) {console.error(err);}
+    }
+    for (let i in controllerSettings) {
+        try {updateControllerSetting(i);} catch (err) {console.error(err);}
+    }
 } catch (err) {
     console.error(err);
 }
@@ -894,21 +891,19 @@ function updateKeybind(keybind) {
     document.getElementById('keybind_' + keybind).style.color = '';
 };
 function saveKeybinds() {
-    var cookiestring = JSON.stringify(keybinds);
-    var date = new Date();
-    date.setUTCFullYear(date.getUTCFullYear()+10, date.getUTCMonth(), date.getUTCDate());
-    document.cookie = 'keybinds=' + cookiestring + '; expires=' + date + ';';
-}
+    let keybindJSON = JSON.stringify(keybinds);
+    localStorage.setItem('keybinds', keybindJSON);
+};
 try {
-    document.cookie.split('; ').forEach(function(cookie) {if (cookie.startsWith('keybinds=')) {
-        cookiekeybinds = JSON.parse(cookie.replace('keybinds=', ''));
-        for (let i in cookiekeybinds) {
-            keybinds[i] = cookiekeybinds[i];
+    const keybindData = JSON.parse(localStorage.getItem('keybinds'));
+    if (keybindData) {
+        for (let i in keybindData) {
+            keybinds[i] = keybindData[i];
         }
-        for (let i in keybinds) {
-            updateKeybind(i);
-        }
-    }});
+    }
+    for (let i in keybinds) {
+        updateKeybind(i);
+    }
 } catch (err) {
     console.error(err);
 }

@@ -1,8 +1,14 @@
 {
-    "lowermineshaft": [
+    "tp_lowermineshaft": [
         {
             "type": "quest",
             "value": "sprock"
+        }
+    ],
+    "qualifies_sprock": [
+        {
+            "type": "qualifies_quest",
+            "valud": "sprock"
         }
     ]
 }

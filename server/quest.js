@@ -227,3 +227,7 @@ QuestData = function(id) {
     return self;
 };
 QuestData.quests = require('./../client/quests.json');
+
+Criteria = {};
+Criteria.passes = function(player, id) {};
+Criteria.data = require('./criteria.json');
