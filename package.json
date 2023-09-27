@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/definitely-nobody-is-here/Mountain_Guarder.git"
+    "url": "git+https://github.com/spsquared/Mountain_Guarder.git"
   },
   "keywords": [
     "nodejs",
@@ -19,10 +19,10 @@
     "mountainguarder",
     "game"
   ],
-  "author": "Radioactive64",
+  "author": "Sampleprovider(sp)",
   "license": "GPL-3.0",
   "bugs": {
-    "url": "https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues"
+    "url": "https://github.com/spsquared/Mountain_Guarder/issues"
   },
   "homepage": "https://mountainguarder.radioactivestuf.repl.co/",
   "dependencies": {
