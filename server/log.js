@@ -10,9 +10,9 @@ insertChat = function insertChat(text, color) {
     } else if (color == 'death') {
         style = 'color: #FF0000;';
     } else if (color == 'error') {
-        style = 'color: #FF9900;';
-    } else if (color == 'anticheat') {
         style = 'color: #FF0000; font-weight: bold;';
+    } else if (color == 'anticheat') {
+        style = 'color: #FF9900; font-weight: bold;';
     } else if (color == 'fun') {
         style = 'animation: special 2s linear infinite;';
     }
@@ -76,27 +76,21 @@ error = function error(text) {
 };
 appendLog = function appendLog(text, type) {
     let typestring = '--- ';
-    if (type == 'error') typestring = 'ERR ';
-    else if (type == 'warn') typestring = '!WN ';
-    else if (type == 'log') typestring = 'LOG ';
-    else if (type == 'debug') typestring = 'DBG ';
-    else if (type == 'chat') typestring = 'CHT ';
+    if (type == 'error') typestring = 'ERROR ';
+    else if (type == 'warn') typestring = 'WARN  ';
+    else if (type == 'log') typestring = 'LOG   ';
+    else if (type == 'debug') typestring = 'DEBUG ';
+    else if (type == 'chat') typestring = 'CHAT  ';
     fs.appendFileSync('./log.log', `${typestring}${text.replaceAll('\n', `\n${typestring}`)}\n`, {encoding: 'utf-8'}, function() {});
     if (global.ENV && !ENV.offlineMode && ENV.useDiscordWebhook && type != 'chat') try {postDebugDiscord(typestring, text.toString());} catch (err) {error(err);};
 };
 
 // console hooking (U-009E signifies message already put in logs or except from logging)
-let exempt = '';
-process.stdin.addListener('data', function(data) {
-    exempt = data;
-});
 const stdout_write = process.stdout.write;
 process.stdout.write = function mod_write(str, encode, fd) {
     stdout_write.apply(process.stdout, arguments);
-    if (exempt == str || str == '\r\n' || str == '\n\r' || str == '\n') {
-        exempt = '';
-        return;
-    }
+    // may break in some edge cases (prevents logging typed characters)
+    if (str.length <= 1) return;
     (typeof str != 'string' || (typeof str == 'string' && str[0] != '')) && appendLog(str, 'log');
 };
 const stderr_write = process.stderr.write;

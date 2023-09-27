@@ -2,6 +2,7 @@
 
 MAPS = {
     loaded: false,
+    loadingError: false,
     load: async function load() {
         if (!MAPS.loaded) await loadAll();
         MAPS.loaded = true;
@@ -13,6 +14,7 @@ MAPS = {
 
 let npcWaypoints = {};
 async function loadAll() {
+    loadingError = false;
     loadMap('World');
     loadMap('Caves');
     loadMap('The Void');
@@ -22,6 +24,7 @@ async function loadAll() {
     loadMap('Outpost Trader\'s Store Upstairs');
     loadMap('Mysterious Cave 1');
     loadMap('Pingu\'s Cave');
+    loadMap('Tutorial');
     for (let i in Npc.list) {
         if (npcWaypoints[Npc.list[i].npcId]) {
             Npc.list[i].ai.idleWaypoints.waypoints = npcWaypoints[Npc.list[i].npcId];
@@ -30,8 +33,9 @@ async function loadAll() {
     await Layer.init();
     Spawner.init();
     EventTrigger.init();
-    Npc.init();
+    Prompts.init();
     Layer.lazyInit();
+    if (loadingError) error('[!] Error(s) occurred in map loading. Some maps may not work correctly [!]');
 };
 function loadMap(name) {
     const raw = require('./../client/maps/' + name + '.json');
@@ -98,8 +102,8 @@ function loadMap(name) {
             }
         } else if (rawlayer.name.startsWith('Npc:')) {
             if (rawlayer.name.includes(':waypoints')) {
-                var npcId = rawlayer.name.replace('Npc:', '').replace(':waypoints', '');
-                var waypoints = [];
+                const npcId = rawlayer.name.replace('Npc:', '').replace(':waypoints', '');
+                let waypoints = [];
                 if (rawlayer.chunks) {
                     for (let rawchunk of rawlayer.chunks) {
                         for (let i in rawchunk.data) {
@@ -114,6 +118,7 @@ function loadMap(name) {
                                     });
                                 } else {
                                     error('Invalid npc waypoint at (' + name + ', ' + x + ', ' + y + ')');
+                                    MAPS.loadingError = true;
                                 }
                             }
                         }
@@ -131,6 +136,7 @@ function loadMap(name) {
                                 });
                             } else {
                                 error('Invalid npc waypoint at (' + name + ', ' + x + ', ' + y + ')');
+                                MAPS.loadingError = true;
                             }
                         }
                     }
@@ -149,6 +155,7 @@ function loadMap(name) {
                                     new Npc(npcId, x, y, name);
                                 } else {
                                     error('Invalid npc spawner at (' + x + ',' + y + ')');
+                                    MAPS.loadingError = true;
                                 }
                             }
                         }
@@ -162,16 +169,16 @@ function loadMap(name) {
                                 new Npc(npcId, x, y, name);
                             } else {
                                 error('Invalid npc spawner at (' + x + ',' + y + ')');
+                                MAPS.loadingError = true;
                             }
                         }
                     }
                 }
             }
         } else if (rawlayer.name.startsWith('Spawner:')) {
-            var monsterstring = rawlayer.name.replace('Spawner:', '');
-            var layer = monsterstring.charAt(0);
-            monsterstring = monsterstring.replace(layer + ':', '');
-            var spawnmonsters = monsterstring.split(',');
+            const monsterstring = rawlayer.name.replace('Spawner:', '').replace(rawlayer.name.replace('Spawner:', '').charAt(0) + ':', '');
+            const layer = rawlayer.name.replace('Spawner:', '').charAt(0);
+            const spawnmonsters = monsterstring.split(',');
             if (rawlayer.chunks) {
                 for (let rawchunk of rawlayer.chunks) {
                     for (let i in rawchunk.data) {
@@ -182,6 +189,7 @@ function loadMap(name) {
                                 new Spawner(name, x, y, layer, spawnmonsters);
                             } else {
                                 error('Invalid spawner at (' + name + ', ' + x + ', ' + y + ')');
+                                MAPS.loadingError = true;
                             }
                         }
                     }
@@ -195,14 +203,14 @@ function loadMap(name) {
                             new Spawner(name, x, y, layer, spawnmonsters);
                         } else {
                             error('Invalid spawner at (' + name + ', ' + x + ', ' + y + ')');
+                            MAPS.loadingError = true;
                         }
                     }
                 }
             }
         } else if (rawlayer.name.startsWith('Boss:')) {
-            var id = rawlayer.name.replace('Boss:', '');
-            var layer = id.charAt(0);
-            id = id.replace(layer + ':', '');
+            const id = rawlayer.name.replace('Boss:', '').replace(rawlayer.name.replace('Boss:', '').charAt(0) + ':', '');
+            const layer = rawlayer.name.replace('Boss:', '').charAt(0);
             if (rawlayer.chunks) {
                 for (let rawchunk of rawlayer.chunks) {
                     for (let i in rawchunk.data) {
@@ -213,6 +221,7 @@ function loadMap(name) {
                                 new BossSpawner(name, x, y, layer, id);
                             } else {
                                 error('Invalid boss spawner at (' + name + ', ' + x + ', ' + y + ')');
+                                MAPS.loadingError = true;
                             }
                         }
                     }
@@ -226,15 +235,16 @@ function loadMap(name) {
                             new BossSpawner(name, x, y, layer, id);
                         } else {
                             error('Invalid boss spawner at (' + name + ', ' + x + ', ' + y + ')');
+                            MAPS.loadingError = true;
                         }
                     }
                 }
             }
             
         } else if (rawlayer.name.startsWith('Bossdata:')) {
-            var id = rawlayer.name.replace('Bossdata:', '').substring(0, rawlayer.name.replace('Bossdata:', '').length-2);
-            var layer = parseInt(rawlayer.name.charAt(rawlayer.name.length-1));
-            var locations = [];
+            const id = rawlayer.name.replace('Bossdata:', '').substring(0, rawlayer.name.replace('Bossdata:', '').length-2);
+            const layer = parseInt(rawlayer.name.charAt(rawlayer.name.length-1));
+            let locations = [];
             if (rawlayer.chunks) {
                 for (let rawchunk of rawlayer.chunks) {
                     for (let i in rawchunk.data) {
@@ -249,6 +259,7 @@ function loadMap(name) {
                                 });
                             } else {
                                 error('Invalid boss data marker at (' + name + ', ' + x + ', ' + y + ')');
+                                MAPS.loadingError = true;
                             }
                         }
                     }
@@ -266,6 +277,7 @@ function loadMap(name) {
                             });
                         } else {
                             error('Invalid boss data marker at (' + name + ', ' + x + ', ' + y + ')');
+                            MAPS.loadingError = true;
                         }
                     }
                 }
@@ -273,7 +285,7 @@ function loadMap(name) {
             if (Monster.bossData[id]) Monster.bossData[id] = Monster.bossData[id].concat(locations);
             else Monster.bossData[id] = locations;
         } else if (rawlayer.name.startsWith('Region:')) {
-            let properties = rawlayer.name.replace('Region:', '').split(':');
+            const properties = rawlayer.name.replace('Region:', '').split(':');
             if (rawlayer.chunks) {
                 for (let rawchunk of rawlayer.chunks) {
                     for (let i in rawchunk.data) {
@@ -284,6 +296,7 @@ function loadMap(name) {
                                 new Region(name, x, y, properties);
                             } else {
                                 error('Invalid region at (' + name + ', ' + x + ', ' + y + ')');
+                                MAPS.loadingError = true;
                             }
                         }
                     }
@@ -297,12 +310,13 @@ function loadMap(name) {
                             new Region(name, x, y, properties);
                         } else {
                             error('Invalid region at (' + name + ', ' + x + ', ' + y + ')');
+                            MAPS.loadingError = true;
                         }
                     }
                 }
             }
         } else if (rawlayer.name.startsWith('EventTrigger:')) {
-            let id = rawlayer.name.replace('EventTrigger:', '');
+            const id = rawlayer.name.replace('EventTrigger:', '');
             if (rawlayer.chunks) {
                 for (let rawchunk of rawlayer.chunks) {
                     for (let i in rawchunk.data) {
@@ -313,6 +327,7 @@ function loadMap(name) {
                                 new EventTrigger(name, x, y, id);
                             } else {
                                 error('Invalid event trigger at (' + name + ', ' + x + ', ' + y + ')');
+                                MAPS.loadingError = true;
                             }
                         }
                     }
@@ -326,12 +341,13 @@ function loadMap(name) {
                             new EventTrigger(name, x, y, id);
                         } else {
                             error('Invalid event trigger at (' + name + ', ' + x + ', ' + y + ')');
+                            MAPS.loadingError = true;
                         }
                     }
                 }
             }
         } else if (rawlayer.name.startsWith('Teleporter:')) {
-            let properties = rawlayer.name.replace('Teleporter:', '').split(',');
+            const properties = rawlayer.name.replace('Teleporter:', '').split(',');
             if (rawlayer.chunks) {
                 for (let rawchunk of rawlayer.chunks) {
                     for (let i in rawchunk.data) {
@@ -342,6 +358,7 @@ function loadMap(name) {
                                 new Teleporter(name, x, y, properties);
                             } else {
                                 error('Invalid teleporter at (' + name + ', ' + x + ', ' + y + ')');
+                                MAPS.loadingError = true;
                             }
                         }
                     }
@@ -355,12 +372,13 @@ function loadMap(name) {
                             new Teleporter(name, x, y, properties);
                         } else {
                             error('Invalid teleporter at (' + name + ', ' + x + ', ' + y + ')');
+                            MAPS.loadingError = true;
                         }
                     }
                 }
             }
         } else if (rawlayer.name.startsWith('GaruderWarp:')) {
-            let properties = rawlayer.name.replace('GaruderWarp:', '').split(':');
+            const properties = rawlayer.name.replace('GaruderWarp:', '').split(':');
             if (rawlayer.chunks) {
                 for (let rawchunk of rawlayer.chunks) {
                     for (let i in rawchunk.data) {
@@ -372,6 +390,7 @@ function loadMap(name) {
                             } else if (rawchunk.data[i]-1 == 1866) {
                             } else {
                                 error('Invalid Garuder Warp at (' + name + ', ' + x + ', ' + y + ')');
+                                MAPS.loadingError = true;
                             }
                         }
                     }
@@ -386,6 +405,7 @@ function loadMap(name) {
                         } else if (rawlayer.data[i]-1 == 1866) {
                         } else {
                             error('Invalid Garuder Warp at (' + name + ', ' + x + ', ' + y + ')');
+                            MAPS.loadingError = true;
                         }
                     }
                 }

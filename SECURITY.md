@@ -10,13 +10,13 @@ Supported versions are stable versions free of critical issues (crashes, vulnera
 
 | Version  | Supported          |
 | -------  | ------------------ |
+| 0.17.0   | :white_check_mark: |
 | 0.16.2   | :white_check_mark: |
 | 0.16.1   | :white_check_mark: |
 | 0.16.0   | :x:                |
 | 0.15.0   | :white_check_mark: |
 | 0.14.x   | :x:                |
-| 0.13.x   | :x:                |
-| < 0.13.x | :x:                |
+| < 0.14.x | :x:                |
 
 ## Reporting a Vulnerability
 

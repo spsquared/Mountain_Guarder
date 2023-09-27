@@ -8,7 +8,7 @@
     "qualifies_sprock": [
         {
             "type": "qualifies_quest",
-            "valud": "sprock"
+            "value": "sprock"
         }
     ]
 }

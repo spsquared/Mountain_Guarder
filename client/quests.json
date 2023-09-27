@@ -12,6 +12,7 @@
                 },
                 "area": {
                     "description": "Go to nowhere",
+                    "map": "Template",
                     "x": 0,
                     "y": 0,
                     "r": 2
@@ -31,6 +32,39 @@
             "items": {
                 "missing": 1
             }
+        },
+        "failOnDeath": false
+    },
+    "tutorial": {
+        "name": "Tutorial",
+        "requirements": {
+            "xpLevel": 0,
+            "completed": []
+        },
+        "objectives": [
+            {
+                "talk": "stronk"
+            },
+            {
+                "killMonster": {
+                    "any": 5,
+                    "bluebird": 2,
+                    "greenbird": 3
+                }
+            },
+            {
+                "area": {
+                    "description": "Finish the Tutorial",
+                    "map": "World",
+                    "x": -16,
+                    "y": -9,
+                    "r": 2
+                }
+            }
+        ],
+        "rewards": {
+            "xp": 0,
+            "items": {}
         },
         "failOnDeath": false
     },
@@ -64,7 +98,7 @@
     "sprock": {
         "name": "Lodestone Mystery",
         "requirements": {
-            "xpLevel": 0,
+            "xpLevel": 10,
             "completed": [
                 "5birds"
             ]
@@ -72,7 +106,8 @@
         "objectives": [
             {
                 "area": {
-                    "description": "Locate the source of the lights",
+                    "description": "Head to the location of the lights",
+                    "map": "World",
                     "x": 116,
                     "y": 55,
                     "r": 5
@@ -93,7 +128,7 @@
             }
         ],
         "rewards": {
-            "xp": 150,
+            "xp": 300,
             "items": {
                 "ialiteshard": 3,
                 "quartz": 5,

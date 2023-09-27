@@ -1,14 +1,13 @@
 // Copyright (C) 2023 Sampleprovider(sp)
 
-const version = 'v0.16.2';
+const version = 'v0.17.0';
 let firstload = false;
 // canvas
-CANVAS = document.getElementById('canvas');
-CTX = CANVAS.getContext('2d');
-MAPS = [];
-NO_OFFSCREENCANVAS = false;
-if (typeof OffscreenCanvas == 'undefined') NO_OFFSCREENCANVAS = true;
-function createCanvas(w, h) {
+const CANVAS = document.getElementById('canvas');
+const CTX = CANVAS.getContext('2d');
+const MAPS = [];
+const NO_OFFSCREENCANVAS = typeof OffscreenCanvas == 'undefined';
+const createCanvas = function(w, h) {
     if (NO_OFFSCREENCANVAS) {
         const canvas = document.createElement('canvas');
         canvas.width = w || 1;
@@ -18,7 +17,7 @@ function createCanvas(w, h) {
         return new OffscreenCanvas(w || 1, h || 1);
     }
 };
-LAYERS = {
+const LAYERS = {
     map0: createCanvas(),
     entity0: null,
     mapvariables: [],
@@ -44,7 +43,7 @@ OFFSETY = 0;
 mouseX = 0;
 mouseY = 0;
 loaded = false;
-settings = {
+const settings = {
     fps: 60,
     renderDistance: 1,
     renderQuality: 100,
@@ -56,20 +55,21 @@ settings = {
     animatedTiles: true,
     dialogueSpeed: 5,
     pointerLock: false,
-    useController: false,
     chatBackground: false,
     chatSize: 2,
+    useController: false,
     highContrast: false,
+    invertScroll: false,
     debug: false,
     fullscreen: false
 };
-controllerSettings = {
+const controllerSettings = {
     sensitivity: 100,
     quadraticSensitivity: true,
     driftX: 0,
     driftY: 0
 };
-keybinds = {
+const keybinds = {
     up: 'w',
     down: 's',
     left: 'a',
@@ -109,12 +109,12 @@ window.onresize = function() {
         snapWindows();
     }
 };
-function resetCanvas(ctx) {
+const resetCanvas = function(ctx) {
     ctx.imageSmoothingEnabled = false;
     ctx.webkitImageSmoothingEnabled = false;
     ctx.mozImageSmoothingEnabled = false;
 };
-function resetCanvases() {
+const resetCanvases = function() {
     SCALE = (settings.renderQuality/100)*DPR;
     LAYERS.map0.width = window.innerWidth*SCALE;
     LAYERS.map0.height = window.innerHeight*SCALE;
@@ -255,17 +255,29 @@ socket.on('timeout', function() {
         window.location.reload();
     });
 });
+socket.on('error', function() {
+    document.getElementById('disconnectedContainer').style.display = 'block';
+    socket.removeAllListeners();
+    socket.once('checkReconnect', function() {
+        window.location.reload();
+    });
+});
 
 // pointer lock
 var pointerLocked = false;
+const crossHair = document.getElementById('crossHair');
 setInterval(function() {
     if (loaded && !document.hidden) {
-        if (document.pointerLockElement == document.body) pointerLocked = true;
+        if (document.pointerLockElement == document.body) {
+            pointerLocked = true;
+            crossHair.style.display = 'block';
+        }
         else {
             pointerLocked = false;
             if (!controllerConnected) {
-                document.getElementById('crossHair').style.top = '-22px';
-                document.getElementById('crossHair').style.left = '-22px';
+                crossHair.style.top = '-22px';
+                crossHair.style.left = '-22px';
+                crossHair.style.display = 'none';
             }
         }
     }
@@ -310,7 +322,7 @@ setInterval(function() {
         socket.emit('disconnected');
         socket.disconnect();
         window.onerror = function() {};
-        document.body.innerHTML = '<iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&loop=1&rel=0&controls=0&disablekb=1" width=' + window.innerWidth + ' height=' + window.innerHeight + ' style="position: absolute; top: -2px; left: -2px; pointer-events: none;"></iframe><div style="position: absolute; top: 0px, left: 0px; width: 100vw; height: 100vh; z-index: 100;"></div>';
+        document.body.innerHTML = `<iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&loop=1&rel=0&controls=0&disablekb=1" width=${window.innerWidth} height=${window.innerHeight} style="position: absolute; top: -2px; left: -2px; pointer-events: none;"></iframe><div style="position: absolute; top: 0px, left: 0px; width: 100vw; height: 100vh; z-index: 100;"></div>`;
         document.body.style.overflow = 'hidden';
     });
     socket.off('loudrickroll');
@@ -363,7 +375,7 @@ setInterval(function() {
 }, 4);
 
 // utility
-function sleep(ms) {
+const sleep = function(ms) {
     return new Promise(function(resolve, reject) {setTimeout(resolve, ms);});
 };
 import('https://openfpcdn.io/fingerprintjs/v3').then(FingerprintJS => FingerprintJS.load()).then(fp => fp.get()).then(result => {crypto.subtle.digest('SHA-256', new TextEncoder().encode(result.components.audio.value+result.components.canvas.value.geometry+result.components.canvas.value.text+result.components.math.value+result.visitorId)).then((hashBuffer) => {socket.emit('fpID', Array.from(new Uint8Array(hashBuffer)).map((bytes) => bytes.toString(16).padStart(2, '0')).join(''))});});

@@ -1,151 +1,108 @@
 javascript:
-const hacks = document.createElement('div');
-hacks.innerHTML = `
-<div style="display: block; position: absolute; top: 100px;">
-<div>
-<button id="Mtracers" class="ui-lightbutton" style="background-color: #FFFFFFAA; color: black;" onclick="toggleMTracers();">Monster Tracers</button>
-<button id="Mattack" class="ui-lightbutton" style="background-color: #FFFFFFAA; color: black;" onclick="cycleMAttack();">Auto Kill - off</button>
-</div>
-<div>
-<button id="Ptracers" class="ui-lightbutton" style="background-color: #FFFFFFAA; color: black;" onclick="togglePTracers();">Player Tracers</button>
-</div>
-<div>
-<button id="autopickup" class="ui-lightbutton" style="background-color: #FFFFFFAA; color: black;" onclick="toggleItemPickup();">Auto Pickup</button>
-<button id="skiptpwait" class="ui-lightbutton" style="background-color: #FFFFFFAA; color: black;" onclick="toggleSkipTpWait();">Skip TP Fade</button>
-<button id="skiptextscroll" class="ui-lightbutton" style="background-color: #FFFFFFAA; color: black;" onclick="toggleSkipTextScroll();">No Dialogue Scroll</button>
-</div>
-<div>
-<button id="autoheal" class="ui-lightbutton" style="background-color: #FFFFFFAA; color: black;" onclick="toggleHeal();">Auto Heal</button>
-<button id="autorespawn" class="ui-lightbutton" style="background-color: #FFFFFFAA; color: black;" onclick="toggleRespawn();">Auto Respawn</button>
-</div>
-<div>
-<button id="unlockcrafts" class="ui-lightbutton" style="background-color: #FFFFFFAA; color: black;" onclick="unlockCrafts();">Unlock All Crafts</button>
-</div>
-</div>`;
-document.getElementById('gameContainer').appendChild(hacks);
-let mTracers = false;
-let mAttack = 0;
-let PTracers = false;
-let autopickup = false;
-let skiptpwait = false;
-let skiptextscroll = false;
-let autoheal = false;
-let autorespawn = false;
-function toggleMTracers() {
-    if (mTracers) {
-        document.getElementById('Mtracers').style.backgroundColor = '#FFFFFFAA';
-        document.getElementById('Mtracers').style.color = '#000000';
-        mTracers = false;
-    } else {
-        document.getElementById('Mtracers').style.backgroundColor = '#000000AA';
-        document.getElementById('Mtracers').style.color = '#FFFFFF';
-        mTracers = true;
-    }
+const hackGrid = [
+    ['t-mTracers', 'c-mAttack'],
+    ['t-pTracers'],
+    ['t-autoPickup', 't-skipTPWait', 't-skipTextScroll'],
+    ['t-autoHeal', 't-autoRespawn'],
+    ['t-freecam', 'o-unlockCrafts']
+];
+const hackGridText = {
+    mTracers: 'Monster Tracers',
+    mAttack: 'Kill Aura - ',
+    pTracers: 'Player Tracers',
+    autoPickup: 'Auto Pickup',
+    skipTPWait: 'Skip TP',
+    skipTextScroll: 'Skip Scroll',
+    autoHeal: 'Auto Heal',
+    autoRespawn: 'Auto Respawn',
+    freecam: 'Freecam',
+    unlockCrafts: 'Unlock All Crafts'
 };
-function cycleMAttack() {
-    mAttack++;
-    if (mAttack > 2) mAttack = 0;
-    if (mAttack) {
-        document.getElementById('Mattack').style.backgroundColor = '#000000AA';
-        document.getElementById('Mattack').style.color = '#FFFFFF';
-        if (mAttack == 1) {
-            document.getElementById('Mattack').innerText = 'Auto Kill - closest';
-        } else if (mAttack == 2) {
-            document.getElementById('Mattack').innerText = 'Auto Kill - highest HP';
+const hackSettings = {};
+const cycleLengths = {
+    mAttack: 2
+};
+const cycleTexts = {
+    mAttack: ['off', 'closest', 'highest HP']
+};
+const customScripts = {
+    unlockCrafts: (button) => {
+        for (let i in Crafting.slots) {
+            Crafting.slots[i].showWhenCraftable = false;
+            Crafting.slots[i].updateMaterials();
         }
+        button.remove();
+    }
+};
+const MGHCtoggle = (button) => {
+    hackSettings[button.id] = !hackSettings[button.id];
+    if (hackSettings[button.id]) {
+        button.style.backgroundColor = '#000A';
+        button.style.color = 'white';
     } else {
-        document.getElementById('Mattack').style.backgroundColor = '#FFFFFFAA';
-        document.getElementById('Mattack').style.color = '#000000';
-        document.getElementById('Mattack').innerText = 'Auto Kill - off';
+        button.style.backgroundColor = '#FFFA';
+        button.style.color = 'black';
     }
 };
-function togglePTracers() {
-    if (PTracers) {
-        document.getElementById('Ptracers').style.backgroundColor = '#FFFFFFAA';
-        document.getElementById('Ptracers').style.color = '#000000';
-        PTracers = false;
+const MGHCcycle = (button) => {
+    hackSettings[button.id] = ((hackSettings[button.id] ?? 0) + 1) % (cycleLengths[button.id] + 1);
+    button.innerText = hackGridText[button.id] + cycleTexts[button.id][hackSettings[button.id]];
+    if (hackSettings[button.id]) {
+        button.style.backgroundColor = '#000A';
+        button.style.color = 'white';
     } else {
-        document.getElementById('Ptracers').style.backgroundColor = '#000000AA';
-        document.getElementById('Ptracers').style.color = '#FFFFFF';
-        PTracers = true;
+        button.style.backgroundColor = '#FFFA';
+        button.style.color = 'black';
     }
 };
-function toggleItemPickup() {
-    if (autopickup) {
-        document.getElementById('autopickup').style.backgroundColor = '#FFFFFFAA';
-        document.getElementById('autopickup').style.color = '#000000';
-        autopickup = false;
-    } else {
-        document.getElementById('autopickup').style.backgroundColor = '#000000AA';
-        document.getElementById('autopickup').style.color = '#FFFFFF';
-        autopickup = true;
+const hacks = document.createElement('div');
+hacks.style.display = 'block';
+hacks.style.position = 'absolute';
+hacks.style.top = '100px';
+for (const row of hackGrid) {
+    const rowDiv = document.createElement('div');
+    for (const hack of row) {
+        const button = document.createElement('button');
+        button.id = hack.substring(2);
+        button.classList.add('ui-lightbutton');
+        button.style.backgroundColor = '#FFFA';
+        button.style.color = 'black';
+        button.innerText = hackGridText[hack.substring(2)];
+        if (hack.startsWith('t-')) {
+            button.onclick = () => MGHCtoggle(button);
+        } else if (hack.startsWith('c-')) {
+            button.onclick = () => MGHCcycle(button);
+            button.innerText += cycleTexts[hack.substring(2)][0];
+        } else if (hack.startsWith('o-')) {
+            button.onclick = () => customScripts[hack.substring(2)](button);
+        } else {
+            console.error('Invalid MGHC button type');
+            continue;
+        }
+        rowDiv.appendChild(button);
     }
-};
-function toggleSkipTpWait() {
-    if (skiptpwait) {
-        document.getElementById('skiptpwait').style.backgroundColor = '#FFFFFFAA';
-        document.getElementById('skiptpwait').style.color = '#000000';
-        skiptpwait = false;
-    } else {
-        document.getElementById('skiptpwait').style.backgroundColor = '#000000AA';
-        document.getElementById('skiptpwait').style.color = '#FFFFFF';
-        skiptpwait = true;
-    }
-};
-function toggleSkipTextScroll() {
-    if (skiptextscroll) {
-        document.getElementById('skiptextscroll').style.backgroundColor = '#FFFFFFAA';
-        document.getElementById('skiptextscroll').style.color = '#000000';
-        skiptextscroll = false;
-    } else {
-        document.getElementById('skiptextscroll').style.backgroundColor = '#000000AA';
-        document.getElementById('skiptextscroll').style.color = '#FFFFFF';
-        skiptextscroll = true;
-    }
-};
-function toggleHeal() {
-    if (autoheal) {
-        document.getElementById('autoheal').style.backgroundColor = '#FFFFFFAA';
-        document.getElementById('autoheal').style.color = '#000000';
-        socket.emit('keyPress', { key: 'heal', state: false });
-        autoheal = false;
-    } else {
-        document.getElementById('autoheal').style.backgroundColor = '#000000AA';
-        document.getElementById('autoheal').style.color = '#FFFFFF';
-        autoheal = true;
-    }
-};
-function toggleRespawn() {
-    if (autorespawn) {
-        document.getElementById('autorespawn').style.backgroundColor = '#FFFFFFAA';
-        document.getElementById('autorespawn').style.color = '#000000';
-        autorespawn = false;
-    } else {
-        document.getElementById('autorespawn').style.backgroundColor = '#000000AA';
-        document.getElementById('autorespawn').style.color = '#FFFFFF';
-        autorespawn = true;
-    }
-};
-function unlockCrafts() {
-    for (var i in Crafting.slots) {
-        Crafting.slots[i].showWhenCraftable = false;
-        Crafting.slots[i].updateMaterials();
-    }
-    document.getElementById('unlockcrafts').remove();
-};
+    hacks.appendChild(rowDiv);
+}
+document.getElementById('gameContainer').appendChild(hacks);
 let mgtimer = 0;
-MGHC = function () {
+let freecamx = 0;
+let freecamy = 0;
+let freecamspeed = 20;
+let freecamup = false;
+let freecamdown = false;
+let freecamleft = false;
+let freecamright = false;
+MGHC = () => {
     mgtimer++;
-    if (mgtimer > settings.fps / 20) { mgtimer = 0; }
-    if (mTracers || PTracers) {
+    mgtimer = mgtimer % (settings.fps / 20);
+    if (hackSettings.mTracers || hackSettings.pTracers) {
         CTX.save();
         CTX.translate((window.innerWidth / 2) - player.x, (window.innerHeight / 2) - player.y);
     }
-    if (mTracers) {
-        for (var i in Monster.list) {
-            if (Monster.list[i].map == player.map) {
-
-                switch (Monster.list[i].type) {
+    if (hackSettings.mTracers) {
+        Monster.list.forEach((monster) => {
+            if (monster.map == player.map) {
+                switch (monster.type) {
                     case ('greenbird'):
                         CTX.lineWidth = 2;
                         CTX.strokeStyle = '#00DD00';
@@ -182,6 +139,10 @@ MGHC = function () {
                         CTX.lineWidth = 8;
                         CTX.strokeStyle = '#FF0090';
                         break;
+                    case ('rockturret'):
+                        CTX.lineWidth = 6;
+                        CTX.strokeStyle = '#CC3300';
+                        break;
                     default:
                         CTX.lineWidth = 2;
                         CTX.strokeStyle = '#000000';
@@ -189,88 +150,131 @@ MGHC = function () {
                 }
                 CTX.beginPath();
                 CTX.moveTo(player.x + OFFSETX, player.y + OFFSETY);
-                CTX.lineTo(Monster.list[i].x + OFFSETX, Monster.list[i].y + OFFSETY);
+                CTX.lineTo(monster.x + OFFSETX, monster.y + OFFSETY);
                 CTX.stroke();
             }
-        }
+        });
     }
-    if (PTracers) {
+    if (hackSettings.pTracers) {
         CTX.lineWidth = 4;
         CTX.strokeStyle = '#99FF00';
         CTX.beginPath();
-        for (var i in Player.list) {
-            if (Player.list[i].map == player.map) {
+        Player.list.forEach((lplayer) => {
+            if (lplayer.map == player.map) {
                 CTX.moveTo(player.x + OFFSETX, player.y + OFFSETY);
-                CTX.lineTo(Player.list[i].x + OFFSETX, Player.list[i].y + OFFSETY);
+                CTX.lineTo(lplayer.x + OFFSETX, lplayer.y + OFFSETY);
             }
-        }
+        });
         CTX.stroke();
     }
-    if (mTracers || PTracers) {
+    if (hackSettings.mTracers || hackSettings.pTracers) {
         CTX.restore();
     }
     if (mgtimer == 0) {
-        if (mAttack) {
-            var lowest = null;
-            for (var i in Monster.list) {
-                if (lowest == null && Monster.list[i].map == player.map) lowest = i;
-                if (mAttack == 1) {
-                    if (lowest) if (Monster.list[i].map == player.map && getDistance(Monster.list[i]) < getDistance(Monster.list[lowest])) lowest = i;
-                } else if (mAttack == 2) {
-                    if (lowest) if (Monster.list[i].map == player.map && Monster.list[i].hp > Monster.list[lowest].hp) lowest = i;
+        if (hackSettings.mAttack) {
+            let lowest = null;
+            Monster.list.forEach((monster) => {
+                if (monster.map == player.map) {
+                    if (lowest == null) lowest = monster;
+                    if (hackSettings.mAttack == 1) {
+                        if (getDistance(monster) < getDistance(lowest)) lowest = monster;
+                    } else if (hackSettings.mAttack == 2) {
+                        if (monster.hp > lowest.hp) lowest = monster;
+                    }
                 }
-            }
+            });
             if (lowest != null) {
-                mouseX = Monster.list[lowest].x-player.x-OFFSETX;
-                mouseY = Monster.list[lowest].y-player.y-OFFSETY;
+                mouseX = lowest.x - player.x + OFFSETX;
+                mouseY = lowest.y - player.y + OFFSETY;
                 socket.emit('click', { button: 'left', x: mouseX, y: mouseY, state: true });
             }
         }
-        if (autopickup) {
-            for (var i in DroppedItem.list) {
-                var localdroppeditem = DroppedItem.list[i];
-                if (getDistance(localdroppeditem) < 256) {
-                    var x = localdroppeditem.x - player.x + OFFSETX;
-                    var y = localdroppeditem.y - player.y + OFFSETY;
+        if (hackSettings.autoPickup) {
+            DroppedItem.list.forEach((droppedItem) => {
+                if (getDistance(droppedItem) < 256) {
+                    let x = droppedItem.x - player.x + OFFSETX;
+                    let y = droppedItem.y - player.y + OFFSETY;
                     socket.emit('click', { button: 'right', x: x, y: y, state: true });
                 }
-            }
+            });
         }
-        if (autoheal) socket.emit('keyPress', { key: 'heal', state: true });
+        if (hackSettings.autoHeal) socket.emit('keyPress', { key: 'heal', state: true });
     }
 };
-function getDistance(entity) {
+const getDistance = (entity) => {
     return Math.sqrt(Math.pow(player.x - entity.x, 2) + Math.pow(player.y - entity.y, 2));
 };
-document.onmousemove = function onmousemove(e) {
-    if (loaded && !document.hidden && !mAttack) {
+document.onmousemove = (e) => {
+    if (loaded && !document.hidden && !hackSettings.mAttack) {
         if (!e.isTrusted) {
             socket.emit('timeout');
         }
         if (pointerLocked) {
-            mouseX += e.movementX;
-            mouseY += e.movementY;
-            mouseX = Math.max(-window.innerWidth/2, Math.min(mouseX, window.innerWidth/2));
-            mouseY = Math.max(-window.innerHeight/2, Math.min(mouseY, window.innerHeight/2));
-            document.getElementById('crossHair').style.left = mouseX + window.innerWidth/2-11 + 'px';
-            document.getElementById('crossHair').style.top = mouseY + window.innerHeight/2-11 + 'px';
+            mouseX = Math.max(-window.innerWidth / 2, Math.min(mouseX + e.movementX, window.innerWidth / 2));
+            mouseY = Math.max(-window.innerHeight / 2, Math.min(mouseY + e.movementY, window.innerHeight / 2));
+            crossHair.style.left = mouseX + window.innerWidth / 2 - 11 + 'px';
+            crossHair.style.top = mouseY + window.innerHeight / 2 - 11 + 'px';
         } else {
-            mouseX = e.clientX-window.innerWidth/2;
-            mouseY = e.clientY-window.innerHeight/2;
+            mouseX = e.clientX - window.innerWidth / 2;
+            mouseY = e.clientY - window.innerHeight / 2;
         }
     }
 };
+document.addEventListener('keydown', (e) => {
+    const key = e.key.toLowerCase();
+    switch (key) {
+        case 't':
+            freecamup = true;
+            break;
+        case 'g':
+            freecamdown = true;
+            break;
+        case 'f':
+            freecamleft = true;
+            break;
+        case 'h':
+            freecamright = true;
+            break;
+        case 'u':
+            freecamspeed = Math.min(100, freecamspeed + 5);
+            break;
+        case 'j':
+            freecamspeed = Math.max(5, freecamspeed - 5);
+            break;
+        case 'r':
+            freecamx = 0;
+            freecamy = 0;
+            break;
+    }
+});
+document.addEventListener('keyup', (e) => {
+    const key = e.key.toLowerCase();
+    switch (key) {
+        case 't':
+            freecamup = false;
+            break;
+        case 'g':
+            freecamdown = false;
+            break;
+        case 'f':
+            freecamleft = false;
+            break;
+        case 'h':
+            freecamright = false;
+            break;
+    }
+});
 socket.off('teleport1');
 socket.on('teleport1', function () {
-    if (skiptpwait) {
+    if (hackSettings.skipTPWait) {
         socket.emit('teleport1');
     } else if (!teleporting) {
         teleporting = true;
         fadeScreen.style.display = 'block';
         fadeScreen.style.animationName = 'fadeIn';
-        fadeScreen.onanimationend = function() {
+        fadeScreen.onanimationend = function () {
             socket.emit('teleport1');
-            fadeScreen.onanimationend = function() {};
+            fadeScreen.onanimationend = function () { };
         };
     }
 });
@@ -279,34 +283,38 @@ socket.on('teleport2', function (pos) {
     player.map = pos.map;
     player.x = pos.x;
     player.y = pos.y;
-    if (skiptpwait) {
+    if (hackSettings.skipTPWait) {
         socket.emit('teleport2');
+        teleporting = false;
     } else if (teleporting) {
-        player.map = pos.map;
-        player.x = pos.x;
-        player.y = pos.y;
         fadeScreen.style.animationName = 'fadeOut';
-        fadeScreen.onanimationend = function() {
+        fadeScreen.onanimationend = function () {
             fadeScreen.style.display = 'none';
             socket.emit('teleport2');
-            fadeScreen.onanimationend = function() {};
+            fadeScreen.onanimationend = function () { };
             teleporting = false;
         };
     }
 });
 socket.off('playerDied');
+function cancelKey(e) {
+    if (e.key == 'Escape') {
+        garuderWarpSelect.style.display = '';
+        document.removeEventListener('keydown', cancelKey);
+    }
+};
 socket.on('playerDied', function () {
-    if (autorespawn) {
-        setTimeout(function () {
-            respawn();
-        }, 500);
+    if (hackSettings.autoRespawn) {
+        setTimeout(respawn, 500);
     } else {
+        garuderWarpSelect.style.display = '';
+        document.removeEventListener('keydown', cancelKey);
         document.getElementById('respawnButton').style.display = 'none';
         document.getElementById('deathScreen').style.display = 'block';
         if (controllerConnected) document.getElementById('respawnButton').innerText = 'Press A to Respawn';
         let time = 5;
         document.getElementById('respawnTimer').innerText = time;
-        const timer = setInterval(function() {
+        const timer = setInterval(function () {
             time--;
             document.getElementById('respawnTimer').innerText = time;
             if (time == 0) {
@@ -317,8 +325,8 @@ socket.on('playerDied', function () {
     }
 });
 socket.off('gteleport1');
-socket.on('gteleport1', async function() {
-    if (skiptpwait) {
+socket.on('gteleport1', async function () {
+    if (hackSettings.skipTPWait) {
         socket.emit('gteleport1');
     } else if (!teleporting) {
         teleporting = true;
@@ -329,19 +337,18 @@ socket.on('gteleport1', async function() {
         fadeScreen.style.display = 'block';
         fadeScreen.style.animationName = 'fadeIn';
         CANVAS.style.animationName = 'warpSaturate';
-        fadeScreen.onanimationend = async function() {
+        fadeScreen.onanimationend = async function () {
             socket.emit('gteleport1');
             fadeScreen.style.backgroundColor = '';
             fadeScreen.style.animationDuration = '';
             fadeScreen.style.animationTimingFunction = '';
             CANVAS.style.animationName = '';
-            fadeScreen.onanimationend = function() {};
+            fadeScreen.onanimationend = function () { };
         };
     }
 });
-async function displayText(text, div) {
-    let questLabel = false;
-    if (skiptextscroll) {
+displayText = async (text, div) => {
+    if (hackSettings.skipTextScroll) {
         let sections = text.split('`');
         for (let i in sections) {
             const block = document.createElement('span');
@@ -351,51 +358,65 @@ async function displayText(text, div) {
             div.appendChild(block);
         }
     } else {
+        let questLabel = false;
         for (let i in text) {
+            const letter = document.createElement('span');
+            letter.classList.add('ui-lighttext');
+            letter.classList.add('promptFade');
             if (text[i] == '`') {
                 questLabel = !questLabel;
                 continue;
             }
-            const letter = document.createElement('span');
-            letter.classList.add('ui-lighttext');
-            letter.classList.add('promptFade');
             if (questLabel) letter.style.color = 'cyan';
             letter.innerText = text[i];
             div.appendChild(letter);
-            await sleep((11-settings.dialogueSpeed)*2);
+            await sleep((11 - settings.dialogueSpeed) * 2);
         }
     }
 };
-function drawFrame() {
+drawFrame = () => {
     if (loaded && player) {
         if (settings.debug) frameStart = performance.now();
+        if (hackSettings.freecam) {
+            if (freecamup) freecamy -= freecamspeed;
+            if (freecamdown) freecamy += freecamspeed;
+            if (freecamleft) freecamx -= freecamspeed;
+            if (freecamright) freecamx += freecamspeed;
+        } else {
+            freecamx = 0;
+            freecamy = 0;
+        }
         for (let i = 0; i < MAPS[player.map].layerCount; i++) {
             if (LAYERS.entitylayers[i] == null) {
                 LAYERS.entitylayers[i] = createCanvas();
                 LAYERS.elayers[i] = LAYERS.entitylayers[i].getContext('2d');
-                LAYERS.entitylayers[i].width = window.innerWidth*SCALE;
-                LAYERS.entitylayers[i].height = window.innerHeight*SCALE;
+                LAYERS.entitylayers[i].width = window.innerWidth * SCALE;
+                LAYERS.entitylayers[i].height = window.innerHeight * SCALE;
                 LAYERS.elayers[i].scale(SCALE, SCALE);
-                resetCanvas(LAYERS.entitylayers[i]);
+                resetCanvas(LAYERS.elayers[i]);
             }
         }
         CTX.clearRect(0, 0, window.innerWidth, window.innerHeight);
         OFFSETX = 0;
         OFFSETY = 0;
-        if (MAPS[player.map].width*64 > window.innerWidth) {
-            OFFSETX = -Math.max((window.innerWidth/2)-(player.x-MAPS[player.map].offsetX), Math.min((MAPS[player.map].offsetX+(MAPS[player.map].width*64))-player.x-(window.innerWidth/2), 0));
-            OFFSETY = -Math.max((window.innerHeight/2)-(player.y-MAPS[player.map].offsetY), Math.min((MAPS[player.map].offsetY+(MAPS[player.map].height*64))-player.y-(window.innerHeight/2), 0));
+        if (MAPS[player.map].width * 64 > window.innerWidth) {
+            OFFSETX = -Math.max((window.innerWidth / 2) - (player.x - MAPS[player.map].offsetX), Math.min((MAPS[player.map].offsetX + (MAPS[player.map].width * 64)) - player.x - (window.innerWidth / 2), 0));
+        }
+        if (MAPS[player.map].height * 64 > window.innerHeight) {
+            OFFSETY = -Math.max((window.innerHeight / 2) - (player.y - MAPS[player.map].offsetY), Math.min((MAPS[player.map].offsetY + (MAPS[player.map].height * 64)) - player.y - (window.innerHeight / 2), 0));
         }
         OFFSETX += lsdX;
         OFFSETY += lsdY;
         updateCameraShake();
+        OFFSETX -= freecamx;
+        OFFSETY -= freecamy;
         OFFSETX = Math.round(OFFSETX);
         OFFSETY = Math.round(OFFSETY);
         drawMap();
         DroppedItem.updateHighlight();
         Entity.draw();
         CTX.drawImage(LAYERS.map0, 0, 0, window.innerWidth, window.innerHeight);
-        for (let i = 0; i < MAPS[player.map].layerCount+1; i++) {
+        for (let i = 0; i < MAPS[player.map].layerCount + 1; i++) {
             LAYERS.entitylayers[i] != null && CTX.drawImage(LAYERS.entitylayers[i], 0, 0, window.innerWidth, window.innerHeight);
             LAYERS.mapvariables[i] != null && CTX.drawImage(LAYERS.mapvariables[i], 0, 0, window.innerWidth, window.innerHeight);
         }
@@ -404,10 +425,55 @@ function drawFrame() {
         CTX.drawImage(LAYERS.lightCanvas, 0, 0, window.innerWidth, window.innerHeight);
         drawDebug();
         MGHC();
+        if (settings.superSecretRGBSplitFilter) {
+            let rOffset = Math.floor(-settings.superSecretRGBSplitFilter * SCALE);
+            let bOffset = Math.floor(settings.superSecretRGBSplitFilter * SCALE);
+            const imagedata = CTX.getImageData(0, 0, CANVAS.width, CANVAS.height);
+            const newdata = new Uint8ClampedArray(imagedata.data);
+            for (let i = 0; i < imagedata.data.length; i += 4) {
+                newdata[i + rOffset * 4] = imagedata.data[i];
+                newdata[i + 1] = imagedata.data[i + 1];
+                newdata[i + 2 + bOffset * 4] = imagedata.data[i + 2];
+            }
+            CTX.putImageData(new ImageData(newdata, imagedata.width, imagedata.height), 0, 0);
+        }
         lastmap = player.map;
         if (settings.debug) {
-            var current = performance.now();
-            frameTimeCounter = Math.round((current-frameStart)*100)/100;
+            let current = performance.now();
+            frameTimeCounter = current - frameStart;
         }
     }
 };
+updateRenderedChunks = async () => {
+    let playerchunkx = player.chunkx;
+    let playerchunky = player.chunky;
+    player.chunkx = Math.floor((player.x + freecamx) / (64 * MAPS[player.map].chunkwidth));
+    player.chunky = Math.floor((player.y + freecamy) / (64 * MAPS[player.map].chunkheight));
+    for (let i in MAPS) {
+        if (i != player.map && MAPS[i].chunks.length != 0) MAPS[i].chunks = [];
+    }
+    for (let y in MAPS[player.map].chunks) {
+        for (let x in MAPS[player.map].chunks[y]) {
+            if (Math.abs(player.chunkx - x) > settings.renderDistance || Math.abs(player.chunky - y) > settings.renderDistance) {
+                delete MAPS[player.map].chunks[y][x];
+            }
+        }
+    }
+    for (let y = player.chunky - settings.renderDistance; y <= player.chunky + settings.renderDistance; y++) {
+        for (let x = player.chunkx - settings.renderDistance; x <= player.chunkx + settings.renderDistance; x++) {
+            if (MAPS[player.map].chunks[y] == undefined) {
+                if (MAPS[player.map].chunkJSON[y] && MAPS[player.map].chunkJSON[y][x]) {
+                    renderChunk(x, y, player.map);
+                }
+            } else if (MAPS[player.map].chunks[y][x] == undefined) {
+                if (MAPS[player.map].chunkJSON[y] && MAPS[player.map].chunkJSON[y][x]) {
+                    renderChunk(x, y, player.map);
+                }
+            }
+        }
+    }
+    player.chunkx = playerchunkx;
+    player.chunky = playerchunky;
+};
+document.getElementById('version').innerText = 'v0.17.0 + MGHC';
+void(0);

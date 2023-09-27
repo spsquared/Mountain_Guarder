@@ -15,7 +15,6 @@
         "maxPierce": 0,
         "contactEventsOnRange": false,
         "noCollision": false,
-        "patternUpdateSpeed": 0,
         "reflectable": true
     },
     "piercingarrow": {
@@ -34,7 +33,6 @@
         "maxPierce": 1,
         "contactEventsOnRange": false,
         "noCollision": false,
-        "patternUpdateSpeed": 0,
         "reflectable": false
     },
     "magicball": {
@@ -53,7 +51,6 @@
         "maxPierce": 0,
         "contactEventsOnRange": false,
         "noCollision": false,
-        "patternUpdateSpeed": 1,
         "reflectable": true
     },
     "magicballnoclip": {
@@ -72,7 +69,6 @@
         "maxPierce": 0,
         "contactEventsOnRange": false,
         "noCollision": true,
-        "patternUpdateSpeed": 1,
         "reflectable": false
     },
     "homingmagicball": {
@@ -91,7 +87,6 @@
         "maxPierce": 0,
         "contactEventsOnRange": false,
         "noCollision": false,
-        "patternUpdateSpeed": 1,
         "reflectable": true
     },
     "homingmagicballnoclip": {
@@ -110,7 +105,6 @@
         "maxPierce": 0,
         "contactEventsOnRange": false,
         "noCollision": true,
-        "patternUpdateSpeed": 1,
         "reflectable": false
     },
     "homingmagicball2": {
@@ -129,7 +123,6 @@
         "maxPierce": 0,
         "contactEventsOnRange": false,
         "noCollision": false,
-        "patternUpdateSpeed": 1,
         "reflectable": true
     },
     "homingmagicballnoclip2": {
@@ -148,7 +141,6 @@
         "maxPierce": 0,
         "contactEventsOnRange": false,
         "noCollision": true,
-        "patternUpdateSpeed": 1,
         "reflectable": false
     },
     "meleedamage": {
@@ -167,7 +159,6 @@
         "maxPierce": 2,
         "contactEventsOnRange": false,
         "noCollision": true,
-        "patternUpdateSpeed": 0,
         "reflectable": false
     },
     "spike": {
@@ -186,14 +177,13 @@
         "maxPierce": 5,
         "contactEventsOnRange": false,
         "noCollision": true,
-        "patternUpdateSpeed": 0,
         "reflectable": false
     },
     "explosive": {
         "width": 40,
         "height": 40,
         "speed": 20,
-        "pattern": "spin",
+        "pattern": "slowspin",
         "damage": 1,
         "range": 1,
         "knockback": 1,
@@ -220,7 +210,6 @@
         "maxPierce": 0,
         "contactEventsOnRange": true,
         "noCollision": false,
-        "patternUpdateSpeed": 2,
         "reflectable": false
     },
     "aiminglaser": {
@@ -239,7 +228,6 @@
         "maxPierce": 1000000,
         "contactEventsOnRange": false,
         "noCollision": true,
-        "patternUpdateSpeed": 0,
         "reflectable": false
     },
     "ninjastar": {
@@ -258,14 +246,13 @@
         "maxPierce": 0,
         "contactEventsOnRange": false,
         "noCollision": false,
-        "patternUpdateSpeed": 0,
         "reflectable": true
     },
     "snowball": {
         "width": 18,
         "height": 18,
         "speed": 30,
-        "pattern": "spin",
+        "pattern": "slowspin",
         "damage": 6,
         "range": 3,
         "knockback": 0.2,
@@ -277,7 +264,6 @@
         "maxPierce": 0,
         "contactEventsOnRange": false,
         "noCollision": false,
-        "patternUpdateSpeed": 1,
         "reflectable": true
     },
     "fastsnowball": {
@@ -296,14 +282,13 @@
         "maxPierce": 0,
         "contactEventsOnRange": false,
         "noCollision": false,
-        "patternUpdateSpeed": 0,
         "reflectable": true
     },
     "rock": {
         "width": 24,
         "height": 24,
         "speed": 35,
-        "pattern": "spin",
+        "pattern": "slowspin",
         "damage": 14,
         "range": 3,
         "knockback": 0.3,
@@ -323,14 +308,13 @@
         "maxPierce": 0,
         "contactEventsOnRange": false,
         "noCollision": false,
-        "patternUpdateSpeed": 1,
         "reflectable": true
     },
     "explodingrock": {
         "width": 30,
         "height": 30,
         "speed": 30,
-        "pattern": "spin",
+        "pattern": "slowspin",
         "damage": 9,
         "range": 3,
         "knockback": 0.4,
@@ -364,7 +348,6 @@
         "maxPierce": 0,
         "contactEventsOnRange": true,
         "noCollision": false,
-        "patternUpdateSpeed": 1,
         "reflectable": false
     },
     "christmas2021": {
@@ -398,7 +381,6 @@
         "maxPierce": 0,
         "contactEventsOnRange": false,
         "noCollision": true,
-        "patternUpdateSpeed": 1,
         "reflectable": false
     },
     "firework": {
@@ -413,8 +395,8 @@
             {
                 "type": "areadamage",
                 "data": {
-                    "size": 2,
-                    "damage": 12
+                    "size": 3,
+                    "damage": 22
                 }
             },
             {
@@ -434,7 +416,6 @@
         "maxPierce": 0,
         "contactEventsOnRange": true,
         "noCollision": false,
-        "patternUpdateSpeed": 0,
         "reflectable": false
     }
 }

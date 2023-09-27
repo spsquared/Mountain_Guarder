@@ -1,11 +1,11 @@
 // Copyright (C) 2023 Sampleprovider(sp)
 
 function updateItemPreviewImage(e) {
-	var image = document.getElementById('itemPreviewImg');
+	const image = document.getElementById('itemPreviewImg');
 	image.src = URL.createObjectURL(e.target.files[0]);
 };
 function updateItemBaseStats() {
-    var slotType = document.getElementById('slotType').value;
+    let slotType = document.getElementById('slotType').value;
     document.getElementById('statsWeapon').style.display = 'none';
     document.getElementById('statsShield').style.display = 'none';
     document.getElementById('statsOffhand').style.display = 'none';
@@ -87,11 +87,14 @@ function generateServerItem() {
             });
         }
     }
-    item.enchantments = [];
+    item.maxEnchantments = [];
     for (let i in enchantments) {
-        let checked = document.getElementById('enchant' + enchantments[i]).checked;
-        if (checked) {
-            item.enchantments.push(enchantments[i]);
+        let maxLevel = document.getElementById('enchant' + enchantments[i]).value;
+        if (maxLevel) {
+            item.maxEnchantments.push({
+                id: enchantments[i],
+                max: maxLevel
+            });
         }
     }
     let temparray = {};

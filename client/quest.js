@@ -71,10 +71,11 @@ socket.on('quest', function(data) {
             break;
         case 'end':
             for (let i in Banners) {
-                if (Banners[i].id2 == data.id) {
-                    Banners[i].style.animationName = 'banner-out';
-                    setTimeout(async function() {
-                        Banners[i].remove();
+                let banner = Banners[i];
+                if (banner.id2 == data.id) {
+                    banner.style.animationName = 'banner-out';
+                    setTimeout(function() {
+                        banner.remove();
                         delete Banners[i];
                         let html = '<span style="color: lime;">Quest Completed!</span><br><span class="quest-title">' + quest.name + '</span>';
                         new Banner(html, {

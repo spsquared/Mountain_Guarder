@@ -141,7 +141,7 @@ Player = function(id, map, x, y, name, isNPC, npcId) {
     if (self.name == 'Sampleprovider(sp)') self.nameColor = '#3C70FF';
     if (self.name == 'sp') self.nameColor = '#FF0090';
     if (self.name == 'Unknown') self.nameColor = '#00000000';
-    self.light = new Light(self.x, self.y, self.map, 320, 0, 0, 0, 1, self, false);
+    self.light = new Light(self.x, self.y, self.map, 320, 0, 0, 0, 1, self);
 
     const old_update = self.update;
     self.update = function update(data) {
@@ -370,7 +370,7 @@ Projectile = function(id, map, x, y, angle, type) {
     self.above = tempprojectile.above;
     self.animationImage = Projectile.images[type];
     self.animationStage = 0;
-    if (tempprojectile.glow) self.light = new Light(self.x, self.y, self.map, tempprojectile.glow.radius, tempprojectile.glow.color.r, tempprojectile.glow.color.g, tempprojectile.glow.color.b, tempprojectile.glow.intensity, self, self.above);
+    if (tempprojectile.glow) self.light = new Light(self.x, self.y, self.map, tempprojectile.glow.radius, tempprojectile.glow.color.r, tempprojectile.glow.color.g, tempprojectile.glow.color.b, tempprojectile.glow.intensity, self, {above: self.above});
     delete tempprojectile;
 
     const old_update = self.update;
@@ -477,26 +477,32 @@ Particle = function(map, x, y, type, value) {
             break;
         case 'explosion':
             var random = Math.random();
-            if (random < 0.4) {
-                self.color = 'rgba(250, 50, 50, ';
-                self.opacity -= 60;
+            var angle = Math.random()*2*Math.PI;
+            var speed = (Math.random()*19+1)*self.value;
+            self.opacity = Math.round(Math.random()*100)+100;
+            self.size = Math.random()*10+20;
+            if (random < 0.7) {
+                self.color = 'rgba(255, 60, 0, ';
+                self.opacity -= 100;
+                if (random < 0.1) speed *= 1.5;
+                else speed *= 0.7;
                 self.identifier = 5.1;
-            } else if (random < 0.6) {
-                self.color = 'rgba(255, 255, 255, ';
-                self.identifier = 5.2;
+                if (random < 0.3) self.light = new Light(self.x, self.y, self.map, (Math.random()*8+8)*value, 255, 60, 0, 0.02, self);
             } else if (random < 0.8) {
+                self.color = 'rgba(255, 255, 0, ';
+                self.opacity = Math.round(Math.random()*10);
+                speed *= 0.5;
+                self.identifier = 5.2;
+                self.light = new Light(self.x, self.y, self.map, (Math.random()*8+24)*value, 255, 200, 20, 0.15, self, {above: true});
+            } else if (random < 0.9) {
                 self.color = 'rgba(150, 150, 150, ';
                 self.identifier = 5.3;
             } else {
                 self.color = 'rgba(50, 50, 50, ';
                 self.identifier = 5.4;
             }
-            var angle = Math.random()*2*Math.PI;
-            var speed = Math.random()*20;
             self.xspeed = Math.sin(angle)*speed;
             self.yspeed = Math.cos(angle)*speed;
-            self.opacity = Math.round(Math.random()*100)+100;
-            self.size = Math.random()*10+20;
             break;
         case 'crater':
             self.identifier = 6;
@@ -572,7 +578,9 @@ Particle = function(map, x, y, type, value) {
         self.size = Math.random()*20+10;
         break;
         case 'cameraShake':
-            startCameraShake(value.intensity, value.time);
+            if (player.map == self.map && Math.max(Math.abs(player.x-self.x), Math.abs(player.y-self.y)) < value.range*64) {
+                startCameraShake(value.intensity, value.time);
+            }
             return self;
         case 'fire':
             var random = Math.floor(Math.random()*3);
@@ -621,6 +629,8 @@ Particle = function(map, x, y, type, value) {
             console.error('invalid particle type ' + self.type);
             return;
     }
+    self.chunkx = Math.floor(self.x/(64*MAPS[self.map].chunkwidth));
+    self.chunky = Math.floor(self.y/(64*MAPS[self.map].chunkheight));
 
     self.update = function update() {
         self.x += self.xspeed/tpsFpsRatio;
@@ -630,6 +640,7 @@ Particle = function(map, x, y, type, value) {
         if (self.opacity <= 0) {
             Particle.optimizedList.get(self.identifier).delete(self.id);
             Particle.list.delete(self.id);
+            if (self.light) self.light.remove();
             return true;
         }
         switch (self.type) {
@@ -654,8 +665,8 @@ Particle = function(map, x, y, type, value) {
                 self.opacity -= 3/tpsFpsRatio;
                 break;
             case 'explosion':
-                self.xspeed *= 1-(0.15/tpsFpsRatio);
-                self.yspeed *= 1-(0.15/tpsFpsRatio);
+                self.xspeed *= 1-(0.25/tpsFpsRatio);
+                self.yspeed *= 1-(0.25/tpsFpsRatio);
                 self.opacity -= 4/tpsFpsRatio;
                 break;
             case 'spawn':
@@ -735,7 +746,7 @@ Particle = function(map, x, y, type, value) {
                 type = 1;
                 break;
             case 'explosion':
-                LAYERS.eupper.fillStyle = self.color + Math.min(self.opacity, 50)/100 + ')';
+                LAYERS.eupper.fillStyle = self.color + Math.min(self.opacity, 70)/100 + ')';
                 type = 1;
                 break;
             case 'spawn':
@@ -849,7 +860,7 @@ Particle = function(map, x, y, type, value) {
 
     if (Particle.optimizedList.get(self.identifier) == null) Particle.optimizedList.set(self.identifier, new Map());
     Particle.optimizedList.get(self.identifier).set(self.id, self);
-    Particle.list.set(self.id, self)
+    Particle.list.set(self.id, self);
     return self;
 };
 Particle.update = function update(data) {
@@ -885,11 +896,11 @@ Particle.draw = function draw() {
                     break;
                 case 5.1:
                     // explosion 1
-                    LAYERS.eupper.fillStyle = '#F03232';
+                    LAYERS.eupper.fillStyle = '#FF3C00';
                     break;
                 case 5.2:
                     // explosion 2
-                    LAYERS.eupper.fillStyle = '#FFFFFF';
+                    LAYERS.eupper.fillStyle = '#FFFF00';
                     break;
                 case 5.3:
                     // explosion 3
@@ -1074,7 +1085,7 @@ DroppedItem.updateHighlight = function updateHighlight() {
 DroppedItem.list = new Map();
 
 // lights
-Light = function(x, y, map, radius, r, g, b, a, parent, above) {
+Light = function(x, y, map, radius, r, g, b, a, parent, args) {
     const self = {
         id: Math.random(),
         x: x,
@@ -1092,8 +1103,11 @@ Light = function(x, y, map, radius, r, g, b, a, parent, above) {
         hasColor: true,
         toRender: -1,
         parent: parent,
-        above: above
+        above: false
     };
+    for (let i in args) {
+        self[i] = args[i];
+    }
     self.hasColor = self.r != 0 || self.g != 0 || self.b != 0;
     
     self.update = function update() {
@@ -1244,6 +1258,8 @@ async function loadEntityData() {
     // health bars
     Rig.healthBarG.onload = function() {loadedassets++;};
     Rig.healthBarR.onload = function() {loadedassets++;};
+    Rig.healthBarR.onerror = function(e) {Rig.healthBarR.src = '/img/missing-texture.png'; e.preventDefault();};
+    Rig.healthBarG.onerror = function(e) {Rig.healthBarG.src = '/img/missing-texture.png'; e.preventDefault();};
     Rig.healthBarG.src = '/img/player/healthbar_green.png';
     Rig.healthBarR.src = '/img/monster/healthbar_red.png';
     // players
@@ -1255,6 +1271,10 @@ async function loadEntityData() {
                         loadedassets++;
                         resolve();
                     };
+                    Player.animations[i][j].onerror = function(e) {
+                        Player.animations[i][j].src = '/img/missing-texture.png';
+                        e.preventDefault();
+                    };
                     Player.animations[i][j].src = '/img/player/playermap_' + i + j + '.png';
                 });
             }
@@ -1263,6 +1283,10 @@ async function loadEntityData() {
                 Player.animations[i].onload = function() {
                     loadedassets++;
                     resolve();
+                };
+                Player.animations[i].onerror = function(e) {
+                    Player.animations[i].src = '/img/missing-texture.png';
+                    e.preventDefault();
                 };
                 Player.animations[i].src = '/img/player/playermap_' + i + '.png';
             });
@@ -1275,6 +1299,10 @@ async function loadEntityData() {
                 loadedassets++;
                 resolve();
             };
+            Monster.images[i].onerror = function(e) {
+                Monster.images[i].src = '/img/missing-texture.png';
+                e.preventDefault();
+            };
             Monster.images[i].src = '/img/monster/' + i + '.png';
         });
     }
@@ -1284,6 +1312,10 @@ async function loadEntityData() {
             Projectile.images[i].onload = function() {
                 loadedassets++;
                 resolve();
+            };
+            Projectile.images[i].onerror = function(e) {
+                Projectile.images[i].src = '/img/missing-texture.png';
+                e.preventDefault();
             };
             Projectile.images[i].src = '/img/projectile/' + i + '.png';
         });
@@ -1404,6 +1436,10 @@ async function loadAnimatedTileData() {
             tile.animationImage.onload = function() {
                 loadedassets++;
                 resolve();
+            };
+            tile.animationImage.onerror = function(e) {
+                tile.animationImage.src = '/img/missing-texture.png';
+                e.preventDefault();
             };
             const tempcanvas = document.createElement('canvas');
             const tempctx = tempcanvas.getContext('2d');

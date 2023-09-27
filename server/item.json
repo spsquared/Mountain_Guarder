@@ -123,8 +123,7 @@
         "effects": [],
         "enchantments": [],
         "value": 2200,
-        "usable": true,
-        "useScript": "function(self) {self.openGaruderWarpMenu();}"
+        "usable": true
     },
     "simplewoodenbow": {
         "slotType": "weapon",
@@ -145,8 +144,14 @@
         "maxStackSize": 1,
         "effects": [],
         "enchantments": [
-            "speed",
-            "power"
+            {
+                "id": "speed",
+                "max": 1
+            },
+            {
+                "id": "power",
+                "max": 1
+            }
         ],
         "value": 28,
         "usable": false
@@ -170,7 +175,10 @@
         "maxStackSize": 1,
         "effects": [],
         "enchantments": [
-            "speed"
+            {
+                "id": "speed",
+                "max": 1
+            }
         ],
         "value": 28,
         "usable": false
@@ -194,7 +202,10 @@
         "maxStackSize": 1,
         "effects": [],
         "enchantments": [
-            "speed"
+            {
+                "id": "speed",
+                "max": 1
+            }
         ],
         "value": 68,
         "usable": false
@@ -226,8 +237,14 @@
             }
         ],
         "enchantments": [
-            "lightness",
-            "protection"
+            {
+                "id": "lightness",
+                "max": 1
+            },
+            {
+                "id": "protection",
+                "max": 1
+            }
         ],
         "value": 40,
         "usable": false
@@ -259,7 +276,10 @@
             }
         ],
         "enchantments": [
-            "lightness"
+            {
+                "id": "lightness",
+                "max": 1
+            }
         ],
         "value": 40,
         "usable": false
@@ -291,8 +311,14 @@
             }
         ],
         "enchantments": [
-            "lightness",
-            "protection"
+            {
+                "id": "lightness",
+                "max": 1
+            },
+            {
+                "id": "protection",
+                "max": 1
+            }
         ],
         "value": 35,
         "usable": false
@@ -312,8 +338,14 @@
             }
         ],
         "enchantments": [
-            "lightness",
-            "protection"
+            {
+                "id": "lightness",
+                "max": 1
+            },
+            {
+                "id": "protection",
+                "max": 1
+            }
         ],
         "value": 40,
         "usable": false
@@ -349,9 +381,18 @@
         "maxStackSize": 1,
         "effects": [],
         "enchantments": [
-            "lightness",
-            "speed",
-            "power"
+            {
+                "id": "lightness",
+                "max": 2
+            },
+            {
+                "id": "speed",
+                "max": 1
+            },
+            {
+                "id": "power",
+                "max": 2
+            }
         ],
         "value": 64,
         "usable": false
@@ -375,9 +416,18 @@
         "maxStackSize": 1,
         "effects": [],
         "enchantments": [
-            "lightness",
-            "speed",
-            "sharpness"
+            {
+                "id": "lightness",
+                "max": 2
+            },
+            {
+                "id": "speed",
+                "max": 1
+            },
+            {
+                "id": "sharpness",
+                "max": 1
+            }
         ],
         "value": 75,
         "usable": false
@@ -401,9 +451,18 @@
         "maxStackSize": 1,
         "effects": [],
         "enchantments": [
-            "lightness",
-            "speed",
-            "knockback"
+            {
+                "id": "lightness",
+                "max": 2
+            },
+            {
+                "id": "speed",
+                "max": 1
+            },
+            {
+                "id": "knockback",
+                "max": 2
+            }
         ],
         "value": 105,
         "usable": false
@@ -427,10 +486,22 @@
         "maxStackSize": 1,
         "effects": [],
         "enchantments": [
-            "lightness",
-            "speed",
-            "efficiency",
-            "sorcery"
+            {
+                "id": "lightness",
+                "max": 2
+            },
+            {
+                "id": "speed",
+                "max": 1
+            },
+            {
+                "id": "efficiency",
+                "max": 2
+            },
+            {
+                "id": "sorcery",
+                "max": 2
+            }
         ],
         "value": 220,
         "usable": false
@@ -458,8 +529,14 @@
             }
         ],
         "enchantments": [
-            "lightness",
-            "protection"
+            {
+                "id": "lightness",
+                "max": 2
+            },
+            {
+                "id": "protection",
+                "max": 1
+            }
         ],
         "value": 82,
         "usable": false
@@ -483,9 +560,14 @@
             }
         ],
         "enchantments": [
-            "lightness",
-            "protection",
-            "smashing"
+            {
+                "id": "lightness",
+                "max": 2
+            },
+            {
+                "id": "protection",
+                "max": 1
+            }
         ],
         "value": 78,
         "usable": false
@@ -517,9 +599,18 @@
             }
         ],
         "enchantments": [
-            "lightness",
-            "protection",
-            "spikes"
+            {
+                "id": "lightness",
+                "max": 2
+            },
+            {
+                "id": "protection",
+                "max": 2
+            },
+            {
+                "id": "spikes",
+                "max": 2
+            }
         ],
         "value": 95,
         "usable": false
@@ -543,9 +634,18 @@
             }
         ],
         "enchantments": [
-            "lightness",
-            "protection",
-            "spikes"
+            {
+                "id": "lightness",
+                "max": 2
+            },
+            {
+                "id": "protection",
+                "max": 2
+            },
+            {
+                "id": "spikes",
+                "max": 1
+            }
         ],
         "value": 120,
         "usable": false
@@ -559,7 +659,10 @@
         "projectileReflectChance": 0.02,
         "effects": [],
         "enchantments": [
-            "toughness"
+            {
+                "id": "toughness",
+                "max": 3
+            }
         ],
         "value": 118,
         "usable": false
@@ -578,7 +681,10 @@
             }
         ],
         "enchantments": [
-            "toughness"
+            {
+                "id": "toughness",
+                "max": 3
+            }
         ],
         "value": 58,
         "usable": false
@@ -602,10 +708,26 @@
         "maxStackSize": 1,
         "effects": [],
         "enchantments": [
-            "lightness",
-            "speed",
-            "power",
-            "piercing"
+            {
+                "id": "lightness",
+                "max": 2
+            },
+            {
+                "id": "speed",
+                "max": 2
+            },
+            {
+                "id": "power",
+                "max": 1
+            },
+            {
+                "id": "range",
+                "max": 3
+            },
+            {
+                "id": "piercing",
+                "max": 1
+            }
         ],
         "value": 98,
         "usable": false
@@ -629,9 +751,18 @@
         "maxStackSize": 1,
         "effects": [],
         "enchantments": [
-            "lightness",
-            "speed",
-            "efficiency"
+            {
+                "id": "lightness",
+                "max": 2
+            },
+            {
+                "id": "speed",
+                "max": 3
+            },
+            {
+                "id": "efficiency",
+                "max": 4
+            }
         ],
         "value": 390,
         "usable": false
@@ -710,8 +841,14 @@
             }
         ],
         "enchantments": [
-            "efficiency",
-            "spuhrpling"
+            {
+                "id": "efficiency",
+                "max": 3
+            },
+            {
+                "id": "spuhrpling",
+                "max": 5
+            }
         ],
         "value": 1440,
         "usable": false
@@ -725,7 +862,7 @@
         "manaRegenerationAmount": 2,
         "effects": [],
         "enchantments": [],
-        "value": 222,
+        "value": 280,
         "usable": false
     },
     "yeetstick": {
@@ -841,7 +978,10 @@
             }
         ],
         "enchantments": [
-            "lightness"
+            {
+                "id": "lightness",
+                "max": 6
+            }
         ],
         "value": 286624,
         "usable": false
@@ -869,8 +1009,14 @@
             }
         ],
         "enchantments": [
-            "lightness",
-            "range"
+            {
+                "id": "lightness",
+                "max": 2
+            },
+            {
+                "id": "range",
+                "max": 3
+            }
         ],
         "value": 57275,
         "usable": false

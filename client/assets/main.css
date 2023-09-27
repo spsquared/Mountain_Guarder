@@ -35,10 +35,10 @@ canvas {
     background: rgba(20, 20, 20, 0.5); 
 }
 ::-webkit-scrollbar-thumb:hover {
-    background: rgba(25, 25, 25, 0.5); 
+    background: rgba(30, 30, 30, 0.5); 
 }
 ::-webkit-scrollbar-thumb:active {
-    background: rgba(15, 15, 15, 0.5); 
+    background: rgba(10, 10, 10, 0.5); 
 }
 
 /* ui */
@@ -68,7 +68,7 @@ a:focus {
     color: white;
     background-color: #362A1E;
     border: 1px solid black;
-    transition: background-color 0.1s linear;
+    transition: background-color 50ms linear;
     text-align: center;
     cursor: pointer;
     padding: 2px 5px;
@@ -116,17 +116,18 @@ a:focus {
 }
 .ui-toggleSlider {
     position: absolute;
-    top: 0px;
+    top: 2px;
     left: 0px;
-    width: 40px;
-    height: 16px;
+    width: 36px;
+    height: 12px;
     background-color: #EE0000;
+    border: 1px solid #FFFFFF;
     transition: 0.1s linear;
     cursor: pointer;
 }
 .ui-toggleSlider::before {
     position: absolute;
-    top: -2px;
+    top: -4px;
     left: 0px;
     width: 20px;
     height: 20px;
@@ -138,7 +139,7 @@ a:focus {
     background-color: #999999;
 }
 .ui-toggleInput:checked + .ui-toggleSlider::before {
-    transform: translateX(20px);
+    transform: translateX(16px);
 }
 .ui-colorSelect {
     padding: 0px 0px;

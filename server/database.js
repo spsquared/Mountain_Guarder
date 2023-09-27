@@ -67,8 +67,9 @@ ACCOUNTS = {
                 if (ENV.useLocalDatabase) {
                     clearInterval(writeLoop);
                     let bytes = msgpack.serialize(localDatabase);
-                    if (replDB) await replDB.set('database', bytes);
-                    else fs.writeFileSync('./database.db', bytes, {flag: 'w'});
+                    fs.writeFileSync('./database.db', bytes, {flag: 'w'});
+                } else if (replDB) {
+                    await replDB.set('database', bytes);
                 } else {
                     await database.end();
                 }
@@ -380,8 +381,8 @@ const writeLoop = setInterval(function() {
         pendingLocalWrite = 0;
         unwrittenData = 0;
         let bytes = msgpack.serialize(localDatabase);
-        if (replDB) replDB.set('database', bytes);
-        else fs.writeFileSync('./database.db', bytes, {flag: 'w'});
+        if (ENV.useLocalDatabase) fs.writeFileSync('./database.db', bytes, {flag: 'w'});
+        else replDB.set('database', bytes);
     }
 }, 2000);
 if (!ENV.useLocalDatabase && !replDB) clearInterval(writeLoop);

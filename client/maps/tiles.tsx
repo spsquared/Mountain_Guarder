@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.5" tiledversion="1.7.2" name="Mountain Guarder Tileset" tilewidth="16" tileheight="16" spacing="1" tilecount="5762" columns="86">
+<tileset version="1.9" tiledversion="1.9.2" name="Mountain Guarder Tileset" tilewidth="16" tileheight="16" spacing="1" tilecount="5762" columns="86">
  <image source="tiles.png" width="1461" height="1138"/>
  <tile id="13">
   <animation>
@@ -61,7 +61,7 @@
  </tile>
  <tile id="1350" probability="0.125"/>
  <tile id="1436" probability="0.125"/>
- <tile id="1578" type="fad"/>
+ <tile id="1578" class="fad"/>
  <tile id="1954" probability="0.1"/>
  <tile id="3202">
   <animation>
@@ -475,11 +475,14 @@
    <wangcolor name="Rocky Stone Ceiling" color="#b4a8ff" tile="-1" probability="1"/>
    <wangcolor name="Snowy Dirt Ceiling" color="#96ffa7" tile="-1" probability="1"/>
    <wangcolor name="Snowy Stone Ceiling" color="#8e7848" tile="-1" probability="1"/>
+   <wangcolor name="Grassy Dirt Ceiling" color="#5a5a5a" tile="-1" probability="1"/>
+   <wangtile tileid="5" wangid="0,14,0,14,0,14,0,14"/>
    <wangtile tileid="6" wangid="0,10,0,10,0,10,0,10"/>
    <wangtile tileid="7" wangid="0,11,0,11,0,11,0,11"/>
    <wangtile tileid="73" wangid="0,0,0,9,0,0,0,0"/>
    <wangtile tileid="75" wangid="0,0,0,9,0,9,0,0"/>
    <wangtile tileid="77" wangid="0,0,0,0,0,9,0,0"/>
+   <wangtile tileid="91" wangid="0,14,0,14,0,14,0,14"/>
    <wangtile tileid="92" wangid="0,10,0,10,0,10,0,10"/>
    <wangtile tileid="93" wangid="0,11,0,11,0,11,0,11"/>
    <wangtile tileid="237" wangid="0,9,0,9,0,0,0,0"/>
@@ -585,6 +588,12 @@
    <wangtile tileid="2053" wangid="0,13,0,13,0,13,0,0"/>
    <wangtile tileid="2054" wangid="0,0,0,12,0,12,0,12"/>
    <wangtile tileid="2055" wangid="0,12,0,12,0,12,0,0"/>
+   <wangtile tileid="3087" wangid="0,0,0,14,0,14,0,0"/>
+   <wangtile tileid="3089" wangid="0,0,0,14,0,0,0,0"/>
+   <wangtile tileid="3090" wangid="0,0,0,0,0,14,0,0"/>
+   <wangtile tileid="3093" wangid="0,14,0,0,0,0,0,14"/>
+   <wangtile tileid="3094" wangid="0,14,0,0,0,14,0,14"/>
+   <wangtile tileid="3095" wangid="0,14,0,14,0,0,0,14"/>
    <wangtile tileid="3124" wangid="0,5,0,5,0,0,0,0"/>
    <wangtile tileid="3125" wangid="0,5,0,5,0,5,0,5"/>
    <wangtile tileid="3126" wangid="0,0,0,0,0,5,0,5"/>
@@ -594,6 +603,12 @@
    <wangtile tileid="3132" wangid="0,7,0,7,0,0,0,0"/>
    <wangtile tileid="3133" wangid="0,7,0,7,0,7,0,7"/>
    <wangtile tileid="3134" wangid="0,0,0,0,0,7,0,7"/>
+   <wangtile tileid="3174" wangid="0,14,0,14,0,0,0,0"/>
+   <wangtile tileid="3175" wangid="0,14,0,0,0,0,0,0"/>
+   <wangtile tileid="3176" wangid="0,0,0,0,0,0,0,14"/>
+   <wangtile tileid="3179" wangid="0,0,0,0,0,14,0,14"/>
+   <wangtile tileid="3180" wangid="0,0,0,14,0,14,0,14"/>
+   <wangtile tileid="3181" wangid="0,14,0,14,0,14,0,0"/>
    <wangtile tileid="3382" wangid="0,5,0,0,0,0,0,0"/>
    <wangtile tileid="3383" wangid="0,5,0,0,0,0,0,5"/>
    <wangtile tileid="3384" wangid="0,0,0,0,0,0,0,5"/>

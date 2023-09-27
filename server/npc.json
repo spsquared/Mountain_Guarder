@@ -1,4 +1,43 @@
 {
+    "stronk": {
+        "type": "static",
+        "rightClickEvent": "function(player, self) {}",
+        "rightClickEvents": [
+            {
+                "condition": "quest:tutorial:2",
+                "event": "function(player, self) {self.startConversation(player, 'tutorial4');}",
+                "breakSearch": true
+            },
+            {
+                "condition": "quest:tutorial:1",
+                "event": "function(player, self) {self.startConversation(player, 'tutorial3');}",
+                "breakSearch": true
+            },
+            {
+                "condition": "quest:tutorial:0",
+                "event": "function(player, self) {self.startConversation(player, 'tutorial2');}",
+                "breakSearch": true
+            },
+            {
+                "condition": "any",
+                "event": "function(player, self) {player.onDeath(self, 'debug');}",
+                "breakSearch": true
+            }
+        ],
+        "data": {
+            "name": "Stronk",
+            "characterStyle": {
+                "hair": 3,
+                "hairColor": "#ff0000",
+                "bodyColor": "#ecce55",
+                "shirtColor": "#37e143",
+                "pantsColor": "#3c70ff",
+                "texture": null
+            }
+        },
+        "width": 0,
+        "height": 0
+    },
     "bob": {
         "type": "waypoint",
         "rightClickEvent": "function(player, self) {}",
@@ -24,7 +63,7 @@
             "characterStyle": {
                 "hair": 2,
                 "hairColor": "#b49040",
-                "bodyColor": "#FFF0B4",
+                "bodyColor": "#fff0b4",
                 "shirtColor": "#64e040",
                 "pantsColor": "#000000",
                 "texture": null
@@ -35,22 +74,16 @@
     },
     "adicyte": {
         "type": "static",
-        "rightClickEvent": "function(player, self) {}",
-        "rightClickEvents": [
-            {
-                "condition": "any",
-                "event": "function(player, self) {self.startConversation(player, 'adicyte');}",
-                "breakSearch": true
-            }
-        ],
+        "rightClickEvent": "function(player, self) {self.startConversation(player, 'adicyte');}",
+        "rightClickEvents": [],
         "data": {
             "name": "Adicyte",
             "characterStyle": {
                 "hair": 1,
                 "hairColor": "#000000",
-                "bodyColor": "#FFF0B4",
-                "shirtColor": "#FFAE00",
-                "pantsColor": "#005A9E",
+                "bodyColor": "#fff0b4",
+                "shirtColor": "#ffae00",
+                "pantsColor": "#005a9e",
                 "texture": null
             }
         },
@@ -92,7 +125,7 @@
             "characterStyle": {
                 "hair": 2,
                 "hairColor": "#b49040",
-                "bodyColor": "#FFF0B4",
+                "bodyColor": "#fff0b4",
                 "shirtColor": "#64e040",
                 "pantsColor": "#000000",
                 "texture": null
@@ -103,11 +136,34 @@
     },
     "bobsforge": {
         "type": "static",
+        "rightClickEvent": "function(player, self) {self.openShop('bobsforge', player);}",
+        "rightClickEvents": [],
+        "data": {
+            "name": "",
+            "characterStyle": {
+                "hair": 1,
+                "hairColor": "#000000",
+                "bodyColor": "#000000",
+                "shirtColor": "#000000",
+                "pantsColor": "#000000",
+                "texture": "/misc/blank.png"
+            }
+        },
+        "width": 64,
+        "height": 64
+    },
+    "ialiteenchanter": {
+        "type": "static",
         "rightClickEvent": "function(player, self) {}",
         "rightClickEvents": [
             {
+                "condition": "xp:5",
+                "event": "function(player, self) {new Enchanter(player.socket, player.inventory, player);}",
+                "breakSearch": true
+            },
+            {
                 "condition": "any",
-                "event": "function(player, self) {self.openShop('bobsforge', player);}",
+                "event": "function(player, self) {self.startConversation(player, 'ialiteenchanter');}",
                 "breakSearch": true
             }
         ],
@@ -116,9 +172,9 @@
             "characterStyle": {
                 "hair": 1,
                 "hairColor": "#000000",
-                "bodyColor": "#FFF0B4",
-                "shirtColor": "#FFAE00",
-                "pantsColor": "#005A9E",
+                "bodyColor": "#000000",
+                "shirtColor": "#000000",
+                "pantsColor": "#000000",
                 "texture": "/misc/blank.png"
             }
         },
@@ -127,7 +183,7 @@
     },
     "pingu": {
         "type": "static",
-        "rightClickEvent": "function(player, self) {self.startConversation(player, 'pingu'); setTimeout(function() {player.socket.emit('cameraShake', 50); player.onDeath(); player.teleport(ENV.spawnpoint.map, ENV.spawnpoint.x, ENV.spawnpoint.y, ENV.spawnpoint.layer);}, 5000)};",
+        "rightClickEvent": "pinguThing",
         "rightClickEvents": [],
         "data": {
             "name": "Pingu",

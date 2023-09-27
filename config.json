@@ -12,6 +12,7 @@
     "monsterFriendlyFire": true,
     "broadcastMonsterDeaths": false,
     "physicsInaccuracy": 1,
+    "raycastStep": 12,
     "maxPathfindRange": 32,
     "pathfindBuffer": 6,
     "pathfindUpdateSpeed": 10,

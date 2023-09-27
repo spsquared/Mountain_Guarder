@@ -41,7 +41,7 @@
     },
     "wood": {
         "name": "Wood",
-        "description": "Some raw uncut lumber, ready for crafting",
+        "description": "Some raw uncut lumber, ready for crafting.",
         "slotType": "material",
         "rarity": 0,
         "effects": [],
@@ -49,7 +49,7 @@
     },
     "planks": {
         "name": "Planks",
-        "description": "Standard wood planks",
+        "description": "Standard wood planks.",
         "slotType": "material",
         "rarity": 0,
         "effects": [],
@@ -57,7 +57,7 @@
     },
     "sticks": {
         "name": "Sticks",
-        "description": "It would probably be more fitting to call it a rod",
+        "description": "It would probably be more fitting to call it a rod.",
         "slotType": "material",
         "rarity": 0,
         "effects": [],
@@ -73,7 +73,7 @@
     },
     "quartz": {
         "name": "Quartz",
-        "description": "Raw quartz crystals",
+        "description": "Raw quartz crystals.",
         "slotType": "material",
         "rarity": 3,
         "effects": [],
@@ -81,7 +81,7 @@
     },
     "coal": {
         "name": "Coal",
-        "description": "Bituminous coal, good for smelting",
+        "description": "Bituminous coal, good for smelting.",
         "slotType": "material",
         "rarity": 0,
         "effects": [],
@@ -89,7 +89,7 @@
     },
     "ironore": {
         "name": "Iron Ore",
-        "description": "Raw iron in the form of a lump",
+        "description": "Raw iron in the form of a lump.",
         "slotType": "material",
         "rarity": 0,
         "effects": [],
@@ -97,7 +97,7 @@
     },
     "iron": {
         "name": "Iron Ingot",
-        "description": "A 5 lb cast iron ingot",
+        "description": "A 5 lb cast iron ingot.",
         "slotType": "material",
         "rarity": 0,
         "effects": [],
@@ -113,7 +113,7 @@
     },
     "simplewoodenbow": {
         "name": "Simple Wooden Bow",
-        "description": "A cheap, simple bow of standard wood",
+        "description": "A cheap, simple bow of standard wood.",
         "slotType": "weapon",
         "rarity": 0,
         "damage": 8,
@@ -130,7 +130,7 @@
     },
     "simplewoodensword": {
         "name": "Simple Wooden Sword",
-        "description": "A trusty sword made of wood. Not much, but it'll do",
+        "description": "A trusty sword made of wood. Not much, but it'll do.",
         "slotType": "weapon",
         "rarity": 0,
         "damage": 10,
@@ -147,7 +147,7 @@
     },
     "simplewoodenstaff": {
         "name": "Simple Wooden Staff",
-        "description": "A trusty wooden staff. Not the most powerful but will do",
+        "description": "A trusty wooden staff. Not the most powerful but will do.",
         "slotType": "weapon",
         "rarity": 0,
         "damage": 7,
@@ -164,7 +164,7 @@
     },
     "leatherhood": {
         "name": "Leather Hood",
-        "description": "A hood. Attached to nothing. Made of leather",
+        "description": "A hood. Attached to nothing. Made of leather.",
         "slotType": "helmet",
         "rarity": 0,
         "effects": [
@@ -193,7 +193,7 @@
     },
     "leatherhat": {
         "name": "Leather Hat",
-        "description": "A nice hat made of leather",
+        "description": "A nice hat made of leather.",
         "slotType": "helmet",
         "rarity": 0,
         "effects": [
@@ -251,7 +251,7 @@
     },
     "leatherarmor": {
         "name": "Leather Armor",
-        "description": "Simple armor made from leather",
+        "description": "Simple armor made from leather.",
         "slotType": "armor",
         "rarity": 0,
         "effects": [
@@ -268,7 +268,7 @@
     },
     "woodenshield": {
         "name": "Wooden Shield",
-        "description": "A basic shield of planks",
+        "description": "A basic shield of planks.",
         "slotType": "shield",
         "rarity": 0,
         "knockbackResistance": 0.2,
@@ -279,7 +279,7 @@
     },
     "steelbow": {
         "name": "Steel Bow",
-        "description": "A simple bow forged from steel",
+        "description": "A simple bow forged from steel.",
         "slotType": "weapon",
         "rarity": 1,
         "damage": 12,
@@ -296,7 +296,7 @@
     },
     "steelbroadsword": {
         "name": "Steel Broadsword",
-        "description": "A decent broadsword forged from pure steel",
+        "description": "A decent broadsword forged from pure steel.",
         "slotType": "weapon",
         "rarity": 1,
         "damage": 12,
@@ -313,7 +313,7 @@
     },
     "steelcutlass": {
         "name": "Steel Cutlass",
-        "description": "A thick-bladed heavy cutlass of steel",
+        "description": "A thick-bladed heavy cutlass of steel.",
         "slotType": "weapon",
         "rarity": 1,
         "damage": 16,
@@ -330,7 +330,7 @@
     },
     "steelstaff": {
         "name": "Steel Staff",
-        "description": "A nice steel staff that can better harness mana power",
+        "description": "A nice steel staff that can better harness mana power.",
         "slotType": "weapon",
         "rarity": 1,
         "damage": 11,
@@ -347,7 +347,7 @@
     },
     "simplewizardhat": {
         "name": "Simple Wizard's Hat",
-        "description": "A simple hat fit for a young wizard",
+        "description": "A simple hat fit for a young wizard.",
         "slotType": "helmet",
         "rarity": 1,
         "effects": [
@@ -372,7 +372,7 @@
     },
     "whitefabrichood": {
         "name": "White Fabric Hood",
-        "description": "An archers hood, partly cotton, dyed white",
+        "description": "An archers hood, partly cotton, dyed white.",
         "slotType": "helmet",
         "rarity": 1,
         "effects": [
@@ -393,7 +393,7 @@
     },
     "steelhelmet": {
         "name": "Steel Helmet",
-        "description": "A decent, lightweight helmet of steel",
+        "description": "A decent, lightweight helmet of steel.",
         "slotType": "helmet",
         "rarity": 1,
         "effects": [
@@ -422,7 +422,7 @@
     },
     "steelarmor": {
         "name": "Steel Chestplate",
-        "description": "Sturdy, \"lightweight\" steel armor great for close-combat fighting",
+        "description": "Sturdy, \"lightweight\" steel armor great for close-combat fighting.",
         "slotType": "armor",
         "rarity": 1,
         "effects": [
@@ -443,7 +443,7 @@
     },
     "steelshield": {
         "name": "Steel Shield",
-        "description": "A shield reinforced with steel plating",
+        "description": "A shield reinforced with steel plating.",
         "slotType": "shield",
         "rarity": 1,
         "knockbackResistance": 0.3,
@@ -454,7 +454,7 @@
     },
     "stoneshield": {
         "name": "Stone Shield",
-        "description": "A shield reinforced with a stone slab",
+        "description": "A shield reinforced with a stone slab.",
         "slotType": "shield",
         "rarity": 1,
         "knockbackResistance": 0.5,
@@ -470,7 +470,7 @@
     },
     "titaniumbow": {
         "name": "Titanium Bow",
-        "description": "A titanium cast of the Steel Bow. The higher quality allows it to shoot fast piercing arrows.",
+        "description": "An upgraded version of the Steel Bow. The higher quality allows it to shoot fast piercing arrows.",
         "slotType": "weapon",
         "rarity": 2,
         "damage": 14,
@@ -487,7 +487,7 @@
     },
     "titaniumstaff": {
         "name": "Titanium Staff",
-        "description": "A titanium version of the Steel Staff. The higher quality allows the Purple to phase through solid matter.",
+        "description": "An upgraded version of the Steel Staff. The infused Ialite allows the Purple to phase through solid matter.",
         "slotType": "weapon",
         "rarity": 2,
         "damage": 14,
@@ -504,7 +504,7 @@
     },
     "quartzcrystal": {
         "name": "Quartz Crystal",
-        "description": "A large quartz crystal. When used, the crystal impales the nearest monster with a sudden stalagmite",
+        "description": "A large quartz crystal. When used, the crystal impales the nearest monster with a sudden stalagmite.",
         "slotType": "crystal",
         "rarity": 3,
         "damage": 14,
@@ -538,7 +538,7 @@
     },
     "ialitecrystal": {
         "name": "Ialite Crystal",
-        "description": "A powerful crystal made of Purple-infused Ialite. When used, the crystal blasts waves of Purple",
+        "description": "A powerful crystal made of Purple-infused Ialite. When used, the crystal blasts waves of Purple.",
         "slotType": "crystal",
         "rarity": 3,
         "damage": 24,
@@ -583,7 +583,7 @@
     },
     "yeetstick": {
         "name": "Yeet",
-        "description": "definitely a normal stick",
+        "description": "definitely a normal stick.",
         "slotType": "weapon",
         "rarity": 2,
         "damage": 1,
@@ -605,7 +605,7 @@
     },
     "raresteak": {
         "name": "Rare Steak",
-        "description": "Oh wait it's just raw",
+        "description": "Oh wait it's just raw.",
         "slotType": "weapon",
         "rarity": 2,
         "damage": 18,
@@ -631,7 +631,7 @@
     },
     "christmas2021": {
         "name": "Season's Yeetings",
-        "description": "Merry Christmas from the Mountain Guarder devs! - Yeetmas 2021",
+        "description": "Merry Christmas from the Mountain Guarder devs! - Yeetmas 2021.",
         "slotType": "weapon",
         "rarity": -1,
         "damage": 1,

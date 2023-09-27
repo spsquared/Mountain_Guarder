@@ -3,7 +3,7 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "World.tmx",
+    "activeFile": "Caves.tmx",
     "expandedProjectPaths": [
     ],
     "exportAsImage.useCurrentScale": false,
@@ -154,19 +154,19 @@
             "scaleInEditor": 5.5
         },
         "Caves.tmx": {
-            "scale": 1,
-            "selectedLayer": 5,
+            "scale": 0.7262,
+            "selectedLayer": 17,
             "viewCenter": {
-                "x": 2036.5,
-                "y": 237.5
+                "x": 16077.52685210686,
+                "y": 3574.0842743045996
             }
         },
         "Mysterious Cave 1.tmx": {
-            "scale": 1,
-            "selectedLayer": 4,
+            "scale": 1.5,
+            "selectedLayer": 1,
             "viewCenter": {
-                "x": 320.5,
-                "y": 319.5
+                "x": 319.66666666666663,
+                "y": 319.6666666666667
             }
         },
         "Mysterious Cave.tmx": {
@@ -181,7 +181,7 @@
             "scale": 32,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 280,
+                "x": 279.984375,
                 "y": 279.984375
             }
         },
@@ -189,15 +189,15 @@
             "scale": 4,
             "selectedLayer": 3,
             "viewCenter": {
-                "x": 112,
+                "x": 111.875,
                 "y": 131.875
             }
         },
         "Outpost Cottage 2.tmx": {
             "scale": 4,
-            "selectedLayer": 3,
+            "selectedLayer": 10,
             "viewCenter": {
-                "x": 160,
+                "x": 159.875,
                 "y": 99.875
             }
         },
@@ -211,50 +211,58 @@
         },
         "Outpost Trader's Store Upstairs.tmx": {
             "scale": 3,
-            "selectedLayer": 2,
+            "selectedLayer": 4,
             "viewCenter": {
-                "x": 88,
-                "y": 99.83333333333333
+                "x": 87.83333333333333,
+                "y": 100.16666666666666
             }
         },
         "Outpost Trader's Store.tmx": {
             "scale": 2,
-            "selectedLayer": 3,
+            "selectedLayer": 5,
             "viewCenter": {
-                "x": 160,
+                "x": 159.75,
                 "y": 100.25
             }
         },
         "Pingu's Cave.tmx": {
             "scale": 4,
-            "selectedLayer": 1,
+            "selectedLayer": 3,
             "viewCenter": {
-                "x": 72,
-                "y": 87.875
+                "x": 71.875,
+                "y": 88.125
             }
         },
         "Preview.tmx": {
             "scale": 0.33,
             "selectedLayer": 2,
             "viewCenter": {
-                "x": 400,
+                "x": 401.5151515151516,
                 "y": 1201.5151515151515
             }
         },
         "The Void.tmx": {
             "scale": 1.5,
-            "selectedLayer": 0,
+            "selectedLayer": 3,
             "viewCenter": {
-                "x": 250.66666666666663,
-                "y": 411.66666666666663
+                "x": 255.66666666666666,
+                "y": 255.66666666666669
+            }
+        },
+        "Tutorial.tmx": {
+            "scale": 3,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 159.83333333333331,
+                "y": 243.83333333333331
             }
         },
         "World.tmx": {
-            "scale": 4,
-            "selectedLayer": 41,
+            "scale": 2,
+            "selectedLayer": 24,
             "viewCenter": {
-                "x": 1030.875,
-                "y": 691.625
+                "x": 895.75,
+                "y": 387.75
             }
         },
         "roguelikeSheet.tsx": {
@@ -264,7 +272,7 @@
         },
         "tiles.tsx": {
             "dynamicWrapping": false,
-            "scaleInDock": 1.5,
+            "scaleInDock": 4,
             "scaleInEditor": 3
         }
     },
@@ -273,20 +281,21 @@
     "last.externalTilesetPath": "C:/Users/jacki/Google Drive/Mountain_Guarder/client/maps",
     "last.imagePath": "C:/Users/jacki/Google Drive/Mountain_Guarder/client/maps",
     "map.fixedSize": true,
-    "map.height": 12,
-    "map.lastUsedExportFilter": "JSON map files (*.json)",
+    "map.height": 30,
+    "map.lastUsedExportFilter": "JSON map files (*.tmj *.json)",
     "map.lastUsedFormat": "tmx",
     "map.tileHeight": 16,
     "map.tileWidth": 16,
-    "map.width": 10,
+    "map.width": 20,
     "openFiles": [
         "tiles.tsx",
         "The Void.tmx",
+        "Tutorial.tmx",
         "World.tmx",
-        "Mysterious Cave 1.tmx",
-        "Caves.tmx",
         "Outpost Cottage 1.tmx",
         "Outpost Cottage 2.tmx",
+        "Mysterious Cave 1.tmx",
+        "Caves.tmx",
         "Outpost Trader's Store.tmx",
         "Outpost Trader's Store Upstairs.tmx",
         "NaN.tmx",
@@ -297,16 +306,16 @@
     "recentFiles": [
         "tiles.tsx",
         "The Void.tmx",
+        "Tutorial.tmx",
+        "World.tmx",
+        "Outpost Cottage 1.tmx",
+        "Outpost Cottage 2.tmx",
+        "Mysterious Cave 1.tmx",
         "Pingu's Cave.tmx",
         "Preview.tmx",
         "NaN.tmx",
         "Outpost Trader's Store Upstairs.tmx",
-        "Outpost Trader's Store.tmx",
-        "Outpost Cottage 2.tmx",
-        "Outpost Cottage 1.tmx",
-        "Caves.tmx",
-        "Mysterious Cave 1.tmx",
-        "World.tmx"
+        "Outpost Trader's Store.tmx"
     ],
     "tileset.lastUsedFormat": "tsx",
     "tileset.tileSize": {

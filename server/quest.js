@@ -32,7 +32,7 @@ QuestHandler = function(socket, player) {
         });
     };
     self.endQuest = function endQuest(id, success) {
-        var rewards = self.current[id].rewards;
+        const rewards = self.current[id].rewards;
         delete self.current[id];
         if (success) {
             if (self.done.indexOf(id) == -1) self.done.push(id);
@@ -45,7 +45,7 @@ QuestHandler = function(socket, player) {
                     player.xp += rewards[i];
                 } else if (i == 'items') {
                     for (let j in rewards[i]) {
-                        player.inventory.addItem(j, rewards[i][j]);
+                        player.inventory.addItem(j, rewards[i][j], [], true);
                     }
                 }
             }
@@ -89,13 +89,17 @@ QuestHandler = function(socket, player) {
             return false;
         }
     };
-    self.isInQuest = function isInQuest(id) {
-        for (let i in self.current) {
-            if (self.current[i].id == id) {
-                return self.current[i].stage;
-            }
+    self.finishedQuest = function finishedQuest(id) {
+        for (let i in self.done) {
+            if (self.done[i].id == id) return true;
         }
         return false;
+    };
+    self.isInQuest = function isInQuest(id) {
+        for (let i in self.current) {
+            if (self.current[i].id == id) return self.current[i].stage;
+        }
+        return -1;
     };
     self.failQuests = function failQuests(reason) {
         if (reason == 'death') {
@@ -152,7 +156,7 @@ QuestData = function(id) {
                     }
                     break;
                 case 'area':
-                    if (Math.sqrt((data.pos.x-goals[i].x)**2+(data.pos.x-goals[i].x)**2) < goals[i].r) {
+                    if (data.pos.map == goals[i].map && Math.sqrt((data.pos.x-goals[i].x)**2+(data.pos.x-goals[i].x)**2) < goals[i].r) {
                         objectives[i] = true;
                     }
                     break;
@@ -229,5 +233,49 @@ QuestData = function(id) {
 QuestData.quests = require('./../client/quests.json');
 
 Criteria = {};
-Criteria.passes = function(player, id) {};
+Criteria.qualifiesFor = function qualifiesFor(player, id) {
+    const criterion = Criteria.data[id];
+    if (criterion) {
+        for (let criteria of criterion) {
+            if (typeof Criteria.criteria[criteria.type] == 'function') {
+                if (!Criteria.criteria[criteria.type](player, criteria.value)) return false;
+            } else {
+                error('Invalid Criteria criteria ' + criteria.type);
+            }
+        }
+    } else {
+        error('Invalid criteria id ' + id);
+    }
+};
+Criteria.criteria = {
+    quest: function criteria_quest(self, value) {
+        return self.quests.finishedQuest(value);
+    },
+    qualifies_quest: function criteria_qualifies_quest(self, value) {
+        return self.quests.qualifiesFor(value);
+    }
+};
 Criteria.data = require('./criteria.json');
+
+Prompts = {};
+Prompts.init = function() {
+    for (let i in Prompts.dialogues) {
+        for (let j in Prompts.dialogues[i]) {
+            for (const option of Prompts.dialogues[i][j].options) {
+                if (option.action.includes('script_')) {
+                    option.script = Prompts.scripts[option.action.replace('script_', '')];
+                } else if (option.action.includes('script-end_')) {
+                    option.script = Prompts.scripts[option.action.replace('script-end_', '')];
+                } else if (option.action.includes('teleport_')) {
+                    let opts = option.action.replace('teleport_', '').split(',');
+                    option.location = [opts[0], parseInt(opts[1]), parseInt(opts[2]), parseInt(opts[3])];
+                } else if (option.action.includes('teleport-end_')) {
+                    let opts = option.action.replace('teleport_', '').split(',');
+                    option.location = [opts[0], parseInt(opts[1]), parseInt(opts[2]), parseInt(opts[3])];
+                }
+            }
+        }
+    }
+};
+Prompts.dialogues = require('./../client/prompts.json');
+Prompts.scripts = {};

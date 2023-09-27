@@ -311,8 +311,8 @@ DraggableWindow = function(id) {
         currentTab: null
     };
     self.renderWindow = function renderWindow() {
-        self.x = Math.min(Math.max(self.x, 0), window.innerWidth-self.width-2);
-        self.y = Math.min(Math.max(self.y, 0), window.innerHeight-self.height-3);
+        self.x = Math.min(Math.max(self.x, 0), window.innerWidth-self.width);
+        self.y = Math.min(Math.max(self.y, 0), window.innerHeight-self.height);
         self.window.style.left = self.x + 'px';
         self.window.style.top = self.y + 'px';
     };
@@ -385,7 +385,7 @@ function resetZIndex() {
 };
 
 // menu buttons
-var menuopen = false;
+let menuopen = false;
 function toggleDropdown() {
     if (menuopen) {
         document.getElementById('dropdownMenuItems').style.display = 'none';
@@ -618,14 +618,12 @@ function updateSetting(setting) {
             break;
         case 'pointerLock':
             return;
-            if (settings.pointerLock) {
-                indicatorText = 'on';
-                document.getElementById('crossHair').style.display = 'block';
-            } else {
-                indicatorText = 'off';
-                document.getElementById('crossHair').style.display = '';
-                document.exitPointerLock();
-            }
+            // if (settings.pointerLock) {
+            //     indicatorText = 'on';
+            // } else {
+            //     indicatorText = 'off';
+            //     document.exitPointerLock();
+            // }
             break;
         case 'useController':
             if (settings.useController) {
@@ -667,6 +665,13 @@ function updateSetting(setting) {
                 indicatorText = 'on';
             } else {
                 CANVAS.style.filter = '';
+                indicatorText = 'off';
+            }
+            break;
+        case 'invertScroll':
+            if (settings.invertScroll) {
+                indicatorText = 'on';
+            } else {
                 indicatorText = 'off';
             }
             break;

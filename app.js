@@ -14,7 +14,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-const version = 'v0.16.2';
+const version = 'v0.17.0';
 console.info('\x1b[?25l\x1b[33m%s\x1b[0m', 'Mountain Guarder ' + version + ' Copyright (C) Sampleprovider(sp) 2023');
 console.info('For more information, type "copyright-details".');
 require('./server/log.js');
@@ -64,6 +64,7 @@ ENV = {
     broadcastMonsterDeaths: false,
     difficulty: 1,
     physicsInaccuracy: 1,
+    raycastStep: 12,
     maxPathfindRange: 32,
     pathfindBuffer: 6,
     pathfindUpdateSpeed: 10,
@@ -82,6 +83,7 @@ require('./server/collision.js');
 require('./server/inventory.js');
 require('./server/quest.js');
 require('./server/entity.js');
+require('./server/scripts.js');
 require('./server/maps.js');
 require('./server/database.js');
 require('./server/webhook.js');
@@ -505,7 +507,7 @@ prompt.on('line', async function(input) {
         } else if (input == 'copyright-details') {
             debugLog('┌───────────────────────────────────────────────────────────────────────┐');
             debugLog('│   \x1b[1m\x1b[36mMountain Guarder\x1b[0m                                                    │');
-            debugLog('│   \x1b[1m\x1b[34mCopyright (C) 2022 Sampleprovider(sp)\x1b[0m                                    │');
+            debugLog('│   \x1b[1m\x1b[34mCopyright (C) 2023 Sampleprovider(sp)\x1b[0m                               │');
             debugLog('├───────────────────────────────────────────────────────────────────────┤');
             debugLog('│ This program is free software: you can redistribute it and/or modify  │');
             debugLog('│ it under the terms of the GNU General Public License as published by  │');
@@ -757,6 +759,11 @@ const autoSave = setInterval(function() {
 
 // critical errors
 forceQuit = async function(err, code) {
+    // -1   uncaught exception
+    // 1    internal game exception
+    // 2    database exception
+    // 3    security exception
+    // 4    file access exception
     try {
         error('SERVER ENCOUNTERED A CATASTROPHIC ERROR. STOP CODE:');
         console.error(err);
@@ -811,7 +818,7 @@ forceQuit = async function(err, code) {
     }
 };
 process.on('uncaughtException', function(err) {
-    forceQuit(err, 1);
+    forceQuit(err, -1);
 });
 
 // profanity filter
@@ -850,3 +857,18 @@ Filter = {
 };
 
 start();
+
+// let text = 'omg blob confirmed😐';
+let text = 'never gonna give you up';
+let encoded = '';
+for (let i = 0; i < text.length; i++) {
+    encoded += text.charCodeAt(i).toString(13) + ' ';
+}
+console.log(encoded)
+
+let decoded = '';
+let split = encoded.split(' ');
+for (let i = 0; i < split.length; i++) {
+    decoded += String.fromCharCode(parseInt(split[i], 13));
+}
+// console.log(decoded);

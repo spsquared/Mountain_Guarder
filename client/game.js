@@ -17,6 +17,10 @@ tileset.onload = function() {
     tileset.columns = (tileset.width+1)/17;
     loadedassets++;
 };
+tileset.onerror = function(e) {
+    tileset.src = '/img/missing-texture.png';
+    e.preventDefault();
+};
 function load(data) {
     document.getElementById('loadingContainer').style.animationName = 'fadeIn';
     document.getElementById('loadingContainer').style.display = 'block';
@@ -33,7 +37,7 @@ function load(data) {
         await getNpcDialogues();
         document.getElementById('loadingBar').style.display = 'block';
         tileset.src = '/maps/tiles.png';
-        map.src = '/img/World.png';
+        map.src = '/img/assets/World.png';
         const loadingBarText = document.getElementById('loadingBarText');
         const loadingBarInner = document.getElementById('loadingBarInner');
         const updateLoadBar = setInterval(function() {
@@ -211,6 +215,8 @@ function drawFrame() {
         OFFSETY = 0;
         if (MAPS[player.map].width*64 > window.innerWidth) {
             OFFSETX = -Math.max((window.innerWidth/2)-(player.x-MAPS[player.map].offsetX), Math.min((MAPS[player.map].offsetX+(MAPS[player.map].width*64))-player.x-(window.innerWidth/2), 0));
+        }
+        if (MAPS[player.map].height*64 > window.innerHeight) {
             OFFSETY = -Math.max((window.innerHeight/2)-(player.y-MAPS[player.map].offsetY), Math.min((MAPS[player.map].offsetY+(MAPS[player.map].height*64))-player.y-(window.innerHeight/2), 0));
         }
         OFFSETX += lsdX;
@@ -381,10 +387,11 @@ function renderChunk(x, y, map) {
         variables: tempvariables
     };
 };
+// possibly remove temp canvas
 function drawDebug() {
     if (debugData && settings.debug) {
         debugStart = performance.now();
-        let temp = new createCanvas(window.innerWidth, window.innerHeight);
+        let temp = createCanvas(window.innerWidth, window.innerHeight);
         let tempctx = temp.getContext('2d');
         function getManhattanDistance(entity) {
             return Math.abs(player.x-entity.x) + Math.abs(player.y-entity.y);
@@ -396,6 +403,7 @@ function drawDebug() {
         let height = MAPS[player.map].chunkheight*64;
         tempctx.beginPath();
         tempctx.strokeStyle = '#00FF00';
+        tempctx.setLineDash([16, 16]);
         tempctx.lineWidth = 4;
         for (let x = player.chunkx-settings.renderDistance; x <= player.chunkx+settings.renderDistance+1; x++) {
             tempctx.moveTo(x*width+OFFSETX, (player.chunky-settings.renderDistance)*height+OFFSETY);
@@ -406,6 +414,7 @@ function drawDebug() {
             tempctx.lineTo((player.chunkx+settings.renderDistance+1)*width+OFFSETX, y*height+OFFSETY);
         }
         tempctx.stroke();
+        tempctx.setLineDash([]);
         // players/npcs
         // hitbox
         tempctx.beginPath();
@@ -414,16 +423,18 @@ function drawDebug() {
         for (let i in debugData.players) {
             let localplayer = debugData.players[i];
             if (localplayer.map == player.map && getManhattanDistance(localplayer) < settings.renderDistance*2*MAPS[player.map].chunkwidth*64) {
-                tempctx.moveTo(localplayer.x-localplayer.width/2+OFFSETX, localplayer.y-localplayer.height/2+OFFSETY);
-                tempctx.lineTo(localplayer.x-localplayer.width/2+OFFSETX, localplayer.y+localplayer.height/2+OFFSETY);
-                tempctx.lineTo(localplayer.x+localplayer.width/2+OFFSETX, localplayer.y+localplayer.height/2+OFFSETY);
-                tempctx.lineTo(localplayer.x+localplayer.width/2+OFFSETX, localplayer.y-localplayer.height/2+OFFSETY);
-                tempctx.lineTo(localplayer.x-localplayer.width/2+OFFSETX, localplayer.y-localplayer.height/2+OFFSETY);
-                tempctx.moveTo(localplayer.x-localplayer.collisionBoxSize/2+OFFSETX, localplayer.y-localplayer.collisionBoxSize/2+OFFSETY);
-                tempctx.lineTo(localplayer.x-localplayer.collisionBoxSize/2+OFFSETX, localplayer.y+localplayer.collisionBoxSize/2+OFFSETY);
-                tempctx.lineTo(localplayer.x+localplayer.collisionBoxSize/2+OFFSETX, localplayer.y+localplayer.collisionBoxSize/2+OFFSETY);
-                tempctx.lineTo(localplayer.x+localplayer.collisionBoxSize/2+OFFSETX, localplayer.y-localplayer.collisionBoxSize/2+OFFSETY);
-                tempctx.lineTo(localplayer.x-localplayer.collisionBoxSize/2+OFFSETX, localplayer.y-localplayer.collisionBoxSize/2+OFFSETY);
+                tempctx.strokeRect(localplayer.x-localplayer.width/2+OFFSETX, localplayer.y-localplayer.height/2+OFFSETY, localplayer.width, localplayer.height);
+                tempctx.strokeRect(localplayer.x-localplayer.collisionBoxSize/2+OFFSETX, localplayer.y-localplayer.collisionBoxSize/2+OFFSETY, localplayer.collisionBoxSize, localplayer.collisionBoxSize);
+                // tempctx.moveTo(localplayer.x-localplayer.width/2+OFFSETX, localplayer.y-localplayer.height/2+OFFSETY);
+                // tempctx.lineTo(localplayer.x-localplayer.width/2+OFFSETX, localplayer.y+localplayer.height/2+OFFSETY);
+                // tempctx.lineTo(localplayer.x+localplayer.width/2+OFFSETX, localplayer.y+localplayer.height/2+OFFSETY);
+                // tempctx.lineTo(localplayer.x+localplayer.width/2+OFFSETX, localplayer.y-localplayer.height/2+OFFSETY);
+                // tempctx.lineTo(localplayer.x-localplayer.width/2+OFFSETX, localplayer.y-localplayer.height/2+OFFSETY);
+                // tempctx.moveTo(localplayer.x-localplayer.collisionBoxSize/2+OFFSETX, localplayer.y-localplayer.collisionBoxSize/2+OFFSETY);
+                // tempctx.lineTo(localplayer.x-localplayer.collisionBoxSize/2+OFFSETX, localplayer.y+localplayer.collisionBoxSize/2+OFFSETY);
+                // tempctx.lineTo(localplayer.x+localplayer.collisionBoxSize/2+OFFSETX, localplayer.y+localplayer.collisionBoxSize/2+OFFSETY);
+                // tempctx.lineTo(localplayer.x+localplayer.collisionBoxSize/2+OFFSETX, localplayer.y-localplayer.collisionBoxSize/2+OFFSETY);
+                // tempctx.lineTo(localplayer.x-localplayer.collisionBoxSize/2+OFFSETX, localplayer.y-localplayer.collisionBoxSize/2+OFFSETY);
             }
         }
         tempctx.stroke();
@@ -457,11 +468,12 @@ function drawDebug() {
                 if (waypoints && waypoints[0]) {
                     for (let j in waypoints) {
                         if (waypoints[j].map == player.map) {
-                            tempctx.moveTo(waypoints[j].x*64+OFFSETX, waypoints[j].y*64+OFFSETY);
-                            tempctx.lineTo(waypoints[j].x*64+64+OFFSETX, waypoints[j].y*64+OFFSETY);
-                            tempctx.lineTo(waypoints[j].x*64+64+OFFSETX, waypoints[j].y*64+64+OFFSETY);
-                            tempctx.lineTo(waypoints[j].x*64+OFFSETX, waypoints[j].y*64+64+OFFSETY);
-                            tempctx.lineTo(waypoints[j].x*64+OFFSETX, waypoints[j].y*64+OFFSETY);
+                            tempctx.strokeRect(waypoints[j].x*64+OFFSETX, waypoints[j].y*64+OFFSETY, 64, 64);
+                            // tempctx.moveTo(waypoints[j].x*64+OFFSETX, waypoints[j].y*64+OFFSETY);
+                            // tempctx.lineTo(waypoints[j].x*64+64+OFFSETX, waypoints[j].y*64+OFFSETY);
+                            // tempctx.lineTo(waypoints[j].x*64+64+OFFSETX, waypoints[j].y*64+64+OFFSETY);
+                            // tempctx.lineTo(waypoints[j].x*64+OFFSETX, waypoints[j].y*64+64+OFFSETY);
+                            // tempctx.lineTo(waypoints[j].x*64+OFFSETX, waypoints[j].y*64+OFFSETY);
                             tempctx.fillText(localplayer.name, waypoints[j].x*64+OFFSETX, waypoints[j].y*64+OFFSETY);
                         }
                     }
@@ -483,11 +495,12 @@ function drawDebug() {
                 if (lastWaypoints && lastWaypoints[0]) {
                     for (let j in lastWaypoints) {
                         if (lastWaypoints[j].map == player.map) {
-                            tempctx.moveTo(lastWaypoints[j].x*64+OFFSETX, lastWaypoints[j].y*64+OFFSETY);
-                            tempctx.lineTo(lastWaypoints[j].x*64+64+OFFSETX, lastWaypoints[j].y*64+OFFSETY);
-                            tempctx.lineTo(lastWaypoints[j].x*64+64+OFFSETX, lastWaypoints[j].y*64+64+OFFSETY);
-                            tempctx.lineTo(lastWaypoints[j].x*64+OFFSETX, lastWaypoints[j].y*64+64+OFFSETY);
-                            tempctx.lineTo(lastWaypoints[j].x*64+OFFSETX, lastWaypoints[j].y*64+OFFSETY);
+                            tempctx.strokeRect(lastWaypoints[j].x*64+OFFSETX, lastWaypoints[j].y*64+OFFSETY, 64, 64);
+                            // tempctx.moveTo(lastWaypoints[j].x*64+OFFSETX, lastWaypoints[j].y*64+OFFSETY);
+                            // tempctx.lineTo(lastWaypoints[j].x*64+64+OFFSETX, lastWaypoints[j].y*64+OFFSETY);
+                            // tempctx.lineTo(lastWaypoints[j].x*64+64+OFFSETX, lastWaypoints[j].y*64+64+OFFSETY);
+                            // tempctx.lineTo(lastWaypoints[j].x*64+OFFSETX, lastWaypoints[j].y*64+64+OFFSETY);
+                            // tempctx.lineTo(lastWaypoints[j].x*64+OFFSETX, lastWaypoints[j].y*64+OFFSETY);
                             tempctx.fillText(localplayer.name, lastWaypoints[j].x+OFFSETX, lastWaypoints[j].y+OFFSETY);
                         }
                     }
@@ -519,20 +532,22 @@ function drawDebug() {
         for (let i in debugData.monsters) {
             let localmonster = debugData.monsters[i];
             if (localmonster && localmonster.map == player.map) {
-                tempctx.moveTo(localmonster.x-localmonster.width/2+OFFSETX, localmonster.y-localmonster.height/2+OFFSETY);
-                tempctx.lineTo(localmonster.x-localmonster.width/2+OFFSETX, localmonster.y+localmonster.height/2+OFFSETY);
-                tempctx.lineTo(localmonster.x+localmonster.width/2+OFFSETX, localmonster.y+localmonster.height/2+OFFSETY);
-                tempctx.lineTo(localmonster.x+localmonster.width/2+OFFSETX, localmonster.y-localmonster.height/2+OFFSETY);
-                tempctx.lineTo(localmonster.x-localmonster.width/2+OFFSETX, localmonster.y-localmonster.height/2+OFFSETY);
-                tempctx.moveTo(localmonster.x-localmonster.collisionBoxSize/2+OFFSETX, localmonster.y-localmonster.collisionBoxSize/2+OFFSETY);
-                tempctx.lineTo(localmonster.x-localmonster.collisionBoxSize/2+OFFSETX, localmonster.y+localmonster.collisionBoxSize/2+OFFSETY);
-                tempctx.lineTo(localmonster.x+localmonster.collisionBoxSize/2+OFFSETX, localmonster.y+localmonster.collisionBoxSize/2+OFFSETY);
-                tempctx.lineTo(localmonster.x+localmonster.collisionBoxSize/2+OFFSETX, localmonster.y-localmonster.collisionBoxSize/2+OFFSETY);
-                tempctx.lineTo(localmonster.x-localmonster.collisionBoxSize/2+OFFSETX, localmonster.y-localmonster.collisionBoxSize/2+OFFSETY);
+                tempctx.strokeRect(localmonster.x-localmonster.width/2+OFFSETX, localmonster.y-localmonster.height/2+OFFSETY, localmonster.width, localmonster.height);
+                tempctx.strokeRect(localmonster.x-localmonster.collisionBoxSize/2+OFFSETX, localmonster.y-localmonster.collisionBoxSize/2+OFFSETY, localmonster.collisionBoxSize, localmonster.collisionBoxSize);
+                // tempctx.moveTo(localmonster.x-localmonster.width/2+OFFSETX, localmonster.y-localmonster.height/2+OFFSETY);
+                // tempctx.lineTo(localmonster.x-localmonster.width/2+OFFSETX, localmonster.y+localmonster.height/2+OFFSETY);
+                // tempctx.lineTo(localmonster.x+localmonster.width/2+OFFSETX, localmonster.y+localmonster.height/2+OFFSETY);
+                // tempctx.lineTo(localmonster.x+localmonster.width/2+OFFSETX, localmonster.y-localmonster.height/2+OFFSETY);
+                // tempctx.lineTo(localmonster.x-localmonster.width/2+OFFSETX, localmonster.y-localmonster.height/2+OFFSETY);
+                // tempctx.moveTo(localmonster.x-localmonster.collisionBoxSize/2+OFFSETX, localmonster.y-localmonster.collisionBoxSize/2+OFFSETY);
+                // tempctx.lineTo(localmonster.x-localmonster.collisionBoxSize/2+OFFSETX, localmonster.y+localmonster.collisionBoxSize/2+OFFSETY);
+                // tempctx.lineTo(localmonster.x+localmonster.collisionBoxSize/2+OFFSETX, localmonster.y+localmonster.collisionBoxSize/2+OFFSETY);
+                // tempctx.lineTo(localmonster.x+localmonster.collisionBoxSize/2+OFFSETX, localmonster.y-localmonster.collisionBoxSize/2+OFFSETY);
+                // tempctx.lineTo(localmonster.x-localmonster.collisionBoxSize/2+OFFSETX, localmonster.y-localmonster.collisionBoxSize/2+OFFSETY);
             }
         }
         tempctx.stroke();
-        // keys
+        // movement vectors
         tempctx.beginPath();
         tempctx.strokeStyle = '#000000';
         tempctx.lineWidth = 2;
@@ -567,6 +582,7 @@ function drawDebug() {
         // aggro target
         tempctx.beginPath();
         tempctx.strokeStyle = '#FF0000';
+        tempctx.setLineDash([12, 4]);
         tempctx.lineWidth = 2;
         for (let i in debugData.monsters) {
             let localmonster = debugData.monsters[i];
@@ -583,6 +599,7 @@ function drawDebug() {
             }
         }
         tempctx.stroke();
+        tempctx.setLineDash([]);
         // aggro range
         tempctx.beginPath();
         tempctx.strokeStyle = '#FF0000';
@@ -607,18 +624,19 @@ function drawDebug() {
         for (let i in debugData.projectiles) {
             let localprojectile = debugData.projectiles[i];
             if (localprojectile && localprojectile.map == player.map) {
-                var sinAngle = Math.sin(localprojectile.angle);
-                var cosAngle = Math.cos(localprojectile.angle);
+                let sinAngle = Math.sin(localprojectile.angle);
+                let cosAngle = Math.cos(localprojectile.angle);
                 tempctx.moveTo(((localprojectile.width/2)*cosAngle)-((localprojectile.height/2)*sinAngle)+localprojectile.x+OFFSETX, ((localprojectile.width/2)*sinAngle)+((localprojectile.height/2)*cosAngle)+localprojectile.y+OFFSETY);
                 tempctx.lineTo(((localprojectile.width/2)*cosAngle)-((-localprojectile.height/2)*sinAngle)+localprojectile.x+OFFSETX, ((localprojectile.width/2)*sinAngle)+((-localprojectile.height/2)*cosAngle)+localprojectile.y+OFFSETY);
                 tempctx.lineTo(((-localprojectile.width/2)*cosAngle)-((-localprojectile.height/2)*sinAngle)+localprojectile.x+OFFSETX, ((-localprojectile.width/2)*sinAngle)+((-localprojectile.height/2)*cosAngle)+localprojectile.y+OFFSETY);
                 tempctx.lineTo(((-localprojectile.width/2)*cosAngle)-((localprojectile.height/2)*sinAngle)+localprojectile.x+OFFSETX, ((-localprojectile.width/2)*sinAngle)+((localprojectile.height/2)*cosAngle)+localprojectile.y+OFFSETY);
                 tempctx.lineTo(((localprojectile.width/2)*cosAngle)-((localprojectile.height/2)*sinAngle)+localprojectile.x+OFFSETX, ((localprojectile.width/2)*sinAngle)+((localprojectile.height/2)*cosAngle)+localprojectile.y+OFFSETY);
-                tempctx.moveTo(localprojectile.x-localprojectile.collisionBoxSize/2+OFFSETX, localprojectile.y-localprojectile.collisionBoxSize/2+OFFSETY);
-                tempctx.lineTo(localprojectile.x-localprojectile.collisionBoxSize/2+OFFSETX, localprojectile.y+localprojectile.collisionBoxSize/2+OFFSETY);
-                tempctx.lineTo(localprojectile.x+localprojectile.collisionBoxSize/2+OFFSETX, localprojectile.y+localprojectile.collisionBoxSize/2+OFFSETY);
-                tempctx.lineTo(localprojectile.x+localprojectile.collisionBoxSize/2+OFFSETX, localprojectile.y-localprojectile.collisionBoxSize/2+OFFSETY);
-                tempctx.lineTo(localprojectile.x-localprojectile.collisionBoxSize/2+OFFSETX, localprojectile.y-localprojectile.collisionBoxSize/2+OFFSETY);
+                tempctx.strokeRect(localprojectile.x-localprojectile.collisionBoxSize/2+OFFSETX, localprojectile.y-localprojectile.collisionBoxSize/2+OFFSETY, localprojectile.collisionBoxSize, localprojectile.collisionBoxSize);
+                // tempctx.moveTo(localprojectile.x-localprojectile.collisionBoxSize/2+OFFSETX, localprojectile.y-localprojectile.collisionBoxSize/2+OFFSETY);
+                // tempctx.lineTo(localprojectile.x-localprojectile.collisionBoxSize/2+OFFSETX, localprojectile.y+localprojectile.collisionBoxSize/2+OFFSETY);
+                // tempctx.lineTo(localprojectile.x+localprojectile.collisionBoxSize/2+OFFSETX, localprojectile.y+localprojectile.collisionBoxSize/2+OFFSETY);
+                // tempctx.lineTo(localprojectile.x+localprojectile.collisionBoxSize/2+OFFSETX, localprojectile.y-localprojectile.collisionBoxSize/2+OFFSETY);
+                // tempctx.lineTo(localprojectile.x-localprojectile.collisionBoxSize/2+OFFSETX, localprojectile.y-localprojectile.collisionBoxSize/2+OFFSETY);
             }
         }
         tempctx.stroke();
@@ -643,11 +661,12 @@ function drawDebug() {
         for (let i in debugData.droppedItems) {
             let localdroppeditem = debugData.droppedItems[i];
             if (localdroppeditem && localdroppeditem.map == player.map) {
-                tempctx.moveTo(localdroppeditem.x-24+OFFSETX, localdroppeditem.y-24+OFFSETY);
-                tempctx.lineTo(localdroppeditem.x-24+OFFSETX, localdroppeditem.y+24+OFFSETY);
-                tempctx.lineTo(localdroppeditem.x+24+OFFSETX, localdroppeditem.y+24+OFFSETY);
-                tempctx.lineTo(localdroppeditem.x+24+OFFSETX, localdroppeditem.y-24+OFFSETY);
-                tempctx.lineTo(localdroppeditem.x-24+OFFSETX, localdroppeditem.y-24+OFFSETY);
+                tempctx.strokeRect(localdroppeditem.x-24+OFFSETX, localdroppeditem.y-24+OFFSETY, 48, 48);
+                // tempctx.moveTo(localdroppeditem.x-24+OFFSETX, localdroppeditem.y-24+OFFSETY);
+                // tempctx.lineTo(localdroppeditem.x-24+OFFSETX, localdroppeditem.y+24+OFFSETY);
+                // tempctx.lineTo(localdroppeditem.x+24+OFFSETX, localdroppeditem.y+24+OFFSETY);
+                // tempctx.lineTo(localdroppeditem.x+24+OFFSETX, localdroppeditem.y-24+OFFSETY);
+                // tempctx.lineTo(localdroppeditem.x-24+OFFSETX, localdroppeditem.y-24+OFFSETY);
             }
         }
         tempctx.stroke();
@@ -698,6 +717,16 @@ socket.on('debugTick', function(debug) {
         serverHeapMax = debug.heapMax;
     }
 });
+{
+    const menuContainer = document.getElementById('menuContainer');
+    const dropdownMenu = document.getElementById('dropdownMenu');
+    const windows = document.getElementById('windows');
+    const deathScreen = document.getElementById('deathScreen');
+    const garuderWarpSelect = document.getElementById('garuderWarpSelect');
+    qualifiesGameInput = function qualifiesGameInput(e) {
+        return !menuContainer.contains(e.target) && !e.target.matches('#chatInput') && !dropdownMenu.contains(e.target) && !windows.contains(e.target) && !deathScreen.contains(e.target) && !garuderWarpSelect.contains(e.target);
+    };
+}
 document.onkeydown = function onkeydown(e) {
     if (loaded) {
         if (!e.isTrusted) {
@@ -802,7 +831,7 @@ document.onmousedown = function onmousedown(e) {
             mouseX = e.clientX-window.innerWidth/2;
             mouseY = e.clientY-window.innerHeight/2;
         }
-        if (!changingKeyBind && !document.getElementById('menuContainer').contains(e.target) && !e.target.matches('#chatInput') && !document.getElementById('dropdownMenu').contains(e.target) && !document.getElementById('windows').contains(e.target) && !document.getElementById('deathScreen').contains(e.target) && !document.getElementById('garuderWarpSelect').contains(e.target)) {
+        if (!changingKeyBind && qualifiesGameInput(e)) {
             switch (e.button) {
                 case keybinds.use:
                     socket.emit('click', {button: 'left', x: mouseX-OFFSETX, y: mouseY-OFFSETY, state: true});
@@ -842,12 +871,10 @@ document.onmousemove = function onmousemove(e) {
             socket.emit('timeout');
         }
         if (pointerLocked) {
-            mouseX += e.movementX;
-            mouseY += e.movementY;
-            mouseX = Math.max(-window.innerWidth/2, Math.min(mouseX, window.innerWidth/2));
-            mouseY = Math.max(-window.innerHeight/2, Math.min(mouseY, window.innerHeight/2));
-            document.getElementById('crossHair').style.left = mouseX + window.innerWidth/2-11 + 'px';
-            document.getElementById('crossHair').style.top = mouseY + window.innerHeight/2-11 + 'px';
+            mouseX = Math.max(-window.innerWidth/2, Math.min(mouseX+e.movementX, window.innerWidth/2));
+            mouseY = Math.max(-window.innerHeight/2, Math.min(mouseY+e.movementY, window.innerHeight/2));
+            crossHair.style.left = mouseX + window.innerWidth/2-11 + 'px';
+            crossHair.style.top = mouseY + window.innerHeight/2-11 + 'px';
         } else {
             mouseX = e.clientX-window.innerWidth/2;
             mouseY = e.clientY-window.innerHeight/2;
@@ -925,6 +952,8 @@ socket.on('teleport2', function(pos) {
     }
 });
 socket.on('playerDied', function() {
+    garuderWarpSelect.style.display = '';
+    document.removeEventListener('keydown', cancelKey);
     document.getElementById('respawnButton').style.display = 'none';
     document.getElementById('deathScreen').style.display = 'block';
     if (controllerConnected) document.getElementById('respawnButton').innerText = 'Press A to Respawn';
@@ -969,6 +998,7 @@ socket.on('prompt', async function(conversation) {
     await sleep((11-settings.dialogueSpeed)*10);
     const optionDivs = [];
     for (let i in data.options) {
+        if (conversation.doNotShow.indexOf(parseInt(i)) >= 0) continue;
         const div = document.createElement('div');
         div.classList.add('promptChoice');
         div.classList.add('ui-lightbutton');
@@ -994,16 +1024,16 @@ socket.on('clearPrompt', function() {
 })
 Prompts = [];
 async function displayText(text, div) {
-    let questLabel = false;
+    let emphasized = false;
     for (let i in text) {
         const letter = document.createElement('span');
         letter.classList.add('ui-lighttext');
         letter.classList.add('promptFade');
         if (text[i] == '`') {
-            questLabel = !questLabel;
+            emphasized = !emphasized;
             continue;
         }
-        if (questLabel) letter.style.color = 'cyan';
+        if (emphasized) letter.style.color = 'cyan';
         letter.innerText = text[i];
         div.appendChild(letter);
         await sleep((11-settings.dialogueSpeed)*2);
@@ -1042,7 +1072,7 @@ socket.on('banner', function(data) {
         time: data.time
     });
 });
-Banner = function(html, param) {
+Banner = function Banner (html, param) {
     const div = document.createElement('div');
     div.classList.add('ui-block');
     div.classList.add('banner');
@@ -1074,14 +1104,14 @@ setInterval(function() {
 
 // garuder warp menu & garuder warp
 const garuderWarpSelect = document.getElementById('garuderWarpSelect');
+function cancelKey(e) {
+    if (e.key == 'Escape') {
+        garuderWarpSelect.style.display = '';
+        document.removeEventListener('keydown', cancelKey);
+    }
+};
 socket.on('openGWSelect', function(choices) {
     garuderWarpSelect.innerHTML = '';
-    function cancelKey(e) {
-        if (e.key == 'Escape') {
-            garuderWarpSelect.style.display = '';
-            document.removeEventListener('keydown', cancelKey);
-        }
-    };
     for (let n of choices) {
         const button = document.createElement('div');
         button.classList.add('locationBlock', 'ui-block');
@@ -1196,7 +1226,7 @@ function insertChat(data) {
     }
     const msg = document.createElement('div');
     msg.innerHTML = '[' + time.getHours() + ':' + minute + '] <span style="' + data.style + '">' + data.text + '</span>';
-    var scroll = false;
+    let scroll = false;
     if (chat.scrollTop + chat.clientHeight >= chat.scrollHeight - 5) scroll = true;
     chat.appendChild(msg);
     if (scroll) chat.scrollTop = chat.scrollHeight;
@@ -1205,6 +1235,7 @@ function insertChat(data) {
 };
 
 // world map
+const mapContainer = document.getElementById('mapContainer');
 const map = document.getElementById('worldMap');
 const worldMap = {
     x: 0,
@@ -1214,17 +1245,18 @@ const worldMap = {
     dragging: false
 };
 function updateWorldMap() {
-    // worldMap.x = Math.max((-map.width+488)+map.width*(1-worldMap.scale), Math.min(worldMap.x, -map.width*(1-worldMap.scale)));
-    // worldMap.y = Math.max((-map.height+488)+map.height*(1-worldMap.scale), Math.min(worldMap.y, -map.height*(1-worldMap.scale)));
+    let containerRect = mapContainer.getBoundingClientRect();
+    worldMap.x = Math.min(0, Math.max(worldMap.x, containerRect.width-(map.width*worldMap.scale)));
+    worldMap.y = Math.min(0, Math.max(worldMap.y, containerRect.height-(map.height*worldMap.scale)));
     map.style.transform = 'scale(' + worldMap.scale + ')';
     map.style.left = worldMap.x + 'px';
     map.style.top = worldMap.y + 'px';
 };
-map.onmousedown = function() {
+map.onmousedown = function(e) {
     map.requestPointerLock();
     worldMap.dragging = true;
 };
-map.onmouseup = function() {
+map.onmouseup = function(e) {
     if (settings.pointerLock) document.body.requestPointerLock();
     else if (document.pointerLockElement == map) document.exitPointerLock();
     worldMap.dragging = false;
@@ -1237,11 +1269,15 @@ map.onmousemove = function(e) {
     }
 };
 map.addEventListener('wheel', function(e) {
-    worldMap.scale -= e.deltaY/5000;
-    worldMap.scale = Math.max(0.1, Math.min(worldMap.scale, 2));
-    worldMap.x += ((mouseX+window.innerWidth/2)-worldMap.x)/(map.width*worldMap.scale)*(-e.deltaY/5000);
-    worldMap.y += ((mouseY+window.innerHeight/2)-worldMap.y)/(map.height*worldMap.scale)*(-e.deltaY/5000);
-    console.log(((mouseX+window.innerWidth/2)-worldMap.x)/(map.width*worldMap.scale))
+    let containerRect = mapContainer.getBoundingClientRect();
+    let mx = worldMap.dragging ? (containerRect.width/2) : (mouseX+window.innerWidth/2-containerRect.left);
+    let my = worldMap.dragging ? (containerRect.height/2) : (mouseY+window.innerHeight/2-containerRect.top);
+    let percentX = (mx-worldMap.x)/(map.width*worldMap.scale);
+    let percentY = (my-worldMap.y)/(map.height*worldMap.scale);
+    worldMap.scale *= 1-(e.deltaY/1000)*(settings.invertScroll ? -1 : 1);
+    worldMap.scale = Math.max(0.1, Math.min(worldMap.scale, 2), containerRect.width/map.width || 0, containerRect.height/map.height || 0);
+    worldMap.x = mx-(map.width*worldMap.scale*percentX);
+    worldMap.y = my-(map.height*worldMap.scale*percentY);
     updateWorldMap();
 }, {passive: true});
 updateWorldMap();
@@ -1251,6 +1287,8 @@ let fpsTimes = [];
 let tpsCounter = 0;
 let pingCounter = 0;
 let pingSend = 0;
+let pingRecieved = true;
+let jitterCounter = 0;
 let frameTimeCounter = 0;
 let frameStart = 0;
 let entTimeCounter = 0;
@@ -1270,36 +1308,57 @@ let forceDebug = false;
 const debug = document.getElementById('debug');
 const mousepos = document.getElementById('mousepos');
 const position = document.getElementById('position');
+const fpsDisp = document.getElementById('fps');
+const tpsDisp = document.getElementById('tps');
+const pingDisp = document.getElementById('ping');
+const jitterDisp = document.getElementById('jitter');
+const enttotalDisp = document.getElementById('enttotal');
+const entmonstDisp = document.getElementById('entmonst');
+const entprojDisp = document.getElementById('entproj');
+const entpartDisp = document.getElementById('entpart');
+const drawTimeDisp = document.getElementById('drawTime');
+const entdrawTimeDisp = document.getElementById('entdrawTime');
+const mapdrawTimeDisp = document.getElementById('mapdrawTime');
+const debugdrawTimeDisp = document.getElementById('debugdrawTime');
+const tickTimeDisp = document.getElementById('tickTime');
+const serverHeapDisp = document.getElementById('serverHeap');
+const clientHeapDisp = document.getElementById('clientHeap');
 setInterval(function() {
     if (loaded && !document.hidden) {
-        while (performance.now()-fpsTimes[0] > 1000) fpsTimes.shift();
-        document.getElementById('fps').innerText = 'FPS: ' + fpsTimes.length;
-        document.getElementById('tps').innerText = 'TPS: ' + tpsCounter;
-        document.getElementById('ping').innerText = 'Ping: ' + Math.round(pingCounter*100)/100 + 'ms';
-        pingSend = performance.now();
-        socket.emit('ping');
+        while (performance.now()-fpsTimes[0] > 500) fpsTimes.shift();
+        fpsDisp.innerText = 'FPS: ' + fpsTimes.length*2;
+        tpsDisp.innerText = 'TPS: ' + tpsCounter;
+        pingDisp.innerText = 'Ping: ' + Math.round(pingCounter*100)/100 + 'ms';
+        jitterDisp.innerText = 'Jitter: ' + Math.round(jitterCounter*100)/100 + 'ms';
+        if (pingRecieved) {
+            pingSend = performance.now();
+            socket.emit('ping');
+            pingRecieved = false;
+        }
         if (settings.debug) {
             let monsters = Monster.list.size;
             let projectiles = Projectile.list.size;
             let particles = Particle.list.size;
             let entities = Player.list.size + monsters + projectiles + DroppedItem.list.size;
-            document.getElementById('enttotal').innerText = 'Ent: ' + entities;
-            document.getElementById('entmonst').innerText = 'Mon: ' + monsters;
-            document.getElementById('entproj').innerText = 'Proj: ' + projectiles;
-            document.getElementById('entpart').innerText = 'Part: ' + particles;
-            document.getElementById('drawTime').innerText = 'Frame: ' + Math.round(frameTimeCounter*100)/100 + 'ms';
-            document.getElementById('entdrawTime').innerText = 'Entity: ' + Math.round(entTimeCounter*100)/100 + 'ms';
-            document.getElementById('mapdrawTime').innerText = 'Map: ' + Math.round(mapTimeCounter*100)/100 + 'ms';
-            document.getElementById('debugdrawTime').innerText = 'Debug: ' + Math.round(debugTimeCounter*100)/100 + 'ms';
-            document.getElementById('tickTime').innerText = 'Tick: ' + tickTime + 'ms';
-            document.getElementById('serverHeap').innerText = 'Server Heap: ' + serverHeapUsed + '/' + serverHeapMax + 'MB';
-            document.getElementById('clientHeap').innerText = 'Heap: ' + Math.round(performance.memory.usedJSHeapSize/1048576*100)/100 + '/' + Math.round(performance.memory.jsHeapSizeLimit/1048576*100)/100 + 'MB';
+            enttotalDisp.innerText = 'Ent: ' + entities;
+            entmonstDisp.innerText = 'Mon: ' + monsters;
+            entprojDisp.innerText = 'Proj: ' + projectiles;
+            entpartDisp.innerText = 'Part: ' + particles;
+            drawTimeDisp.innerText = 'Frame: ' + Math.round(frameTimeCounter*100)/100 + 'ms';
+            entdrawTimeDisp.innerText = 'Entity: ' + Math.round(entTimeCounter*100)/100 + 'ms';
+            mapdrawTimeDisp.innerText = 'Map: ' + Math.round(mapTimeCounter*100)/100 + 'ms';
+            debugdrawTimeDisp.innerText = 'Debug: ' + Math.round(debugTimeCounter*100)/100 + 'ms';
+            tickTimeDisp.innerText = 'Tick: ' + tickTime + 'ms';
+            serverHeapDisp.innerText = 'Server Heap: ' + serverHeapUsed + '/' + serverHeapMax + 'MB';
+            clientHeapDisp.innerText = 'Heap: ' + Math.round(performance.memory.usedJSHeapSize/1048576*100)/100 + '/' + Math.round(performance.memory.jsHeapSizeLimit/1048576*100)/100 + 'MB';
         }
     }
 }, 500);
 socket.on('pong', function() {
-    let current = performance.now();
-    pingCounter = current-pingSend;
+    let lastPing = pingCounter;
+    pingCounter = performance.now()-pingSend;
+    jitterCounter = Math.abs(pingCounter-lastPing)*0.5+jitterCounter*0.5;
+    pingRecieved = true;
 });
 function performanceLog(s) {
     forceDebug = true;
@@ -1361,7 +1420,7 @@ function performanceLog(s) {
 };
 
 // debug console
-var indebug = false;
+let indebug = false;
 const debugConsoleEnabled = new URLSearchParams(window.location.search).get('console');
 if (debugConsoleEnabled) {
     const consoleHistory = [];

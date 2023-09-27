@@ -33,33 +33,32 @@ html {
     cursor: default;
 }
 ::-webkit-scrollbar-track {
-    background: rgba(40, 40, 40, 0.2); 
+    background: rgba(40, 40, 40, 0.5); 
 }
 ::-webkit-scrollbar-thumb {
     background: rgba(20, 20, 20, 0.5); 
 }
 ::-webkit-scrollbar-thumb:hover {
-    background: rgba(25, 25, 25, 0.5); 
+    background: rgba(30, 30, 30, 0.5); 
 }
 ::-webkit-scrollbar-thumb:active {
-    background: rgba(15, 15, 15, 0.5); 
+    background: rgba(10, 10, 10, 0.5); 
 }
 
 /* inputs */
 .button {
     background-color: whitesmoke;
-    border: 2px solid black;
+    border: 4px outset gray;
     margin: 2px 2px;
     font-family: 'Pixel';
     font-size: 14px;
-    transition: 0.1s transform ease-in-out;
     cursor: pointer;
 }
 .button:hover {
-    transform: translateY(-5px);
+    background-color: white;
 }
 .button:active {
-    transform: translateY(10px);
+    border: 4px inset gray;
 }
 .select {
     background-color: whitesmoke;
@@ -151,12 +150,25 @@ html {
 }
 
 /* list */
-#assetList {
+#assetFileAccess {
     position: absolute;
     top: 0px;
     left: 0px;
+    width: 380px;
+    height: 40px;
+    background-color: #aaaaaa;
+    border-right: 20px solid black;
+}
+#uploadAssets, #downloadAssets {
+    margin-top: 4px;
+    margin-left: 8px;
+}
+#assetList {
+    position: absolute;
+    top: 40px;
+    left: 0px;
     width: 400px;
-    height: calc(100vh - 40px);
+    height: calc(100vh - 80px);
     background-color: #efefef;
     overflow-y: scroll;
 }

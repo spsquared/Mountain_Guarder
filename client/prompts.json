@@ -1,4 +1,110 @@
 {
+    "tutorial": [
+        {
+            "text": "Welcome to `Mountain Guarder`! Would you like to take a tutorial? (Left click to select answer)",
+            "options": [
+                {
+                    "text": "Yes",
+                    "action": "continue"
+                },
+                {
+                    "text": "No",
+                    "action": "teleport_World,-16,-9,0"
+                }
+            ]
+        },
+        {
+            "text": "As with most other games, use WASD to move, bla bla bla, insert generic how-to-play here.",
+            "options": [
+                {
+                    "text": "...",
+                    "action": "continue"
+                }
+            ]
+        },
+        {
+            "text": "Anyways, on the top right of your screen there is a `Menu` button. Click on that, it contains buttons to your `inventory` (I), `map` (M), and `settings`. Check out the `keybinds section` in your settings for more keybinds.",
+            "options": [
+                {
+                    "text": "...",
+                    "action": "continue"
+                }
+            ]
+        },
+        {
+            "text": "Open your `inventory` (E) and equip your `Wooden Bow` by clicking it and moving your mouse (the bow should follow it) and clicking again to release it over the left bow-shaped icon in the `Equips` section. Your character should be holding a bow now.",
+            "options": [
+                {
+                    "text": "...",
+                    "action": "continue"
+                }
+            ]
+        },
+        {
+            "text": "Now head down and talk to Stronk; right click on an NPC- I mean person to interact with them.",
+            "options": [
+                {
+                    "text": "*Close*",
+                    "action": "quest_tutorial"
+                }
+            ]
+        }
+    ],
+    "tutorial2": [
+        {
+            "text": "You will encounter Monsters of many kinds... Two years ago a swarm of Monsters invaded the Blu mine and killed everyone in it! Maybe you can help reclaim the Montan from those savages!",
+            "options": [
+                {
+                    "text": "...",
+                    "action": "script_spawnTutorialMonsters"
+                }
+            ]
+        },
+        {
+            "text": "Have a shot at killing some Monsters, see if you like it.",
+            "options": [
+                {
+                    "text": "*End conversation*",
+                    "action": "talkedwith_stronk"
+                }
+            ]
+        }
+    ],
+    "tutorial3": [
+        {
+            "text": "`Left click` to use the item equipped (you can hold left click too). Just point your bow in that direction and click!",
+            "options": [
+                {
+                    "text": "*End conversation*",
+                    "action": "close"
+                }
+            ]
+        }
+    ],
+    "tutorial4": [
+        {
+            "text": "Nice, you didn't die. Off you go! Have fun, don't die!",
+            "options": [
+                {
+                    "text": "What?",
+                    "action": "teleport_World,-16,-9,0"
+                },
+                {
+                    "text": "*End conversation*",
+                    "action": "teleport_World,-16,-9,0"
+                }
+            ]
+        },
+        {
+            "text": "Have a shot at killing some Monsters, see if you like it.",
+            "options": [
+                {
+                    "text": "*End conversation*",
+                    "action": "talkedwith_stronk"
+                }
+            ]
+        }
+    ],
     "bob1": [
         {
             "text": "Hello! I'm Bob, nice to meet you! Welcome to the Snowy Outpost!",
@@ -14,7 +120,16 @@
             ]
         },
         {
-            "text": "Yonder east is the Mountain. Something strange is happening up there. Everybody that has gone up to find out has disappeared without a trace.",
+            "text": "Yonder east is the Montan. Weird things have been happening since the Monsters took over. Everybody that has gone to find out has disappeared without a trace.",
+            "options": [
+                {
+                    "text": "Monsters?",
+                    "action": "continue"
+                }
+            ]
+        },
+        {
+            "text": "The Monsters? Those damn blobby things are the bane of our existence! They're bent on destroying every bit of civilization on the Montan, a few years ago they collapsed the mines! Since then the Blu trade has collapsed and the economy is in shambles.",
             "options": [
                 {
                     "text": "...",
@@ -23,16 +138,7 @@
             ]
         },
         {
-            "text": "There's also been these wierd violent blobs of color appearing out of wierd blue portally things. They've wiped out all the animals here and steal things from us.",
-            "options": [
-                {
-                    "text": "...",
-                    "action": "continue"
-                }
-            ]
-        },
-        {
-            "text": "You should go kill some, you'll get your money's worth for it. Maybe you'll even get some loot.",
+            "text": "You should go kill some, you'll get your money's worth for it. Maybe you'll even get some loot. The best monster conquerers are practically gods.",
             "options": [
                 {
                     "text": "Start quest: `Bird Squishing`",
@@ -127,11 +233,12 @@
             ]
         },
         {
-            "text": "You're not supposed to be here, but I have to tell you something...",
+            "text": "I don't think you're supposed to be here, but I have to tell you something...",
             "options": [
                 {
                     "text": "...",
-                    "action": "continue"
+                    "action": "continue",
+                    "criteria": "qualifies_sprock"
                 },
                 {
                     "text": "No, no. I'll leave.",
@@ -140,7 +247,7 @@
             ]
         },
         {
-            "text": "As you probably know, strange things have been happening around here. Recently, we had a Lodestone go missing. We definitely didn't misplace it, but who would want to steal it? It's so valuable!",
+            "text": "As you probably know, strange things are happening more often now. Recently, our Lodestone went missing. We definitely didn't misplace it, but who would want to steal it? There's nobody here!",
             "options": [
                 {
                     "text": "...",
@@ -149,7 +256,7 @@
             ]
         },
         {
-            "text": "Also, strange lights started coming from something a little bit higher up the mountain from the entrance of the old mineshaft after the Lodestone was stolen. I think the two are connected somehow.",
+            "text": "Also, strange glowing lights started coming from something a little bit higher up the mountain from the entrance of the old mineshaft after the Lodestone was stolen. I think it's connected somehow.",
             "options": [
                 {
                     "text": "...",
@@ -162,8 +269,7 @@
             "options": [
                 {
                     "text": "Sure!",
-                    "action": "continue",
-                    "criteria": "qualifies_sprock"
+                    "action": "continue"
                 },
                 {
                     "text": "I don't think I can...",
@@ -214,7 +320,7 @@
             ]
         },
         {
-            "text": "Then go and get the Lodestone! If the wrong people get it things will go bad really fast!",
+            "text": "Then go and get the Lodestone! If the wrong entities get it things will go bad really fast!",
             "options": [
                 {
                     "text": "*End conversation*",
@@ -234,7 +340,7 @@
             ]
         },
         {
-            "text": "Oh right. I didn't tell you. Lodestone is extremely difficult to obtain - it's made from ultra-rare forms of Garuderite and Ialite. One small Lodestone crystal can hold the power of hundreds of Ialite crystals.",
+            "text": "Oh right. I didn't tell you. Lodestone is extremely difficult to obtain - it's made from ultra-rare forms of Blu and Ialite. One small Lodestone crystal can hold the power of hundreds of thousands Ialite crystals.",
             "options": [
                 {
                     "text": "...",
@@ -252,11 +358,22 @@
             ]
         },
         {
-            "text": "Anyways, take this. It's the least I can do to thank you.",
+            "text": "Actually, keep the Lodestone. It'll probably be of more use to you, and it's the least I can do to thank you.",
             "options": [
                 {
                     "text": "End quest `Lodestone Mystery`",
                     "action": "talkedwith_tammy"
+                }
+            ]
+        }
+    ],
+    "ialiteenchanter": [
+        {
+            "text": "The crystal radiates enough Purple energy to ",
+            "options": [
+                {
+                    "text": "*Close*",
+                    "action": "close"
                 }
             ]
         }
@@ -300,7 +417,18 @@
             "options": [
                 {
                     "text": "*End conversation*",
-                    "action": "script-end_function(self) {if (self.trackedData.events.indexOf('newyear2023') == -1) {self.trackedData.events.push('newyear2023'); self.inventory.addItem('fireworklauncher', 1, [], true); setTimeout(function() {self.onDeath(self, 'fire'); insertChat('Friendly Fire: oops, not again!', 'color: #FF5500;');}, 3000);}}"
+                    "action": "script-end_specialEventGiveItem"
+                }
+            ]
+        }
+    ],
+    "buh": [
+        {
+            "text": "buh",
+            "options": [
+                {
+                    "text": "*End conversation*",
+                    "action": "close"
                 }
             ]
         }

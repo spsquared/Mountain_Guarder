@@ -3,7 +3,6 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Mountain Guarder</title>
         <meta content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=2.0, minimum-scale=1.0, user-scalable=no">
         <meta id="viewport" name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=2.0, minimum-scale=1.0, user-scalable=no">
         <meta charset="utf-8">
@@ -16,9 +15,16 @@
         connect-src 'self' https://tls-use1.fpapi.io/ https://api.fpjs.io/ 'unsafe-eval' 'unsafe-inline';
         ">
         <meta name="title" content="Mountain Guarder">
-        <meta name="description" content="Mountain Guarder - A free-to-play indie RPG.">
+        <meta name="description" content="Mountain Guarder - A game-thing.">
         <meta name="url" content="https://mountainguarder.radioactivestuf.repl.co/">
-        <meta name="image" content="https://mountainguarder.radioactivestuf.repl.co/img/assets/banner-small.png">
+        <meta name="image" content="https://mountainguarder.radioactivestuf.repl.co/assets/logo.png">
+        <meta property="og:title" content="Mountain Guarder">
+        <meta property="og:description" content="Mountain Guarder - A game-thing.">
+        <meta property="og:url" content="https://mountainguarder.radioactivestuf.repl.co/">
+        <meta property="og:image" content="https://mountainguarder.radioactivestuf.repl.co/assets/logo.png">
+        <meta property="og:image:width" content="150">
+        <meta property="og:image:height" content="150">
+        <title>Mountain Guarder</title>
         <link rel="icon" href="/assets/favicon.ico" type="image/x-icon">
         <noscript><meta http-equiv="refresh" content="0; url=/nojs.html"/></noscript>
         <script src="/socket.io/socket.io.js"></script>
@@ -37,7 +43,7 @@
     </head>
     <body>
         <div id="menuContainer" class="noSelect">
-            <img id="backgroundImg" src="./img/Preview.png">
+            <img id="backgroundImg" src="./img/assets/Preview.png">
             <div id="backgroundShade"></div>
             <div id="menuTitle">Mountain Guarder</div>
             <div id="stackLeft">
@@ -220,7 +226,7 @@
                         v0.14.0 - 9/25/22
                     </div>
                     <div class="ui-lighttext stackBody">
-                        The first boss fight! Fight the <span style="font-size: 8px;">(strangly similar-looking to the Sentient Rock)</span> Rock of SPUH to reclaim the Lodestone. Talk to Tammy in the Outpost Trader's Store for more information. As usual, bugfixes. And as a bonus, character customization (finally) works!
+                        The first boss fight! Fight the <span style="font-size: 8px;">(strangely similar-looking to the Sentient Rock)</span> Rock of SPUH to reclaim the Lodestone. Talk to Tammy in the Outpost Trader's Store for more information. As usual, bugfixes. And as a bonus, character customization (finally) works!
                         <ul>
                             <li>Added The Rock of SP</li>
                             <li>Added the Rock Turret</li>
@@ -407,7 +413,7 @@
                             <li>Added hot-swapping to offhand item</li>
                             <li>Walking animations now scale to movement speed</li>
                             <li>Fixed Player/NPC walking animations</li>
-                            <li>Buffed cherrybombs</li>
+                            <li>Buffed CherryBombs</li>
                             <li>Nerfed staffs</li>
                             <li>Fixed lag while not on tab</li>
                             <li>Added keybind for dropping items</li>
@@ -417,7 +423,7 @@
                             <li>Rebalanced items for more incentive to use melee</li>
                             <li>Added JS Heap usage information of debug</li>
                             <li>Mountain Guarder now tags computers with an id for security</li>
-                            <li>Fixed wierd inventory behavior</li>
+                            <li>Fixed weird inventory behavior</li>
                             <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/224" target="_blank">Fixed missing tree collisions (Issue #224)</a></li>
                             <li>Added chat colors for devs and ops</li>
                             <li>Allowed username 'sp'</li>
@@ -431,7 +437,7 @@
                             <li>Added @s to debug</li>
                             <li>Changed packet rate limiting</li>
                             <li>Upgrade database user data column to 1,048,576 characters</li>
-                            <li>Replaced plaintext password chache in player objects with encrypted chache</li>
+                            <li>Replaced plaintext password cache in player objects with encrypted cache</li>
                             <li>Multiple small optimizations</li>
                         </ul>
                     </div>
@@ -662,7 +668,7 @@
                     <div class="ui-lighttext stackBody">
                         <span style="animation: christmas 2s infinite">Merry Christmas from the Mountain Guarder devs!</span> Added the christmas2021 item "Season's Yeetings", a reference to <a href="https://www.youtube.com/watch?v=AlLquMhQiz4" target="_blank">BPS.space's rocket-propelled Christmas tree</a>!
                         <ul>
-                            <li>Christmas update! Everone gets a special christmas staff!</li>
+                            <li>Christmas update! Everyone gets a special christmas staff!</li>
                             <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/155" target="_blank">Fixed Bob pathing into walls (Issue #155)</a></li>
                             <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/129" target="_blank">Patched errors on account creation (Issue #129)</a></li>
                             <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/151" target="_blank">Patched debug toggle not changing indicator text (Issue #151)</a></li>
@@ -685,7 +691,7 @@
                             <li>Nerfed cherry bomb blast radius</li>
                             <li>Monsters will no longer circle to a point where they have no line of sight to players</li>
                             <li>Particles have variable sizes now</li>
-                            <li>Fixed wierd texturing on purple orbs</li>
+                            <li>Fixed weird texturing on purple orbs</li>
                             <li>Fixed noclip problems with purple orbs</li>
                             <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/146" target="_blank">Patched monsters aggroing from any distance (Issue #146)</a></li>
                             <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/144" target="_blank">Patched chat filter bypass (Issue #144)</a></li>
@@ -938,7 +944,7 @@
                             <li>Monsters now circle players when close enough</li>
                             <li>Cherry bomb explosion chains are now chains</li>
                             <li>Fixed monsters moving after losing aggro</li>
-                            <li>Did some performange profiling</li>
+                            <li>Did some performance profiling</li>
                             <li>Fixed monster aggro</li>
                             <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/56" target="_blank">Patched projectiles spawning in collisions (Issue #56)</a></li>
                             <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/52" target="_blank">Patched rubberbanding while changing maps (Issue #52)</a></li>
@@ -991,7 +997,7 @@
                             <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/47" target="_blank">Patched player sprite clipping (Issue #47)</a></li>
                             <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/49" target="_blank">Fixed typo in projectile angle calculation (Issue #49)</a></li>
                             <li>Entities that don't move don't get processed anymore</li>
-                            <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/50" target="_blank">Fixed cherrybomb infinite animation loop glitch (Issue #50)</a></li>
+                            <li><a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/50" target="_blank">Fixed CherryBomb infinite animation loop glitch (Issue #50)</a></li>
                             <li>Fixed player animations</li>
                         </ul>
                     </div>
@@ -1075,7 +1081,7 @@
                         <ul>
                             <li>Added diagonal projectile collisions</li>
                             <li>Filled in placeholders for some of the UI</li>
-                            <li>Fixed cherrybombs</li>
+                            <li>Fixed CherryBombs</li>
                             <li>Holding the mouse button now continuously attacks</li>
                             <li>Improved snowballs</li>
                             <li>Birds and Snow Birds now attack</li>
@@ -1198,7 +1204,7 @@
                             1/1/23
                         </div>
                         <div class="stackBody">
-                            Happy New Year! (?) After forgetting to do a <span style="animation: christmas 2s infinite;">christmas update</span>, here's a new year's update. Like last year, we're giving you a fireworks launcher! Use it to celebrate things... by blowing up your friends.<br><span style="font-style: italic;">There seems to be a recurring theme for blowing things up in this game...</span>
+                            Happy New Year! (?) After forgetting to do a <span style="animation: christmas 2s infinite;">Christmas update</span>, here's a new year's update. Like last year, we're giving you a fireworks launcher! Use it to celebrate things... by blowing up your friends.<br><span style="font-style: italic;">There seems to be a recurring theme for blowing things up in this game...</span>
                         </div><br>
                         <div class="stackSub">
                             8/9/22
@@ -1277,7 +1283,7 @@
                     <div class="ui-lighttext stackBody">
                         Sampleprovider(sp): Lead Developer<br>
                         suvanth: Bug/Vulnerability Finder<br>
-                        spuh: Bug Finder<br>
+                        sp: Bug Finder<br>
                         <br>
                         <a href="https://github.com/definitely-nobody-is-here/Mountain_Guarder" target="_blank">GitHub repository</a><br>
                         <a href="https://discord.gg/y2pMjrwZGr" target="_blank">Join our Discord!</a><br>
@@ -1321,7 +1327,7 @@
                     </div>
                     <div class="ui-lighttext stackBody">
                         Here are some tools (both internal and external) for creating and editing game assets.<br>
-                        <a href="./itemcreator/" target="_blank">Mountain Guarder Item Creator (depracated)</a><br>
+                        <a href="./itemcreator/" target="_blank">Mountain Guarder Item Creator</a><br>
                         <a href="./asseteditor/" target="_blank">Mountain Guarder Asset Editor (unfinished)</a><br>
                         <a href="https://thorbjorn.itch.io/tiled" target="_blank">Tiled</a>
                     </div>
@@ -1370,6 +1376,7 @@
             <div id="debug" class="ui-lighttext noSelect">
                 <div id="tps" class="debugOverlay">TPS: 0</div>
                 <div id="ping" class="debugOverlay">Ping: 0ms</div>
+                <div id="jitter" class="debugOverlay">Jitter: 0ms</div>
                 <div id="frameTimes" class="debugOverlay">
                     Draw Times
                     <div id="drawTime">Frame: 0ms</div>
@@ -1447,11 +1454,16 @@
                             <button id="sellShopSell" class="ui-lightbutton" onclick="SellShop.sellItem();">SELL</button>
                         </div>
                     </div>
+                    <div id="inventoryEnchanting" class="window-body inventory-right">
+                        <div id="inventoryEnchantingName">Enchanting - SP Stone</div>
+                        <div id="inventoryEnchantingBody" class="ui-block inventory-body"></div>
+                    </div>
                     <div id="inventorySelect" class="window-select">
                         <button id="inventoryEquipsSelect" class="window-select-button ui-lightbutton">Equips</button>
                         <button id="inventoryCraftingSelect" class="window-select-button ui-lightbutton">Crafting</button>
                         <span id="inventoryShopSelect" style="display: none;"></span>
                         <span id="inventorySellShopSelect" style="display: none;"></span>
+                        <span id="inventoryEnchantingSelect" style="display: none;"></span>
                     </div>
                 </div>
                 <div id="map" class="window ui-block ui-lighttext noSelect">
@@ -1604,17 +1616,6 @@
                             </tr>
                             <tr>
                                 <td style="text-align: right;">
-                                    Dialogue Speed:
-                                </td>
-                                <td>
-                                    <input type="range" id="dialogueSpeedSlider" class="ui-slider" min="1" max="10" value="5" step="1" oninput="slider('dialogueSpeed');">
-                                </td>
-                                <td>
-                                    <div id="dialogueSpeedIndicator" class="ui-lighttext">5</div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td style="text-align: right;">
                                     Animated Tiles:
                                 </td>
                                 <td>
@@ -1625,6 +1626,17 @@
                                 </td>
                                 <td>
                                     <div id="animatedTilesIndicator" class="ui-lighttext">on</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: right;">
+                                    Dialogue Speed:
+                                </td>
+                                <td>
+                                    <input type="range" id="dialogueSpeedSlider" class="ui-slider" min="1" max="10" value="5" step="1" oninput="slider('dialogueSpeed');">
+                                </td>
+                                <td>
+                                    <div id="dialogueSpeedIndicator" class="ui-lighttext">5</div>
                                 </td>
                             </tr>
                             <!-- <tr>
@@ -1641,20 +1653,6 @@
                                     <div id="pointerLockIndicator" class="ui-lighttext">off</div>
                                 </td>
                             </tr> -->
-                            <tr>
-                                <td class="experimental" style="text-align: right;">
-                                    Use Controller:
-                                </td>
-                                <td class="experimental">
-                                    <label class="ui-toggle">
-                                        <input type="checkbox" id="useControllerToggle" class="ui-toggleInput" onclick="toggle('useController');">
-                                        <span class="ui-toggleSlider"></span>
-                                    </label>
-                                </td>
-                                <td>
-                                    <div id="useControllerIndicator" class="ui-lighttext">off</div>
-                                </td>
-                            </tr>
                             <tr>
                                 <td style="text-align: right;">
                                     Chat Background:
@@ -1681,6 +1679,20 @@
                                 </td>
                             </tr>
                             <tr>
+                                <td class="experimental" style="text-align: right;">
+                                    Use Controller:
+                                </td>
+                                <td class="experimental">
+                                    <label class="ui-toggle">
+                                        <input type="checkbox" id="useControllerToggle" class="ui-toggleInput" onclick="toggle('useController');">
+                                        <span class="ui-toggleSlider"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <div id="useControllerIndicator" class="ui-lighttext">off</div>
+                                </td>
+                            </tr>
+                            <tr>
                                 <td style="text-align: right;">
                                     High Contrast:
                                 </td>
@@ -1692,6 +1704,20 @@
                                 </td>
                                 <td>
                                     <div id="highContrastIndicator" class="ui-lighttext">off</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: right;">
+                                    Invert Scroll:
+                                </td>
+                                <td>
+                                    <label class="ui-toggle">
+                                        <input type="checkbox" id="invertScrollToggle" class="ui-toggleInput" onclick="toggle('invertScroll');">
+                                        <span class="ui-toggleSlider"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <div id="invertScrollIndicator" class="ui-lighttext">off</div>
                                 </td>
                             </tr>
                             <tr>
@@ -2083,9 +2109,6 @@
         </div>
         <div id="disconnectedContainer" class="noSelect">
             <button id="disconnected" class="noSelect" onclick="window.location.reload()">DISCONNECTED</button>
-        </div>
-        <div style="display: none;">
-            <a href="https://grandcanyonshuttles.com/uploads/5/5/6/7/5567194/custom_themes/136734914403232081/drift_hunter.html" target="_blank">DRIFT HUNTERS!!!</a>
         </div>
     </body>
 </html>

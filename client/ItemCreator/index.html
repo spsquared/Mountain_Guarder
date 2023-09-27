@@ -72,9 +72,9 @@
                 </select><br>
             </div>
             <div id="statsShield">
-                &emsp;Knockback Resistance:&nbsp;<input type="number" id="knockbackResistance" class="text-small" min="0" max="1" value="0" step="0.01">
-                &emsp;Block Angle:&nbsp;<input type="number" id="blockAngle" class="text-small" min="0" max="360" value="90">
-                &emsp;Reflection Chance:&nbsp;<input type="number" id="projectileReflectChance" class="text-small" min="0" max="1" value="0" step="0.01">
+                &emsp;Knockback Resistance:&nbsp;<input type="number" id="knockbackResistance" class="text-small" min="0" max="1" value="0" step="0.01"><br>
+                &emsp;Block Angle:&nbsp;<input type="number" id="blockAngle" class="text-small" min="0" max="360" value="90"><br>
+                &emsp;Reflection Chance:&nbsp;<input type="number" id="projectileReflectChance" class="text-small" min="0" max="1" value="0" step="0.01"><br>
             </div>
             <div id="statsOffhand">
                 &emsp;Custom Effect:<br>
@@ -83,9 +83,9 @@
 };</textarea>
             </div>
             <div id="statsKey">
-                &emsp;Max Mana Increase:&nbsp;<input type="number" id="manaIncrease" class="text-small" min="0" max="1000000" value="0">
-                &emsp;Mana Regen Speed:&nbsp;<input type="number" id="manaRegenerationSpeed" class="text-small" min="1" max="100" value="20">
-                &emsp;Mana Regen Amount:&nbsp;<input type="number" id="manaRegenerationAmount" class="text-small" min="1" max="1000" value="1">
+                &emsp;Max Mana Increase:&nbsp;<input type="number" id="manaIncrease" class="text-small" min="0" max="1000000" value="0"><br>
+                &emsp;Mana Regen Speed:&nbsp;<input type="number" id="manaRegenerationSpeed" class="text-small" min="1" max="100" value="20"><br>
+                &emsp;Mana Regen Amount:&nbsp;<input type="number" id="manaRegenerationAmount" class="text-small" min="1" max="1000" value="1"><br>
             </div>
             &emsp;Rarity:&nbsp;<input type="number" id="rarity" class="text-small" min="-1000000" max="1000000" value="0"><br>
             &emsp;Maximum Stack Size:&nbsp;<input type="number" id="maxStackSize" class="text-small" min="0" max="1000000" value="1"><br>
@@ -113,36 +113,37 @@
             <b>Enchantments:</b><br>
             <div id="enchantments">
                 <b>All</b><br>
-                &emsp;<input type="checkbox" id="enchantlightness" class="checkBox">Lightness (movespeed)<br>
+                &emsp;Lightness (movespeed): <input type="number" id="enchantlightness" class="text-small"><br>
                 <b>Weapons</b><br>
-                &emsp;<input type="checkbox" id="enchantspeed" class="checkBox">Speed (attackspeed)<br>
-                &emsp;<input type="checkbox" id="enchantpoisonEffect" class="checkBox">Poison (poison effect)<br>
-                &emsp;<input type="checkbox" id="enchantburningEffect" class="checkBox">Blazing (fire effect)<br>
+                &emsp;Speed (attackspeed): <input type="number" id="enchantspeed" class="text-small"><br>
+                &emsp;Poison (poison effect): <input type="number" id="enchantpoisonEffect" class="text-small"><br>
+                &emsp;Blazing (fire effect): <input type="number" id="enchantburningEffect" class="text-small"><br>
                 &emsp;<b>Ranged</b><br>
-                &emsp;&emsp;<input type="checkbox" id="enchantrange" class="checkBox">Range (range)<br>
-                &emsp;&emsp;<input type="checkbox" id="enchantaccuracy" class="checkBox">Accuracy (accuracy)<br>
-                &emsp;&emsp;<input type="checkbox" id="enchantpower" class="checkBox">Power (damage)<br>
-                &emsp;&emsp;<input type="checkbox" id="enchantpiercing" class="checkBox">Piercing (max entities)<br>
+                &emsp;&emsp;Range (range): <input type="number" id="enchantrange" class="text-small"><br>
+                &emsp;&emsp;Accuracy (accuracy): <input type="number" id="enchantaccuracy" class="text-small"><br>
+                &emsp;&emsp;Power (damage): <input type="number" id="enchantpower" class="text-small"><br>
+                &emsp;&emsp;Piercing (max entities): <input type="number" id="enchantpiercing" class="text-small"><br>
                 &emsp;<b>Melee</b><br>
-                &emsp;&emsp;<input type="checkbox" id="enchantsharpness" class="checkBox">Sharpness (damage)<br>
-                &emsp;&emsp;<input type="checkbox" id="enchantreach" class="checkBox">Reach (reach)<br>
-                &emsp;&emsp;<input type="checkbox" id="enchantforce" class="checkBox">Knockback (knockback)<br>
+                &emsp;&emsp;Sharpness (damage): <input type="number" id="enchantsharpness" class="text-small"><br>
+                &emsp;&emsp;Reach (reach): <input type="number" id="enchantreach" class="text-small"><br>
+                &emsp;&emsp;Knockback (knockback): <input type="number" id="enchantforce" class="text-small"><br>
                 &emsp;<b>Purple</b><br>
-                &emsp;&emsp;<input type="checkbox" id="enchantefficiency" class="checkBox">Efficiency (manacost)<br>
-                &emsp;&emsp;<input type="checkbox" id="enchantsorcery" class="checkBox">Sorcery (damage)<br>
-                &emsp;&emsp;<input type="checkbox" id="enchantfocus" class="checkBox">Focus (crit chance)<br>
-                &emsp;&emsp;<input type="checkbox" id="enchantspuhrpling" class="checkBox">Spuhrpling (crit damage)<br>
+                &emsp;&emsp;Efficiency (manacost): <input type="number" id="enchantefficiency" class="text-small"><br>
+                &emsp;&emsp;Sorcery (damage): <input type="number" id="enchantsorcery" class="text-small"><br>
+                &emsp;&emsp;Focus (crit chance): <input type="number" id="enchantfocus" class="text-small"><br>
+                &emsp;&emsp;Spuhrpling (crit damage): <input type="number" id="enchantspuhrpling" class="text-small"><br>
                 <b>Armor</b><br>
-                &emsp;<input type="checkbox" id="enchantprotection" class="checkBox">Protection (defense)<br>
-                &emsp;<input type="checkbox" id="enchantspikes" class="checkBox">Spikes (touch damage)<br>
+                &emsp;Protection (defense): <input type="number" id="enchantprotection" class="text-small"><br>
+                &emsp;Spikes (touch damage): <input type="number" id="enchantspikes" class="text-small"><br>
                 <b>Boots</b><br>
-                &emsp;<input type="checkbox" id="enchantswiftness" class="checkBox">Swiftness (movespeed)<br>
+                &emsp;Swiftness (movespeed): <input type="number" id="enchantswiftness" class="text-small"><br>
                 <b>Shields</b><br>
-                &emsp;<input type="checkbox" id="enchanttoughness" class="checkBox">Toughness (knockback resistance)<br>
-                &emsp;<input type="checkbox" id="enchantmirroring" class="checkBox">Mirroring (reflection)<br>
+                &emsp;Toughness (knockback resist): <input type="number" id="enchanttoughness" class="text-small"><br>
+                &emsp;Mirroring (reflection): <input type="number" id="enchantmirroring" class="text-small"><br>
             </div>
-            <input type="button" id="generateServerItem" class="button" value="GENERATE SERVER ITEM" onclick="generateServerItem();">
-            <input type="button" id="generateClientItem" class="button" value="GENERATE CLIENT ITEM" onclick="generateClientItem();">
+            <input type="button" id="generateServerItem" class="button" value="GENERATE SERVER ITEM" onclick="generateServerItem();"><br>
+            <input type="button" id="generateClientItem" class="button" value="GENERATE CLIENT ITEM" onclick="generateClientItem();"><br>
+            <br>
         </div>
     </body>
 </html>

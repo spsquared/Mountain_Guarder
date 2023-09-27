@@ -5,7 +5,7 @@ const msgpack = require('@ygoe/msgpack');
 const fs = require('fs');
 
 Collision = function Collision(map, x, y, layer, type) {
-    var coltype = 0;
+    let coltype = 0;
     switch (type) {
         case -1:
             coltype = 0;
@@ -215,6 +215,7 @@ Collision = function Collision(map, x, y, layer, type) {
             break;
         default:
             error('Invalid collision at (' + map + ', ' + layer + ', ' + x + ', ' + y + ')');
+            MAPS.loadingError = true;
             break;
     }
 
@@ -484,6 +485,7 @@ Layer = function Layer(map, x, y, layer, type) {
         Layer.grid[map][parseInt(layer)][parseInt(y)] = [];
     }
     Layer.grid[map][parseInt(layer)][parseInt(y)][parseInt(x)] = type;
+    Layer.getColEntity(map, x, y, layer);
     return type;
 };
 Layer.getColEntity = function getColEntity(map, x, y, layer) {
@@ -555,6 +557,7 @@ Layer.getColEntity = function getColEntity(map, x, y, layer) {
             break;
         default:
             error('Invalid layer ' + coltype + 'at (' + map + ',' + layer + ',' + x + ',' + y + ')');
+            MAPS.loadingError = true;
             break;
     }
     
@@ -789,6 +792,7 @@ Slowdown = function Slowdown(map, x, y, type) {
             break;
         default:
             error('Invalid slowdown at (' + map + ', ' + x + ', ' + y + ')');
+            MAPS.loadingError = true;
             break;
     }
 
@@ -880,7 +884,7 @@ Spawner = function Spawner(map, x, y, layer, types) {
         if (self.spawned) return;
         try {
             let multiplier = 0;
-            for (let id of Array.from(self.types)) multiplier += Monster.types[id].spawnChance;
+            for (let id of self.types) multiplier += Monster.types[id].spawnChance;
             let random = Math.random()*multiplier;
             let min = 0;
             let max = 0;
@@ -928,6 +932,7 @@ Spawner = function Spawner(map, x, y, layer, types) {
 };
 BossSpawner = function BossSpawner(map, x, y, layer, id) {
     const self = new Spawner(map, x, y, layer, [id]);
+    self.id = id;
     self.isBossSpawner = true;
 
     self.onMonsterDeath = function onMonsterDeath() {
@@ -988,24 +993,24 @@ Teleporter.grid = [];
 GaruderWarp = {
     locations: [],
     triggers: [],
-    addPosition: function addPosition(map, x, y, layer, id, tr) {
-        GaruderWarp.locations[id] = {
-            id: id,
-            map: map,
-            x: parseInt(x)*64+32,
-            y: parseInt(y)*64+32,
-            layer: parseInt(layer),
-            triggerRadius: parseInt(tr)
-        };
-    },
-    updateTriggers: function updateTriggers() {
-        for (let i in GaruderWarp.locations) {
-            let localwarp = GaruderWarp.locations[i];
-            for (let j in Player.list) {
-                let localplayer = Player.list[j];
-                if (localplayer.garuderWarpPositions.indexOf(localwarp.id) == -1 && localplayer.map == localwarp.map && localplayer.getDistance(localwarp) < localwarp.triggerRadius*64) {
-                    localplayer.garuderWarpPositions.push(localwarp.id);
-                }
+};
+GaruderWarp.addPosition = function addPosition(map, x, y, layer, id, tr) {
+    GaruderWarp.locations[id] = {
+        id: id,
+        map: map,
+        x: parseInt(x)*64+32,
+        y: parseInt(y)*64+32,
+        layer: parseInt(layer),
+        triggerRadius: parseInt(tr)
+    };
+};
+GaruderWarp.updateTriggers = function updateTriggers() {
+    for (let i in GaruderWarp.locations) {
+        let localwarp = GaruderWarp.locations[i];
+        for (let j in Player.list) {
+            let localplayer = Player.list[j];
+            if (localplayer.garuderWarpPositions.indexOf(localwarp.id) == -1 && localplayer.map == localwarp.map && localplayer.getDistance(localwarp) < localwarp.triggerRadius*64) {
+                localplayer.garuderWarpPositions.push(localwarp.id);
             }
         }
     }
@@ -1026,18 +1031,24 @@ EventTrigger = function EventTrigger(map, x, y, id) {
     };
 
     self.update = function update() {
-        for (let criteria of self.criteria) {
-            if (typeof EventTrigger.criteria[criteria.type] == 'function') {
-                if (!EventTrigger.criteria[criteria.type](self, criteria.data)) {
-                    return;
-                }
-            } else {
-                error('Invalid EventTrigger criteria ' + criteria.type);
+        update: for (let i in Player.list) {
+            const localplayer = Player.list[i];
+            if (localplayer.map != self.map || localplayer.chunkx < self.chunkx-1 || localplayer.chunkx > self.chunkx+1 || localplayer.chunky < self.chunky-1 || localplayer.chunky > self.chunky+1 || localplayer.teleporting || localplayer.talking) {
+                continue;
             }
-        }
-        for (let action of self.action) {
-            typeof EventTrigger.actions[action.type] == 'function' && EventTrigger.actions[action.type](self, action.data);
-            typeof EventTrigger.actions[action.type] != 'function' && error('Invalid EventTrigger action ' + action.type);
+            for (let criteria of self.criteria) {
+                if (typeof EventTrigger.criteria[criteria.type] == 'function') {
+                    if (!EventTrigger.criteria[criteria.type](self, localplayer, criteria.data)) {
+                        continue update;
+                    }
+                } else {
+                    error('Invalid EventTrigger criteria ' + criteria.type);
+                }
+            }
+            for (let action of self.action) {
+                typeof EventTrigger.actions[action.type] == 'function' && EventTrigger.actions[action.type](self, localplayer, action.data);
+                typeof EventTrigger.actions[action.type] != 'function' && error('Invalid EventTrigger action ' + action.type);
+            }
         }
     };
 
@@ -1056,33 +1067,8 @@ EventTrigger.init = function init() {
     }
 };
 EventTrigger.triggers = require('./triggers.json');
-EventTrigger.criteria = {
-    playerDistance: function criteria_playerDistance(self, value) {
-        for (let z in Player.chunks[self.map]) {
-            for (let y = self.chunky-1; y <= self.chunky+1; y++) {
-                if (Player.chunks[self.map][z][y]) for (let x = self.chunkx-1; x <= self.chunkx+1; x++) {
-                    if (Player.chunks[self.map][z][y][x]) {
-                        let players = Player.chunks[self.map][z][y][x];
-                        for (let i in players) {
-                            if (players[i].getGridDistance(self) <= value) return true;
-                        }
-                    }
-                }
-            }
-        }
-        return false;
-    }
-};
-EventTrigger.actions = {
-    activateBossSpawner: function action_activateBossSpawner(self, data) {
-        for (let spawner of Spawner.bossList) {
-            if (spawner.map == data.map && spawner.gridx == data.x && spawner.gridy == data.y) {
-                spawner.spawnMonster();
-                return;
-            }
-        }
-    }
-};
+EventTrigger.criteria = {};
+EventTrigger.actions = {};
 EventTrigger.list = [];
 
 async function sleep(ms) {

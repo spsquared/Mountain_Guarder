@@ -32,6 +32,7 @@
     position: absolute;
     top: -22px;
     left: -22px;
+    pointer-events: none;
     z-index: 100;
 }
 
@@ -366,24 +367,29 @@
     bottom: 72px;
     left: 16px;
 }
+#jitter {
+    position: absolute;
+    bottom: 98px;
+    left: 16px;
+}
 #frameTimes {
     position: absolute;
-    bottom: 102px;
+    bottom: 128px;
     left: 16px;
 }
 #tickTimes {
     position: absolute;
-    bottom: 222px;
+    bottom: 248px;
     left: 16px;
 }
 #serverHeap {
     position: absolute;
-    bottom: 300px;
+    bottom: 326px;
     left: 16px;
 }
 #clientHeap {
     position: absolute;
-    bottom: 274px;
+    bottom: 300px;
     left: 16px;
 }
 
@@ -871,6 +877,7 @@
     top: 0px;
     left: 0px;
     transform: scale(1);
+    transform-origin: top left;
 }
 
 /* settings */

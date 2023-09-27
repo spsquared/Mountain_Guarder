@@ -1,4 +1,15 @@
 {
+    "tutorialmaster": {
+        "name": "Tutorial Master",
+        "width": 32,
+        "height": 64,
+        "rawWidth": 8,
+        "rawHeight": 16,
+        "offsetX": 0,
+        "offsetY": -52,
+        "displayBossBar": true,
+        "bossBarColor": "#3C70FF"
+    },
     "greenbird": {
         "name": "Green Bird",
         "width": 44,
@@ -32,9 +43,9 @@
     "cherrybomb": {
         "name": "Cherry Bomb",
         "width": 64,
-        "height": 64,
+        "height": 48,
         "rawWidth": 16,
-        "rawHeight": 16,
+        "rawHeight": 12,
         "offsetX": 0,
         "offsetY": 0,
         "displayBossBar": false
@@ -89,5 +100,15 @@
         "offsetY": -100,
         "displayBossBar": true,
         "bossBarColor": "#B420B4"
+    },
+    "rockbomb": {
+        "name": "Rocky Bomb",
+        "width": 64,
+        "height": 48,
+        "rawWidth": 16,
+        "rawHeight": 12,
+        "offsetX": 0,
+        "offsetY": 0,
+        "displayBossBar": false
     }
 }

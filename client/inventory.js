@@ -89,7 +89,7 @@ Inventory.Slot = function Slot(i) {
         self.mousedOver = true;
         if (self.item) {
             Inventory.hovering = true;
-            Inventory.loadTooltip(self.slotId);
+            tooltip.innerHTML = Inventory.getTooltip(self.item);
             invMouseMove(e);
         }
     };
@@ -135,7 +135,7 @@ Inventory.EquipSlot = function EquipSlot(equip) {
         self.mousedOver = true;
         if (self.item) {
             Inventory.hovering = true;
-            Inventory.loadTooltip(self.slotId);
+            tooltip.innerHTML = Inventory.getTooltip(self.item);
             invMouseMove(e);
         }
     };
@@ -187,11 +187,8 @@ Inventory.contains = function contains(id, amount) {
     }
     return count >= amount;
 };
-Inventory.loadTooltip = function loadTooltip(slot) {
-    let item;
-    if (typeof slot == 'number') item = Inventory.items[slot].item;
-    else item = Inventory.equips[slot].item;
-    tooltip.innerHTML = '<span style="font-size: 16px; ' + Inventory.getRarityColor(item.rarity) + '">' + item.name + '</span><br>' + '<span style="font-size: 14px;">' + item.slotType.charAt(0).toUpperCase()+item.slotType.slice(1) + '</span>' + '<br><div style="font-size: 12px; line-height: 14px;">' + item.description + '</div>' + Inventory.loadEffects(item) + (item.usable ? '<span style="font-size: 10px; line-height: 12px; color: yellow;">Has use function</span>' : '');
+Inventory.getTooltip = function getTooltip(item) {
+    return `<span style="font-size: 16px; ${Inventory.getRarityColor(item.rarity)}">${item.name}</span><br><span style="font-size: 14px;">${item.slotType.charAt(0).toUpperCase()+item.slotType.substring(1)}</span><br><div style="font-size: 12px; line-height: 16px;">${item.description}</div>${Inventory.getEffects(item)}${item.usable ? '<span style="font-size: 10px; line-height: 12px; color: yellow;">Has use function</span>' : ''}`;
 };
 Inventory.getRarityColor = function getRarityColor(rarity) {
     var str = '';
@@ -229,7 +226,7 @@ Inventory.getRarityColor = function getRarityColor(rarity) {
     }
     return str;
 };
-Inventory.loadEffects = function loadEffects(item) {
+Inventory.getEffects = function getEffects(item) {
     let str = '<div style="font-size: 12px; line-height: 14px;">';
     if (typeof item === 'object') {
         if (item.slotType == 'weapon' || item.slotType == 'crystal') {
@@ -390,8 +387,12 @@ Inventory.loadEffects = function loadEffects(item) {
     str += '</div>';
     return str;
 };
+Inventory.getEnchantments = function getEnchantments(item) {
+
+};
 document.addEventListener('mousedown', function(e) {
     if (loaded) {
+        invMouseMove(e);
         if (e.button == 0 || e.button == 2) {
             if (document.getElementById('inventory').contains(e.target)) {
                 for (let i in Inventory.items) {
@@ -430,6 +431,7 @@ function invMouseMove(e) {
         if (Inventory.currentDrag != null) {
             dragDiv.style.left = e.clientX-32 + 'px';
             dragDiv.style.top = e.clientY-32 + 'px';
+            tooltip.style.opacity = 0;
         } else if (Inventory.hovering) {
             tooltip.style.opacity = 1;
             tooltip.style.left = e.clientX + 'px';
@@ -612,6 +614,10 @@ async function loadInventoryData() {
                 loadedassets++;
                 resolve();
             };
+            Inventory.itemImages[i].onerror = function(e) {
+                Inventory.itemImages[i].src = '/img/missing-texture.png';
+                e.preventDefault();
+            };
             Inventory.itemImages[i].src = '/img/item/' + i + '.png';
             Inventory.itemImages[i].className = 'invSlotImg noSelect';
         });
@@ -619,6 +625,10 @@ async function loadInventoryData() {
             Inventory.itemHighlightImages[i].onload = function() {
                 loadedassets++;
                 resolve();
+            };
+            Inventory.itemHighlightImages[i].onerror = function(e) {
+                Inventory.itemHighlightImages[i].src = '/img/missing-texture.png';
+                e.preventDefault();
             };
             Inventory.itemHighlightImages[i].src = '/img/item/highlighted/' + i + '.png';
             Inventory.itemHighlightImages[i].className = 'invSlotImg noSelect';
@@ -629,6 +639,10 @@ async function loadInventoryData() {
             loadedassets++;
             resolve();
         };
+        Inventory.itemImages['empty'].onerror = function(e) {
+            Inventory.itemImages['empty'].src = '/img/missing-texture.png';
+            e.preventDefault();
+        };
         Inventory.itemImages['empty'].src = '/img/item/empty.png';
         Inventory.itemImages['empty'].className = 'invSlotImgNoGrab noSelect';
     });
@@ -637,6 +651,10 @@ async function loadInventoryData() {
             Inventory.itemImages[i].onload = function() {
                 loadedassets++;
                 resolve();
+            };
+            Inventory.itemImages[i].onerror = function(e) {
+                Inventory.itemImages[i].src = '/img/missing-texture.png';
+                e.preventDefault();
             };
             Inventory.itemImages[i].src = '/img/item/emptySlot' + i + '.png';
             Inventory.itemImages[i].className = 'invSlotImgNoGrab noSelect';
@@ -672,7 +690,7 @@ Crafting.slot = function slot(slot) {
     if (craft.amount != 1) amount.innerText = craft.amount;
     block.appendChild(amount);
     tile.appendChild(block);
-    const popupItemText = '<span style="font-size: 16px; ' + Inventory.getRarityColor(item.rarity) + '">' + item.name + '</span><br><span style="font-size: 14px;">' + item.slotType.charAt(0).toUpperCase()+item.slotType.slice(1) + '</span><br><div style="font-size: 12px; line-height: 14px;">' + item.description + '</div>' + Inventory.loadEffects(item) + '<br>';
+    const popupItemText = Inventory.getTooltip(item);
     inventoryCrafting.appendChild(tile);
     block.onmouseover = function onmouseover(e) {
         Inventory.hovering = true;

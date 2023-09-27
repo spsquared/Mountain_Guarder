@@ -441,7 +441,8 @@ Inventory = function(socket, player) {
             return;
         }
         if (item && item.usable) {
-            new Function('return ' + item.useScript)()(player);
+            typeof Inventory.useFunctions[item.id] == 'function' && Inventory.useFunctions[item.id](player);
+            typeof Inventory.useFunctions[item.id] != 'function' && error('missing item use function ' + item.id);
         }
     }
     self.craftItem = function craftItem(slot) {
@@ -548,7 +549,7 @@ Inventory.isSameItem = function isSameItem(item1, item2) {
     return false;
 };
 Inventory.Item = function Item(id, list, amount, enchantments, slot) {
-    if (Inventory.items[id] == null) {
+    if (Inventory.items[id] == undefined) {
         id = 'missing';
     }
     const self = cloneDeep(Inventory.items[id]);
@@ -624,12 +625,31 @@ Inventory.Item = function Item(id, list, amount, enchantments, slot) {
 Inventory.items = require('./item.json');
 Inventory.craftingRecipies = require('./../client/crafts.json').items;
 Inventory.enchantments = null;
+Inventory.useFunctions = {};
 
 Enchanter = function(socket, inventory, player) {
-    // player goes to ialite crystal in abandoned mineshaft
-    // ialite crystal takes xp and mana to enchant item
-    // using quartz crystals or ialite shards changes the level enchant recieved
-    // sort of like enchanting table in minced raft
+    const self = {
+
+    };
+    player.attacking = false;
+    player.shield = false;
+    player.heldItem.usingShield = false;
+    player.canMove = false;
+    player.invincible = true;
+    player.controls = {
+        up: false,
+        down: false,
+        left: false,
+        right: false,
+        xaxis: 0,
+        yaxis: 0,
+        x: 0,
+        y: 0,
+        heal: false
+    };
+    player.inShop = true;
+    player.shop = self;
+    player.animationDirection = 'facing';
 };
 
 Shop = function(id, socket, inventory, player, npc) {
@@ -801,6 +821,12 @@ SellShop = function(socket, inventory, player, npc) {
             inventory.addItem(item.id, item.stackSize, item.enchantments, false);
             inventory.equips['sell'] = null;
             inventory.refreshItem('sell');
+            socket.emit('item', {
+                action: 'itemvalue',
+                data: {
+                    value: 0
+                }
+            });
         }
         player.canMove = true;
         player.invincible = false;

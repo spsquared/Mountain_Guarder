@@ -16,7 +16,7 @@ const keys = subtle.generateKey({
 Entity = function() {
     const self = {
         entType: 'entity',
-        id: null,
+        id: uuidv1(),
         x: 0,
         y: 0,
         map: 'World',
@@ -44,7 +44,6 @@ Entity = function() {
             chunky: null
         }
     };
-    self.id = uuidv1();
     lock(self, ['id']);
 
     self.update = function update() {
@@ -224,7 +223,7 @@ Entity = function() {
     };
     self.rayCast = function rayCast(entity) {
         try {
-            var ray = {
+            const ray = {
                 x: self.x,
                 y: self.y,
                 angle: 0,
@@ -232,9 +231,9 @@ Entity = function() {
                 yspeed: 0
             };
             ray.angle = self.getAngle(entity);
-            ray.xspeed = Math.cos(ray.angle)*15;
-            ray.yspeed = Math.sin(ray.angle)*15;
-            let distance = Math.ceil(self.getDistance(entity)/15);
+            ray.xspeed = Math.cos(ray.angle)*ENV.raycastStep;
+            ray.yspeed = Math.sin(ray.angle)*ENV.raycastStep;
+            let distance = Math.ceil(self.getDistance(entity)/ENV.raycastStep);
             for (let i = 0; i < distance; i++) {
                 ray.x += ray.xspeed;
                 ray.y += ray.yspeed;
@@ -246,6 +245,28 @@ Entity = function() {
             error(err);
         }
         return false;
+    };
+    self.rayCastDistance = function rayCastDistance(angle) {
+        try {
+            const ray = {
+                x: self.x,
+                y: self.y,
+                angle: angle,
+                xspeed: Math.cos(angle)*ENV.raycastStep,
+                yspeed: Math.sin(angle)*ENV.raycastStep
+            };
+            let distance = 512 / ENV.raycastStep;
+            for (let i = 0; i < distance; i++) {
+                ray.x += ray.xspeed;
+                ray.y += ray.yspeed;
+                if (Collision.grid[self.map][self.layer][Math.floor(ray.y/64)] && Collision.grid[self.map][self.layer][Math.floor(ray.y/64)][Math.floor(ray.x/64)] != null && Collision.grid[self.map][self.layer][Math.floor(ray.y/64)][Math.floor(ray.x/64)] < 15 && Collision.grid[self.map][self.layer][Math.floor(ray.y/64)][Math.floor(ray.x/64)] != 0) {
+                    return (i+1) * ENV.raycastStep;
+                }
+            }
+        } catch (err) {
+            error(err);
+        }
+        return -1;
     };
     self.updateChunkLocation = function updateChunkLocation() {};
     self.searchChunks = function searchChunks(chunks, range, cb) {
@@ -557,7 +578,7 @@ Rig = function() {
         }
     };
     self.aiControl = function aiControl() {
-        var oldcontrols = cloneDeep(self.controls);
+        let oldcontrols = cloneDeep(self.controls);
         self.controls = {
             up: false,
             down: false,
@@ -579,20 +600,12 @@ Rig = function() {
                 let angle = Math.atan2(self.ai.path[0][1]*64+32-self.y, self.ai.path[0][0]*64+32-self.x);
                 self.controls.xaxis = Math.cos(angle);
                 self.controls.yaxis = Math.sin(angle);
-                // if (self.ai.path[0][0]*64+32 < self.x) self.controls.left = true;
-                // else if (self.ai.path[0][0]*64+32 > self.x) self.controls.right = true;
-                // if (self.ai.path[0][1]*64+32 < self.y) self.controls.up = true;
-                // else if (self.ai.path[0][1]*64+32 > self.y) self.controls.down = true;
                 if (Math.round(self.x) == self.ai.path[0][0]*64+32 && Math.round(self.y) == self.ai.path[0][1]*64+32) {
                     self.ai.path.shift();
                 }
                 if (self.slowedDown) self.moveSpeed *= 0.5;
                 self.controls.x = self.controls.xaxis;
                 self.controls.y = self.controls.yaxis;
-                // if (self.controls.up) self.controls.y = Math.max(-1, Math.min(self.controls.y-1, 1));
-                // if (self.controls.down) self.controls.y = Math.max(-1, Math.min(self.controls.y+1, 1));
-                // if (self.controls.left) self.controls.x = Math.max(-1, Math.min(self.controls.x-1, 1));
-                // if (self.controls.right) self.controls.x = Math.max(-1, Math.min(self.controls.x+1, 1));
             }
             self.xmove = Math.round(self.controls.x*self.moveSpeed);
             self.ymove = Math.round(self.controls.y*self.moveSpeed);
@@ -779,23 +792,23 @@ Rig = function() {
     self.ai.pathtoTarget = function pathtoTarget(x, y) {
         if (typeof x == 'number' && typeof y == 'number') {
             try {
-                var retpath = [];
+                let retpath = [];
                 if (self.getSquareGridDistance({x: x, y: y}) < ENV.maxPathfindRange) {
-                    var left = Math.min(self.gridx-ENV.pathfindBuffer, x-ENV.pathfindBuffer);
-                    var right = Math.max(self.gridx+ENV.pathfindBuffer, x+ENV.pathfindBuffer);
-                    var top = Math.min(self.gridy-ENV.pathfindBuffer, y-ENV.pathfindBuffer);
-                    var bottom = Math.max(self.gridy+ENV.pathfindBuffer, y+ENV.pathfindBuffer);
+                    let left = Math.min(self.gridx-ENV.pathfindBuffer, x-ENV.pathfindBuffer);
+                    let right = Math.max(self.gridx+ENV.pathfindBuffer, x+ENV.pathfindBuffer);
+                    let top = Math.min(self.gridy-ENV.pathfindBuffer, y-ENV.pathfindBuffer);
+                    let bottom = Math.max(self.gridy+ENV.pathfindBuffer, y+ENV.pathfindBuffer);
                     self.ai.grid = new PF.Grid(right-left, bottom-top);
                     if (Collision.grid[self.map] && Collision.grid[self.map][self.layer]) {
                         for (let writey = 0; writey < bottom-top; writey++) {
                             for (let writex = 0; writex < right-left; writex++) {
-                                var checkx = writex+left;
-                                var checky = writey+top;
+                                let checkx = writex+left;
+                                let checky = writey+top;
                                 Collision.grid[self.map][self.layer][checky] && Collision.grid[self.map][self.layer][checky][checkx] && self.ai.grid.setWalkableAt(writex, writey, false);
                             }
                         }
                     }
-                    var path = self.ai.pathfinder.findPath(self.gridx-left, self.gridy-top, x-left, y-top, self.ai.grid);
+                    const path = self.ai.pathfinder.findPath(self.gridx-left, self.gridy-top, x-left, y-top, self.ai.grid);
                     path.shift();
                     retpath = PF.Util.compressPath(path);
                     for (let i in retpath) {
@@ -918,6 +931,9 @@ Rig = function() {
         }
         return self.ai.path;
     };
+    self.ai.bugNavToTarget = function bugNavToTarget(x, y) {
+
+    };
     self.onHit = function onHit(entity, type) {
         let oldhp = self.hp;
         let critHp = 0;
@@ -1017,7 +1033,7 @@ Rig = function() {
                     if (self.hp < 0) self.onDeath(parent, 'killed', entity.deathMessage);
                     break;
                 default:
-                    error('Invalid Entity type: ' + type);
+                    error('Invalid damage type: ' + type);
                     break;
             }
         }
@@ -1100,20 +1116,7 @@ Rig = function() {
 
     return self;
 };
-Rig.effects = {
-    stun: function effect_stun(self) {
-        self.stunned = true;
-    },
-    stun_end: function effect_stun_end(self) {
-        self.stunned = false;
-    },
-    burning: function effect_burning(self) {
-        new Particle(self.map, self.x, self.y, 'fire');
-        if (self.effectTimers['burning'] % 5 == 0) {
-            self.onHit(self, 'burning');
-        }
-    },
-};
+Rig.effects = {};
 
 // npcs
 Npc = function(id, x, y, map) {
@@ -1163,12 +1166,18 @@ Npc = function(id, x, y, map) {
                 error('Invalid npc type ' + tempnpc.type);
                 break;
         }
-        self.rightClickEvent = new Function('return ' + tempnpc.rightClickEvent)();
+        if (tempnpc.rightClickEvent != null && tempnpc.rightClickEvent.startsWith('function(')) {
+            self.rightClickEvent = new Function('return ' + tempnpc.rightClickEvent)();
+        } else if (tempnpc.rightClickEvent != null && typeof Npc.scripts[tempnpc.rightClickEvent] == 'function') {
+            self.rightClickEvent = Npc.scripts[tempnpc.rightClickEvent];
+        } else {
+            self.rightClickEvent = function (player, self) {};
+        }
         self.rightClickEvents = [];
         for (let event of tempnpc.rightClickEvents) {
             self.rightClickEvents.push({
                 condition: event.condition,
-                event: new Function('return ' + event.event)(),
+                event: event.event.startsWith('function(') ? new Function('return ' + event.event)() : (Npc.scripts[event.event] ?? function (player, self) {}),
                 breakSearch: event.breakSearch
             });
         }
@@ -1205,6 +1214,10 @@ Npc = function(id, x, y, map) {
                     }
                     break;
                 case 'xp':
+                    if (player.xpLevel > parseInt(args[1])) {
+                        event.event(player, self)
+                        if (event.breakSearch) break clickLoop;
+                    }
                     break;
                 case 'any':
                     event.event(player, self);
@@ -1294,21 +1307,8 @@ Npc.getDebugData = function getDebugData() {
 
     return pack;
 };
-Npc.init = function init() {
-    for (let i in Npc.dialogues) {
-        for (let j in Npc.dialogues[i]) {
-            for (let k in Npc.dialogues[i][j].options) {
-                if (Npc.dialogues[i][j].options[k].action.includes('script_')) {
-                    Npc.dialogues[i][j].options[k].script = new Function('return ' + Npc.dialogues[i][j].options[k].action.replace('script_', ''))();
-                } else if (Npc.dialogues[i][j].options[k].action.includes('script-end_')) {
-                    Npc.dialogues[i][j].options[k].script = new Function('return ' + Npc.dialogues[i][j].options[k].action.replace('script-end_', ''))();
-                }
-            }
-        }
-    }
-};
 Npc.rawJson = require('./npc.json');
-Npc.dialogues = require('./../client/prompts.json');
+Npc.scripts = {};
 Npc.list = [];
 
 // players
@@ -1353,6 +1353,12 @@ Player = function(socket) {
         maxPierce: 0
     };
     self.manaRegenStats = [];
+    self.spawnpoint = {
+        map: ENV.spawnpoint.map,
+        x: ENV.spawnpoint.x,
+        y: ENV.spawnpoint.y,
+        layer: ENV.spawnpoint.layer
+    };
     self.mouseX = 0;
     self.mouseY = 0;
     self.name = null;
@@ -1394,7 +1400,8 @@ Player = function(socket) {
     self.shop = null;
     self.currentConversation = {
         id: null,
-        i: 0
+        i: 0,
+        doNotShow: []
     };
     self.talkingWith = null;
     self.talkedWith = null;
@@ -1412,49 +1419,7 @@ Player = function(socket) {
         bossesSlain: 0,
         obtained: {},
         last: {},
-        updateTrackers: function() {
-            const delta = {
-                monstersKilled: [],
-                playerKills: 0,
-                kills: self.trackedData.kills-self.trackedData.last.kills,
-                deaths: self.trackedData.deaths-self.trackedData.last.deaths,
-                damageDealt: self.trackedData.damageDealt-self.trackedData.last.damageDealt,
-                damageTaken: self.trackedData.damageTaken-self.trackedData.last.damageTaken,
-                dps: self.trackedData.dps,
-                maxDPS: self.trackedData.maxDPS,
-                bossesSlain: self.trackedData.bossesSlain-self.trackedData.last.bossesSlain,
-            };
-            for (let monster of self.trackedData.monstersKilled) {
-                let found = false;
-                for (let monster2 of self.trackedData.last.monstersKilled) {
-                    if (monster.id == monster2.id) {
-                        if (monster.count-monster2.count != 0) delta.monstersKilled.push({
-                            id: monster.id,
-                            count: monster.count-monster2.count
-                        });
-                        found = true;
-                    }
-                }
-                if (!found) delta.monstersKilled.push({
-                    id: monster.id,
-                    count: monster.count
-                });
-            }
-            const data = {
-                trackedData: delta,
-                aqquiredItems: self.trackedData.obtained,
-                pos: {
-                    x: self.gridx,
-                    y: self.gridy
-                },
-                talkedWith: self.talkedWith
-            };
-            self.quests.updateQuestRequirements(data);
-            self.talkedWith = null;
-            self.trackedData.obtained = {};
-            self.trackedData.last = {};
-            self.trackedData.last = cloneDeep(self.trackedData);
-        }
+        updateTrackers: function empty() {}
     };
     self.trackedData.last = cloneDeep(self.trackedData);
     self.garuderWarpPositions = [];
@@ -1670,7 +1635,7 @@ Player = function(socket) {
     });
     socket.on('click', async function(data) {
         if (typeof data == 'object' && data != null) {
-            if (self.alive && self.currentConversation.id == null) {
+            if (self.alive && !self.talking) {
                 if (data.button == 'left') {
                     self.attacking = data.state;
                     self.mouseX = data.x;
@@ -1878,40 +1843,42 @@ Player = function(socket) {
         self.updateEffects();
         self.animationSpeed = 15/Math.sqrt((self.xmove)**2+(self.ymove)**2)*100 || 50;
         self.updateAnimation();
-        var mouseangle = Math.atan2(self.mouseY, self.mouseX);
-        self.shieldAngle = mouseangle;
-        self.heldItem.angle = mouseangle;
-        var mouseddir = Math.round(radians(mouseangle)/45);
-        if (mouseddir <= 0) mouseddir = 8-Math.abs(mouseddir);
-        if (mouseddir == 8) mouseddir = 0;
-        var dir = 'up';
-        switch (mouseddir) {
-            case 0:
-                dir = 'right';
-                break;
-            case 1:
-                dir = 'downright';
-                break;
-            case 2:
-                dir = 'down';
-                break;
-            case 3:
-                dir = 'downleft';
-                break;
-            case 4:
-                dir = 'left';
-                break;
-            case 5:
-                dir = 'upleft';
-                break;
-            case 6:
-                dir = 'up';
-                break;
-            case 7:
-                dir = 'upright';
-                break;
+        if (self.alive) {
+            let mouseangle = Math.atan2(self.mouseY, self.mouseX);
+            self.shieldAngle = mouseangle;
+            self.heldItem.angle = mouseangle;
+            let mouseddir = Math.round(radians(mouseangle)/45);
+            if (mouseddir <= 0) mouseddir = 8-Math.abs(mouseddir);
+            if (mouseddir == 8) mouseddir = 0;
+            let dir = 'up';
+            switch (mouseddir) {
+                case 0:
+                    dir = 'right';
+                    break;
+                case 1:
+                    dir = 'downright';
+                    break;
+                case 2:
+                    dir = 'down';
+                    break;
+                case 3:
+                    dir = 'downleft';
+                    break;
+                case 4:
+                    dir = 'left';
+                    break;
+                case 5:
+                    dir = 'upleft';
+                    break;
+                case 6:
+                    dir = 'up';
+                    break;
+                case 7:
+                    dir = 'upright';
+                    break;
+            }
+            self.facingDirection = dir;
         }
-        self.facingDirection = dir;
         self.updateClient();
         self.trackedData.updateTrackers();
         if (self.gridx == 3 && self.gridy == 9 && self.map == 'World' && self.alive) self.onDeath(self, 'fire');
@@ -1993,11 +1960,9 @@ Player = function(socket) {
             new Particle(self.map, self.x+randomRange(-self.width/2, self.width/2), self.y+randomRange(-self.height/2, self.height/2), 'playerdeath');
         }
         self.quests.failQuests('death');
-        if (self.currentConversation.id) {
+        if (self.talking) {
             self.canMove = true;
             self.invincible = false;
-            self.currentConversation.id = null;
-            self.currentConversation.i = 0;
             if (Npc.list[self.talkingWith]) Npc.list[self.talkingWith].endConversation();
             self.talkingWith = null;
             self.talking = false;
@@ -2204,27 +2169,26 @@ Player = function(socket) {
         self.stats.accuracy = 5/(self.stats.accuracy+4)-1;
     };
     self.interact = function interact(x, y) {
-        for (let i in DroppedItem.list) {
-            const localdroppeditem = DroppedItem.list[i];
-            if (self.map == localdroppeditem.map && self.getDistance(localdroppeditem) < 512) {
-                if (localdroppeditem.playerId == self.id || localdroppeditem.playerId == null) {
-                    let cx = self.x+x;
-                    let cy = self.y+y;
-                    let left = localdroppeditem.x-localdroppeditem.width/2;
-                    let right = localdroppeditem.x+localdroppeditem.width/2;
-                    let top = localdroppeditem.y-localdroppeditem.height/2;
-                    let bottom = localdroppeditem.y+localdroppeditem.height/2;
-                    if (cx >= left && cx <= right && cy >= top && cy <= bottom) {
-                        let overflow = self.inventory.addItem(localdroppeditem.itemId, localdroppeditem.stackSize, localdroppeditem.enchantments, true);
-                        let obtained = localdroppeditem.stackSize-overflow;
-                        if (localdroppeditem.isLoot) self.trackedData.obtained[localdroppeditem.itemId] = (self.trackedData.obtained[localdroppeditem.itemId] ?? 0) + obtained;
-                        delete DroppedItem.list[i];
-                        return;
-                    }
+        let pickedUp = false;
+        self.searchChunks(DroppedItem.chunks[self.map], 1, function(droppeditem, i) {
+            if (self.getDistance(droppeditem) < 512 && (droppeditem.playerId == self.id || droppeditem.playerId == null)) {
+                let cx = self.x+x;
+                let cy = self.y+y;
+                let left = droppeditem.x-droppeditem.width/2;
+                let right = droppeditem.x+droppeditem.width/2;
+                let top = droppeditem.y-droppeditem.height/2;
+                let bottom = droppeditem.y+droppeditem.height/2;
+                if (cx >= left && cx <= right && cy >= top && cy <= bottom) {
+                    let overflow = self.inventory.addItem(droppeditem.itemId, droppeditem.stackSize, droppeditem.enchantments, true);
+                    let obtained = droppeditem.stackSize-overflow;
+                    if (droppeditem.isLoot) self.trackedData.obtained[droppeditem.itemId] = (self.trackedData.obtained[droppeditem.itemId] ?? 0) + obtained;
+                    droppeditem.remove();
+                    pickedUp = true;
+                    return true;
                 }
             }
-        }
-        if (!self.talkingWith) {
+        });
+        if (!pickedUp && !self.talkingWith && !self.teleporting && !self.inShop) {
             for (let i in Npc.list) {
                 const localnpc = Npc.list[i];
                 if (self.map == localnpc.map && self.getDistance(localnpc) < 512) {
@@ -2265,13 +2229,19 @@ Player = function(socket) {
         };
         self.animationDirection = 'facing';
         self.currentConversation.id = id;
+        self.currentConversation.doNotShow = [];
+        for (let i in Prompts.dialogues[self.currentConversation.id][self.currentConversation.i].options) {
+            if (Prompts.dialogues[self.currentConversation.id][self.currentConversation.i].options[i].criteria != null && !Criteria.qualifiesFor(self, Prompts.dialogues[self.currentConversation.id][self.currentConversation.i].options[i].criteria)) {
+                self.currentConversation.doNotShow.push(parseInt(i));
+            }
+        }
         socket.emit('prompt', self.currentConversation);
         self.talkingWith = npcId;
         self.talking = true;
     };
     socket.on('promptChoose', function promptChoose(choice) {
         if (self.currentConversation.id) {
-            const option = Npc.dialogues[self.currentConversation.id][self.currentConversation.i].options[choice];
+            const option = Prompts.dialogues[self.currentConversation.id][self.currentConversation.i].options[choice];
             if (option) {
                 const action = option.action;
                 if (action == 'continue') {
@@ -2280,7 +2250,6 @@ Player = function(socket) {
                 } else if (action == 'close') {
                     self.canMove = true;
                     self.invincible = false;
-                    self.currentConversation.id = null;
                     self.currentConversation.i = 0;
                     if (Npc.list[self.talkingWith]) Npc.list[self.talkingWith].endConversation();
                     self.talkingWith = null;
@@ -2291,7 +2260,6 @@ Player = function(socket) {
                 } else if (action.startsWith('quest_')) {
                     self.canMove = true;
                     self.invincible = false;
-                    self.currentConversation.id = null;
                     self.currentConversation.i = 0;
                     let id = action.replace('quest_', '');
                     if (self.quests.qualifiesFor(id)) self.quests.startQuest(id);
@@ -2305,7 +2273,6 @@ Player = function(socket) {
                 } else if (action.startsWith('shop_')) {
                     self.canMove = true;
                     self.invincible = false;
-                    self.currentConversation.id = null;
                     self.currentConversation.i = 0;
                     let params = action.replace('shop_', '').split(':');
                     let npc;
@@ -2322,7 +2289,6 @@ Player = function(socket) {
                 } else if (action.startsWith('sellshop_')) {
                     self.canMove = true;
                     self.invincible = false;
-                    self.currentConversation.id = null;
                     self.currentConversation.i = 0;
                     let id = action.replace('sellshop_', '');
                     let npc;
@@ -2344,7 +2310,14 @@ Player = function(socket) {
                     option.script(self);
                     self.canMove = true;
                     self.invincible = false;
-                    self.currentConversation.id = null;
+                    self.currentConversation.i = 0;
+                    if (Npc.list[self.talkingWith]) Npc.list[self.talkingWith].endConversation();
+                    self.talkingWith = null;
+                    self.talking = false;
+                } else if (action.startsWith('teleport_')) {
+                    self.teleport(...option.location);
+                    self.canMove = true;
+                    self.invincible = false;
                     self.currentConversation.i = 0;
                     if (Npc.list[self.talkingWith]) Npc.list[self.talkingWith].endConversation();
                     self.talkingWith = null;
@@ -2352,7 +2325,6 @@ Player = function(socket) {
                 } else if (action.startsWith('talkedwith_')) {
                     self.canMove = true;
                     self.invincible = false;
-                    self.currentConversation.id = null;
                     self.currentConversation.i = 0;
                     self.talkedWith = action.replace('talkedwith_', '');
                     self.talkingWith = null;
@@ -2379,9 +2351,8 @@ Player = function(socket) {
             self.teleporting = true;
             if (self.inShop) self.shop.close();
             self.canMove = false;
-            if (self.currentConversation.id) {
+            if (self.talking) {
                 self.invincible = false;
-                self.currentConversation.id = null;
                 self.currentConversation.i = 0;
                 if (Npc.list[self.talkingWith]) Npc.list[self.talkingWith].endConversation();
                 self.talkingWith = null;
@@ -2428,6 +2399,58 @@ Player = function(socket) {
         }
         return self.spectating;
     };
+    self.trackedData.updateTrackers = function updateTrackers() {
+        const delta = {
+            monstersKilled: [],
+            playerKills: 0,
+            kills: self.trackedData.kills-self.trackedData.last.kills,
+            deaths: self.trackedData.deaths-self.trackedData.last.deaths,
+            damageDealt: self.trackedData.damageDealt-self.trackedData.last.damageDealt,
+            damageTaken: self.trackedData.damageTaken-self.trackedData.last.damageTaken,
+            dps: self.trackedData.dps,
+            maxDPS: self.trackedData.maxDPS,
+            bossesSlain: self.trackedData.bossesSlain-self.trackedData.last.bossesSlain,
+        };
+        for (let monster of self.trackedData.monstersKilled) {
+            let found = false;
+            for (let monster2 of self.trackedData.last.monstersKilled) {
+                if (monster.id == monster2.id) {
+                    if (monster.count-monster2.count != 0) delta.monstersKilled.push({
+                        id: monster.id,
+                        count: monster.count-monster2.count
+                    });
+                    found = true;
+                }
+            }
+            if (!found) delta.monstersKilled.push({
+                id: monster.id,
+                count: monster.count
+            });
+        }
+        const data = {
+            trackedData: delta,
+            aqquiredItems: self.trackedData.obtained,
+            pos: {
+                map: self.map,
+                x: self.gridx,
+                y: self.gridy
+            },
+            talkedWith: self.talkedWith
+        };
+        if (self.xp >= Player.xpLevels[self.xpLevel]) {
+            self.xp -= Player.xpLevels[self.xpLevel];
+            self.xpLevel++;
+            socket.emit('banner', {
+                html: `<span style="color: lime;">Level Up! ${self.xpLevel-1} -> ${self.xpLevel}</span>`,
+                time: 5000
+            });
+        }
+        self.quests.updateQuestRequirements(data);
+        self.talkedWith = null;
+        self.trackedData.obtained = {};
+        self.trackedData.last = {};
+        self.trackedData.last = cloneDeep(self.trackedData);
+    };
     self.saveData = async function saveData() {
         self.playTime += Date.now()-self.loginTime;
         const trackedData = cloneDeep(self.trackedData);
@@ -2439,13 +2462,14 @@ Player = function(socket) {
                 level: self.xpLevel,
                 xp: self.xp
             },
+            spawnpoint: self.spawnpoint,
             quests: self.quests.getSaveData(),
             trackedData: trackedData,
             spawnpoint: 0,
             garuderWarpPositions: self.garuderWarpPositions,
             lastLogin: Date.now(),
             playTime: self.playTime,
-            saveFormat: 3
+            saveFormat: 4
         };
         const data = JSON.stringify(progress);
         await ACCOUNTS.saveProgress(self.creds.username, (self.creds.password instanceof Buffer ? await RSAdecode(self.creds.password) : self.creds.password), data);
@@ -2517,6 +2541,28 @@ Player = function(socket) {
                 } catch (err) {
                     error(err);
                 }
+            } else if (progress.saveFormat == 4) {
+                try {
+                    self.inventory.loadSaveData(progress.inventory);
+                    self.inventory.refresh();
+                    self.characterStyle = progress.characterStyle;
+                    self.characterStyle.texture = null;
+                    self.xpLevel = progress.progress.level;
+                    self.xp = progress.progress.xp;
+                    self.spawnpoint = progress.spawnpoint;
+                    self.quests.loadSaveData(progress.quests);
+                    for (let i in progress.trackedData) {
+                        self.trackedData[i] = progress.trackedData[i];
+                    }
+                    self.trackedData.monstersKilled = Array.from(self.trackedData.monstersKilled);
+                    self.trackedData.last = {};
+                    self.trackedData.last = cloneDeep(self.trackedData);
+                    self.trackedData.updateTrackers();
+                    self.garuderWarpPositions = progress.garuderWarpPositions;
+                    self.playTime = progress.playTime;
+                } catch (err) {
+                    error(err);
+                }
             } else {
                 warn('Unknown save format ' + progress.saveFormat + '! Data loss imminent!');
             }
@@ -2526,6 +2572,7 @@ Player = function(socket) {
                 slots: self.inventory.maxItems
             });
             self.inventory.refresh();
+            self.teleport('Tutorial', 2, 28, 1);
         }
         for (let i in ENV.ops) {
             if (self.name == ENV.ops[i]) self.chatStyle = 'color: #28EB57;';
@@ -2688,63 +2735,8 @@ Player.getDebugData = function getDebugData() {
 
     return pack;
 };
-Player.usePatterns = {
-    single: function usePattern_single(self, attack, stats, angle) {
-        new Projectile(attack.projectile, angle+randomRange(-stats.accuracy/2, stats.accuracy/2), stats, self.id);
-    },
-    triple: function usePattern_triple(self, attack, stats, angle) {
-        let angle2 = angle+randomRange(-stats.accuracy/2, stats.accuracy/2);
-        new Projectile(attack.projectile, angle2-degrees(15), stats, self.id);
-        new Projectile(attack.projectile, angle2, stats, self.id);
-        new Projectile(attack.projectile, angle2+degrees(15), stats, self.id);
-    },
-    spray: function usePattern_spray(self, attack, stats, angle) {
-        for (let i = 0; i < 3; i++) {
-            new Projectile(attack.projectile, angle+randomRange(degrees(-15), degrees(15)), stats, self.id);
-        }
-    },
-    spray2: function usePattern_spray2(self, attack, stats, angle) {
-        for (let i = 0; i < 5; i++) {
-            new Projectile(attack.projectile, angle+randomRange(degrees(-25), degrees(25)), stats, self.id);
-        }
-    },
-    line: function usePattern_line(self, attack, stats, angle) {
-        let angle2 = angle+randomRange(-stats.accuracy/2, stats.accuracy/2);
-        new Projectile(attack.projectile, angle2, stats, self.id);
-        new Projectile(attack.projectile, angle2-degrees(180), stats, self.id);
-    },
-    triangle: function usePattern_triangle(self, attack, stats, angle) {
-        let angle2 = angle+randomRange(-stats.accuracy/2, stats.accuracy/2);
-        new Projectile(attack.projectile, angle2-degrees(120), stats, self.id);
-        new Projectile(attack.projectile, angle2, stats, self.id);
-        new Projectile(attack.projectile, angle2+degrees(120), stats, self.id);
-    },
-    ring: function usePattern_ring(self, attack, stats, angle) {
-        let angle2 = angle+randomRange(-stats.accuracy/2, stats.accuracy/2);
-        new Projectile(attack.projectile, angle2, stats, self.id);
-        new Projectile(attack.projectile, angle2-degrees(36), stats, self.id);
-        new Projectile(attack.projectile, angle2-degrees(72), stats, self.id);
-        new Projectile(attack.projectile, angle2-degrees(108), stats, self.id);
-        new Projectile(attack.projectile, angle2-degrees(144), stats, self.id);
-        new Projectile(attack.projectile, angle2-degrees(180), stats, self.id);
-        new Projectile(attack.projectile, angle2-degrees(216), stats, self.id);
-        new Projectile(attack.projectile, angle2-degrees(252), stats, self.id);
-        new Projectile(attack.projectile, angle2-degrees(288), stats, self.id);
-        new Projectile(attack.projectile, angle2-degrees(324), stats, self.id);
-    },
-    nearest: function usePattern_nearest(self, attack, stats, angle) {
-        let lowest, target;
-        self.searchChunks(Monster.chunks[self.map], 1, function(monster, id) {
-            if (lowest == null || (self.getGridDistance(monster) < 20 && self.getGridDistance(monster) < self.getGridDistance(Monster.list[lowest]) && monster.alive)) lowest = id;
-        });
-        target = Monster.list[lowest];
-        target && new Projectile(attack.projectile, 0, stats, self.id, target.x, target.y);
-    },
-    mouse: function usePattern_mouse(self, attack, stats, angle) {
-        new Projectile(attack.projectile, 0, stats, self.id, self.x+self.mouseX, self.y+self.mouseY);
-    }
-};
-Player.xpLevels = [];
+Player.usePatterns = {};
+Player.xpLevels = [100, 110, 120, 140, 150, 200, 280, 420, 700, 1000];
 Player.list = [];
 Player.chunks = [];
 
@@ -2772,6 +2764,7 @@ Monster = function(type, x, y, map, layer, params) {
     self.ai.lastTracked = 0;
     self.bcDeath = ENV.broadcastMonsterDeaths;
     self.targetMonsters = false;
+    self.corrupted = false;
     self.dropItems = true;
     try {
         let tempmonster = Monster.types[type];
@@ -2796,6 +2789,7 @@ Monster = function(type, x, y, map, layer, params) {
         self.ai.fleeThreshold = tempmonster.fleeThreshold;
         self.ai.swarmBehavior = tempmonster.swarm;
         self.touchDamage = tempmonster.touchDamage;
+        self.corrupted = tempmonster.corrupted;
         self.xpDrop = tempmonster.xpDrop;
         self.drops = tempmonster.drops;
         self.animationLength = tempmonster.animationLength;
@@ -2877,14 +2871,17 @@ Monster = function(type, x, y, map, layer, params) {
                         break;
                     case 'step':
                         if (self.ai.boss.stageTimer == 0) {
-                            for (let attack of stage.attacks) {
-                                typeof Monster.bossAttacks[attack.action.formation] == 'function' && Monster.bossAttacks[attack.action.formation](self, attack.action.type, attack.action.data);
-                                typeof Monster.bossAttacks[attack.action.formation] != 'function' && error('Invalid boss attack type "' + attack.action.formation + '"');
+                            if (stage.endTrigger.data.stepAttacks) {
+                                self.ai.boss.currentAttack = -1;
+                            } else {
+                                for (const attack of stage.attacks) {
+                                    typeof Monster.bossAttacks[attack.action.formation] == 'function' && Monster.bossAttacks[attack.action.formation](self, attack.action.type, attack.action.data);
+                                    typeof Monster.bossAttacks[attack.action.formation] != 'function' && error('Invalid boss attack type "' + attack.action.formation + '"');
+                                }
                             }
                         }
                         self.ai.boss.stageTimer++;
-                        self.ai.boss.attackTimer = -1;
-                        advanceStage = self.ai.boss.stageTimer >= stage.endTrigger.data.time
+                        advanceStage = self.ai.boss.stageTimer >= stage.endTrigger.data.time && (!stage.endTrigger.data.stepAttacks || self.ai.boss.currentAttack == stage.attacks.length);
                         break;
                     default:
                         error('Invalid boss stage trigger "' + stage.endTrigger.type + '" for boss "' + self.type + '"');
@@ -2898,6 +2895,7 @@ Monster = function(type, x, y, map, layer, params) {
                     if (newStage.reviveHP) {
                         self.hp = newStage.hp;
                         self.maxHP = newStage.hp;
+                        if (self.hp == 0) self.onDeath(self, 'killed', 'finished');
                     }
                     self.stats = newStage.stats;
                 }
@@ -3070,31 +3068,40 @@ Monster = function(type, x, y, map, layer, params) {
     self.updateAggro = function updateAggro() {
         self.ai.lastTracked++;
         if (self.targetMonsters) {
-            let lowest;
+            let lowest = null;
             let lowestDistance = Number.MAX_VALUE;
             self.searchChunks(Monster.chunks[self.map], Math.ceil(self.ai.maxRange/(64*Math.max(Collision.grid[self.map].chunkWidth, Collision.grid[self.map].chunkHeight))), function(monster, id) {
                 let distance = self.getGridDistance(monster);
                 if (distance < self.ai.maxRange && (!self.rayCast(monster) || distance < 4) && self.team != monster.team && !monster.region.nomonster && monster.alive && (lowest == null || distance < lowestDistance)) {
-                    lowest = id;
+                    lowest = monster;
                     lowestDistance = distance;
                 }
             });
             if (lowest && !self.ai.fleeing && (!self.ai.provoked || lowestDistance < 2)) {
-                self.ai.entityTarget = Monster.list[lowest];
+                self.ai.entityTarget = lowest;
                 self.ai.lastTracked = 0;
             }
         } else {
-            let lowest;
+            let lowest = null;
             let lowestDistance = Number.MAX_VALUE;
             self.searchChunks(Player.chunks[self.map], Math.ceil(self.ai.maxRange/(64*Math.max(Collision.grid[self.map].chunkWidth, Collision.grid[self.map].chunkHeight))), function(player, id) {
                 let distance = self.getGridDistance(player);
                 if (distance < self.ai.maxRange  && (!self.rayCast(player) || distance < 4) && self.team != player.team && !player.region.nomonster && player.alive && (lowest == null || distance < lowestDistance)) {
-                    lowest = id;
+                    lowest = player;
                     lowestDistance = distance;
                 }
             });
+            if (self.corrupted) {
+                self.searchChunks(Monster.chunks[self.map], Math.ceil(self.ai.maxRange/(64*Math.max(Collision.grid[self.map].chunkWidth, Collision.grid[self.map].chunkHeight))), function(monster, id) {
+                    let distance = self.getGridDistance(monster);
+                    if (distance < self.ai.maxRange && (!self.rayCast(monster) || distance < 4) && !monster.corrupted && self.team != monster.team && !monster.region.nomonster && monster.alive && (lowest == null || distance < lowestDistance)) {
+                        lowest = monster;
+                        lowestDistance = distance;
+                    }
+                });
+            }
             if (lowest && !self.ai.fleeing && (!self.ai.provoked || lowestDistance < 2)) {
-                self.ai.entityTarget = Player.list[lowest];
+                self.ai.entityTarget = lowest;
                 self.ai.lastTracked = 0;
             }
         }
@@ -3125,27 +3132,39 @@ Monster = function(type, x, y, map, layer, params) {
                 }
             }
             if (self.ai.boss.attackTimer > self.ai.boss.attackTime && (self.ai.boss.linkedMonsters.length == 0 || !self.ai.boss.waitForMonsterDeath) && self.ai.entityTarget) {
-                self.ai.boss.attackTimer = 0;
                 const stage = self.ai.boss.data.stages[self.ai.boss.currentStage];
-                let multiplier = 0;
-                for (let attack of stage.attacks) multiplier += attack.chance;
-                let random = randomRange(0, multiplier);
-                let min = 0;
-                let max = 0;
-                let index;
-                for (let i in stage.attacks) {
-                    max += stage.attacks[i].chance;
-                    if (random >= min && random <= max) {
-                        index = i;
-                        break;
+                if (stage.endTrigger.type == 'step') {
+                    self.ai.boss.attackTimer = 0;
+                    self.ai.boss.currentAttack = Math.min(self.ai.boss.currentAttack+1, stage.attacks.length);
+                    const attack = stage.attacks[self.ai.boss.currentAttack];
+                    if (attack) {
+                        self.ai.boss.attackTime = attack.time;
+                        self.ai.boss.waitForMonsterDeath = attack.action.data.waitForDeath ?? false;
+                        typeof Monster.bossAttacks[attack.action.formation] == 'function' && Monster.bossAttacks[attack.action.formation](self, attack.action.type, attack.action.data);
+                        typeof Monster.bossAttacks[attack.action.formation] != 'function' && error('Invalid boss attack type "' + attack.action.formation + '"');
                     }
-                    min += stage.attacks[i].chance;
+                } else {
+                    self.ai.boss.attackTimer = 0;
+                    let multiplier = 0;
+                    for (let attack of stage.attacks) multiplier += attack.chance;
+                    let random = randomRange(0, multiplier);
+                    let min = 0;
+                    let max = 0;
+                    self.ai.boss.currentAttack = 0;
+                    for (let i in stage.attacks) {
+                        max += stage.attacks[i].chance;
+                        if (random >= min && random <= max) {
+                            self.ai.boss.currentAttack = i;
+                            break;
+                        }
+                        min += stage.attacks[i].chance;
+                    }
+                    const attack = stage.attacks[self.ai.boss.currentAttack];
+                    self.ai.boss.attackTime = attack.time;
+                    self.ai.boss.waitForMonsterDeath = attack.action.data.waitForDeath ?? false;
+                    typeof Monster.bossAttacks[attack.action.formation] == 'function' && Monster.bossAttacks[attack.action.formation](self, attack.action.type, attack.action.data);
+                    typeof Monster.bossAttacks[attack.action.formation] != 'function' && error('Invalid boss attack type "' + attack.action.formation + '"');
                 }
-                const attack = stage.attacks[index];
-                self.ai.boss.attackTime = attack.time;
-                self.ai.boss.waitForMonsterDeath = attack.action.data.waitForDeath ?? false;
-                typeof Monster.bossAttacks[attack.action.formation] == 'function' && Monster.bossAttacks[attack.action.formation](self, attack.action.type, attack.action.data);
-                typeof Monster.bossAttacks[attack.action.formation] != 'function' && error('Invalid boss attack type "' + attack.action.formation + '"');
             }
         } else {
             self.ai.lastAttack++;
@@ -3293,292 +3312,73 @@ Monster = function(type, x, y, map, layer, params) {
 };
 Monster.update = function update() {
     const pack = [];
-    for (let i in Monster.list) {
-        const localmonster = Monster.list[i];
-        localmonster.update();
-        if (pack[localmonster.map] == null) pack[localmonster.map] = [];
-        if (pack[localmonster.map][localmonster.chunky] == null) pack[localmonster.map][localmonster.chunky] = [];
-        if (pack[localmonster.map][localmonster.chunky][localmonster.chunkx] == null) pack[localmonster.map][localmonster.chunky][localmonster.chunkx] = [];
-        pack[localmonster.map][localmonster.chunky][localmonster.chunkx].push({
-            id: localmonster.id,
-            map: localmonster.map,
-            x: localmonster.x,
-            y: localmonster.y,
-            layer: localmonster.layer,
-            type: localmonster.type,
-            animationStage: localmonster.animationStage,
-            hp: localmonster.hp,
-            maxHP: localmonster.maxHP,
-            effects: localmonster.getEffects(),
-            boss: localmonster.boss
-        });
+    for (let map in Monster.chunks) {
+        pack[map] = [];
+        for (let layer in Monster.chunks[map]) {
+            for (let y in Monster.chunks[map][layer]) {
+                if (pack[map][y] == null) pack[map][y] = [];
+                for (let x in Monster.chunks[map][layer][y]) {
+                    if (pack[map][y][x] == null) pack[map][y][x] = [];
+                    for (let i in Monster.chunks[map][layer][y][x]) {
+                        const localmonster = Monster.list[i];
+                        localmonster.update();
+                        pack[map][y][x].push({
+                            id: localmonster.id,
+                            map: localmonster.map,
+                            x: localmonster.x,
+                            y: localmonster.y,
+                            layer: localmonster.layer,
+                            type: localmonster.type,
+                            animationStage: localmonster.animationStage,
+                            hp: localmonster.hp,
+                            maxHP: localmonster.maxHP,
+                            effects: localmonster.getEffects(),
+                            boss: localmonster.boss
+                        });
+                    }
+                }
+            }
+        }
     }
 
     return pack;
 };
 Monster.getDebugData = function getDebugData() {
     const pack = [];
-    for (let i in Monster.list) {
-        const localmonster = Monster.list[i];
-        if (localmonster.active) {
-            if (pack[localmonster.map] == null) pack[localmonster.map] = [];
-            if (pack[localmonster.map][localmonster.chunky] == null) pack[localmonster.map][localmonster.chunky] = [];
-            if (pack[localmonster.map][localmonster.chunky][localmonster.chunkx] == null) pack[localmonster.map][localmonster.chunky][localmonster.chunkx] = [];
-            pack[localmonster.map][localmonster.chunky][localmonster.chunkx].push({
-                map: localmonster.map,
-                x: localmonster.x,
-                y: localmonster.y,
-                width: localmonster.width,
-                height: localmonster.height,
-                collisionBoxSize: localmonster.collisionBoxSize,
-                animationStage: localmonster.animationStage,
-                path: localmonster.ai.path,
-                controls: localmonster.controls,
-                aggroTarget: (localmonster.ai.entityTarget ?? {}).id,
-                aggroRange: localmonster.ai.maxRange
-            });
+    for (let map in Monster.chunks) {
+        pack[map] = [];
+        for (let layer in Monster.chunks[map]) {
+            for (let y in Monster.chunks[map][layer]) {
+                if (pack[map][y] == null) pack[map][y] = [];
+                for (let x in Monster.chunks[map][layer][y]) {
+                    if (pack[map][y][x] == null) pack[map][y][x] = [];
+                    for (let i in Monster.chunks[map][layer][y][x]) {
+                        const localmonster = Monster.list[i];
+                        pack[map][y][x].push({
+                            map: localmonster.map,
+                            x: localmonster.x,
+                            y: localmonster.y,
+                            width: localmonster.width,
+                            height: localmonster.height,
+                            collisionBoxSize: localmonster.collisionBoxSize,
+                            animationStage: localmonster.animationStage,
+                            path: localmonster.ai.path,
+                            controls: localmonster.controls,
+                            aggroTarget: (localmonster.ai.entityTarget ?? {}).id,
+                            aggroRange: localmonster.ai.maxRange
+                        });
+                    }
+                }
+            }
         }
     }
 
     return pack;
 };
 Monster.types = require('./monster.json');
-Monster.attacks = {
-    generic_throw: function attack_generic_throw(self, timeout, stages, projectile) {
-        if (self.ai.entityTarget && !self.region.noattack) {
-            if (self.ai.lastAttack > seconds(timeout)) {
-                if (stages.indexOf(self.ai.attackStage) != -1) {
-                    let angle = self.getAngle(self.ai.entityTarget);
-                    new Projectile(projectile, angle+randomRange(-self.stats.accuracy/2, self.stats.accuracy/2), self.stats, self.id);
-                }
-                self.ai.attackStage++;
-                if (self.ai.attackStage > stages[stages.length-1]) {
-                    self.ai.attackStage = 0;
-                    self.ai.lastAttack = 0;
-                }
-            }
-        }
-    },
-    bird: function attack_bird(self) {
-        Monster.attacks.generic_throw(self, 1, [1, 5], 'ninjastar');
-    },
-    snowbird: function attack_snowbird(self) {
-        Monster.attacks.generic_throw(self, 1, [1, 5], 'fastsnowball');
-    },
-    cherrybomb: function attack_cherrybomb(self) {
-        if (self.ai.entityTarget && !self.region.noattack) {
-            if (self.getDistance(self.ai.entityTarget) < 64) {
-                self.ai.attackType = 'triggeredcherrybomb';
-                self.ai.attackTime = 0;
-                self.explosionSize = 20;
-            }
-        }
-    },
-    triggeredcherrybomb: function attack_triggeredcherrybomb(self) {
-        if (self.ai.attackTime == 0) {
-            self.moveSpeed = 0;
-            self.invincible = true;
-            self.alive = false;
-            self.animationStage = 0;
-            self.animationLength = 10;
-            self.onDeath = function onDeath() {};
-        }
-        self.ai.attackTime++;
-        if (self.ai.attackTime >= seconds(0.3)) {
-            self.ai.attackType = 'exploding';
-            for (let i = 0; i < 100; i++) {
-                new Particle(self.map, self.x, self.y, 'explosion');
-            }
-            self.searchChunks(Monster.chunks[self.map], 1, function(monster, id) {
-                if (parseFloat(id) != self.id && self.getDistance(monster) < 200 && monster.alive && monster.ai.attackType != 'triggeredcherrybomb') {
-                    if (monster.ai.attackType == 'cherrybomb') {
-                        monster.ai.attackType = 'triggeredcherrybomb';
-                        monster.ai.attackTime = 0;
-                    } else {
-                        monster.onHit(self, 'explosion');
-                    }
-                }
-            });
-            self.searchChunks(Player.chunks[self.map], 1, function(player, id) {
-                if (self.getDistance(player) < 200 && player.alive) {
-                    player.onHit(self, 'explosion');
-                }
-            });
-        }
-    },
-    exploding: function attack_exploding(self) {
-        if (self.animationStage >= 10) {
-            delete Monster.list[self.id];
-            if (Monster.chunks[self.chunkLocation.map] && Monster.chunks[self.chunkLocation.map][self.chunkLocation.layer] && Monster.chunks[self.chunkLocation.map][self.chunkLocation.layer][self.chunkLocation.chunky] && Monster.chunks[self.chunkLocation.map][self.chunkLocation.layer][self.chunkLocation.chunky][self.chunkLocation.chunkx]) delete Monster.chunks[self.chunkLocation.map][self.chunkLocation.layer][self.chunkLocation.chunky][self.chunkLocation.chunkx][self.id];
-            else error('Could not delete monster from chunks!');
-        }
-    },
-    snowball: function attack_snowball(self) {
-        if (self.ai.lastAttack >= seconds(4)) {
-            self.ai.attackStage++;
-            if (self.ai.attackStage == 20) {
-                self.ai.attackStage = 0;
-                self.ai.lastAttack = 0;
-                self.animationLength = 0;
-                self.moveSpeed = 10;
-            }
-        }
-        if (self.ai.entityTarget && !self.region.noattack) {
-            if (self.ai.lastAttack >= seconds(4)) {
-                if (self.ai.attackStage == 1) {
-                    self.animationLength = 7;
-                    self.animationSpeed = 100;
-                    self.moveSpeed = 16;
-                }
-                let angle = 16*self.ai.attackStage;
-                new Projectile('snowball', degrees(angle), self.stats, self.id);
-                new Projectile('snowball', degrees(angle-90), self.stats, self.id);
-                new Projectile('snowball', degrees(angle-180), self.stats, self.id);
-                new Projectile('snowball', degrees(angle-270), self.stats, self.id);
-            }
-        }
-    },
-    cavebird: function attack_cavebird(self) {
-        Monster.attacks.generic_throw(self, 1.5, [1, 3, 5], 'rock');
-    },
-    ram: function attack_ram(self) {
-        if (self.ai.entityTarget && !self.region.noattack) {
-            if ((self.ai.lastAttack > seconds(2) && self.getGridDistance(self.ai.entityTarget) < 2) || self.ai.attackStage != 0) {
-                self.ai.lastAttack = 0;
-                let angle = self.getAngle(self.ai.entityTarget);
-                self.ai.charge = {
-                    x: Math.cos(angle)*20,
-                    y: Math.sin(angle)*20,
-                    time: 2
-                };
-            }
-        }
-    },
-    rockturret: function attack_rockturret(self) {
-        if (self.ai.entityTarget && !self.region.noattack) {
-            let t = self.getDistance(self.ai.entityTarget)/Projectile.types['explodingrock'].speed;
-            let future = {
-                x: self.ai.entityTarget.x + self.ai.entityTarget.xspeed*t,
-                y: self.ai.entityTarget.y + self.ai.entityTarget.yspeed*t
-            };
-            let diff = (self.getAngle(future)-self.ai.attackStage) % (2*Math.PI);
-            self.ai.attackStage += ((2*diff) % (2*Math.PI) - diff)*0.2;
-            if (self.ai.lastAttack > seconds(1.5)) {
-                self.ai.lastAttack = 0;
-                new Projectile('explodingrock', self.ai.attackStage, self.stats, self.id);
-                new Projectile('aiminglaser', self.ai.attackStage, self.stats, self.id);
-            }
-        }
-    }
-};
+Monster.attacks = {};
 Monster.bossData = {};
-Monster.bossAttacks = {
-    map: function bossAttack_map(self, type, data) {
-        if (type == 'monsters') {
-            for (let location of Monster.bossData[data.name]) {
-                let newmonster = new Monster(data.id, location.x*64+32, location.y*64+32, self.map, location.z, {dropItems: false, team: self.team});
-                self.ai.boss.linkedMonsters.push(newmonster);
-            }
-        } else if (type == 'projectiles') {
-            for (let location of Monster.bossData[data.name]) {
-                new Projectile(data.id, 0, self.stats, self.id, location.x*64+32, location.y*64+32);
-            }
-        }
-    },
-    surround: function bossAttack_surround(self, type, data) {
-        let increment = 2*Math.PI/data.amount; // oh no radians
-        if (type == 'monsters') {
-            let radius = self.collisionBoxSize/2*Math.sqrt(2);
-            for (let i = 0; i < data.amount; i++) {
-                let newmonster = new Monster(data.id, self.x+Math.cos(increment*i)*radius, self.y+Math.sin(increment*i)*radius, self.map, self.layer, {dropItems: false, team: self.team});
-                self.ai.boss.linkedMonsters.push(newmonster);
-            }
-        } else if (type == 'projectiles') {
-            for (let i = 0; i < data.amount; i++) {
-                new Projectile(data.id, increment*i, self.stats, self.id);
-            }
-        }
-    },
-    player: function bossAttack_player(self, type, data) {
-        if (type == 'monsters') {
-            self.searchChunks(Player.chunks[self.map], Math.ceil(self.ai.maxRange/(64*Math.max(Collision.grid[self.map].chunkWidth, Collision.grid[self.map].chunkHeight))), function(player, id) {
-                if (self.getGridDistance(player) < self.ai.maxRange  && (!self.rayCast(player) || self.getGridDistance(player) < 4) && player.alive) {
-                    let id = data.id;
-                    let x = player.x+randomRange(-64, 64);
-                    let y = player.y+randomRange(-64, 64);
-                    let map = self.map;
-                    let layer = z;
-                    new Particle(map, x, y, 'warning', data.warning);
-                    self.ai.boss.pendingEvents.push({
-                        timer: data.warning,
-                        callback: function() {
-                            let newmonster = new Monster(id, x, y, map, layer, {dropItems: false, team: self.team});
-                            self.ai.boss.linkedMonsters.push(newmonster);
-                        }
-                    });
-                }
-            });
-        } else if (type == 'projectiles') {
-            self.searchChunks(Player.chunks[self.map], Math.ceil(self.ai.maxRange/(64*Math.max(Collision.grid[self.map].chunkWidth, Collision.grid[self.map].chunkHeight))), function(player, id) {
-                if (self.getGridDistance(player) < self.ai.maxRange  && (!self.rayCast(player.x) || self.getGridDistance(player) < 4) && player.alive) {
-                    let id = data.id;
-                    let stats = data.stats;
-                    let selfID = self.id;
-                    let x = player.x+randomRange(-16, 16);
-                    let y = player.y+randomRange(-16, 16);
-                    new Particle(self.map, x, y, 'warning', data.warning);
-                    self.ai.boss.pendingEvents.push({
-                        timer: data.warning,
-                        callback: function() {
-                            new Projectile(id, 0, stats, selfID, x, y);
-                        }
-                    });
-                }
-            });
-        }
-    },
-    random: function bossAttack_random(self, type, data) {
-        for (let i = 0; i < data.amount; i++) {
-            let attempts = 0;
-            let x, y;
-            while (attempts < 20) {
-                x = self.gridx+Math.round(randomRange(-24, 24));
-                y = self.gridy+Math.round(randomRange(-24, 24));
-                if (Collision.grid[self.map] && Collision.grid[self.map][self.layer] && Collision.grid[self.map][self.layer][y] && Collision.grid[self.map][self.layer][y][x] == 0) break;
-                attempts++;
-            }
-            x = x*64+32;
-            y = y*64+32;
-            new Particle(self.map, x, y, 'warning', data.warning);
-            if (type == 'monsters') {
-                let id = data.id;
-                let map = self.map;
-                let layer = self.layer;
-                self.ai.boss.pendingEvents.push({
-                    timer: data.warning,
-                    callback: function() {
-                        let newmonster = new Monster(id, x, y, map, layer, {dropItems: false, team: self.team});
-                        self.ai.boss.linkedMonsters.push(newmonster);
-                    }
-                });
-            } else if (type == 'projectiles') {
-                let id = data.id;
-                let stats = data.stats;
-                let selfID = self.id;
-                self.ai.boss.pendingEvents.push({
-                    timer: data.warning,
-                    callback: function() {
-                        new Projectile(id, 0, stats, selfID, x, y);
-                    }
-                });
-            }
-
-        }
-    },
-    cameraShake: function bossAttack_cameraShake(self, type, data) {
-        new Particle(self.map, self.x, self.y, type, data);
-    }
-};
+Monster.bossAttacks = {};
 Monster.list = [];
 Monster.chunks = [];
 
@@ -3589,7 +3389,6 @@ Projectile = function(type, angle, stats, parentID, x, y) {
     self.type = type;
     self.areaDamage = 0;
     self.pierced = 0;
-    self.lastPatternUpdate = 0;
     try {
         let tempprojectile = Projectile.types[type];
         self.type = type;
@@ -3608,7 +3407,6 @@ Projectile = function(type, angle, stats, parentID, x, y) {
         self.maxPierce = tempprojectile.maxPierce;
         self.contactEventsOnRange = tempprojectile.contactEventsOnRange;
         self.noCollision = tempprojectile.noCollision;
-        self.patternUpdateSpeed = tempprojectile.patternUpdateSpeed;
         self.reflectable = tempprojectile.reflectable;
         if (self.pattern == 'none') self.patternUpdateSpeed = Infinity;
         delete tempprojectile;
@@ -3724,8 +3522,7 @@ Projectile = function(type, angle, stats, parentID, x, y) {
         }
     };
     self.updatePos = function updatePos() {
-        self.lastPatternUpdate++;
-        self.lastPatternUpdate > self.patternUpdateSpeed && self.pattern(self);
+        self.pattern(self);
         self.collide();
         self.updateChunkLocation();
         return self.checkPointCollision() && !self.noCollision;
@@ -3824,271 +3621,66 @@ Projectile = function(type, angle, stats, parentID, x, y) {
 };
 Projectile.update = function update() {
     const pack = [];
-    for (let i in Projectile.list) {
-        const localprojectile = Projectile.list[i];
-        localprojectile.update();
-        if (pack[localprojectile.map] == null) pack[localprojectile.map] = [];
-        if (pack[localprojectile.map][localprojectile.chunky] == null) pack[localprojectile.map][localprojectile.chunky] = [];
-        if (pack[localprojectile.map][localprojectile.chunky][localprojectile.chunkx] == null) pack[localprojectile.map][localprojectile.chunky][localprojectile.chunkx] = [];
-        pack[localprojectile.map][localprojectile.chunky][localprojectile.chunkx].push({
-            id: localprojectile.id,
-            map: localprojectile.map,
-            x: localprojectile.x,
-            y: localprojectile.y,
-            layer: localprojectile.layer,
-            angle: localprojectile.angle,
-            type: localprojectile.type
-        });
+    for (let map in Projectile.chunks) {
+        pack[map] = [];
+        for (let layer in Projectile.chunks[map]) {
+            for (let y in Projectile.chunks[map][layer]) {
+                if (pack[map][y] == null) pack[map][y] = [];
+                for (let x in Projectile.chunks[map][layer][y]) {
+                    if (pack[map][y][x] == null) pack[map][y][x] = [];
+                    for (let i in Projectile.chunks[map][layer][y][x]) {
+                        const localprojectile = Projectile.list[i];
+                        localprojectile.update();
+                        pack[map][y][x].push({
+                            id: localprojectile.id,
+                            map: localprojectile.map,
+                            x: localprojectile.x,
+                            y: localprojectile.y,
+                            layer: localprojectile.layer,
+                            angle: localprojectile.angle,
+                            type: localprojectile.type
+                        });
+                    }
+                }
+            }
+        }
     }
 
     return pack;
 };
 Projectile.getDebugData = function getDebugData() {
     const pack = [];
-    for (let i in Projectile.list) {
-        const localprojectile = Projectile.list[i];
-        if (pack[localprojectile.map] == null) pack[localprojectile.map] = [];
-        if (pack[localprojectile.map][localprojectile.chunky] == null) pack[localprojectile.map][localprojectile.chunky] = [];
-        if (pack[localprojectile.map][localprojectile.chunky][localprojectile.chunkx] == null) pack[localprojectile.map][localprojectile.chunky][localprojectile.chunkx] = [];
-        pack[localprojectile.map][localprojectile.chunky][localprojectile.chunkx].push({
-            map: localprojectile.map,
-            x: localprojectile.x,
-            y: localprojectile.y,
-            width: localprojectile.width,
-            height: localprojectile.height,
-            angle: localprojectile.angle,
-            collisionBoxSize: localprojectile.collisionBoxSize,
-            parentIsPlayer: localprojectile.parentIsPlayer,
-            parent: localprojectile.parent
-        });
+    for (let map in Projectile.chunks) {
+        pack[map] = [];
+        for (let layer in Projectile.chunks[map]) {
+            for (let y in Projectile.chunks[map][layer]) {
+                if (pack[map][y] == null) pack[map][y] = [];
+                for (let x in Projectile.chunks[map][layer][y]) {
+                    if (pack[map][y][x] == null) pack[map][y][x] = [];
+                    for (let i in Projectile.chunks[map][layer][y][x]) {
+                        const localprojectile = Projectile.list[i];
+                        pack[map][y][x].push({
+                            map: localprojectile.map,
+                            x: localprojectile.x,
+                            y: localprojectile.y,
+                            width: localprojectile.width,
+                            height: localprojectile.height,
+                            angle: localprojectile.angle,
+                            collisionBoxSize: localprojectile.collisionBoxSize,
+                            parentIsPlayer: localprojectile.parentIsPlayer,
+                            parent: localprojectile.parent
+                        });
+                    }
+                }
+            }
+        }
     }
     
     return pack;
 };
 Projectile.types = require('./projectile.json');
-Projectile.patterns = {
-    none: function pattern_none(self) {
-        self.lastPatternUpdate = 0;
-    },
-    spin: function pattern_spin(self) {
-        self.angle += degrees(25);
-        self.sinAngle = Math.sin(self.angle);
-        self.cosAngle = Math.cos(self.angle);
-        self.collisionBoxSize = Math.max(Math.abs(self.sinAngle*self.height)+Math.abs(self.cosAngle*self.width), Math.abs(self.cosAngle*self.height)+Math.abs(self.sinAngle*self.width));
-        self.lastPatternUpdate = 0;
-    },
-    weakhoming: function pattern_homing3(self) {
-        self.angle += degrees(25);
-        let lowest, target;
-        if (self.parentIsPlayer) {
-            self.searchChunks(Monster.chunks[self.map], 2, function(monster, id) {
-                if (lowest == null || (self.getGridDistance(monster) < self.getGridDistance(Monster.list[lowest]) && monster.alive)) lowest = id;
-            });
-            target = Monster.list[lowest];
-        } else {
-            self.searchChunks(Player.chunks[self.map], 2, function(player, id) {
-                if (lowest == null || (self.getGridDistance(player) < self.getGridDistance(Player.list[lowest]) && player.alive)) lowest = id;
-            });
-            target = Player.list[lowest];
-        }
-        if (target) {
-            let angle = self.getAngle(target);
-            self.xspeed = self.xspeed*0.9 + Math.cos(angle)*self.moveSpeed*0.1;
-            self.yspeed = self.yspeed*0.9 + Math.sin(angle)*self.moveSpeed*0.1;
-        }
-        self.sinAngle = Math.sin(self.angle);
-        self.cosAngle = Math.cos(self.angle);
-        self.collisionBoxSize = Math.max(Math.abs(self.sinAngle*self.height)+Math.abs(self.cosAngle*self.width), Math.abs(self.cosAngle*self.height)+Math.abs(self.sinAngle*self.width));
-        self.lastPatternUpdate = 0;
-    },
-    homing: function pattern_homing(self) {
-        self.angle += degrees(25);
-        let lowest, target;
-        if (self.parentIsPlayer) {
-            self.searchChunks(Monster.chunks[self.map], 2, function(monster, id) {
-                if (lowest == null || (self.getGridDistance(monster) < self.getGridDistance(Monster.list[lowest]) && monster.alive)) lowest = id;
-            });
-            target = Monster.list[lowest];
-        } else {
-            self.searchChunks(Player.chunks[self.map], 2, function(player, id) {
-                if (lowest == null || (self.getGridDistance(player) < self.getGridDistance(Player.list[lowest]) && player.alive)) lowest = id;
-            });
-            target = Player.list[lowest];
-        }
-        if (target) {
-            let angle = self.getAngle(target);
-            self.xspeed = self.xspeed*0.8 + Math.cos(angle)*self.moveSpeed*0.2;
-            self.yspeed = self.yspeed*0.8 + Math.sin(angle)*self.moveSpeed*0.2;
-        }
-        self.sinAngle = Math.sin(self.angle);
-        self.cosAngle = Math.cos(self.angle);
-        self.collisionBoxSize = Math.max(Math.abs(self.sinAngle*self.height)+Math.abs(self.cosAngle*self.width), Math.abs(self.cosAngle*self.height)+Math.abs(self.sinAngle*self.width));
-        self.lastPatternUpdate = 0;
-    },
-    homing2: function pattern_homing2(self) {
-        let lowest, target;
-        if (self.parentIsPlayer) {
-            self.searchChunks(Monster.chunks[self.map], 2, function(monster, id) {
-                if (lowest == null || (self.getGridDistance(monster) < self.getGridDistance(Monster.list[lowest]) && monster.alive)) lowest = id;
-            });
-            target = Monster.list[lowest];
-        } else {
-            self.searchChunks(Player.chunks[self.map], 2, function(player, id) {
-                if (lowest == null || (self.getGridDistance(player) < self.getGridDistance(Player.list[lowest]) && player.alive)) lowest = id;
-            });
-            target = Player.list[lowest];
-        }
-        if (target) {
-            let diff = (self.getAngle(target)-self.angle) % (2*Math.PI);
-            self.angle += ((2*diff) % (2*Math.PI) - diff)*0.5;
-            self.xspeed = Math.cos(self.angle)*self.moveSpeed;
-            self.yspeed = Math.sin(self.angle)*self.moveSpeed;
-            self.sinAngle = Math.sin(self.angle);
-            self.cosAngle = Math.cos(self.angle);
-            self.collisionBoxSize = Math.max(Math.abs(self.sinAngle*self.height)+Math.abs(self.cosAngle*self.width), Math.abs(self.cosAngle*self.height)+Math.abs(self.sinAngle*self.width));
-        }
-        self.lastPatternUpdate = 0;
-    },
-    enchantHoming: function pattern_enchantHoming(self) {
-        let lowest, target;
-        self.searchChunks(Monster.chunks[self.map], 2, function(monster, id) {
-            if (lowest == null || (self.getGridDistance(monster) < self.getGridDistance(Monster.list[lowest]) && monster.alive)) lowest = id;
-        });
-        target = Monster.list[lowest];
-        if (target) {
-            let angle = self.getAngle(target);
-            self.angle += Math.min(0.05, Math.max(angle-self.angle, -0.05));
-            self.xspeed = Math.cos(self.angle)*self.moveSpeed;
-            self.yspeed = Math.sin(self.angle)*self.moveSpeed;
-            self.sinAngle = Math.sin(self.angle);
-            self.cosAngle = Math.cos(self.angle);
-            self.collisionBoxSize = Math.max(Math.abs(self.sinAngle*self.height)+Math.abs(self.cosAngle*self.width), Math.abs(self.cosAngle*self.height)+Math.abs(self.sinAngle*self.width));
-        }
-        self.lastPatternUpdate = 0;
-    },
-    follow: function pattern_follow(self) {
-        const parent = Player.list[self.parentID] ?? Monster.list[self.parentID];
-        if (parent != null) {
-            self.x = parent.x;
-            self.y = parent.y;
-            self.x += self.cosAngle*(self.width/2+4);
-            self.y += self.sinAngle*(self.width/2+4);
-            self.xspeed = self.cosAngle;
-            self.yspeed = self.sinAngle;
-            self.frozen = true;
-        }
-        self.lastPatternUpdate = 0;
-    },
-    followDir: function pattern_followDir(self) {
-        const parent = Player.list[self.parentID] ?? Monster.list[self.parentID];
-        if (parent != null) {
-            self.x = parent.x;
-            self.y = parent.y;
-            if (parent.heldItem) self.angle = parent.heldItem.angle;
-            else self.angle = parent.ai.attackStage;
-            self.sinAngle = Math.sin(self.angle);
-            self.cosAngle = Math.cos(self.angle);
-            self.collisionBoxSize = Math.max(Math.abs(self.sinAngle*self.height)+Math.abs(self.cosAngle*self.width), Math.abs(self.cosAngle*self.height)+Math.abs(self.sinAngle*self.width));
-            self.x += self.cosAngle*(self.width/2+4);
-            self.y += self.sinAngle*(self.width/2+4);
-            self.xspeed = self.cosAngle;
-            self.yspeed = self.sinAngle;
-            self.frozen = true;
-        }
-        self.lastPatternUpdate = 0;
-    },
-    orbit: function pattern_orbit(self) {
-        const parent = Player.list[self.parentID] ?? Monster.list[self.parentID];
-        if (parent) {
-            self.x = parent.x;
-            self.y = parent.y;
-            self.angle += degrees(18);
-            self.sinAngle = Math.sin(self.angle);
-            self.cosAngle = Math.cos(self.angle);
-            self.collisionBoxSize = Math.max(Math.abs(self.sinAngle*self.height)+Math.abs(self.cosAngle*self.width), Math.abs(self.cosAngle*self.height)+Math.abs(self.sinAngle*self.width));
-            self.x += Math.cos(self.angle)*(self.width/2+4);
-            self.y += Math.sin(self.angle)*(self.width/2+4);
-            self.xspeed = self.cosAngle;
-            self.yspeed = self.sinAngle;
-            self.frozen = true;
-        }
-        self.lastPatternUpdate = 0;
-    }
-};
-Projectile.contactEvents = {
-    explosion: function contactEvent_explosion(self, entity, data) {
-        for (let i = 0; i < data.size*15; i++) {
-            new Particle(self.map, self.x, self.y, 'explosion', data.size);
-        }
-        self.explosionSize = data.size;
-        self.searchChunks(Monster.chunks[self.map], 1, function(monster, id) {
-            if (self.getDistance(monster) <= 64*data.size && !self.rayCast(monster) && monster.ai.attackType != 'triggeredcherrybomb' && monster.alive) {
-                if (monster.ai.attackType == 'cherrybomb') {
-                    monster.ai.attackType = 'triggeredcherrybomb';
-                    monster.ai.attackTime = 0;
-                } else {
-                    monster.onHit(self, 'explosion');
-                }
-            }
-        });
-        self.searchChunks(Player.chunks[self.map], 1, function(player, id) {
-            if (self.getDistance(player) <= 64*data.size && !self.rayCast(player) && player.alive) {
-                player.onHit(self, 'explosion');
-            }
-        });
-    },
-    effect: function contactEvent_effect(self, entity, data) {
-        if (entity) if (entity.entType == 'player' || entity.entType == 'monster') {
-            entity.effectTimers[data.id] = Math.max(entity.effectTimers[data.id] ?? 0, data.time);
-        }
-    },
-    areaeffect: function contactEvent_areaeffect(self, entity, data) {
-        self.searchChunks(Monster.chunks[self.map], 1, function(monster, id) {
-            let distance = self.getDistance(monster);
-            if (distance <= 64*data.size && monster.alive) {
-                monster.effectTimers[data.effect] = Math.max(monster.effectTimers[data.id] ?? 0, Math.round(data.time*(1-distance/(data.size*64))));
-            }
-        });
-        self.searchChunks(Player.chunks[self.map], 1, function(player, id) {
-            let distance = self.getDistance(player);
-            if (distance <= 64*data.size && player.alive) {
-                player.effectTimers[data.effect] = Math.max(player.effectTimers[data.id] ?? 0, Math.round(data.time*(1-distance/(data.size*64))));
-            }
-        });
-    },
-    areadamage: function contactEvent_areadamage(self, entity, data) {
-        self.searchChunks(Monster.chunks[self.map], 1, function(monster, id) {
-            let distance = self.getDistance(monster);
-            if (distance <= 64*data.size && monster.alive) {
-                self.areaDamage = Math.round(data.damage*(1-distance/(data.size*64)));
-                monster.onHit(self, 'areadamage');
-            }
-        });
-        self.searchChunks(Player.chunks[self.map], 1, function(player, id) {
-            let distance = self.getDistance(player);
-            if (distance <= 64*data.size && player.alive) {
-                self.areaDamage = Math.round(data.damage*(1-distance/(data.size*64)));
-                player.onHit(self, 'areadamage');
-            }
-        });
-    },
-    particles: function contactEvent_particles(self, entity, data) {
-        switch (data.pattern) {
-            case 'point':
-                for (let i = 0; i < data.amount; i++) {
-                    new Particle(self.map, self.x, self.y, data.particle);
-                }
-                break;
-            case 'spread':
-                for (let i = 0; i < data.amount; i++) {
-                    new Particle(self.map, self.x+randomRange(-data.spread, data.spread), self.y+randomRange(-data.spread, data.spread), data.particle);
-                }
-                break;
-            default:
-                error('Invalid contact event particle pattern ' + data.pattern);
-        }
-    }
-};
+Projectile.patterns = {};
+Projectile.contactEvents = {};
 Projectile.list = [];
 Projectile.chunks = [];
 
@@ -4121,7 +3713,7 @@ Particle.list = [];
 // dropped items
 DroppedItem = function(map, x, y, itemId, enchantments, stackSize, playerId, isLoot) {
     const self = {
-        id: null,
+        id: uuidv1(),
         x: x,
         y: y,
         map: map,
@@ -4136,7 +3728,6 @@ DroppedItem = function(map, x, y, itemId, enchantments, stackSize, playerId, isL
         isLoot: isLoot,
         entType: 'item'
     };
-    self.id = uuidv1();
     let valid = false;
     for (let i in Inventory.items) {
         if (itemId == i) {
@@ -4151,32 +3742,49 @@ DroppedItem = function(map, x, y, itemId, enchantments, stackSize, playerId, isL
         self.time++;
         if (self.time >= seconds(ENV.itemDespawnTime*60)) delete DroppedItem.list[self.id];
     };
+    self.remove = function remove() {
+        delete DroppedItem.list[self.id];
+        if (DroppedItem.chunks[self.map] && DroppedItem.chunks[self.map][0][self.chunky] && DroppedItem.chunks[self.map][0][self.chunky][self.chunkx]) delete DroppedItem.chunks[self.map][0][self.chunky][self.chunkx][self.id];
+    };
 
     DroppedItem.list[self.id] = self;
+    if (DroppedItem.chunks[self.map] == null) DroppedItem.chunks[self.map] = [[]];
+    if (DroppedItem.chunks[self.map][0][self.chunky] == null) DroppedItem.chunks[self.map][0][self.chunky] = [];
+    if (DroppedItem.chunks[self.map][0][self.chunky][self.chunkx] == null) DroppedItem.chunks[self.map][0][self.chunky][self.chunkx] = [];
+    DroppedItem.chunks[self.map][0][self.chunky][self.chunkx][self.id] = self;
     return self;
 };
 DroppedItem.update = function update() {
     const pack = [];
-    for (let i in DroppedItem.list) {
-        const localdroppeditem = DroppedItem.list[i];
-        localdroppeditem.update();
-        if (pack[localdroppeditem.map] == null) pack[localdroppeditem.map] = [];
-        if (pack[localdroppeditem.map][localdroppeditem.chunky] == null) pack[localdroppeditem.map][localdroppeditem.chunky] = [];
-        if (pack[localdroppeditem.map][localdroppeditem.chunky][localdroppeditem.chunkx] == null) pack[localdroppeditem.map][localdroppeditem.chunky][localdroppeditem.chunkx] = [];
-        pack[localdroppeditem.map][localdroppeditem.chunky][localdroppeditem.chunkx].push({
-            id: localdroppeditem.id,
-            map: localdroppeditem.map,
-            x: localdroppeditem.x,
-            y: localdroppeditem.y,
-            itemId: localdroppeditem.itemId,
-            stackSize: localdroppeditem.stackSize,
-            playerId: localdroppeditem.playerId
-        });
+    for (let map in DroppedItem.chunks) {
+        pack[map] = [];
+        for (let y in DroppedItem.chunks[map][0]) {
+            if (pack[map][y] == null) pack[map][y] = [];
+            for (let x in DroppedItem.chunks[map][0][y]) {
+                if (pack[map][y][x] == null) pack[map][y][x] = [];
+                for (let i in DroppedItem.chunks[map][0][y][x]) {
+                    const localdroppeditem = DroppedItem.list[i];
+                    if (localdroppeditem) {
+                        localdroppeditem.update();
+                        pack[map][y][x].push({
+                            id: localdroppeditem.id,
+                            map: localdroppeditem.map,
+                            x: localdroppeditem.x,
+                            y: localdroppeditem.y,
+                            itemId: localdroppeditem.itemId,
+                            stackSize: localdroppeditem.stackSize,
+                            playerId: localdroppeditem.playerId
+                        });
+                    }
+                }
+            }
+        }
     }
 
     return pack;
 };
 DroppedItem.list = [];
+DroppedItem.chunks = [];
 
 // utility functions
 let secCache = new Map();
@@ -4202,5 +3810,9 @@ function randomRange(lower, upper) {
     return Math.random()*(upper-lower)+lower;
 };
 async function RSAdecode(buf) {
-    return new TextDecoder().decode(await subtle.decrypt({name: "RSA-OAEP"}, (await keys).privateKey, buf));
+    try {
+        return new TextDecoder().decode(await subtle.decrypt({name: "RSA-OAEP"}, (await keys).privateKey, buf));
+    } catch (err) {
+        forceQuit(err, 3);
+    }
 };

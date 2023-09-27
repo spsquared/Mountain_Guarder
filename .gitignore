@@ -33,3 +33,6 @@ database.db
 # Replit files
 *.replit
 replit.nix
+
+# VSCode
+.vs/

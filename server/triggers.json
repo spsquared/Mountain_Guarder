@@ -4,6 +4,10 @@
             {
                 "type": "playerDistance",
                 "data": 5
+            },
+            {
+                "type": "quest",
+                "data": "sprock"
             }
         ],
         "action": [
@@ -14,6 +18,24 @@
                     "y": 19,
                     "map": "Mysterious Cave 1"
                 }
+            }
+        ]
+    },
+    "tutorial": {
+        "criteria": [
+            {
+                "type": "playerDistance",
+                "data": 3
+            },
+            {
+                "type": "notQuest",
+                "data": "tutorial"
+            }
+        ],
+        "action": [
+            {
+                "type": "prompt",
+                "data": "tutorial"
             }
         ]
     }

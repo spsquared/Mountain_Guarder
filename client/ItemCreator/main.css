@@ -31,7 +31,7 @@ html {
     position: absolute;
     top: 5%;
     left: 0%;
-    width: 23%;
+    width: 28%;
     height: 91%;
     background-color: lightgray;
     padding: 1% 1%;
@@ -41,16 +41,16 @@ html {
 #itemPreview {
     position: absolute;
     top: 5%;
-    left: 25%;
-    width: 50%;
+    left: 30%;
+    width: 40%;
     height: 95%;
     background-color: gray;
 }
 #stackRight {
     position: absolute;
     top: 5%;
-    left: 75%;
-    width: 23%;
+    left: 70%;
+    width: 28%;
     height: 91%;
     background-color: lightgray;
     padding: 1% 1%;
@@ -91,7 +91,7 @@ html {
     font-size: 14px;
 }
 .text-small {
-    width: 25%;
+    width: 20%;
     background-color: whitesmoke;
     border: 2px solid black;
     margin: 2px 2px;

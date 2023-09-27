@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="9" height="11" tilewidth="16" tileheight="16" infinite="0" nextlayerid="15" nextobjectid="1">
+<map version="1.9" tiledversion="1.9.2" orientation="orthogonal" renderorder="right-down" width="9" height="11" tilewidth="16" tileheight="16" infinite="0" nextlayerid="15" nextobjectid="1">
  <editorsettings>
   <export target="Pingu's Cave.json" format="json"/>
  </editorsettings>
@@ -52,8 +52,8 @@
  <layer id="4" name="Collision:0" width="9" height="11" visible="0" locked="1">
   <data encoding="csv">
 2122,2122,2122,2122,2122,2122,2122,2122,2122,
-2122,0,0,0,0,0,0,0,2122,
-2122,0,0,0,0,0,0,0,2122,
+2122,2122,2122,2122,2122,2122,2122,2122,2122,
+2122,2122,2122,2122,2122,2122,2122,2122,2122,
 2122,0,0,0,0,0,0,0,2122,
 2122,0,0,0,0,0,0,0,2122,
 2122,0,0,0,0,0,0,0,2122,
