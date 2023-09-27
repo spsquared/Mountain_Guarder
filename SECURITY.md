@@ -20,4 +20,4 @@ Supported versions are stable versions free of critical issues (crashes, vulnera
 
 ## Reporting a Vulnerability
 
-To report a vulnerability, [submit a bug report](https://github.com/definitely-nobody-is-here/Mountain_Guarder/issues/new?assignees=&labels=bug&template=bug-report.md&title=BUG+-+%5BSummary+here%5D) by filling out the template. Please provide as much information to the template as possible.
+To report a vulnerability, [submit a bug report](https://github.com/spsquared/Mountain_Guarder/issues/new?assignees=&labels=bug&template=bug-report.md&title=BUG+-+%5BSummary+here%5D) by filling out the template. Please provide as much information to the template as possible.
